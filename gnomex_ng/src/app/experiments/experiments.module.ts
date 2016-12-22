@@ -6,13 +6,15 @@ import {EXPERIMENTS_ROUTING} from "./experiments.routes";
 import {CommonModule} from "@angular/common";
 import {BrowseExperimentsComponent} from "./browse-experiments.component";
 
+import { GridModule } from "hci-ng-grid/index";
+
 /**
  * @author mbyrne
  * @since 12/19/16
  */
 @NgModule({
-    imports: [EXPERIMENTS_ROUTING, CommonModule],
-    declarations: [BrowseExperimentsComponent]
+    imports: [ EXPERIMENTS_ROUTING, CommonModule, GridModule ],
+    declarations: [ BrowseExperimentsComponent ]
 })
 export class ExperimentsModule {
 }

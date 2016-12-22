@@ -33,7 +33,7 @@ export class GnomexAppComponent implements OnInit {
   @ViewChild(AppFooterComponent)
   private _appFooterCmpt: AppFooterComponent;
 
-  private _primaryNavEnabled: boolean = false;
+  private _primaryNavEnabled: Observable<boolean>;
 
   constructor(private userService: UserService,
               private router: Router,
@@ -47,7 +47,7 @@ export class GnomexAppComponent implements OnInit {
 
     this.userService.addLoginCallback({onLogin: () => {
       console.log("GnomexAppComponent onLogin");
-      this._primaryNavEnabled = true;
+      this._primaryNavEnabled = Observable.of(true);
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
 
       this.createSecurityAdvisor().subscribe(response => {
@@ -56,7 +56,7 @@ export class GnomexAppComponent implements OnInit {
       });
     }});
     this.userService.addLogoutCallback({onLogout: () => {
-      this._primaryNavEnabled = false;
+      this._primaryNavEnabled = Observable.of(false);
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
     }});
   }
