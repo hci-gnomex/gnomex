@@ -1,0 +1,25 @@
+//version=5.36
+ext{
+    glAppName="gnomexlite"
+    warName="${rootProject.name}.war"
+    glWarName="${glAppName}.war"
+    jarName="${rootProject.name}.jar"
+    clientJarName="${rootProject.name}_client.jar"
+    realmJarName="${rootProject.name}_realm.jar"
+    baseDir="."
+    buildHibernateDir="${buildDir}/hibernate"
+    glSaveDir="${baseDir}/glsave"
+    glSaveDirSecure="${glSaveDir}/secure"
+    nowDate = new Date();
+    formattedDate=nowDate.format('MMM-dd-yyyy HH:MM');
+    javaManifest=System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')'
+    srcDir="${baseDir}/src/main/java"
+    rescDir="${baseDir}/src/main/resources"
+    webrootDir="${baseDir}/src/main/webapp"
+    sandboxDir="${buildDir}/sandbox"
+    gnomex_version=5.37
+    openSourceZipName="gnomex_tomcat_${gnomex_version}.zip"
+    openSourceName="gnomex_${gnomex_version}"
+    opensourceSecureWarName="${rootProject.name}_secure.war"
+    opensourcegnomexLiteSecureName = "${glAppName}_secure.war"
+}
