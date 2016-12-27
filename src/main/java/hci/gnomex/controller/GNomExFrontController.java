@@ -134,7 +134,6 @@ public void doGet(HttpServletRequest request, HttpServletResponse response) thro
  */
 public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	// get the users session
-	System.out.println("I am in doPost");
 	HttpSession session = request.getSession(true);
 
 	session.setAttribute("lastGNomExAccessTime", new Long(new Date().getTime()));
