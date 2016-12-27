@@ -339,7 +339,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 						}
 					}
 				}
-				if(description.length() > MAX_DESCRIPT_LIMIT){
+				if(description != null && description.length() > MAX_DESCRIPT_LIMIT){
 					this.addInvalidField("MaxCharLimit", "Experiment's description is too long.\n");
 				}
 
