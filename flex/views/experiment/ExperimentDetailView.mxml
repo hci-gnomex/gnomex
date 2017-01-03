@@ -81,6 +81,9 @@
 		private var alignToGenomeBuild:String = "N";
 
 		[Bindable]
+		private var numLockedCols:int = 3;
+
+		[Bindable]
 		private var concHeader:String = "Conc. ";
 
 		public var defaultTab:Container = null;
@@ -616,6 +619,7 @@
 				this.switchFirstSampleGridColumns(this.plateNameCol, this.multiplexGroupNumberColumn);
 				this.plateNameCol.visible = true;
 				this.multiplexGroupNumberColumn.visible = false;
+				this.numLockedCols = 2;
 
 			} else if (showSampleMultiplexGroup) {
 
@@ -630,6 +634,7 @@
 				sampleGroupingCollection.grouping = group;
 				sampleGroupingCollection.refresh();
 				this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
+				this.numLockedCols = 3;
 
 				this.multiplexGroupNumberColumn.visible = true;
 				switchFirstSampleGridColumns(this.multiplexGroupNumberColumn, this.plateNameCol);
@@ -641,6 +646,7 @@
 				this.samplesGridConfirm.dataProvider = this.samples;
 
 				this.multiplexGroupNumberColumn.visible = false;
+				this.numLockedCols = 2;
 
 			}
 
@@ -2051,7 +2057,8 @@
 						   click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
 			
 			<grid:CopyPasteSampleGrid width="100%" height="100%" id="samplesGridConfirm"  
-									  editable="false" backgroundAlpha="0" borderStyle="solid" fontSize="11">
+									  editable="false" backgroundAlpha="0" borderStyle="solid" fontSize="11"
+									  lockedColumnCount="{numLockedCols}">
 				<grid:columns>
 					<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumber" labelFunction="groupNameLabelFunction" editable="false" visible="true"
 											   width="60">
