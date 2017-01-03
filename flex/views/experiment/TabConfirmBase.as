@@ -29,6 +29,9 @@ import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 		public var sampleConcentrationFormatter:NumberFormatter;
 		
 		public var showAccountColumn:Boolean = false;
+
+		public var selectedBillingAccountName:String = "";
+		public var selectedBillingAccountNumber:String = "";
 		
 		public static function getConfirmTab(existingTab:TabConfirmBase, requestCategoryType:Object):TabConfirmBase {
 			if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
@@ -81,6 +84,7 @@ import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 			super();
 			
 			setupSampleConcentrationFormatter();
+			refreshSelectedBillingAccountInfo();
 		}
 		
 		public function setupSampleConcentrationFormatter(requestCategory:Object = null):void {
@@ -101,6 +105,7 @@ import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 				showHideColumns();
 				rebuildSamplesGrid();
 				updateBatchWarning();
+				refreshSelectedBillingAccountInfo();
 			}
 		} 
 		
@@ -425,55 +430,80 @@ import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 				return "";
 			}
 		}
+
+		public function refreshSelectedBillingAccountInfo():void {
+			selectedBillingAccountName = getSelectedBillingAccountName();
+			selectedBillingAccountNumber = getSelectedBillingAccountNumber();
+		}
 		
 		public function getSelectedBillingAccountName():String {
-			var accountName:String = "";
-			
-			if (parentDocument != null && parentDocument.setupView != null && parentDocument.setupView is TabSetupView) {
-				var setupView:TabSetupView = parentDocument.setupView as TabSetupView;
-				if (setupView.selectedBillingAccount != null) {
-					accountName = setupView.selectedBillingAccount.@accountName;
-				} else if (setupView.selectedBillingTemplate != null) {
-					var template:XML = new XML(setupView.selectedBillingTemplate);
-					var items:XMLListCollection = new XMLListCollection(template.BillingTemplateItem);
-					var firstAccount:Boolean = true;
-					for each (var item:XML in items) {
-						if (firstAccount) {
-							accountName = item.@accountName;
-							firstAccount = false;
-						} else {
-							accountName += ", " + item.@accountName;
-						}
-					}
-				}
-			}
-			
-			return accountName;
+            if (parentDocument != null) {
+                if (parentDocument.isAmendState()) {
+                    if (parentDocument.newBillingTemplateAccount != null) {
+                        return parentDocument.newBillingTemplateAccount.@accountName;
+                    } else {
+                        return parentDocument.request.@billingAccountName;
+                    }
+                }
+
+                if (parentDocument.setupView != null && parentDocument.setupView is TabSetupView) {
+                    var accountName:String = "";
+                    var setupView:TabSetupView = parentDocument.setupView as TabSetupView;
+                    if (setupView.selectedBillingAccount != null) {
+                        accountName = setupView.selectedBillingAccount.@accountName;
+                    } else if (setupView.selectedBillingTemplate != null) {
+                        var template:XML = new XML(setupView.selectedBillingTemplate);
+                        var items:XMLListCollection = new XMLListCollection(template.BillingTemplateItem);
+                        var firstAccount:Boolean = true;
+                        for each (var item:XML in items) {
+                            if (firstAccount) {
+                                accountName = item.@accountName;
+                                firstAccount = false;
+                            } else {
+                                accountName += ", " + item.@accountName;
+                            }
+                        }
+                    }
+                    return accountName;
+                }
+            }
+
+            return "";
 		}
 		
 		public function getSelectedBillingAccountNumber():String {
-			var accountNumber:String = "";
-			
-			if (parentDocument != null && parentDocument.setupView != null && parentDocument.setupView is TabSetupView) {
-				var setupView:TabSetupView = parentDocument.setupView as TabSetupView;
-				if (setupView.selectedBillingAccount != null) {
-					accountNumber = setupView.selectedBillingAccount.@accountNumber;
-				} else if (setupView.selectedBillingTemplate != null) {
-					var template:XML = new XML(setupView.selectedBillingTemplate);
-					var items:XMLListCollection = new XMLListCollection(template.BillingTemplateItem);
-					var firstAccount:Boolean = true;
-					for each (var item:XML in items) {
-						if (firstAccount) {
-							accountNumber = item.@accountNumber;
-							firstAccount = false;
-						} else {
-							accountNumber += ", " + item.@accountNumber;
-						}
-					}
-				}
-			}
-			
-			return accountNumber;
+            if (parentDocument != null) {
+                if (parentDocument.isAmendState()) {
+                    if (parentDocument.newBillingTemplateAccount != null) {
+                        return parentDocument.newBillingTemplateAccount.@accountNumber;
+                    } else {
+                        return parentDocument.request.@billingAccountNumber;
+                    }
+                }
+
+                if (parentDocument.setupView != null && parentDocument.setupView is TabSetupView) {
+                    var accountNumber:String = "";
+                    var setupView:TabSetupView = parentDocument.setupView as TabSetupView;
+                    if (setupView.selectedBillingAccount != null) {
+                        accountNumber = setupView.selectedBillingAccount.@accountNumber;
+                    } else if (setupView.selectedBillingTemplate != null) {
+                        var template:XML = new XML(setupView.selectedBillingTemplate);
+                        var items:XMLListCollection = new XMLListCollection(template.BillingTemplateItem);
+                        var firstAccount:Boolean = true;
+                        for each (var item:XML in items) {
+                            if (firstAccount) {
+                                accountNumber = item.@accountNumber;
+                                firstAccount = false;
+                            } else {
+                                accountNumber += ", " + item.@accountNumber;
+                            }
+                        }
+                    }
+                    return accountNumber;
+                }
+            }
+
+            return "";
 		}
 
 		public function getInstructionsBox():TextArea {

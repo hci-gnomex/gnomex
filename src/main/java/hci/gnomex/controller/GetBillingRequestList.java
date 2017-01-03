@@ -2,15 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.BillingItemFilter;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.DiskUsageByMonth;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.Util;
@@ -18,13 +10,7 @@ import hci.gnomex.utility.Util;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -88,6 +74,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       LOG.info("Query: " + buf.toString());
       List newRequests = sess.createQuery(buf.toString()).list();
 
+      buf = billingItemFilter.getBillingNewTemplateRequestQuery();
+      LOG.info("Query: " + buf.toString());
+      List newTemplateRequests = (List) sess.createQuery(buf.toString()).list();
 
       Element statusNode = new Element("Status");
 
@@ -177,6 +166,80 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           requestNodes.put(requestNumberBilled, node);
 
 
+        }
+
+        for (Iterator iter = newTemplateRequests.iterator(); iter.hasNext();) {
+          Integer idRequest = (Integer) iter.next();
+          Request request = sess.load(Request.class, idRequest);
+          Set<BillingItem> billingItems = request.getBillingTemplate(sess).getBillingItems(sess);
+          if (billingItems.size() < 1) {
+            String requestNumber                  = request.getNumber() == null ? "" : request.getNumber();
+            String codeRequestCategory            = request.getCodeRequestCategory() == null ? "" : request.getCodeRequestCategory();
+            String idBillingAccount               = request.getIdBillingAccount() == null ? "" : request.getIdBillingAccount().toString();
+            String labName                        = request.getLabName() == null ? "" : request.getLabName();
+            AppUser submitter                     = request.getSubmitter();
+            java.util.Date createDate             = request.getCreateDate();
+            Date completedDate                    = request.getCompletedDate();
+            Lab lab                               = request.getLab();
+            String labIsExternalPricing           = lab.getIsExternalPricing();
+            String labIsExternalPricingCommercial = lab.getIsExternalPricingCommercial();
+            Integer idLab                         = lab.getIdLab();
+            BillingAccount billingAcct            = request.getBillingAccount();
+
+            RequestCategory requestCategory       = dh.getRequestCategoryObject(codeRequestCategory);
+            String toolTip                        = requestNumber + " " + labName;
+            if (createDate != null) {
+              toolTip += "\nsubmitted " + this.formatDate(createDate, this.DATE_OUTPUT_DASH_SHORT);
+            }
+            if (completedDate != null) {
+              toolTip += ", completed  " + this.formatDate(completedDate, this.DATE_OUTPUT_DASH_SHORT);
+            }
+
+            Element node = new Element("Request");
+            node.setAttribute("idRequest", idRequest.toString());
+            node.setAttribute("idProductOrder", "");
+            node.setAttribute("requestNumber", requestNumber);
+            node.setAttribute("label", requestNumber);
+            node.setAttribute("codeRequestCategory", codeRequestCategory);
+            node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
+            node.setAttribute("type", requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
+            node.setAttribute("idBillingAccount", idBillingAccount);
+            node.setAttribute("labName", labName != null ? labName : "");
+            node.setAttribute("toolTip", toolTip);
+            node.setAttribute("submitter", submitter != null ? submitter.getDisplayName() : "");
+            node.setAttribute("codeBillingStatus", BillingStatus.NEW);
+            node.setAttribute("createDate", createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_DASH) :  "");
+            node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
+            node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
+            node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+            node.setAttribute("hasBillingItems", "N");
+
+            String labBillingName = labName;
+            if ( billingAcct != null ) {
+              labBillingName +=  " (" + billingAcct.getAccountNameAndNumber() + ")";
+            }
+
+            String requestNumberBilled = requestNumber + DELIM + labBillingName;
+
+            // Hash the status node.
+            List statusList = (List)requestToStatusMap.get(requestNumberBilled);
+            if (statusList == null) {
+              statusList = new ArrayList<String>();
+              requestToStatusMap.put(requestNumberBilled, statusList);
+            }
+            statusList.add(BillingStatus.PENDING);
+
+            // There can be multiple requests nodes for a given request number when
+            // the request's billing items are split among multiple billing
+            // accounts.  Keep a hash map of these different request nodes.
+
+            TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
+            if (requestNodes == null) {
+              requestNodes = new TreeMap(new RequestNumberBilledComparator());
+              requestNodeMap.put(requestNumberBilled, requestNodes);
+            }
+            requestNodes.put(requestNumberBilled, node);
+          }
         }
 
       }

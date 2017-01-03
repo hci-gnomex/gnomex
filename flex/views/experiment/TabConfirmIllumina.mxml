@@ -71,7 +71,9 @@
 				}
 			}
 
-			this.samplesGridConfirm.invalidateSize();
+			if (this.samplesGridConfirm != null) {
+				this.samplesGridConfirm.invalidateSize();
+			}
 			this.getConcentrationHeader();
 
 			// Edit buttons shown
@@ -95,24 +97,46 @@
 				this.parentDocument.agreeCheckbox.selected = false;
 			}
 			// Edit columns shown
-			this.sampleTypeColumn.visible = true;
-			this.sampleNameColumn.visible = true;
+			if (this.sampleTypeColumn != null) {
+				this.sampleTypeColumn.visible = true;
+			}
+			if (this.sampleNameColumn != null) {
+				this.sampleNameColumn.visible = true;
+			}
 
-			concentrationCol.visible = parentApplication.isInternalExperimentSubmission;
+			if (this.concentrationCol != null) {
+				this.concentrationCol.visible = parentApplication.isInternalExperimentSubmission;
+			}
 
-			sampleOrganismConfirmColumn.visible = true;
+			if (this.sampleOrganismConfirmColumn != null) {
+				this.sampleOrganismConfirmColumn.visible = true;
+			}
 
-			this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-			this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
-			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+			if (this.barcodeColumn != null) {
+				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
+			}
+			if (this.barcodeColumnB != null) {
+				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
+			}
+			if (this.customBarcodeColumn != null) {
+				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+			}
 
-			this.sampleRowNumberCol.visible = true;
+			if (this.sampleRowNumberCol != null) {
+				this.sampleRowNumberCol.visible = true;
+			}
 
 			// externals never show organism column, mulitplex group number or number sequencing lanes in sample
 			if (parentDocument.request != null && parentDocument.request.@isExternal == "Y") {
-				this.sampleOrganismConfirmColumn.visible = false;
-				this.multiplexGroupNumberColumn.visible = false;
-				this.numberSequencingLanes.visible = false;
+				if (this.sampleOrganismConfirmColumn != null) {
+					this.sampleOrganismConfirmColumn.visible = false;
+				}
+				if (this.multiplexGroupNumberColumn != null) {
+					this.multiplexGroupNumberColumn.visible = false;
+				}
+				if (this.numberSequencingLanes != null) {
+					this.numberSequencingLanes.visible = false;
+				}
 			}
 		}
 
@@ -187,7 +211,7 @@
 					<mx:Label text="Experiment Details" styleName="confirmHeaderLabel" />
 					<mx:Text  id="submitterName" />
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" id="text2"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : this.getSelectedBillingAccountName() + '(' + parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : this.getSelectedBillingAccountNumber() + ')'}"/>
+					<mx:Text text="{this.selectedBillingAccountName + '(' + this.selectedBillingAccountNumber + ')'}"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel"/>
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel"/>
 					<mx:Text text="" id="seqLaneTypeLabel" />
