@@ -112,7 +112,7 @@ protected void createNewFile(UploadFileServletData data) {
 	productOrderFile.setFileName(new File(data.fileName).getName());
 	String productOrderDirectory = FileStringUtil.appendDirectory(data.baseDirectory, productOrder.getProductOrderNumber());
 	productOrderFile.setBaseFilePath(FileStringUtil.ensureTrailingFileSeparator(productOrderDirectory, false));
-	productOrderFile.setFileSize(new BigDecimal(new File(data.fileName).length()));
+	productOrderFile.setFileSize(new BigDecimal(data.fileSize));
 	productOrderFile.setQualifiedFilePath(Constants.UPLOAD_STAGING_DIR);
 	data.sess.save(productOrderFile);
 }

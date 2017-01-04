@@ -123,7 +123,7 @@ protected void createNewFile(UploadFileServletData data) {
 	af.setFileName(new File(data.fileName).getName());
 	String analysisDirectory = FileStringUtil.appendDirectory(data.baseDirectory, analysis.getNumber());
 	af.setBaseFilePath(FileStringUtil.ensureTrailingFileSeparator(analysisDirectory, false));
-	af.setFileSize(new BigDecimal(new File(data.fileName).length()));
+	af.setFileSize(new BigDecimal(data.fileSize));
 	af.setQualifiedFilePath(Constants.UPLOAD_STAGING_DIR);
 	data.sess.save(af);
 }

@@ -187,18 +187,18 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 						updateTransferLogFromParentObject(data, xferLog);
 
 						// the part actually contained a file
-						long size = filePart.writeTo(new File(data.uploadDirectory));
+						data.fileSize = filePart.writeTo(new File(data.uploadDirectory));
 						uploadedAnyFiles = true;
 
 						// Insert the transfer log entry
-						xferLog.setFileSize(new BigDecimal(size));
+						xferLog.setFileSize(new BigDecimal(data.fileSize));
 						xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
 						data.sess.save(xferLog);
 
 						if (data.generateOutput) {
 							body.addElement("BR");
 							body.addCDATA(data.fileName + "   -   successfully uploaded "
-									+ new DecimalFormat("#,###").format(size) + " bytes.");
+									+ new DecimalFormat("#,###").format(data.fileSize) + " bytes.");
 						}
 
 						String fullFileName = FileStringUtil.appendFile(data.uploadDirectory, data.fileName);
@@ -274,6 +274,7 @@ protected class UploadFileServletData {
 	String baseDirectory;
 	String uploadDirectory;
 	String fileName;
+	long fileSize;
 }
 
 /**

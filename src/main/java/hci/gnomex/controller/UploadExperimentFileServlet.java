@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -91,7 +92,7 @@ protected void setUploadDirectory(UploadFileServletData data) {
 @Override
 protected Set<GnomexFile> getExistingFiles(UploadFileServletData data) {
 	// we do not update existing ExperimentFile objects, so we don't need to load them
-	return null;
+	return Collections.emptySet();
 }
 
 @Override
