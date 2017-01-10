@@ -97,22 +97,24 @@
 		
 		currentOwnerId =  parentDocument.browseTree.selectedItem.@idAppUser != null ? parentDocument.browseTree.selectedItem.@idAppUser : "";
 		
-		var params:Object = new Object();
-		params.idLab = parentDocument.browseTree.selectedItem.@idLab;
-		getLab.send(params);
+		sendGetLab(parentDocument.browseTree.selectedItem.@idLab);
 		
 		this.dirtyTopic.resetDirty();
 		
 		this.visibilityRadioGroup.selectedValue = parentDocument.browseTree.selectedItem.@codeVisibility;
 	}
 	
-	private function onGetLab(event:ResultEvent):void {			
-		if (getLab.lastResult.name() == "OpenLabList") {
+	private function onGetLab(event:ResultEvent):void {
+		var result:Object = getLab.lastResult;
+		if (result.@timestamp != getLabTimestamp) {
+			return;
+		}
+		if (result.name() == "OpenLabList") {
 			var emptyNode:XML = new XML("<Institution " +
 				" display=''" +
 				" idInstitution=''"  +
 				"/>");
-			possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == parentDocument.browseTree.selectedItem.@idLab).institutions.Institution.(@isActive == 'Y')));
+			possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(result..Lab.(@idLab == parentDocument.browseTree.selectedItem.@idLab).institutions.Institution.(@isActive == 'Y')));
 			this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 			if (parentDocument.browseTree.selectedItem.@idInstitution != null && parentDocument.browseTree.selectedItem.@idInstitution != '') {
 				if (radioInstitutionVisibility.selected) {
@@ -144,7 +146,7 @@
 				}						
 			}
 			
-			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+			var lab:Object = result..Lab.(@idLab == idLab);
 			emptyNode = <AppUser idAppUser='' displayName=''/>;
 			appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
 			for each (var mgr:Object in lab.managers.AppUser) {
@@ -276,16 +278,28 @@
 	
 	private function labSelected():void {		
 		dirtyTopic.setDirty();
-		var params:Object = new Object();
 		idLab = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 		if(idLab.length > 0) {
 			currentOwnerId = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
-			params.idLab = idLab;
-			getLab.send(params);
+			sendGetLab(idLab);
 		}
 	}
-		
-]]>
+
+	private function sendGetLab(idLab:String):void {
+		appUsersForLab = new XMLListCollection();
+		appUsersForLab.addItemAt(<Temp displayName='Please wait...'/>, 0);
+		possibleInstitutions = new PromptXMLListCollection(<Temp displayName='Please wait...'/>, new XMLListCollection());
+		var timestamp:String = new Date().valueOf().toString();
+		getLabTimestamp = timestamp;
+		var params:Object = new Object();
+		params.idLab = idLab;
+		params.timestamp = timestamp;
+		getLab.send(params);
+	}
+
+	private var getLabTimestamp:String;
+
+	]]>
 </mx:Script>	
 	
 <mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="130"  styleName="panelBody" dropShadowEnabled="true" dropShadowColor="#E5E5E1">
