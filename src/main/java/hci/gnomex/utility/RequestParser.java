@@ -496,12 +496,9 @@ public class RequestParser implements Serializable {
   }
 
   public BillingTemplateItem getBillingTemplateItemForIdBA(int idBillingAccount) throws Exception {
-
     BillingTemplateItem item = new BillingTemplateItem();
     item.setIdBillingAccount(idBillingAccount);
     item.setPercentSplit(BillingTemplateItem.WILL_TAKE_REMAINING_BALANCE);
-    item.setSortOrder(1);
-
     return item;
   }
 

@@ -48,7 +48,6 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		BillingTemplateItem item = new BillingTemplateItem(this);
 		item.setIdBillingAccount(idBillingAccount);
 		item.setPercentSplit(BillingTemplateItem.WILL_TAKE_REMAINING_BALANCE);
-		item.setSortOrder(1);
 		this.getItems().add(item);
 	}
 	
