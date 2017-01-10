@@ -633,6 +633,25 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       return analyses;
   }
 
+    public static boolean hasTopics(Session sess, Integer idLab) {
+        Long count = null;
+        Long zero = new Long(0);
+        boolean topics = false;
+
+        String queryStr = "SELECT COUNT(idLab) FROM Topic as t WHERE t.idLab = :idLab";
+        Query query = sess.createQuery(queryStr)
+                .setParameter("idLab",idLab);
+        List numOfTopics  =  query.list();
+
+        count = (Long)numOfTopics.get(0);
+        if(count.compareTo(zero) > 0){
+            topics = true;
+        }
+
+        return topics;
+
+    }
+
   @Override
   public int compareTo(Object o) {
     if (o instanceof Lab) {
@@ -650,4 +669,6 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       return 1;
     }
   }
+
+
 }

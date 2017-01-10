@@ -60,33 +60,27 @@ public class DeleteLab extends GNomExCommand implements Serializable {
               //
 
               // Error handling to make sure lab has no other tables associated with it before deleting
-              List errorMessage = null;
+              List errorMessage = new ArrayList<String>();
               boolean analysis = lab.hasAnalysis(sess,idLab);
               boolean dataTrack = lab.hasDataTracks(sess,idLab);
               boolean experiment = lab.hasExperiments(sess,idLab);
+              boolean topic = lab.hasTopics(sess,idLab);
 
-              if(errorMessage != null  && analysis ){
+              if(analysis){
                   errorMessage.add("Analysis");
-              }else if(errorMessage == null && analysis){
-                  errorMessage = new ArrayList<String>();
-                  errorMessage.add("Analyses");
               }
-
-              if(errorMessage != null && dataTrack ){
-                  errorMessage.add(" Data Tracks ");
-              }else if(errorMessage == null && dataTrack){
-                  errorMessage = new ArrayList<String>();
+              if(dataTrack ){
                   errorMessage.add("Data Tracks");
               }
 
-              if(errorMessage != null && experiment){
-                  errorMessage.add(" Experiments ");
-              }else if(errorMessage == null && experiment){
-                  errorMessage = new ArrayList<String>();
+              if(experiment){
                   errorMessage.add("Experiments");
               }
-
-              if(errorMessage != null){
+              if(topic){
+                 errorMessage.add("Topics");
+              }
+              
+              if(errorMessage.size() > 0){
                   StringBuilder frmtErrorMessage = new StringBuilder();
                   frmtErrorMessage.append(" The lab still has these items attached: ");
 
