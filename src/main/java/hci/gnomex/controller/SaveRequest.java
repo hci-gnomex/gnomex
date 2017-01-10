@@ -204,6 +204,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
 			propertiesXML = request.getParameter("propertiesXML");
+
 		}
 
 		invoicePrice = "";
@@ -223,9 +224,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			this.addInvalidField("RequestXMLString", "Invalid request xml");
 		}
 
-		if (request.getParameter("idProject") != null && !request.getParameter("idProject").equals("")) {
-			new Integer(request.getParameter("idProject"));
-		}
 
 		try {
 			launchAppURL = this.getLaunchAppURL(request);
@@ -239,6 +237,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("assaysXMLString") != null && !request.getParameter("assaysXMLString").equals("")) {
 			String assaysXMLString = "<assays>" + request.getParameter("assaysXMLString") + "</assays>";
+
 			reader = new StringReader(assaysXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -252,6 +251,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("primersXMLString") != null && !request.getParameter("primersXMLString").equals("")) {
 			String assaysXMLString = "<primers>" + request.getParameter("primersXMLString") + "</primers>";
+
 			reader = new StringReader(assaysXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -983,6 +983,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		} catch (GNomExRollbackException e) {
 			LOG.error("An exception has occurred in SaveRequest ", e);
 
+
 			throw e;
 		} catch (ProductException e) {
 			LOG.error("An exception has occurred in SaveRequest ", e);
@@ -1147,16 +1148,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in SaveRequest ", e);
-			} finally {
-				try {
-					if (sessGuest != null) {
-						// dont close the session b/c the same one is being used during save request
-						// sessGuest.close();
-						// //closeReadOnlyHibernateSession;
-					}
-				} catch (Exception e) {
-					LOG.error("An exception has occurred in SaveRequest ", e);
-				}
 			}
 
 		}

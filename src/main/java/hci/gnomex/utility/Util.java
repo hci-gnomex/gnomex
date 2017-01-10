@@ -1,12 +1,11 @@
 package hci.gnomex.utility;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Util {
 
@@ -198,6 +197,61 @@ public class Util {
 
 		return nameOut;
 
+	}
+
+
+	//get request headers
+	public static StringBuffer getRequestHeader(HttpServletRequest request) {
+		StringBuffer headerInfo = new StringBuffer();
+
+		Enumeration headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String key = (String) headerNames.nextElement();
+			String value = request.getHeader(key);
+			headerInfo.append (key + ": ");
+			headerInfo.append (value + "\n");
+		}
+
+		return headerInfo;
+	}
+
+	// output request header / parameters and postrequestbody
+	public static String printRequest(HttpServletRequest httpRequest) {
+		String theRequest = "";
+		StringBuilder request = new StringBuilder(65536);
+		System.out.println(" \n\n *** Headers ***");
+
+		Enumeration headerNames = httpRequest.getHeaderNames();
+		while(headerNames.hasMoreElements()) {
+			String headerName = (String)headerNames.nextElement();
+			System.out.println(headerName + " = " + httpRequest.getHeader(headerName));
+		}
+
+		System.out.println("\n\n *** Parameters ***");
+
+		Enumeration params = httpRequest.getParameterNames();
+		while(params.hasMoreElements()){
+			String paramName = (String)params.nextElement();
+			System.out.println(paramName + " = " + httpRequest.getParameter(paramName));
+		}
+
+		System.out.println("\n\n *** Row data ***");
+		System.out.println(extractPostRequestBody(httpRequest));
+
+		return theRequest;
+	}
+
+	public static String extractPostRequestBody(HttpServletRequest request) {
+		if ("POST".equalsIgnoreCase(request.getMethod())) {
+			Scanner s = null;
+			try {
+				s = new Scanner(request.getInputStream(), "UTF-8").useDelimiter("\\A");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return s.hasNext() ? s.next() : "";
+		}
+		return "";
 	}
 
 }

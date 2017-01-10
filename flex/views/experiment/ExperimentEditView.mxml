@@ -2694,6 +2694,7 @@
 
                 var params:Object = new Object();
                 params.idLab = requestEditLabCombo.selectedItem.@idLab;
+                trace ("ExperimentEditView refrehLab call getLab.send");
                 getLab.send(params);
             }
         }

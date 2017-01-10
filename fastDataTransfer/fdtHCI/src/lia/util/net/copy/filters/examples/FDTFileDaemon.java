@@ -18,6 +18,7 @@ import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
+
 import javax.security.auth.Subject;
 
 import lia.util.net.copy.filters.Postprocessor;
@@ -28,36 +29,49 @@ import lia.util.net.copy.filters.ProcessorInfo;
  * Builds the list of files to add to the TransferLog table
  * Deletes the files/directories from the temporary download location
  *
+ * @author tmaness
  */
 
 public class FDTFileDaemon implements Postprocessor {
 
     public void postProcessFileList(ProcessorInfo processorInfo, Subject peerSubject, Throwable downCause, String downMessage) throws Exception {
 
-        String softlinksDirPath = "/scratch/fdtswap/fdt_sandbox_gnomex";
-        String taskFileDirectory = "";
+        String softlinksDirPath = "C:\\GNomExSoftLinks";
         long currentLastActivity;
 
+        boolean upLoad = true;
 
-        System.out.println("Number of files: " + processorInfo.fileList.length);
-        System.out.println("Destination dir: " + processorInfo.destinationDir);
+        boolean finishedOK = false;
+        if (downMessage == null && downCause == null) {
+            finishedOK = true;
+        }
 
-        for (int i = 0; i < processorInfo.fileList.length; i++) {
+        if (processorInfo.fileList == null) {
+            upLoad = false;
+        }
 
-            // list all the files
-            final String inFilename = processorInfo.destinationDir + File.separator + processorInfo.fileList[i];
-            System.out.println(inFilename);
+        if (!upLoad) {
+            // nothing to do if they are downloading files
+            System.out.println("FDTDownload, finishedOK: " + finishedOK);
+            return;
+        }
+
+        if (upLoad && finishedOK) {
+            System.out.println("Number of files: " + processorInfo.fileList.length);
+            System.out.println("Destination dir: " + processorInfo.destinationDir);
+
+            for (int i = 0; i < processorInfo.fileList.length; i++) {
+
+                // list all the files
+                final String inFilename = processorInfo.destinationDir + File.separator + processorInfo.fileList[i];
+                System.out.println(inFilename);
+            }
         }
 
         String infoPath = processorInfo.destinationDir;
-        System.out.println("infoPath: (1) " + infoPath);
         int ipos = infoPath.lastIndexOf("/");
-        System.out.println("ipos: " + ipos);
-
-        String finalDirectory = infoPath.substring(0, ipos);
 
         infoPath = infoPath.substring(0, ipos + 1) + "info";
-        System.out.println("infoPath: (2) " + infoPath);
 
         File currentFile = new File(infoPath);
 
@@ -101,17 +115,21 @@ public class FDTFileDaemon implements Postprocessor {
             return;
         }
 
+        if (!finishedOK) {
+            // had an error uploading, get rid of everything
+
+            // and we are done
+            return;
+        }
+
         boolean isFinished = false;
         isFinished = processFile(sourceDirectory, targetDirectory);
 
         // delete the last of the directories
         deleteDirectory(processorInfo.destinationDir);
 
-        // and the info file
+        // and finally the info file
         currentFile.delete();
-
-        // and the temporary directory
-        deleteDirectory(finalDirectory);
     }
 
     public boolean deleteDirectory(String dirPath) {
@@ -139,7 +157,7 @@ public class FDTFileDaemon implements Postprocessor {
 
 
     public boolean moveFiles(String sourceDir, String targetDir, boolean isTopLevel) {
-        System.out.println("[moveFiles] source: " + sourceDir + " target: " + targetDir);
+//    System.out.println ("[moveFiles] source: " + sourceDir + " target: " + targetDir);
 
         String UPLOAD_STAGING_DIR = "upload_staging";
 
@@ -193,7 +211,7 @@ public class FDTFileDaemon implements Postprocessor {
                 // move file across file systems.  Try "mv" command instead.
                 operation = "mv";
                 try {
-                    System.out.println("[moveFiles] rename failed, trying mv: " + f.getCanonicalPath() + " " + targetFileName);
+//            System.out.println ("[moveFiles] rename failed, trying mv: " + f.getCanonicalPath() + " " + targetFileName);
                     Process process = Runtime.getRuntime().exec(new String[]{"mv", f.getCanonicalPath(), targetFileName});
                     process.waitFor();
                     process.destroy();
@@ -218,7 +236,7 @@ public class FDTFileDaemon implements Postprocessor {
                     FileChannel out = null;
 
                     try {
-                        System.out.println("[moveFiles] mv failed, trying copy: " + f.getCanonicalPath() + " " + targetFileName);
+//              System.out.println ("[moveFiles] mv failed, trying copy: " + f.getCanonicalPath() + " " + targetFileName);
                         in = new FileInputStream(f).getChannel();
                         File outFile = new File(targetFileName);
                         out = new FileOutputStream(outFile).getChannel();

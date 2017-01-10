@@ -38,6 +38,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
 
   // put any instance variables here (usually the DetailObjects used by this command)
   protected String xmlResult = "<SUCCESS/>";
+  protected String errorDetails = "";
 
   public String SUCCESS_JSP = "/getXML.jsp";
   public String ERROR_JSP = "/message.jsp";
@@ -82,7 +83,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
    *  this method allows you to manipulate the HttpServletResponse object prior
    *  to forwarding to the result JSP (add a cookie, etc.)
    *
-   *@param  request  The HttpServletResponse for the command
+   *@param  response  The HttpServletResponse for the command
    *@return          The processed response
    */
   public HttpServletResponse setResponseState(HttpServletResponse response) {
