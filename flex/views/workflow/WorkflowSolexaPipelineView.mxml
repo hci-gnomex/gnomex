@@ -182,12 +182,17 @@
 		public function getFullFlowCellChannelNumber(item:Object, col:DataGridColumn):String 
     	{ 
     		return item.@flowCellNumber + "-" + item.@channelNumber;
-    	}  
-		public function getNumberSequencingCycles(item:Object, col:DataGridColumn):String 
-    	{ 
-    		return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.NumberSequencingCycles", item.@idNumberSequencingCycles);
-    	}  
-		
+    	}
+		public function getNumberSequencingCycles(item:Object, col:DataGridColumn):String
+		{
+			return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.NumberSequencingCycles", item.@idNumberSequencingCycles);
+		}
+
+		public function getPipelineProtocolDisplay(item:Object, col:DataGridColumn):String
+		{
+			return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.PipelineProtocol", item.@idPipelineProtocol);
+		}
+
 		public function handleQ30(event:Event):void 
 		{ 
 			var target:TextInput = event.currentTarget as TextInput;
@@ -335,8 +340,18 @@
 								</mx:TextInput> 
 							</mx:Component>
 						</mx:itemEditor> 
-					</mx:DataGridColumn>			                
-	               
+					</mx:DataGridColumn>
+					<mx:DataGridColumn editable="false" headerText="Pipeline Protocol"  width="30" dataField="@pipelineProtocol"
+									   labelFunction="getPipelineProtocolDisplay">
+						<mx:headerRenderer >
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Pipeline"/>
+									<mx:Label text="Protocol"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
 	                <mx:DataGridColumn headerText="Status"  width="20" dataField="@pipelineStatus" 
 	                	editorDataField="value" 
 	                	editable="true"

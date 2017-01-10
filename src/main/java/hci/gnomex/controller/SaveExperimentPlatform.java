@@ -49,6 +49,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private String prepQCProtocolsXMLString;
   private Document prepQCProtocolsDoc;
 
+  private String pipelineProtocolsXMLString;
+  private Document pipelineProtocolsDoc;
+
   private Document requestCategoryApplicationsDoc;
 
   private RequestCategory rcScreen;
@@ -134,6 +137,18 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       } catch (JDOMException je) {
         LOG.error("Cannot parse prepQCProtocolsXMLString", je);
         this.addInvalidField("prepQCProtocolsXMLString", "Invalid prepQCProtocolsXMLString");
+      }
+    }
+
+    if (request.getParameter("pipelineProtocolsXMLString") != null && !request.getParameter("pipelineProtocolsXMLString").equals("")) {
+      pipelineProtocolsXMLString = request.getParameter("pipelineProtocolsXMLString");
+      StringReader reader = new StringReader(pipelineProtocolsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        pipelineProtocolsDoc = sax.build(reader);
+      } catch (JDOMException je) {
+        LOG.error("Cannot parse pipelineProtocolsXMLString", je);
+        this.addInvalidField("pipelineProtocolsXMLString", "Invalid pipelineProtocolsXMLString");
       }
     }
 
@@ -241,6 +256,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveApplications(sess, rc);
         saveRequestCategoryApplications(sess);
         Boolean unableToDeletePrepQCProtocols = savePrepQCProtocols(sess, rc);
+        Boolean unableToDeletePipelineProtocols = savePipelineProtocols(sess, rc);
         Boolean unableToDelete = savePrepTypes(sess);
 
 
@@ -278,6 +294,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         }
         if(unableToDeletePrepQCProtocols){
           unableToDeleteMsg.append("Certain Library Prep QC Protocols were unable to be deleted because they are referenced on existing samples.");
+        }
+        if(unableToDeletePipelineProtocols){
+          unableToDeleteMsg.append("Certain Pipeline Protocols were unable to be deleted because they are referenced on existing flow cell channels.");
         }
 
         if(unableToDeleteMsg.length() > 0){
@@ -407,6 +426,56 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           continue;
         } else{
           sess.delete(lpqp);
+        }
+      }
+    }
+
+    sess.flush();
+    return unableToDelete;
+  }
+
+  private Boolean savePipelineProtocols(Session sess, RequestCategory rc){
+    Boolean unableToDelete = false;
+    if(pipelineProtocolsDoc == null || pipelineProtocolsDoc.getRootElement().getChildren().size() == 0){
+      return unableToDelete;
+    }
+
+    List pipelineProtocols = new ArrayList();
+    for (Iterator i = this.pipelineProtocolsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+      Element node = (Element) i.next();
+      PipelineProtocol protocol = null;
+
+      String isNew = node.getAttributeValue("isNew");
+
+      // Save new prep type or load the existing one
+      if (isNew != null && isNew.equals("Y")) {
+        protocol = new PipelineProtocol();
+      } else {
+        protocol = sess.load(PipelineProtocol.class, Integer.parseInt(node.getAttributeValue("idPipelineProtocol")));
+      }
+
+      protocol.setProtocol(node.getAttributeValue("protocol"));
+      protocol.setDescription(node.getAttributeValue("description"));
+      protocol.setIdCoreFacility(Integer.parseInt(node.getAttributeValue("idCoreFacility")));
+      protocol.setIsDefault(node.getAttributeValue("isDefault"));
+      sess.save(protocol);
+      pipelineProtocols.add(protocol);
+    }
+    sess.flush();
+
+
+    List existingProtocols = sess.createQuery("SELECT x from PipelineProtocol x where x.idCoreFacility='" + rc.getIdCoreFacility() + "'" ).list();
+
+    // check if there are any associations, and if not then delete protocol otherwise leave it be
+    for(Iterator i = existingProtocols.iterator(); i.hasNext();){
+      PipelineProtocol protocol = (PipelineProtocol) i.next();
+      if(!pipelineProtocols.contains(protocol)){
+        List flowCellChannels = sess.createQuery("Select f from FlowCellChannel f where f.idPipelineProtocol = " + protocol.getIdPipelineProtocol()).list();
+        if(flowCellChannels.size() > 0 ){
+          unableToDelete = true;
+          continue;
+        } else{
+          sess.delete(protocol);
         }
       }
     }

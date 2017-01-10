@@ -129,7 +129,6 @@ public class SequenceLane extends HibernateDetailObject {
     this.idNumberSequencingCyclesAllowed = idNumberSequencingCyclesAllowed;
   }
 
-
   public Integer getIdSeqRunType() {
     return idSeqRunType;
   }

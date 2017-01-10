@@ -5,7 +5,9 @@ import hci.hibernate5utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
@@ -33,7 +35,8 @@ public class FlowCellChannel extends HibernateDetailObject {
   private BigDecimal        phiXErrorRate;
   private BigDecimal           read1ClustersPassedFilterM;
   private BigDecimal        q30Percent;
-  
+  private Integer           idPipelineProtocol;
+
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
   }
@@ -168,9 +171,7 @@ public class FlowCellChannel extends HibernateDetailObject {
       return "";
     }
   }
-  
- 
-  
+
   public String getWorkflowStatus() {
 
     if (getPipelineDate() != null) {
@@ -292,6 +293,10 @@ public class FlowCellChannel extends HibernateDetailObject {
     this.q30Percent = q30Percent;
   }
 
-  
-    
+  public Integer getIdPipelineProtocol() {
+    return idPipelineProtocol;
+  }
+
+  public void setIdPipelineProtocol(Integer idPipelineProtocol) { this.idPipelineProtocol = idPipelineProtocol; }
+
 }

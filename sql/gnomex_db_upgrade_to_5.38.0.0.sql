@@ -37,6 +37,7 @@ ALTER TABLE FlowCellChannel ADD
 CALL ExecuteIfTableExists('gnomex','FlowCellChannel_Audit','ALTER TABLE FlowCellChannel_Audit ADD COLUMN idPipelineProtocol INT(10) NULL');
 
 
+
 -----------------------------------------------
 -- Drop column BillingTemplateItem.sortOrder --
 -----------------------------------------------

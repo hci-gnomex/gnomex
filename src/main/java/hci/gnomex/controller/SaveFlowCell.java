@@ -108,7 +108,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
           flowCell = (FlowCell) sess.get(FlowCell.class, fc.getIdFlowCell()); // load flow cell from database
           initializeFlowCell(flowCell); // copy flow cell info from request into flow cell loaded from database
         }
-        // Update Sequencing Protocol for Sequence Lanes if they were forced into a Flow Cell with a different protocol 
+        // Save updated sequence lanes
         for(Object key : channelParser.getChannelMap().keySet()) {
           FlowCellChannel fcc = (FlowCellChannel) channelParser.getChannelMap().get(key);
           Set seqLanes = fcc.getSequenceLanes();
@@ -116,6 +116,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
             SequenceLane sl = (SequenceLane)temp; 
             if(sl.getIdNumberSequencingCyclesAllowed() != null && flowCell.getIdNumberSequencingCyclesAllowed() != null && 
                 !sl.getIdNumberSequencingCyclesAllowed().equals(flowCell.getIdNumberSequencingCyclesAllowed())) {
+              // Update Sequencing Protocol for Sequence Lanes if they were forced into a Flow Cell with a different protocol
               sl.setIdNumberSequencingCyclesAllowed(flowCell.getIdNumberSequencingCyclesAllowed());
               sl.setIdSeqRunType(flowCell.getIdSeqRunType());
               sl.setIdNumberSequencingCycles(flowCell.getIdNumberSequencingCycles());
