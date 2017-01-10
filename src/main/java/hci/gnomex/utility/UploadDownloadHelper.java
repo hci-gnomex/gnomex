@@ -146,11 +146,7 @@ public class UploadDownloadHelper {
         if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
           zipEntryName = Request.getBaseRequestNumber(requestNumber) + Constants.FILE_SEPARATOR + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", Constants.FILE_SEPARATOR);
         } else {
-          try {
-            zipEntryName = PropertyDictionaryHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
-          } catch (IOException  e) {
-            throw new RuntimeException("Cannot get canonical file name for " + f1.getName());
-          }  
+            zipEntryName = PropertyDictionaryHelper.parseZipEntryName(theBaseDir, f1.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
           if (zipEntryName.startsWith(Constants.FILE_SEPARATOR)) {
             zipEntryName = zipEntryName.substring(1);
           }

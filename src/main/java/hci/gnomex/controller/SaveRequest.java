@@ -110,6 +110,9 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
+
+import static hci.gnomex.constants.Constants.MAX_DESCRIPT_LIMIT;
+
 public class SaveRequest extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
@@ -335,6 +338,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 							requestParser.getRequest().setIdInstitution(null);
 						}
 					}
+				}
+				if(description != null && description.length() > MAX_DESCRIPT_LIMIT){
+					this.addInvalidField("MaxCharLimit", "Experiment's description is too long.\n");
 				}
 
 				if (this.isValid()) {
@@ -1000,6 +1006,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 	private String sendEmails(Session sess) {
 
+
 		StringBuffer message = new StringBuffer();
 		if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
 			sess.refresh(requestParser.getRequest());
@@ -1172,6 +1179,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
 
 		Request request = requestParser.getRequest();
+
 		request.setDescription(description);
 		sess.save(request);
 
@@ -3064,7 +3072,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		for (String file : f.list()) {
 			File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 			if (child.isDirectory()) {
-				deleteDir(child, child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+				deleteDir(child, child.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
 				throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 			} else {
@@ -3074,7 +3082,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		}
 		if (f.list().length == 0) {
 			if (!f.delete()) {
-				throw new Exception("Unable to delete file " + f.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+				throw new Exception("Unable to delete file " + f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			}
 			return;
 		}

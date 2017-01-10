@@ -237,6 +237,12 @@
 			params.idAppUser = ownerCombo.selectedItem.@idAppUser;
 		}
 		params.name = analysisName.text;
+		if (organismCombo.selectedItem == null) {
+			Alert.show("Please select an organism",
+					"Message",
+					(Alert.OK));
+			return;
+		}
 		params.idOrganism = organismCombo.selectedItem.@idOrganism;
 		//params.idGenomeBuild = genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@idGenomeBuild : "";
 		params.idGenomeBuild = "";
@@ -541,7 +547,6 @@
 		}
 		return false;
 	}
-
 	]]>
 </mx:Script>
 <mx:XMLListCollection id="analysisGroupList" source="{getAnalysisGroupList.lastResult..AnalysisGroup}"/>

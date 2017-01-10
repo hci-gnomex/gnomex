@@ -92,6 +92,7 @@
 			private function onOrganizeExperimentUploadFiles(event:ResultEvent):void{
 				if (organizeExperimentUploadFiles.lastResult.name() != "SUCCESS") {
 					mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
+					dispatchEvent(new Event("refreshUploadFiles", true));
 				}
 				else{
 					dispatchEvent(new Event("refreshUploadFiles", true));

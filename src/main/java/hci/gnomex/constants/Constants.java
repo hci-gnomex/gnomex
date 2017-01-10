@@ -68,8 +68,9 @@ public class Constants {
   public static final String   SEQUENCE_DIR_PREFIX                            = "SEQ";
 
   public static final int      MAXIMUM_NUMBER_TEXT_FILE_LINES                 = 10000;
+  public static final int      MAX_DESCRIPT_LIMIT                             = 5000;
 
-public static final String PED_FILE_EXTENSION = ".ped";
+  public static final String PED_FILE_EXTENSION = ".ped";
 
   public static final String   GENE_IOBIO_URL                                 = "http://gene.iobio.io";
 

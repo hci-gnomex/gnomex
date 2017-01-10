@@ -3200,6 +3200,13 @@
                 }
             }
 
+            if(saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "submit"){
+                errorMessage += "On Setup tab, 'document experimental details' is too long.";
+            }
+            else if(saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "save"){
+                errorMessage +="Experiment's description is too long.";
+            }
+
             if (productsView != null && theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
                 productsView.refreshForSamples();
                 productsView.updateFields();
