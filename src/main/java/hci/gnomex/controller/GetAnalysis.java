@@ -85,7 +85,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 }
 
 public Command execute() throws RollBackCommandException {
-
+	System.out.println("I'm in Analysis");
 	long startTime = System.currentTimeMillis();
 	String reqNumber = "";
 
