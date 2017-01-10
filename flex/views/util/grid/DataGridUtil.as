@@ -510,7 +510,7 @@ package views.util.grid
 				}
 			}
 			
-			return value;;
+			return value;
 		}
 		
 		// Create an empty xml with empty attributes corresponding to the columns of the grid
