@@ -763,6 +763,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format(ch.getClustersPerTile()));
     n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
     n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
+    n.setAttribute("idPipelineProtocol",           ch.getIdPipelineProtocol() == null ? "" : ch.getIdPipelineProtocol().toString());
 
 
     String firstCycleStatus = "";
@@ -811,6 +812,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("phiXErrorRate",                ch.getPhiXErrorRate()  == null ? "" :  ch.getPhiXErrorRate().toString());
     n.setAttribute("read1ClustersPassedFilterM",   ch.getRead1ClustersPassedFilterM()  == null ? "" :  ch.getRead1ClustersPassedFilterM().toString());
     n.setAttribute("q30PercentForDisplay",         ch.getQ30PercentForDisplay());
+    n.setAttribute("idPipelineProtocol",           ch.getIdPipelineProtocol() == null ? "" : ch.getIdPipelineProtocol().toString());
 
 
     String pipelineStatus = "";

@@ -611,6 +611,30 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
           }
 
+          // Add pipeline protocols
+          isFirst = true;
+          List<Integer> pipelineIds = new ArrayList<Integer>();
+          List<Integer> channelIds = new ArrayList<Integer>();
+          for (Iterator iter = request.getSequenceLanes().iterator(); iter.hasNext();) {
+            SequenceLane seq = (SequenceLane) iter.next();
+            Integer channelId = seq.getIdFlowCellChannel();
+            if (channelId != null && !channelIds.contains(channelId)) {
+              FlowCellChannel channel = (FlowCellChannel) sess.get(FlowCellChannel.class, channelId);
+              Integer pipelineId = channel.getIdPipelineProtocol();
+              if (pipelineId != null && !pipelineIds.contains(pipelineId)) {
+                Element protocolNode = new Element("Protocol");
+                protocolsNode.addContent(protocolNode);
+                protocolNode.setAttribute("idProtocol", pipelineId.toString());
+                protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.PipelineProtocol");
+                protocolNode.setAttribute("name", dh.getPipelineProtocol(pipelineId));
+                protocolNode.setAttribute("label", isFirst ? "Pipeline Protocols" : "");
+                isFirst = false;
+                pipelineIds.add(pipelineId);
+              }
+              channelIds.add(channelId);
+            }
+          }
+
           // If user has write permission, show billing items for this request
           // Organize split accounts by lab
           if (this.getSecAdvisor().canUpdate(request)) {

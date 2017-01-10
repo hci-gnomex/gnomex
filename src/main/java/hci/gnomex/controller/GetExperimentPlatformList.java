@@ -43,10 +43,12 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private List <Application> applications = new ArrayList<Application>();
   private List <IsolationPrepType> prepTypes = new ArrayList<IsolationPrepType>();
   private List <LibraryPrepQCProtocol> prepQCProtocols = new ArrayList<LibraryPrepQCProtocol>();
+  private List <PipelineProtocol> pipelineProtocols = new ArrayList<PipelineProtocol>();
   private HashMap<String, Map<Integer, ?>> sampleTypeMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, Map<String, RequestCategoryApplication>> applicationMap = new HashMap<String, Map<String, RequestCategoryApplication>>();
   private HashMap<String, List<IsolationPrepType>> prepTypeMap = new HashMap<String, List<IsolationPrepType>>();
   private HashMap<String, List<LibraryPrepQCProtocol>> prepQCProtocolMap = new HashMap<String, List<LibraryPrepQCProtocol>>();
+  private HashMap<Integer, List<PipelineProtocol>> pipelineProtocolMap = new HashMap<Integer, List<PipelineProtocol>>();
   private HashMap<Integer, Map<Integer, ?>> sampleTypeXMethodMap = new HashMap<Integer, Map<Integer, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
@@ -256,8 +258,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           }
         }
 
-
-
+        listNode = new Element("pipelineProtocols");
+        node.addContent(listNode);
+        List<PipelineProtocol> pipelineProtocolList = this.pipelineProtocolMap.get(rc.getIdCoreFacility());
+        if (pipelineProtocolList != null) {
+          for(PipelineProtocol lpp : pipelineProtocolList) {
+            this.getSecAdvisor().flagPermissions(lpp);
+            Element lppNode = lpp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            listNode.addContent(lppNode);
+          }
+        }
 
       }
 
@@ -400,10 +410,21 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       LibraryPrepQCProtocol x = (LibraryPrepQCProtocol)i.next();
       List prepList = prepQCProtocolMap.get(x.getCodeRequestCategory());
       if (prepList == null) {
-        prepList = new ArrayList<NumberSequencingCyclesAllowed>();
+        prepList = new ArrayList<LibraryPrepQCProtocol>();
       }
       prepList.add(x);
       prepQCProtocolMap.put(x.getCodeRequestCategory(), prepList);
+    }
+
+    pipelineProtocols = sess.createQuery("SELECT a from PipelineProtocol a").list();
+    for(Iterator i = pipelineProtocols.iterator(); i.hasNext();) {
+      PipelineProtocol x = (PipelineProtocol)i.next();
+      List mapList = pipelineProtocolMap.get(x.getIdCoreFacility());
+      if (mapList == null) {
+        mapList = new ArrayList<PipelineProtocol>();
+      }
+      mapList.add(x);
+      pipelineProtocolMap.put(x.getIdCoreFacility(), mapList);
     }
 
     List applicationXSeqLibProtocols = sess.createQuery("SELECT x from SeqLibProtocolApplication x").list();

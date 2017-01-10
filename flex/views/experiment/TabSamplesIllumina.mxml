@@ -1111,7 +1111,8 @@
 												  addRowFunction="{addSample}"
 												  deleteRowFunction="{deleteTheSample}"
 												  clearAllFunction="promptToClearAllSamples"
-												  showRowNumberCol="true">
+												  showRowNumberCol="true"
+												  lockedColumnCount="4">
 			<util:columns>
 				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex Group #" dataField="@multiplexGroupNumber" editable="true" visible="true"
 										   width="69" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"

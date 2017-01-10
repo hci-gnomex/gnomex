@@ -613,7 +613,7 @@
 											  prompt="Organism..."
 											  close="filteredGenomeBuildList.refresh();checkCompleteness();"
 											  id="organismCombo"
-											  dataProvider="{organisms.source}"
+											  dataProvider="{parentApplication.activeOrganismList}"
 											  width="336"/>
 				</mx:VBox>
 			</mx:HBox>				

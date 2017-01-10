@@ -338,6 +338,10 @@
         public var showCCNumberColumn:Boolean = true;
 
         [Bindable]
+        public var showOpenNewBillingTemplateOption:Boolean = false;
+        public var newBillingTemplateAccount:Object = null;
+
+        [Bindable]
         private var requestApplication:Object = null;
 
         [Bindable]
@@ -3201,6 +3205,13 @@
                 }
             }
 
+            if(saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "submit"){
+                errorMessage += "On Setup tab, 'document experimental details' is too long.";
+            }
+            else if(saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "save"){
+                errorMessage +="Experiment's description is too long.";
+            }
+
             if (productsView != null && theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
                 productsView.refreshForSamples();
                 productsView.updateFields();
@@ -3210,6 +3221,12 @@
                     warningMessage += productsView.getWarnings(action);
                 }
 
+            }
+
+            if (isAmendState()) {
+                if (showOpenNewBillingTemplateOption && openNewBillingTemplateCheckBox.selected && newBillingTemplateAccount == null) {
+                    errorMessage += "Please select a new billing account for these services.\n";
+                }
             }
         }
 
@@ -3421,7 +3438,11 @@
 
                 var accountName:String = "";
                 if (isAmendState()) {
-                    accountName = request.@accountNumberDisplay;
+                    if (newBillingTemplateAccount != null) {
+                        accountName = newBillingTemplateAccount.@accountNumberDisplay;
+                    } else {
+                        accountName = request.@accountNumberDisplay;
+                    }
                 } else if (setupView.selectedBillingAccount != null) {
                     accountName = setupView.selectedBillingAccount.@accountNumberDisplay;
                 } else if (setupView.selectedBillingTemplate != null) {
@@ -3736,11 +3757,15 @@
                 request.collaborators.appendChild(collaborator);
             }
 
-            // We need special field that tells us the way the
-            // request is being amended
             if (this.isAmendState()) {
+                // We need special field that tells us the way the
+                // request is being amended
                 request.@amendState = currentState.toString();
                 saveDescription = GNomExStringUtil.cleanRichTextHTML(request.@description);
+
+                if (showOpenNewBillingTemplateOption && openNewBillingTemplateCheckBox.selected && newBillingTemplateAccount != null) {
+                    request.@newBillingTemplateIdBillingAccount = newBillingTemplateAccount.@idBillingAccount;
+                }
             }
 
             updateRequestProducts();
@@ -4712,6 +4737,9 @@
                     setAmendTitle();
                 }
             }
+            if (billingAccounts != null) {
+                billingAccounts.refresh();
+            }
         }
 
 
@@ -4883,13 +4911,29 @@
                             'Then you can proceed with turning this QC experiment order into an Illumina experiment order.');
                     return;
                 }
-                if (this.getAmendRequestCategory() != null && this.getAmendRequestCategory() != "") {
+
+                showOpenNewBillingTemplateOption = this.browseTree.selectedItem.@canOpenNewBillingTemplate == 'Y';
+                if (!showOpenNewBillingTemplateOption || !openNewBillingTemplateCheckBox.selected) {
+                    openNewBillingTemplateCheckBox.selected = false;
+                    openNewBillingTemplateCombo.selectedItem = null;
+                    openNewBillingTemplateCombo.selectedIndex = -1;
+                    newBillingTemplateAccount = null;
+                }
+                var billingComplete:Boolean = !showOpenNewBillingTemplateOption || (showOpenNewBillingTemplateOption && !openNewBillingTemplateCheckBox.selected) || openNewBillingTemplateCombo.selectedItem != null;
+                if (openNewBillingTemplateCombo.selectedItem != null) {
+                    newBillingTemplateAccount = openNewBillingTemplateCombo.selectedItem;
+                }
+                if (billingComplete && this.getAmendRequestCategory() != null && this.getAmendRequestCategory() != "") {
                     isComplete = true;
                 }
             }
 
             if (isComplete) {
                 this.getRequestToAmend.send();
+
+                if (confirmView != null && theTab != null && theTab.contains(confirmView)) {
+                    this.confirmView.refreshSelectedBillingAccountInfo();
+                }
             }
 
 
@@ -4909,10 +4953,7 @@
 
             enableNextButtons();
 
-
             callLater(postAmendSetupCompleteness, [isComplete]);
-
-
         }
 
         private function postAmendSetupCompleteness(isComplete:Boolean):void {
@@ -5003,7 +5044,6 @@
 
         public function setupAmendForm(theRequest:Object):void {
             request = theRequest;
-            this.updateBillingAccountInfo();
 
             setAmendTitle();
 
@@ -5180,7 +5220,9 @@
 
         private function onGetLabForAddingServices(event:ResultEvent):void {
             lab = getLabForAddingServices.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-
+            billingAccounts = new XMLListCollection(new XMLList(lab.authorizedBillingAccounts.BillingAccount));
+            billingAccounts.filterFunction = newBillingTemplateAccountsFilter;
+            billingAccounts.refresh();
 
             if (parentApplication.hasPermission('canWriteAnyObject')) {
                 this.appUserCombo.selectedIndex = 0;
@@ -5951,10 +5993,36 @@
             var editBillingTemplateWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
             editBillingTemplateWindow.order = request;
             editBillingTemplateWindow.performSetup(true, this);
-            editBillingTemplateWindow.loadBillingTemplate(parseInt(new String(request.@idRequest)), "Request");
+            editBillingTemplateWindow.loadBillingTemplateFromDb(parseInt(new String(request.@idRequest)), "Request");
             mx.managers.PopUpManager.centerPopUp(editBillingTemplateWindow);
             editBillingTemplateWindow.setFocus();
         }
+
+        private function newBillingTemplateAccountsFilter(item:Object):Boolean {
+            if (item.hasOwnProperty("@overrideFilter") && item.@overrideFilter == "Y") {
+                return true;
+            }
+
+            if (item.@isActive == 'N' || item.@isApproved == 'N') {
+                return false;
+            }
+
+            var codeRequestCategory:String = getAmendRequestCategory();
+            if (codeRequestCategory != '') {
+                var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', codeRequestCategory);
+                if (requestCategory == null || requestCategory.@idCoreFacility.toString() == '') {
+                    return false;
+                }
+                if (item.@idCoreFacility != '') {
+                    if (item.@idCoreFacility.toString() != requestCategory.@idCoreFacility.toString()) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         ]]>
 	</mx:Script>
     <mx:NumberValidator id="validator"
@@ -6920,7 +6988,7 @@
                             </mx:VBox>
                         </mx:VBox>
                     </mx:HBox>
-                    <mx:VBox width="100%" height="100%" verticalGap="0" id="vbox2">
+                    <mx:VBox width="100%" verticalGap="0" id="vbox2">
                         <mx:HBox width="100%" verticalAlign="middle" horizontalGap="8">
                             <mx:Text text="(4) Select the existing request." id="label1" width="194"/>
                             <mx:HBox horizontalGap="4" height="100%" verticalAlign="middle" verticalGap="0"
@@ -6962,7 +7030,25 @@
                             </mx:Tree>
                         </mx:VBox>
                     </mx:VBox>
-
+                    <mx:HBox id="openNewBillingTemplateContainer" width="100%" horizontalGap="8"
+                             visible="{showOpenNewBillingTemplateOption}" includeInLayout="{showOpenNewBillingTemplateOption}">
+                        <mx:Text width="194" id="openNewBillingTemplateLabel" visible="{showOpenNewBillingTemplateOption}" includeInLayout="{showOpenNewBillingTemplateOption}">
+                            <mx:text>(5) Would you like to use a new billing account for these services?</mx:text>
+                        </mx:Text>
+                        <mx:VBox>
+                            <mx:CheckBox id="openNewBillingTemplateCheckBox" label="Use new billing account"
+                                         paddingLeft="2" paddingRight="0" horizontalGap="0" selected="false"
+                                         click="checkAmendSetupCompleteness();"
+                                         visible="{showOpenNewBillingTemplateOption}" includeInLayout="{showOpenNewBillingTemplateOption}"/>
+                            <mx:ComboBox labelField="@accountNameAndNumber" toolTip="{data.@accountNameAndNumber}" width="380"
+                                         id="openNewBillingTemplateCombo"
+                                         prompt=" "
+                                         change="checkAmendSetupCompleteness();" selectedIndex="-1" close="checkAmendSetupCompleteness();"
+                                         dataProvider="{billingAccounts}"
+                                         visible="{showOpenNewBillingTemplateOption &amp;&amp; openNewBillingTemplateCheckBox.selected}"
+                                         includeInLayout="{showOpenNewBillingTemplateOption &amp;&amp; openNewBillingTemplateCheckBox.selected}"/>
+                        </mx:VBox>
+                    </mx:HBox>
                 </mx:VBox>
             </mx:AddChild>
             <mx:SetProperty target="{sampleSetupView}" name="enabled" value="false"/>

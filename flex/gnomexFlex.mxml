@@ -1204,6 +1204,7 @@
 
 		public var MAX_DOWNLOAD_SIZE_DISPLAY:String = '300 MB';
 		public var MAX_DOWNLOAD_SIZE:Number = new Number(314572800); //300 MB
+		public const MAX_DESCRIPT_LIMIT:int = 5000;
 
 		private var appProgressBar:AppProgressView;
 		private var currentProgressInterval:uint = 0;
@@ -3050,8 +3051,15 @@
 			var dh:DictionaryHelper = new DictionaryHelper(this.dictionaryManager);
 			for each (var s:XML in dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol')) {
 				var seq:XML = s.copy();
+				if (seq != null) {
+					if (seq.@isActive == "N") {
+						continue;
+					}
+				}
 				var app:Object = dh.getApplicationForProtocol(seq.@idSeqLibProtocol);
 				if (app != null) {
+					if (app.@isActive == "N" || app.@onlyForLabPrepped == "Y")
+						continue;
 					seq.@idCoreFacility = app.@idCoreFacility;
 					seq.@codeApplicationType = app.@codeApplicationType;
 				}

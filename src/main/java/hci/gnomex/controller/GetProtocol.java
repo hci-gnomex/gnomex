@@ -4,14 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
-import hci.gnomex.model.AnalysisProtocol;
-import hci.gnomex.model.BioanalyzerChipType;
-import hci.gnomex.model.FeatureExtractionProtocol;
-import hci.gnomex.model.HybProtocol;
-import hci.gnomex.model.LabelingProtocol;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
-import hci.gnomex.model.ScanProtocol;
-import hci.gnomex.model.SeqLibProtocol;
+import hci.gnomex.model.*;
 
 import java.io.Serializable;
 
@@ -118,6 +111,17 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           canRead   = sp.canRead() ? "Y" : "N";
           canUpdate = sp.canUpdate() ? "Y" : "N";
           canDelete = sp.canDelete() ? "Y" : "N";
+        } else if (this.protocolClassName.equals(PipelineProtocol.class.getName())) {
+          PipelineProtocol pp = (PipelineProtocol) sess.load(PipelineProtocol.class,this.idProtocol);
+          id = pp.getIdPipelineProtocol().toString();
+          protocolName = pp.getProtocol();
+          description = pp.getDescription();
+          url = null;
+          isActive = "Y";
+          setPermissions(pp);
+          canRead   = pp.canRead() ? "Y" : "N";
+          canUpdate = pp.canUpdate() ? "Y" : "N";
+          canDelete = pp.canDelete() ? "Y" : "N";
         } else if (this.protocolClassName.equals(AnalysisProtocol.class.getName())) {
           AnalysisProtocol ap = (AnalysisProtocol) sess.load(AnalysisProtocol.class,this.idProtocol);
           id = ap.getIdAnalysisProtocol().toString();

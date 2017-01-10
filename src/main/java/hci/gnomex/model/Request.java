@@ -15,13 +15,7 @@ import hci.hibernate5utils.HibernateDetailObject;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -1352,7 +1346,10 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public Set<BillingItem> getBillingItemList(Session sess) {
 	  BillingTemplate template = BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
 	  if (template != null) {
-		  return BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, template.getIdBillingTemplate());
+        Set<BillingItem> billingItems = new HashSet<BillingItem>();
+        billingItems.addAll(BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, template.getIdBillingTemplate()));
+        billingItems.addAll(BillingItemQueryManager.getBillingItemsForInactiveTemplates(sess, this.getIdRequest()));
+        return billingItems;
 	  } else {
 		  return new TreeSet<BillingItem>();
 	  }

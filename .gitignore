@@ -1,4 +1,16 @@
+#eclipse
+.classpath
+.project
+
+#IntelliJ
 .idea/
 *.iml
+
+#gradle
+.gradle/
+
+#project
+build/
 dist/
+out/
 glsave/

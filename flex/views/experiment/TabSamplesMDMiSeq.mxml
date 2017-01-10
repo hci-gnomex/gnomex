@@ -805,7 +805,8 @@
 												  addRowEnabled="true"
 												  addRowFunction="{addSample}"
 												  clearAllFunction="promptToClearAllSamples"
-												  showRowNumberCol="true">
+												  showRowNumberCol="true"
+												  lockedColumnCount="3">
 			<util:columns>
 				
 				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false">

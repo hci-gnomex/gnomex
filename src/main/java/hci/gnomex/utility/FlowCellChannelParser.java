@@ -318,11 +318,20 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     }
 
     if (n.getAttributeValue("sampleConcentrationpM") != null
-        && !n.getAttributeValue("sampleConcentrationpM").equals("")){
+            && !n.getAttributeValue("sampleConcentrationpM").equals("")){
 
       channel.setSampleConcentrationpM(new BigDecimal(n.getAttributeValue("sampleConcentrationpM")));
     } else {
       channel.setSampleConcentrationpM(null);
+    }
+
+    if (n.getAttributeValue("idPipelineProtocol") != null
+            && !n.getAttributeValue("idPipelineProtocol").equals("")){
+
+      channel.setIdPipelineProtocol(new Integer(
+              n.getAttributeValue("idPipelineProtocol")));
+    } else {
+      channel.setIdPipelineProtocol(null);
     }
   }
 
