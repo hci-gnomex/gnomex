@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -37,6 +38,7 @@ private static Logger LOG = Logger.getLogger(GetLab.class);
 
 private Lab lab;
 private Boolean isForWorkAuth = false;
+private String timestamp;
 
 public void validate() {
 }
@@ -57,11 +59,19 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 	} else {
 		isForWorkAuth = false;
 	}
+
+	timestamp = request.getParameter("timestamp");
+
 }
 
 public Command execute() throws RollBackCommandException {
 
 	try {
+
+		Document doc = new Document(new Element("OpenLabList"));
+		if (StringUtils.isNotEmpty(timestamp)) {
+			doc.getRootElement().setAttribute("timestamp", timestamp);
+		}
 
 		Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername(), "GetLab");
 
@@ -130,7 +140,6 @@ public Command execute() throws RollBackCommandException {
 				Hibernate.initialize(ba.getUsers());
 			}
 
-			Document doc = new Document(new Element("OpenLabList"));
 			theLab.excludeMethodFromXML("getApprovedBillingAccounts"); // Added explicitly below
 			theLab.excludeMethodFromXML("getInternalBillingAccounts"); // Added explicitly below
 			theLab.excludeMethodFromXML("getPOBillingAccounts"); // Added explicitly below
@@ -155,9 +164,6 @@ public Command execute() throws RollBackCommandException {
 			this.appendProductCount(labNode, productQuantity);
 
 			doc.getRootElement().addContent(labNode);
-
-			XMLOutputter out = new org.jdom.output.XMLOutputter();
-			this.xmlResult = out.outputString(doc);
 
 		} else if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab())
 				|| this.getSecAdvisor().isGroupICollaborateWith(theLab.getIdLab())
@@ -192,7 +198,6 @@ public Command execute() throws RollBackCommandException {
 				Hibernate.initialize(ba.getUsers());
 			}
 
-			Document doc = new Document(new Element("OpenLabList"));
 			Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 			if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
 					|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
@@ -209,9 +214,6 @@ public Command execute() throws RollBackCommandException {
 			this.appendProductCount(labNode, productQuantity);
 			doc.getRootElement().addContent(labNode);
 
-			XMLOutputter out = new org.jdom.output.XMLOutputter();
-			this.xmlResult = out.outputString(doc);
-
 		} else if (isForWorkAuth) {
 			theLab.excludeMethodFromXML("getMembers");
 			theLab.excludeMethodFromXML("getCollaboratorss");
@@ -223,15 +225,11 @@ public Command execute() throws RollBackCommandException {
 			theLab.excludeMethodFromXML("getCreditCardBillingAccounts");
 			theLab.excludeMethodFromXML("getInternalBillingAccounts");
 
-			Document doc = new Document(new Element("OpenLabList"));
 			Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 			doc.getRootElement().addContent(labNode);
 
-			XMLOutputter out = new org.jdom.output.XMLOutputter();
-			this.xmlResult = out.outputString(doc);
-		} else {
-			this.xmlResult = "<OpenLabList/>";
 		}
+		this.xmlResult = new XMLOutputter().outputString(doc);
 
 	} catch (Exception e) {
 		LOG.error("An exception has occurred in GetLab ", e);

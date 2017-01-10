@@ -176,7 +176,10 @@ package views.util.grid
 				this.selectedIndex = -1;
 				setFocus();
 				drawFocus( true );
-			} 
+				this._copyMenuItem.enabled = false;
+			} else {
+                this._copyMenuItem.enabled = true;
+			}
 		}
 		
 		protected function handleKeyPressed( event:KeyboardEvent ):void

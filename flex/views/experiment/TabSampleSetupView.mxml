@@ -305,8 +305,11 @@
 			private function onNumberOfSamplesChanged():void {
 				if ( parentDocument.isIScanState() ) {
 					numberOfSamplesValidator.maxValue = 600;
-				} else {
+				} else if (parentDocument.isCapSeqState()) {
 					numberOfSamplesValidator.maxValue = 384;
+				} else {
+					// This is an arbitrary limit
+					numberOfSamplesValidator.maxValue = 9999;
 				}
 				if ( this.numberOfSamples != null && this.numberOfSamples.text != '' && 
 					parseInt(this.numberOfSamples.text) < numberOfSamplesValidator.maxValue && parseInt(this.numberOfSamples.text) > 0 ) {

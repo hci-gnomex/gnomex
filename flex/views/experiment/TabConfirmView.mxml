@@ -352,8 +352,8 @@
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" id="vbox2" width="240" horizontalScrollPolicy="off">
 					<mx:Label text="Billing Account" styleName="formLabel" height="16"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : this.getSelectedBillingAccountName()}" width="250"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : this.getSelectedBillingAccountNumber()}" width="250"/>
+					<mx:Text text="{this.selectedBillingAccountName}" width="250"/>
+					<mx:Text text="{this.selectedBillingAccountNumber}" width="250"/>
 				</mx:VBox>
 			</mx:HBox>
 				<mx:VBox width="100%" verticalGap="0" id="billingContainer">

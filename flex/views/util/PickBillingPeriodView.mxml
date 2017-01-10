@@ -47,7 +47,7 @@
 				enableActiveMonthButtons();
 			}
 			
-			private function changeYear(changeBy:int): void {
+			private function  changeYear(changeBy:int): void {
 				var newYear:int = currentYear + changeBy;
 				if (newYear < minYear || newYear > maxYear) {
 					return;

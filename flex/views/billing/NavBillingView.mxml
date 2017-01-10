@@ -451,6 +451,7 @@
 		currencyFormatter.precision = 2;
 		currencyFormatter.useThousandsSeparator;
 
+
 		callLater(this.resizeMenuItems);
 	}
 
@@ -584,6 +585,7 @@
 		} else {
 			this.refreshBillingItems();
 		}
+
 	}
 
 	private function refreshBillingItems():void {
@@ -1111,22 +1113,21 @@
 
 		if (selectedItem.name() == "Status" && selectedItem.@status == 'PENDING') {
 			for each(request in selectedItem..Request) {
-				billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == request.@idBillingAccount)));
+				billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == request.@idBillingAccount))));
 			}
 		} else if (selectedItem.name() == "Status") {
 			for each(lab in selectedItem..Lab) {
 				for each(request in lab.Request) {
-					billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount)));
-
+					billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount))));
 				}
 			}
 		} else if (selectedItem.name() == "Lab") {
 			lab = XML(selectedItem);
 			for each(request in lab.Request) {
-				billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount)));
+				billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount))));
 			}
 		} else if (selectedItem.name() == "Request") {
-			billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == selectedItem.@requestNumber && @idBillingAccount == selectedItem.@idBillingAccount)));
+			billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == selectedItem.@requestNumber && @idBillingAccount == selectedItem.@idBillingAccount))));
 		}
 
 		var invoicePrice:Number = new Number(0);
@@ -1168,9 +1169,58 @@
 		}
 
 		this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
-		this.billingItemGrid.selectedIndex = 0;
+		this.billingItemGrid.selectedIndex = -1;
 	}
 
+	/**
+	 * This function rebuilds the request xml node and splitting the requests by billing account.
+	 *
+	 * @param billingItems		The current XMLListCollection representing the request.
+	 * @return bid				The updated XMLListCollection representing the request/requests.
+     */
+	private function buildRequestItems(billingItems:XMLListCollection):XMLListCollection {
+		var bid:XMLListCollection = new XMLListCollection();
+		for each(var request:XML in billingItems) {
+			var labAccount:String = null;
+			var requestInvoicePrice:Number = 0;
+			var rNode:XML = null;
+
+			for each(var bi:XML in request.BillingItem) {
+				if (bi.@idBillingAccount != labAccount) {
+					if (rNode != null)
+						rNode.@invoicePrice = currencyFormatter.format(requestInvoicePrice.toFixed(2).toString());
+					requestInvoicePrice = 0;
+					rNode = new XML(
+							"<Request " +
+							" idRequest='" + request.@idRequest + "'" +
+							" idLab='" + request.@label + "'" +
+							" requestNumber='" + request.@requestNumber + "'" +
+							" label='" + request.@requestNumber + "'" +
+							" codeRequestCategory='" + request.@codeRequestCategory + "'" +
+							" idCoreFacility='" + request.@idCoreFacility + "'" +
+							" icon='" + request.@icon + "'" +
+							" type='" + request.@type + "'" +
+							" submitter='" + request.@submitter + "'" +
+							" billingLabName='" + bi.@labName + "'" +
+							" billingAccountName='" + bi.@accountNameAndNumber + "'" +
+							" idBillingAccount='" + bi.@idBillingAccount + "'" +
+							" isExternalPricing='" + request.@isExternalPricing + "'" +
+							" isExternalPricingCommercial='" + request.@isExternalPricingCommercial + "'" +
+							" isDirty='" + request.@isDirty + "'" +
+							" totalPrice='" + request.@totalPrice + "'" +
+							"/>");
+					bid.addItem(rNode);
+				}
+				requestInvoicePrice = sumInvoicePrice(requestInvoicePrice, bi);
+				rNode.appendChild(bi);
+				labAccount = bi.@idBillingAccount;
+			}
+			if (rNode != null)
+				rNode.@invoicePrice = currencyFormatter.format(requestInvoicePrice.toFixed(2).toString());
+
+		}
+		return bid;
+	}
 
 	private function sumInvoicePrice(invoicePrice:Number, billingItem:Object):Number {
 		var price:String = billingItem.@invoicePrice;

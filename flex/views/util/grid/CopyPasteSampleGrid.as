@@ -66,7 +66,7 @@ package views.util.grid
 			else
 			{
 				// Extract values from TSV format and populate the DataGrid
-				var items:XMLListCollection = SampleDataGridUtil.getItemsFromText( event.text, this, parentApplication );
+				var items:XMLListCollection = SampleDataGridUtil.getItemsFromText( event.text, this );
 				
 				for each (var item:XML in items)
 				{
