@@ -43,6 +43,8 @@ public class BillingTemplateQueryManager extends QueryManager {
 		this.addWhereOrAnd();
 		this.queryBuffer.append(" bt.targetClassName = ? ");
 		this.addCriteria(QueryManager.convertToFullTargetClassName(targetClassName), StringType.INSTANCE);
+		this.addWhereOrAnd();
+		this.queryBuffer.append(" bt.isActive = 'Y' ");
 		
 		this.query = sess.createQuery(queryBuffer.toString());
 		this.applyCriteria();
@@ -76,6 +78,8 @@ public class BillingTemplateQueryManager extends QueryManager {
 		queryBuffer.append(" bt.targetClassName = ? ");
 		valueList.add(targetClassName);
 		typeList.add(StringType.INSTANCE);
+		queryBuffer.append(" AND ");
+		queryBuffer.append(" bt.isActive = 'Y' ");
 
 		// Use manual flush mode to force the query to run without flushing first
 		Query query = sess.createQuery(queryBuffer.toString()).setFlushMode(FlushMode.MANUAL);

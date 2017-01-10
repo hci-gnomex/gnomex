@@ -373,6 +373,7 @@ CREATE TABLE `gnomex`.`BillingTemplate` (
 	`idBillingTemplate` INT(10) NOT NULL AUTO_INCREMENT,
 	`targetClassIdentifier` INT(10) NOT NULL,
 	`targetClassName` VARCHAR(100) NOT NULL,
+	`isActive` CHAR(1) NULL,
 	PRIMARY KEY (`idBillingTemplate`)
 )
 ENGINE = INNODB;

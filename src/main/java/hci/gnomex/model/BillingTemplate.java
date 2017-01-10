@@ -27,12 +27,14 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 	private String						targetClassName;
 	private Set<BillingTemplateItem> 	items;
 	private Set<MasterBillingItem>		masterBillingItems;
-	
+	private String						isActive;
+
 	public BillingTemplate() {
 		super();
 		
 		this.setItems(new TreeSet<BillingTemplateItem>());
 		this.setMasterBillingItems(new HashSet<MasterBillingItem>());
+        isActive = "Y";
 	}
 	
 	public BillingTemplate(Order order) {
@@ -158,6 +160,12 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 	public void setMasterBillingItems(Set<MasterBillingItem> masterBillingItems) {
 		this.masterBillingItems = masterBillingItems;
 	}
+    public String getIsActive() {
+        return isActive;
+    }
+    public void setIsActive(String isActive) {
+        this.isActive = isActive;
+    }
 
 	@Override
 	public Element toXML(Session sess, Set<String> detailParameters) {
@@ -177,6 +185,8 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		}
 		
 		billingTemplateNode.setAttribute("usingPercentSplit", usingPercentSplit ? "true" : "false");
+        billingTemplateNode.setAttribute("isActive", isActive);
+        billingTemplateNode.setAttribute("canBeDeactivated", canBeDeactivated(sess) ? "true" : "false");
 		
 		return billingTemplateNode;
 	}
@@ -189,6 +199,31 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		}
 		
 		return null;
+	}
+
+	public void deactivate() {
+        isActive = "N";
+    }
+
+	public boolean canBeDeactivated(Session sess) {
+        Set<BillingItem> billingItems = getBillingItems(sess);
+        for (BillingItem billingItem : billingItems) {
+            if (billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)
+                    || billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                return false;
+            }
+        }
+
+        return !isActive.equalsIgnoreCase("N");
+    }
+
+    public boolean hasBillingAccount(Integer idBillingAccount) {
+		for (BillingTemplateItem templateItem : items) {
+			if (templateItem.getIdBillingAccount().equals(idBillingAccount)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

@@ -48,6 +48,24 @@ public class BillingItemQueryManager extends QueryManager {
 		
 		return new HashSet<BillingItem>((List<BillingItem>) query.list());
 	}
+
+	public static Set<BillingItem> getBillingItemsForInactiveTemplates(Session sess, Integer idOrder) {
+		StringBuffer queryBuffer = new StringBuffer();
+		boolean addWhere = true;
+
+		queryBuffer.append(" SELECT b FROM BillingItem AS b ");
+		queryBuffer.append(" JOIN b.masterBillingItem AS m ");
+		queryBuffer.append(" JOIN m.billingTemplate AS bt ");
+		addWhere = QueryManager.addWhereOrAnd(addWhere, queryBuffer);
+		queryBuffer.append(" bt.targetClassIdentifier = :idOrder ");
+		addWhere = QueryManager.addWhereOrAnd(addWhere, queryBuffer);
+		queryBuffer.append(" bt.isActive = 'N' ");
+
+		Query query = sess.createQuery(queryBuffer.toString());
+		query.setParameter("idOrder", idOrder);
+
+		return new HashSet<BillingItem>((List<BillingItem>) query.list());
+	}
 	
 	private void addRequestCriteria() {
 		if (idLab != null) {
