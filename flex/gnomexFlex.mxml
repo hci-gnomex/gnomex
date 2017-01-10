@@ -1204,6 +1204,7 @@
 
 		public var MAX_DOWNLOAD_SIZE_DISPLAY:String = '300 MB';
 		public var MAX_DOWNLOAD_SIZE:Number = new Number(314572800); //300 MB
+		public const MAX_DESCRIPT_LIMIT:int = 5000;
 
 		private var appProgressBar:AppProgressView;
 		private var currentProgressInterval:uint = 0;
