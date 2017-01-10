@@ -1,5 +1,9 @@
 package hci.gnomex.model;
 
+import org.hibernate.Session;
+import org.hibernate.query.Query;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -573,6 +577,60 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     }
 
     return defaultInst;
+  }
+
+  public static boolean hasDataTracks(Session sess,Integer idLab){
+      Long count = null;
+      Long zero = new Long(0);
+      boolean dataTracks = false;
+
+      String queryStr = "SELECT COUNT(idLab) FROM DataTrack as d WHERE d.idLab = :idLab";
+      Query query = sess.createQuery(queryStr)
+      .setParameter("idLab",idLab);
+      List numOfDataTracks  =  query.list();
+
+      count = (Long)numOfDataTracks.get(0);
+      if(count.compareTo(zero) > 0){
+              dataTracks = true;
+      }
+
+    return dataTracks;
+  }
+
+  public static boolean hasExperiments(Session sess, Integer idLab){
+      Long count = null;
+      Long zero = new Long(0);
+      boolean experiments = false;
+
+      String queryStr = "SELECT COUNT(idLab) FROM Request as r WHERE r.idLab = :idLab";
+      Query query = sess.createQuery(queryStr)
+              .setParameter("idLab",idLab);
+      List numOfDataTracks  =  query.list();
+
+      count = (Long)numOfDataTracks.get(0);
+      if(count.compareTo(zero) > 0){
+          experiments = true;
+      }
+
+      return experiments;
+  }
+
+  public static boolean hasAnalysis(Session sess, Integer idLab){
+      Long count = null;
+      Long zero = new Long(0);
+      boolean analyses = false;
+
+      String queryStr = "SELECT COUNT(idLab) FROM Analysis as a WHERE a.idLab = :idLab";
+      Query query = sess.createQuery(queryStr)
+              .setParameter("idLab",idLab);
+      List numOfDataTracks  =  query.list();
+
+      count = (Long)numOfDataTracks.get(0);
+      if(count.compareTo(zero) > 0){
+          analyses = true;
+      }
+
+      return analyses;
   }
 
   @Override
