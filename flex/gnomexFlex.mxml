@@ -3051,8 +3051,15 @@
 			var dh:DictionaryHelper = new DictionaryHelper(this.dictionaryManager);
 			for each (var s:XML in dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol')) {
 				var seq:XML = s.copy();
+				if (seq != null) {
+					if (seq.@isActive == "N") {
+						continue;
+					}
+				}
 				var app:Object = dh.getApplicationForProtocol(seq.@idSeqLibProtocol);
 				if (app != null) {
+					if (app.@isActive == "N" || app.@onlyForLabPrepped == "Y")
+						continue;
 					seq.@idCoreFacility = app.@idCoreFacility;
 					seq.@codeApplicationType = app.@codeApplicationType;
 				}
