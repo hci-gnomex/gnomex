@@ -22,7 +22,7 @@
 	<mx:Script>
 		<![CDATA[
 		import hci.flex.controls.DropdownLabel;
-			import hci.flex.util.DictionaryManager;
+		import hci.flex.util.DictionaryManager;
 
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
@@ -79,6 +79,9 @@
 
 		[Bindable]
 		private var alignToGenomeBuild:String = "N";
+
+		[Bindable]
+		private var numLockedCols:int = 3;
 
 		[Bindable]
 		private var concHeader:String = "Conc. ";
@@ -220,15 +223,15 @@
 					theTab.removeChild(billingTab);
 				}
 			}
-				//		if (this.protocolsBox.visible) {
-				//			if (!this.headerBox.contains(this.protocolsBox)) {
-				//				this.headerBox.addChild(this.protocolsBox);
-				//			}
-				//		} else {
-				//			if (this.headerBox.contains(this.protocolsBox)) {
-				//				this.headerBox.removeChild(this.protocolsBox);
-				//			}
-				//		}
+			//		if (this.protocolsBox.visible) {
+			//			if (!this.headerBox.contains(this.protocolsBox)) {
+			//				this.headerBox.addChild(this.protocolsBox);
+			//			}
+			//		} else {
+			//			if (this.headerBox.contains(this.protocolsBox)) {
+			//				this.headerBox.removeChild(this.protocolsBox);
+			//			}
+			//		}
 			if (selectedExperiment.@projectDescription == '') {
 				this.projectDescVBox.visible = false;
 				this.projectDescVBox.includeInLayout = false;
@@ -372,7 +375,7 @@
 				downloadExpandedFilesButtonView.includeInLayout = false;
 			}
 
-				//			this.theTab.selectedIndex = 0;
+			//			this.theTab.selectedIndex = 0;
 
 			// Need to refresh download list here; otherwise last selected experiment's
 			// files shown rather than current selection.
@@ -616,6 +619,7 @@
 				this.switchFirstSampleGridColumns(this.plateNameCol, this.multiplexGroupNumberColumn);
 				this.plateNameCol.visible = true;
 				this.multiplexGroupNumberColumn.visible = false;
+				this.numLockedCols = 2;
 
 			} else if (showSampleMultiplexGroup) {
 
@@ -630,6 +634,7 @@
 				sampleGroupingCollection.grouping = group;
 				sampleGroupingCollection.refresh();
 				this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
+				this.numLockedCols = 3;
 
 				this.multiplexGroupNumberColumn.visible = true;
 				switchFirstSampleGridColumns(this.multiplexGroupNumberColumn, this.plateNameCol);
@@ -641,6 +646,7 @@
 				this.samplesGridConfirm.dataProvider = this.samples;
 
 				this.multiplexGroupNumberColumn.visible = false;
+				this.numLockedCols = 2;
 
 			}
 
@@ -1112,11 +1118,11 @@
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
 					preppedByLabCol.visible = true;
-						if(this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG){
-							otherSamplePrepMethodCol.visible = false;
-						} else {
-							otherSamplePrepMethodCol.visible = true;
-						}
+					if (this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG) {
+						otherSamplePrepMethodCol.visible = false;
+					} else {
+						otherSamplePrepMethodCol.visible = true;
+					}
 
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;
@@ -1458,6 +1464,7 @@
 			var annotation:Object;
 			var col:AdvancedDataGridColumn;
 			var exists:Boolean = false;
+			var needToValidateNow:Boolean = false;
 
 			addAssayColumns();
 
@@ -1557,9 +1564,12 @@
 					}
 
 					samplesGridConfirm.columns = newColumns;
-
-					samplesGridConfirm.validateNow();
+					needToValidateNow = true;
 				}
+			}
+
+			if (needToValidateNow) {
+				samplesGridConfirm.validateNow();
 			}
 		}
 
@@ -2047,7 +2057,8 @@
 						   click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
 			
 			<grid:CopyPasteSampleGrid width="100%" height="100%" id="samplesGridConfirm"  
-									  editable="false" backgroundAlpha="0" borderStyle="solid" fontSize="11">
+									  editable="false" backgroundAlpha="0" borderStyle="solid" fontSize="11"
+									  lockedColumnCount="{numLockedCols}">
 				<grid:columns>
 					<mx:AdvancedDataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multiplexGroupNumber" labelFunction="groupNameLabelFunction" editable="false" visible="true"
 											   width="60">

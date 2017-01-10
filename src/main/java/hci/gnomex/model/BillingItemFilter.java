@@ -91,6 +91,36 @@ public class BillingItemFilter extends DetailObject {
 
   }
 
+  public StringBuffer getBillingNewTemplateRequestQuery() {
+    addWhere = true;
+    queryBuf = new StringBuffer();
+
+    queryBuf.append(" SELECT DISTINCT req.idRequest ");
+
+    queryBuf.append(" FROM       Request as req ");
+    queryBuf.append(" JOIN       req.lab as lab ");
+    queryBuf.append(" LEFT JOIN  req.billingAccount as ba ");
+    queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
+    queryBuf.append(" LEFT JOIN  req.billingItems as bi ");
+    queryBuf.append(" LEFT JOIN  bi.invoice as inv ");
+
+    if (billingPeriod != null) {
+      queryBuf.append(" WHERE        ((req.createDate >= '" + this.formatDateTime(billingPeriod.getStartDate(),  this.dateOutputStyle) + "'");
+      queryBuf.append(" AND        req.createDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59')");
+      queryBuf.append(" OR ");
+      queryBuf.append(" (        req.completedDate >= '" + this.formatDate(billingPeriod.getStartDate(), this.DATE_OUTPUT_SQL) + "'");
+      queryBuf.append(" AND        req.completedDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59' ))");
+      addWhere = false;
+    }
+
+    this.addWhereOrAnd();
+    queryBuf.append(" req.idRequest IN (SELECT targetClassIdentifier FROM BillingTemplate WHERE isActive = 'N' AND targetClassName LIKE '%Request%') ");
+
+    this.addRequestCriteria();
+    this.addSecurityCriteria("req");
+
+    return queryBuf;
+  }
 
   public StringBuffer getBillingRequestQuery() {
     addWhere = true;

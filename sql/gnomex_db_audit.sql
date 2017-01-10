@@ -5724,7 +5724,6 @@ CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
  ,`percentSplit`  decimal(4,3)  NULL DEFAULT NULL
  ,`dollarAmount`  decimal(7,2)  NULL DEFAULT NULL
  ,`dollarAmountBalance`  decimal(7,2)  NULL DEFAULT NULL
- ,`sortOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -5744,8 +5743,7 @@ INSERT INTO BillingTemplateItem_Audit
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   SELECT
   'No Context'
   , 'L'
@@ -5758,7 +5756,6 @@ INSERT INTO BillingTemplateItem_Audit
   , percentSplit
   , dollarAmount
   , dollarAmountBalance
-  , sortOrder
   FROM BillingTemplateItem
   WHERE NOT EXISTS(SELECT * FROM BillingTemplateItem_Audit)
 $$
@@ -5781,8 +5778,7 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -5794,8 +5790,7 @@ BEGIN
   , NEW.idBillingAccount
   , NEW.percentSplit
   , NEW.dollarAmount
-  , NEW.dollarAmountBalance
-  , NEW.sortOrder );
+  , NEW.dollarAmountBalance );
 END;
 $$
 
@@ -5813,8 +5808,7 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -5826,8 +5820,7 @@ BEGIN
   , NEW.idBillingAccount
   , NEW.percentSplit
   , NEW.dollarAmount
-  , NEW.dollarAmountBalance
-  , NEW.sortOrder );
+  , NEW.dollarAmountBalance );
 END;
 $$
 
@@ -5845,8 +5838,7 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -5858,8 +5850,7 @@ BEGIN
   , OLD.idBillingAccount
   , OLD.percentSplit
   , OLD.dollarAmount
-  , OLD.dollarAmountBalance
-  , OLD.sortOrder );
+  , OLD.dollarAmountBalance );
 END;
 $$
 

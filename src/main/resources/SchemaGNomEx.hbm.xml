@@ -338,6 +338,7 @@
             <key column="idBillingTemplate"/>
             <one-to-many class="hci.gnomex.model.MasterBillingItem"/>
         </set>
+        <property name="isActive" column="isActive" type="string"/>
     </class>
 
     <!-- hci.gnomex.model.BillingTemplateItem -->
@@ -350,7 +351,6 @@
         <property name="percentSplit" column="percentSplit" type="big_decimal"/>
         <property name="dollarAmount" column="dollarAmount" type="big_decimal"/>
         <property name="dollarAmountBalance" column="dollarAmountBalance" type="big_decimal"/>
-        <property name="sortOrder" column="sortOrder" type="integer"/>
     </class>
 
     <!-- hci.gnomex.model.CoreFacility -->

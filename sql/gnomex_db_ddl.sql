@@ -373,6 +373,7 @@ CREATE TABLE `gnomex`.`BillingTemplate` (
 	`idBillingTemplate` INT(10) NOT NULL AUTO_INCREMENT,
 	`targetClassIdentifier` INT(10) NOT NULL,
 	`targetClassName` VARCHAR(100) NOT NULL,
+	`isActive` CHAR(1) NULL,
 	PRIMARY KEY (`idBillingTemplate`)
 )
 ENGINE = INNODB;
@@ -385,7 +386,6 @@ CREATE TABLE `gnomex`.`BillingTemplateItem` (
 	`percentSplit` DECIMAL(4, 3) NULL,
 	`dollarAmount` DECIMAL(7, 2) NULL,
 	`dollarAmountBalance` DECIMAL(7, 2) NULL,
-	`sortOrder` INT(10) NULL,
 	PRIMARY KEY (`idBillingTemplateItem`),
 	CONSTRAINT `FK_BillingTemplateItem_BillingAccount` FOREIGN KEY `FK_BillingTemplateItem_BillingAccount` (`idBillingAccount`)
 		REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)

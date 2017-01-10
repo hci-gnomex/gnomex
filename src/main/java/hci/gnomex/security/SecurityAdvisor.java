@@ -1598,34 +1598,41 @@ public boolean canUpdateVisibility(Integer idLab, Integer idAppUser) {
 }
 
 public boolean canUploadData(DetailObject object) throws UnknownPermissionException {
-	boolean canUpload = false;
-
-	//
-	// Request
-	//
 	if (object instanceof Request) {
-
-		Request req = (Request) object;
-
-		// Super Admins
+		Request request = (Request) object;
 		if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-			canUpload = true;
-		} else if (hasPermission(CAN_WRITE_ANY_OBJECT) || hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-			canUpload = isCoreFacilityIManage(req.getIdCoreFacility())
-					|| (canUpdate(req) && !isCollaboratorUpdater(req)) || isCollaboratorUploader(req);
+			return true;
 		}
-
-	}
-	//
-	// Analysis
-	//
-	else if (object instanceof Analysis) {
+		if (hasPermission(CAN_WRITE_ANY_OBJECT) && isCoreFacilityIManage(request.getIdCoreFacility())) {
+			return true;
+		}
+		if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
+			if (isCollaboratorUploader(request)) {
+				return true;
+			}
+			if (isCollaboratorUpdater(request)) {
+				// This would mean they are a collaborator who can't upload but can update
+				// Unfortunately, canUpdate() will return true in this case but we want this method to return false
+				return false;
+			}
+			return canUpdate(request);
+		}
+		return false;
+	} else if (object instanceof Analysis) {
 		Analysis analysis = (Analysis) object;
-		// Assumes if canUpdate and isCollaboratorUpdater then CollaboraterUpdater
-		// is why they can update.
-		canUpload = (canUpdate(analysis) && !isCollaboratorUpdater(analysis)) || isCollaboratorUploader(analysis);
+		if (isCollaboratorUploader(analysis)) {
+			return true;
+		}
+		if (isCollaboratorUpdater(analysis)) {
+			// This would mean they are a collaborator who can't upload but can update
+			// Unfortunately, canUpdate() will return true in this case but we want this method to return false
+			return false;
+		}
+		return canUpdate(analysis);
+	} else if (object instanceof ProductOrder) {
+		return true;
 	}
-	return canUpload;
+	return false;
 }
 
 public boolean canDelete(DetailObject object) throws UnknownPermissionException {
@@ -2116,8 +2123,7 @@ private void setGlobalPermissions() {
 
 		// Can administer users
 		if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)
-				|| appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)
-				|| appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
+				|| appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
 			globalPermissionMap.put(new Permission(CAN_ADMINISTER_USERS), null);
 		}
 

@@ -30,21 +30,20 @@ package hci.flex.util
 		{
 			return _filter(node);
 		}
-		
+
 		/**
 		 * True if the the filtered set of children >= 1
 		 */
 		public function hasChildren(node:Object, model:Object=null):Boolean
 		{
-			return getChildren(node, model).length > 0;
+			return XML(node).children().length() > 0;
 		}
 		
 		/**
 		 * This method determines whether a folder or file icon is displayed for
 		 * this node. Here it is a branch if the node has children
 		 */
-		public function isBranch(node:Object, model:Object=null):Boolean
-		{
+		public function isBranch(node:Object, model:Object=null):Boolean {
 			return hasChildren(node, model);
 		}
 		

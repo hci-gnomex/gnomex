@@ -1678,24 +1678,24 @@
 					 styleName="{showRequiredStylingNameDescription &amp;&amp; StringUtil.trim(experimentName.text) == '' ? 'requiredBox' : 'normalBox'}">
 				<util:ContextHelp context1="experimentName" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
 								  labelPlacement="left" id="nameLabel" width="200" label="(5) Provide an Experiment Name for the data folder. (optional)"/>
-				<mx:TextInput id="experimentName" focusOut="{propagateName();checkSetupCompleteness()}" text="{parentDocument.request == null ? '' : parentDocument.request.@name}"  
+				<mx:TextInput id="experimentName" focusOut="{propagateName();checkSetupCompleteness()}" text="{parentDocument.request == null ? '' : parentDocument.request.@name}"
 							  width="380" maxChars="200" focusIn="scrollOnFocus(event);" paddingLeft="0" keyUp="checkSetupCompleteness()"/>
 				<mx:Spacer width="10"/>
-			</mx:HBox>	
+			</mx:HBox>
 			<mx:VBox id="descriptionVBox" width="940" paddingRight="20" paddingTop="0"
 					 styleName="{showRequiredStylingNameDescription &amp;&amp; StringUtil.trim(overallDescript.htmlText) == '' ? 'requiredBox' : 'normalBox'}">
 				<util:ContextHelp context1="experimentDescription" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
 								  labelPlacement="left" id="descriptionLabel" width="500" label="(6) Document experimental details in the text field below. (optional)"/>
-				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
+				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"
 									id="overallDescript" width="900" minWidth="900"
-									htmlText="{parentDocument.request == null ? '' : parentDocument.request.@description}" 
+									htmlText="{parentDocument.request == null ? '' : parentDocument.request.@description}"
 									showControlBar="true"
 									change="parentDocument.dirty.setDirty();"
 									creationComplete="removeRichTextButtons(); this.addEventListener(FocusEvent.FOCUS_OUT,propagateDescript); this.addEventListener(FocusEvent.FOCUS_IN, scrollOnFocus); "
-									paddingLeft="0" paddingRight="0" paddingTop="0" 
-									roundedBottomCorners="false" paddingBottom="0" 
-									borderThicknessRight="0" borderThicknessLeft="0" 
-									borderThicknessBottom="0" borderThickness="0" 
+									paddingLeft="0" paddingRight="0" paddingTop="0"
+									roundedBottomCorners="false" paddingBottom="0"
+									borderThicknessRight="0" borderThicknessLeft="0"
+									borderThicknessBottom="0" borderThickness="0"
 									borderThicknessTop="0" height="100%" minHeight="25" keyUp="checkSetupCompleteness()">
 				</mx:RichTextEditor>
 			</mx:VBox>

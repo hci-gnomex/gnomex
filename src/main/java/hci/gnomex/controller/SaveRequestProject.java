@@ -170,7 +170,6 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
           BillingTemplateItem item = new BillingTemplateItem(billingTemplate);
           item.setIdBillingAccount(idBillingAccount);
           item.setPercentSplit(BillingTemplateItem.WILL_TAKE_REMAINING_BALANCE);
-          item.setSortOrder(1);
           billingTemplate.getItems().add(item);
           sess.save(item);
 
@@ -203,15 +202,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
       } 
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveRequest ", e);
-
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
     
     return this;
