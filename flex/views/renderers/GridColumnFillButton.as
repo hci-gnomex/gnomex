@@ -90,6 +90,9 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 			if(edtComponent is views.renderers.TextInput) {
 				views.renderers.TextInput(edtComponent).dataField = _listData.dataField;
 			}
+			// SetFocus is needed here to ensure that the GridColumnFillButton is re-focused on alt-tabbing out and back.
+			// Otherwise, the component has a tendency to become null suddenly and unexpectedly.
+			edtComponent.setFocus();
 		}
 	}
 
