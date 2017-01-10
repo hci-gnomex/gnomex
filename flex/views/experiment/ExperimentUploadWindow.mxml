@@ -145,7 +145,7 @@
 
         public function init(request:Object):void {
             this.idRequest = request.@idRequest;
-            this.requestNumber = request.@requestNumber;
+            this.requestNumber = request.@number;
             this.request = request;
 
             //remove linkSamplesTab if property not enabled or if the experiment isn't hiseq or miseq
