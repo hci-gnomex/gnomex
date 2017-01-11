@@ -487,30 +487,18 @@
 					removeButton.label = 'Remove link';   			
 				}
 				
-				if (this.browseTree.selectedItem.name() == "Topic") {			
-					if(this.mainViewStack.selectedChild.id == "topicView") {
-						topicViewShow();
-					} else {
-						this.mainViewStack.selectedChild = this.topicView;
-					}	
+				if (this.browseTree.selectedItem.name() == "Topic") {
+					this.mainViewStack.selectedChild = this.topicView;
+					topicViewShow();
 				} else if (this.browseTree.selectedItem.name() == "DataTrack") {
-					if(this.mainViewStack.selectedChild.id == "dataTrackView") {
-						dataTrackViewShow();
-					} else {
-						this.mainViewStack.selectedChild = this.dataTrackView;
-					}			                
+					this.mainViewStack.selectedChild = this.dataTrackView;
+					dataTrackViewShow();
 				} else if (this.browseTree.selectedItem.name() == "Request") {
-					if(this.mainViewStack.selectedChild.id == "experimentViews") {
-						experimentViewShow();
-					} else {
-						mainViewStack.selectedChild = experimentViews; 
-					}			
+					mainViewStack.selectedChild = experimentViews;
+					experimentViewShow();
 				} else if (this.browseTree.selectedItem.name() == "Analysis") {
-					if(this.mainViewStack.selectedChild.id == "analysisViews") {
-						analysisViewShow();
-					} else {
-						this.mainViewStack.selectedChild = this.analysisViews; 
-					}				 
+					this.mainViewStack.selectedChild = this.analysisViews;
+					analysisViewShow();
 				}
 			}
 			
