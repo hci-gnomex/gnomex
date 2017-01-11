@@ -131,16 +131,36 @@ public class AnalysisGroupFilter extends DetailObject {
     }
     if (searchText != null && !searchText.equals("")) {
       textSearch = true;
+      String[] tokens = searchText.trim().split("\\s+");
+
       if(labSearch){
         queryBuf.append(" AND ");
       }
       else {
         queryBuf.append(" WHERE ");
       }
+
       queryBuf.append("(");
-      queryBuf.append(" lab.firstName like '%" + searchText + "%'");
-      queryBuf.append(" OR ");
-      queryBuf.append(" lab.lastName like '%" + searchText + "%'");
+
+      Boolean firstIteration = true;
+      for(String token : tokens) {
+        if(token.toLowerCase().equals("lab")) {
+          continue;
+        }
+
+        if(!firstIteration) {
+          queryBuf.append(" AND ");
+        } else {
+          firstIteration = false;
+        }
+
+        queryBuf.append("(");
+        queryBuf.append(" lab.firstName like '%" + token + "%'");
+        queryBuf.append(" OR ");
+        queryBuf.append(" lab.lastName like '%" + token + "%'");
+        queryBuf.append(")");
+      }
+
       queryBuf.append(")");
     }
     if(!labSearch && !textSearch){

@@ -1272,11 +1272,22 @@
 						</mx:HBox>
 						<mx:HBox horizontalGap="0" id="searchBox" verticalAlign="middle" fontSize="10">
 							<!--<mx:Label text="Search" id="searchLabel" paddingLeft="6" width="50"/>-->
-							<mx:TextInput id="searchTextField" borderColor="#D1C5C5" backgroundColor="#FFFFFF" text="Search..." click="{if(searchTextField.text == 'Search...') searchTextField.text = ''}"/>     
-							<mx:Button id="lookupButton"  
-									   fontFamily="Arial"  height="18" width="30"
-									   color="#400040" click="{if (searchTextField.text != '' &amp;&amp; searchTextField.text != 'Search...') refreshAnalysis();}" 
-									   visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
+							<mx:TextInput
+									id="searchTextField"
+									borderColor="#D1C5C5"
+									backgroundColor="#FFFFFF"
+									text="Search..."
+									click="{if(searchTextField.text == 'Search...') searchTextField.text = ''}"/>
+							<mx:Button
+									id="lookupButton"
+									fontFamily="Arial"
+									height="18"
+									width="30"
+									color="#400040"
+									click="{if (searchTextField.text != '' &amp;&amp; searchTextField.text != 'Search...') refreshAnalysis();}"
+									visible="true"
+									icon="@Embed('../../assets/arrow_right.png')"
+									disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
 						</mx:HBox>
 						<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="forceReload = true; this.refreshAnalysis()" textDecoration="underline" id="refreshButtonID"/>
 					</mx:HBox>

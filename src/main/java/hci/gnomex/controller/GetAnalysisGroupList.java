@@ -182,7 +182,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
               }
             }
           }
-        }else { // labsWithAnalysesIsASubsetOfAllLabsInQuery is false, don't query Labs as superset
+        } else { // labsWithAnalysesIsASubsetOfAllLabsInQuery is false, don't query Labs as superset
 
           Integer prevIdLab            = new Integer(-1);
           Integer prevIdAnalysisGroup  = new Integer(-1);
