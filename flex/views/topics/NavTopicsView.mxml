@@ -366,7 +366,7 @@
 				}
 				if(treatAsTopicClick) {
 					treatAsTopicClick = false;
-					onTreeClick();
+					onTreeChange();
 				}
 			}
 			
@@ -445,11 +445,12 @@
 			}
 			
 			
-			public function onTreeClick():void {
+			public function onTreeChange():void {
 				this.treeItemToSelect = this.browseTree.selectedItem;
 				if (topicView.dirtyTopic != null) {
 					topicView.dirtyTopic.resetDirty();
 				}
+				this.mainViewStack.setFocus();
 				this.selectView();
 			}
 			
@@ -1278,7 +1279,7 @@
 								 showRoot="false" 
 								 id="browseTree" 
 								 itemRollOver="setLastTreeItem(event)"
-								 click="onTreeClick();"
+								 change="onTreeChange();"
 								 doubleClickEnabled="true" 
 								 doubleClick="onTreeDoubleClick();"
 								 borderStyle="none"
@@ -1289,7 +1290,7 @@
 								 dragMoveEnabled="true"
 								 dragDrop="onDragDrop(event);" 
 								 itemRenderer="views.renderers.TreeNodeRenderer"
-								 iconFunction="getTreeIcon" backgroundAlpha="1" ></mx:Tree>
+								 iconFunction="getTreeIcon" backgroundAlpha="1" />
 						
 					</mx:VBox>
 					
