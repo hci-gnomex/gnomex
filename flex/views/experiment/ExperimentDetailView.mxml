@@ -1464,7 +1464,7 @@
 			var annotation:Object;
 			var col:AdvancedDataGridColumn;
 			var exists:Boolean = false;
-			var needToValidateNow:Boolean = false;
+//			var needToValidateNow:Boolean = false;
 
 			addAssayColumns();
 
@@ -1564,13 +1564,14 @@
 					}
 
 					samplesGridConfirm.columns = newColumns;
-					needToValidateNow = true;
+					samplesGridConfirm.validateProperties();
+//					needToValidateNow = true;
 				}
 			}
 
-			if (needToValidateNow) {
-				samplesGridConfirm.validateNow();
-			}
+//			if (needToValidateNow) {
+//				samplesGridConfirm.validateNow();
+//			}
 		}
 
 		private function showProtocol(idProtocol:Object, protocolClassName:String):void {

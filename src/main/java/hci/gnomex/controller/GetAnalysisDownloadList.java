@@ -612,8 +612,10 @@ private static void recurseAddChildren(boolean autocreate, Element fdNode, FileD
 		childFdNode.setAttribute("URLLinkAllowed", childFd.getIsURLLinkAllowed());
 		childFdNode.setAttribute("GENEIOBIOViewer", childFd.getIsGENELinkAllowed());
 
-		String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + childFd.getId().toString();
-
+		String viewType = "";
+		if (childFd.getId() != null) {
+			viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + childFd.getId().toString();
+		}
 		childFdNode.setAttribute("viewURL", childFd.getViewURL(viewType) != null ? childFd.getViewURL(viewType) : "");
 
 		childFdNode.setAttribute("isSelected", "N");

@@ -20,5 +20,5 @@ done
 
 export CLASSPATH
 
-java hci.gnomex.lucene.BuildSearchIndex $*
+java -Xmx4000M hci.gnomex.lucene.BuildSearchIndex $*
 
