@@ -11,7 +11,6 @@ import java.util.List;
 
 public class AnalysisGroupFilter extends DetailObject {
 
-
   // Criteria
   private Integer               idLab;
   private Integer               idAppUser;
@@ -30,11 +29,9 @@ public class AnalysisGroupFilter extends DetailObject {
   private String				idGenomeBuild;
   private String				idOrganism;
 
-
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
-
 
   public static final int       COL_ID_ANALYSIS = 7;
   public static final int       COL_ANALYSIS_NUMBER = 8;
@@ -111,19 +108,18 @@ public class AnalysisGroupFilter extends DetailObject {
     ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append("SELECT idLab, lastName, firstName ");
-    queryBuf.append("FROM Lab as lab ");
-
+    queryBuf.append("  FROM Lab as lab ");
 
     // if we have one or more labKeys then filter query by those ids
     if (labKeys != null && !labKeys.equals("")) {
       labSearch = true;
       String[] tokens = labKeys.split(":");
       if (tokens.length > 0) {
-        queryBuf.append(" WHERE ");
-        queryBuf.append(" idLab IN (");
+        queryBuf.append(" WHERE idLab IN ( ");
         for(int x=0; x < tokens.length; x++){
           if(x > 0) { //not the first element
-            queryBuf.append(", "); }
+            queryBuf.append(", ");
+          }
           queryBuf.append(tokens[x]);
         }
         queryBuf.append(")");
@@ -141,8 +137,8 @@ public class AnalysisGroupFilter extends DetailObject {
       }
 
       queryBuf.append("(");
-
       Boolean firstIteration = true;
+
       for(String token : tokens) {
         if(token.toLowerCase().equals("lab")) {
           continue;
@@ -154,13 +150,8 @@ public class AnalysisGroupFilter extends DetailObject {
           firstIteration = false;
         }
 
-        queryBuf.append("(");
-        queryBuf.append(" lab.firstName like '%" + token + "%'");
-        queryBuf.append(" OR ");
-        queryBuf.append(" lab.lastName like '%" + token + "%'");
-        queryBuf.append(")");
+        queryBuf.append("(lab.firstName like '%").append(token).append("%' OR lab.lastName like '%").append(token).append("%')");
       }
-
       queryBuf.append(")");
     }
     if(!labSearch && !textSearch){
@@ -197,8 +188,6 @@ public class AnalysisGroupFilter extends DetailObject {
     return queryBuf;
 
   }
-
-
 
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
@@ -282,7 +271,6 @@ public class AnalysisGroupFilter extends DetailObject {
     addSecurityCriteria();
   }
 
-
   private boolean hasExperimentItemCriteria() {
     if (idRequest != null) {
       return true;
@@ -298,8 +286,6 @@ public class AnalysisGroupFilter extends DetailObject {
       queryBuf.append(" aglab.excludeUsage != 'Y' ");
     }
   }
-
-
 
   private void addAnalysisCriteria() {
     // Search by owner
@@ -410,6 +396,7 @@ public class AnalysisGroupFilter extends DetailObject {
 
 
   }
+
   private void addExperimentItemCriteria() {
     // Search by request (experiment item)
     if (idRequest != null){
@@ -446,7 +433,6 @@ public class AnalysisGroupFilter extends DetailObject {
 
   }
 
-
   protected boolean addWhereOrAnd() {
     if (addWhere) {
       queryBuf.append(" WHERE ");
@@ -467,39 +453,31 @@ public class AnalysisGroupFilter extends DetailObject {
     return addWhere;
   }
 
+  //<editor-fold desc="getters and setters">
 
   public Integer getIdLab() {
     return idLab;
   }
 
-
-
-
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
-
-
 
   public Integer getIdRequest() {
     return idRequest;
   }
 
-
   public void setIdRequest(Integer idRequest) {
     this.idRequest = idRequest;
   }
-
 
   public Integer getIdAnalysis() {
     return idAnalysis;
   }
 
-
   public void setIdAnalysis(Integer idAnalysis) {
     this.idAnalysis = idAnalysis;
   }
-
 
   public List getIdAnalyses()
   {
@@ -515,16 +493,13 @@ public class AnalysisGroupFilter extends DetailObject {
     return labKeys;
   }
 
-
   public void setLabKeys(String labKeys) {
     this.labKeys = labKeys;
   }
 
-
   public String getSearchText() {
     return searchText;
   }
-
 
   public void setSearchText(String searchText) {
     this.searchText = searchText;
@@ -565,6 +540,7 @@ public class AnalysisGroupFilter extends DetailObject {
   public void setIdOrganism(String idOrganism) {
     this.idOrganism = idOrganism;
   }
+
   public String getIdOrganism(String idOrganism) {
     return this.idOrganism;
   }
@@ -572,6 +548,7 @@ public class AnalysisGroupFilter extends DetailObject {
   public void setIdGenomeBuild(String idGenomeBuild) {
     this.idGenomeBuild = idGenomeBuild;
   }
+
   public String getIdGenomeBuild(String idGenomeBuild) {
     return this.idGenomeBuild;
   }
@@ -590,6 +567,7 @@ public class AnalysisGroupFilter extends DetailObject {
 
   public void setCreateDateTo(Date createDateTo) {
 	this.createDateTo = createDateTo;
-  }  
+  }
 
+  //</editor-fold>
 }
