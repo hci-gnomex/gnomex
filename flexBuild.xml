@@ -32,7 +32,7 @@
             <compiler.library-path dir="${lib.dir}" append="true">
                 <include name="AlivePDF.swc" />
             </compiler.library-path>
-            <compiler.debug>false</compiler.debug>
+            <compiler.debug>true</compiler.debug>
         </mxmlc>
         <html-wrapper
                 title="${flexapp.title}"
