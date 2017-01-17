@@ -5901,24 +5901,31 @@
 
         private function retrieveBillingAccountNames(includeLab:Boolean = false):String {
             var names:String = "";
-            if (request != null && request.BillingTemplate != null) {
+            var items:XMLList = null;
+            if (editedBillingTemplate != null) {
+                items = new XML(editedBillingTemplate)..BillingTemplateItem;
+            } else if (request != null && request.BillingTemplate != null) {
+                items = request.BillingTemplate..BillingTemplateItem;
+            }
+            if (items != null) {
                 var first:Boolean = true;
-                for each (var item:Object in request.BillingTemplate..BillingTemplateItem) {
+                for each (var item:Object in items) {
                     if (first) {
                         names += item.@accountName;
                         first = false;
                     } else {
-                        names += ", " + item.@accountName;
+                        names += "\n" + item.@accountName;
                     }
                     if (includeLab) {
                         names += " (" + item.@labName + ")";
                     }
                 }
             }
+            names = GNomExStringUtil.unescapeXMLSpecialChars(names);
             return names;
         }
 
-        private function updateCurrentAccountLabel():void {
+        public function updateCurrentAccountLabel():void {
             if (this.accountLabel != null) {
                 this.accountLabel.text = this.retrieveBillingAccountNames(true);
             }
@@ -5991,11 +5998,11 @@
         }
 
         private function updateBillingAccountInfo():void {
+            this.editedBillingTemplate = null;
             this.updateCurrentAccountLabel();
             this.updateAccountAcceptingBalanceOnRequest();
             this.updateShowEditBillingTemplateOption();
             this.showEditBillingOption();
-            this.editedBillingTemplate = null;
             if (request != null) {
                 request.@isOpeningNewBillingTemplate = "N";
             }
@@ -6010,7 +6017,11 @@
             var editBillingTemplateWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
             editBillingTemplateWindow.order = request;
             editBillingTemplateWindow.performSetup(true, this);
-            editBillingTemplateWindow.loadBillingTemplateFromDb(parseInt(new String(request.@idRequest)), "Request");
+            if (editedBillingTemplate != null) {
+                editBillingTemplateWindow.loadBillingTemplate(new XML(editedBillingTemplate));
+            } else {
+                editBillingTemplateWindow.loadBillingTemplateFromDb(parseInt(new String(request.@idRequest)), "Request");
+            }
             mx.managers.PopUpManager.centerPopUp(editBillingTemplateWindow);
             editBillingTemplateWindow.setFocus();
         }
@@ -6347,7 +6358,7 @@
                 <mx:Canvas label="Billing" width="100%" height="100%" id="billingTab">
                     <mx:VBox width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingTop="4"
                              paddingRight="4" paddingLeft="4" id="billingContainer">
-                        <mx:HBox verticalGap="0" width="100%" horizontalGap="2" verticalAlign="middle">
+                        <mx:HBox verticalGap="0" width="100%" horizontalGap="2" verticalAlign="top">
                             <mx:Label text="Account" id="accountComboLabel"
                                       visible="{this.request.@isExternal != 'Y'}"
                                       styleName="formLabel"/>
@@ -6361,11 +6372,11 @@
                             <mx:LinkButton label="Edit Billing Template" styleName="formLinkButton"
                                            id="editBillingTemplateLink" fontSize="10" paddingTop="0" textAlign="left"
                                            paddingLeft="0" click="showEditBillingTemplateWindow()"/>
-                            <mx:Label text="Current Account:"
+                            <mx:Label text="Current Account(s):"
                                       visible="{this.request.@isExternal != 'Y'}"
                                       styleName="formLabel"/>
                             <mx:Text id="accountLabel" visible="{this.request.@isExternal != 'Y'}"/>
-                            <mx:Text id="newTemplateWarning" visible="{this.request.@isExternal != 'Y'}"/>
+                            <mx:Label id="newTemplateWarning" visible="{this.request.@isExternal != 'Y'}" styleName="formLabel" />
                         </mx:HBox>
                         <mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"
                                              displayItemsExpanded="true"
