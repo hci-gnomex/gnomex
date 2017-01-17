@@ -5925,10 +5925,12 @@
         }
 
         public function updateNewTemplateWarningLabel():void {
-            if (this.newTemplateWarning != null && this.editedBillingTemplate != null && this.request != null && request.hasOwnProperty("@canOpenNewBillingTemplate") && request.@canOpenNewBillingTemplate == "Y") {
-                this.newTemplateWarning.text = "A New Billing Template Will Be Opened";
-            } else {
-                this.newTemplateWarning.text = "";
+            if (this.newTemplateWarning != null) {
+                if (this.editedBillingTemplate != null && this.request != null && request.hasOwnProperty("@canOpenNewBillingTemplate") && request.@canOpenNewBillingTemplate == "Y") {
+                    this.newTemplateWarning.text = "A New Billing Template Will Be Opened";
+                } else {
+                    this.newTemplateWarning.text = "";
+                }
             }
         }
 
