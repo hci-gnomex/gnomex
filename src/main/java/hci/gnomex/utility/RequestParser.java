@@ -309,6 +309,19 @@ public class RequestParser implements Serializable {
       billingTemplateItems.add(getBillingTemplateItemForIdBA(newIdBillingAccount));
       isOpeningNewBillingTemplate = true;
       reassignBillingAccount = false;
+    } else if (n.getAttributeValue("isOpeningNewBillingTemplate") != null && n.getAttributeValue("isOpeningNewBillingTemplate").equals("Y") && (n.getChild("BillingTemplate") != null || (n.getChild("billingTemplate") != null && n.getChild("billingTemplate").getChild("BillingTemplate") != null))) {
+      BillingTemplate oldBillingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+      if (oldBillingTemplate == null || !oldBillingTemplate.canBeDeactivated(sess)) {
+        throw new Exception("Current billing template cannot be deactivated");
+      }
+      Element billingTemplateNode = n.getChild("BillingTemplate") != null ? n.getChild("BillingTemplate") : n.getChild("billingTemplate").getChild("BillingTemplate");
+      BillingTemplateParser btParser = new BillingTemplateParser(billingTemplateNode);
+      btParser.parse(sess);
+      billingTemplate = btParser.getBillingTemplate();
+      billingTemplate.setOrder(request);
+      billingTemplateItems = btParser.getBillingTemplateItems();
+      isOpeningNewBillingTemplate = true;
+      reassignBillingAccount = false;
     } else if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       Integer newIdBillingAccount = new Integer(n.getAttributeValue("idBillingAccount"));
       request.setIdBillingAccount(newIdBillingAccount);

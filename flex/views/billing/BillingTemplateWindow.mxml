@@ -252,6 +252,7 @@
 					} else if (parentView is ExperimentEditView) {
 						(parentView as ExperimentEditView).editedBillingTemplate = billingTemplateXML;
 						(parentView as ExperimentEditView).updateDirtyNote(true);
+						(parentView as ExperimentEditView).updateNewTemplateWarningLabel();
 						this.close();
 					}
 				}
