@@ -22,8 +22,7 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 	private BigDecimal 				percentSplit;
 	private BigDecimal 				dollarAmount;
 	private BigDecimal				dollarAmountBalance;
-	private Integer					sortOrder;
-	
+
 	public BillingTemplateItem() {
 		super();
 	}
@@ -112,16 +111,19 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 			this.dollarAmountBalance = dollarAmountBalance;
 		}
 	}
-	public Integer getSortOrder() {
-		return this.sortOrder;
-	}
-	public void setSortOrder(Integer sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-	
+
 	@Override
 	public int compareTo(BillingTemplateItem o) {
-		return this.sortOrder - o.sortOrder;
+		// The template billing item accepting the balance should be sorted into the last position
+		// because the billing item code expects this order when computing costs.
+		if (this.isAcceptingBalance() && !o.isAcceptingBalance()) {
+			return 1;
+		}
+		if (!this.isAcceptingBalance() && o.isAcceptingBalance()) {
+			return -1;
+		}
+		// Otherwise the order does not matter, use a unique field for comparison
+		return this.idBillingAccount - o.idBillingAccount;
 	}
 
 	@Override
@@ -135,7 +137,6 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 		billingTemplateItemNode.setAttribute("percentSplit", this.getPercentSplit()!=null ? XMLTools.safeXMLValue(this.getPercentSplit().multiply( new BigDecimal(100) )) : "");
 		billingTemplateItemNode.setAttribute("dollarAmount", XMLTools.safeXMLValue(this.getDollarAmount()));
 		billingTemplateItemNode.setAttribute("dollarAmountBalance", XMLTools.safeXMLValue(this.getDollarAmountBalance()));
-		billingTemplateItemNode.setAttribute("sortOrder", XMLTools.safeXMLValue(this.getSortOrder()));
 		billingTemplateItemNode.setAttribute("acceptBalance", this.isAcceptingBalance() ? "true" : "false");
 		
 		BillingAccount billingAccount = sess.load(BillingAccount.class, this.getIdBillingAccount());

@@ -759,15 +759,14 @@
 			private function uploadHttpStatusHandler(event:HTTPStatusEvent):void {
 				if (event.status == 200){
 				} else if (event.status == 900) {
-					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The GNomEx property 'temp_directory' is not specified.  Please contact GNomEx support.");
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The GNomEx property 'temp_directory' is not specified.  Please contact GNomEx support. status: " + event.status);
 				} else if (event.status == 901) {
-					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The temp directory is invalid.  Please contact GNomEx support.");
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The temp directory is invalid.  Please contact GNomEx support. status: " + event.status);
 				} else if (event.status == 902) {
-					mx.controls.Alert("File \n" + event.target.name + "\n did not upload due to insufficent permissions.  Please contact GNomEx support.");
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload due to insufficent permissions.  Please contact GNomEx support. status: " + event.status);
 				} else {
-				  	mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
-						"HTTP status",0);
-				} 
+				  	mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support. status: " + event.status);
+				}
 				clickUploadFileButton();
 			}
 			

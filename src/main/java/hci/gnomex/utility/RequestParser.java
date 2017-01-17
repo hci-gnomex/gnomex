@@ -54,6 +54,7 @@ public class RequestParser implements Serializable {
   private String previousCodeRequestStatus = null;
   private BillingTemplate billingTemplate;
   private Set<BillingTemplateItem> 	billingTemplateItems;
+  private boolean isOpeningNewBillingTemplate;
 
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestNode = requestDoc.getRootElement();
@@ -99,6 +100,7 @@ public class RequestParser implements Serializable {
     cherryPickSourcePlates = new HashMap<String, String>();
     cherryPickSourceWells = new HashMap<String, String>();
     cherryPickDestinationWells = new HashMap<String, String>();
+    isOpeningNewBillingTemplate = false;
   }
 
   /*
@@ -295,7 +297,32 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("includeQubitConcentration") != null && !n.getAttributeValue("includeQubitConcentration").equals(""))
       request.setIncludeQubitConcentration(n.getAttributeValue("includeQubitConcentration"));
 
-    if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
+    if (n.getAttributeValue("newBillingTemplateIdBillingAccount") != null && !n.getAttributeValue("newBillingTemplateIdBillingAccount").equals("")) {
+      BillingTemplate oldBillingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+      if (oldBillingTemplate == null || !oldBillingTemplate.canBeDeactivated(sess)) {
+        throw new Exception("Current billing template cannot be deactivated");
+      }
+      Integer newIdBillingAccount = new Integer(n.getAttributeValue("newBillingTemplateIdBillingAccount"));
+      request.setIdBillingAccount(newIdBillingAccount);
+      billingTemplate = new BillingTemplate(request);
+      billingTemplateItems = new TreeSet<BillingTemplateItem>();
+      billingTemplateItems.add(getBillingTemplateItemForIdBA(newIdBillingAccount));
+      isOpeningNewBillingTemplate = true;
+      reassignBillingAccount = false;
+    } else if (n.getAttributeValue("isOpeningNewBillingTemplate") != null && n.getAttributeValue("isOpeningNewBillingTemplate").equals("Y") && (n.getChild("BillingTemplate") != null || (n.getChild("billingTemplate") != null && n.getChild("billingTemplate").getChild("BillingTemplate") != null))) {
+      BillingTemplate oldBillingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+      if (oldBillingTemplate == null || !oldBillingTemplate.canBeDeactivated(sess)) {
+        throw new Exception("Current billing template cannot be deactivated");
+      }
+      Element billingTemplateNode = n.getChild("BillingTemplate") != null ? n.getChild("BillingTemplate") : n.getChild("billingTemplate").getChild("BillingTemplate");
+      BillingTemplateParser btParser = new BillingTemplateParser(billingTemplateNode);
+      btParser.parse(sess);
+      billingTemplate = btParser.getBillingTemplate();
+      billingTemplate.setOrder(request);
+      billingTemplateItems = btParser.getBillingTemplateItems();
+      isOpeningNewBillingTemplate = true;
+      reassignBillingAccount = false;
+    } else if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       Integer newIdBillingAccount = new Integer(n.getAttributeValue("idBillingAccount"));
       request.setIdBillingAccount(newIdBillingAccount);
       billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
@@ -313,7 +340,6 @@ public class RequestParser implements Serializable {
       }
       billingTemplateItems = new TreeSet<BillingTemplateItem>();
       billingTemplateItems.add(getBillingTemplateItemForIdBA(newIdBillingAccount));
-
     } else if (n.getAttributeValue("idBillingTemplate") != null && !n.getAttributeValue("idBillingTemplate").equals("")) {
       billingTemplate = sess.get(BillingTemplate.class, Integer.parseInt(n.getAttributeValue("idBillingTemplate")));
       Hibernate.initialize(billingTemplate.getItems());
@@ -483,12 +509,9 @@ public class RequestParser implements Serializable {
   }
 
   public BillingTemplateItem getBillingTemplateItemForIdBA(int idBillingAccount) throws Exception {
-
     BillingTemplateItem item = new BillingTemplateItem();
     item.setIdBillingAccount(idBillingAccount);
     item.setPercentSplit(BillingTemplateItem.WILL_TAKE_REMAINING_BALANCE);
-    item.setSortOrder(1);
-
     return item;
   }
 
@@ -1856,5 +1879,7 @@ public class RequestParser implements Serializable {
     public String plateIdAsString = "";
     public String wellIdAsString = "";
   }
+
+  public Boolean getIsOpeningNewBillingTemplate() { return isOpeningNewBillingTemplate; }
 
 }

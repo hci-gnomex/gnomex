@@ -11,10 +11,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.GNomExRollbackException;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.ParserException;
-import hci.gnomex.utility.ServletUtil;
+import hci.gnomex.utility.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +83,7 @@ protected static void initLog4j() {
 	configFile = webContextPath + "/WEB-INF/classes/" + Constants.LOGGING_PROPERTIES;
 	org.apache.log4j.PropertyConfigurator.configure(configFile);
 	if (configFile == null) {
-		System.err.println("No configuration file specified for log4j!");
+		System.err.println("[GNomExFrontController] No configuration file specified for log4j!");
 	}
 	org.apache.log4j.PropertyConfigurator.configure(configFile);
 }
@@ -214,16 +211,10 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 			commandInstance.execute();
 		} catch (Exception e) {
 			LOG.error("Error in gnomex front controller:", e);
+			Util.printRequest(request);
 			HibernateSession.rollback();
 			String msg = null;
-			if (e.getCause() != null && e.getCause() instanceof EJBException) {
-				EJBException ejbe = (EJBException) e.getCause();
-				if (ejbe.getCausedByException() != null
-						&& ejbe.getCausedByException() instanceof RollBackCommandException) {
-					RollBackCommandException rbce = (RollBackCommandException) ejbe.getCausedByException();
-					msg = rbce.getMessage();
-				}
-			}
+
 			if (requestName.compareTo("ChangePassword") == 0) {
 				// Have to place error message here because by the time we get here the ChangePassword instance
 				// no longer retains state it was in when RollBackCommandException was thrown

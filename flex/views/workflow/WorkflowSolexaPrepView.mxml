@@ -193,7 +193,7 @@
 
             var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
 			for(var i:int = 0; i < dirtyItems.length(); i++){
-				if(dirtyItems[i].@idLibPrepPerformedBy == '' && dirtyItems[i].@seqPrepStatus != ''){
+				if(dirtyItems[i].@idLibPrepPerformedBy == '' && dirtyItems[i].@seqPrepStatus != '' && dirtyItems[i].@seqPrepStatus != "Terminated"){
 					Alert.show("Make sure all samples have a name selected in the 'Performed By' column before changing the status.", "Error");
 					return;
 				}

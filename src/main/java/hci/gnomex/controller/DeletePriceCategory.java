@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -116,6 +117,10 @@ public class DeletePriceCategory extends GNomExCommand implements Serializable {
             // Delete the price category if
             // no fk violations will occur.
             if (!existingBillingItems) {
+              // Remove any workflow steps before deletion
+              priceCategory.setSteps(new TreeSet());
+              sess.flush();
+
               sess.delete(priceCategory);
             } else {
               priceCategory.setIsActive("N");

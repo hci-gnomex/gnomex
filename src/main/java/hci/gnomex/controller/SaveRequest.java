@@ -110,6 +110,9 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
+
+import static hci.gnomex.constants.Constants.MAX_DESCRIPT_LIMIT;
+
 public class SaveRequest extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
@@ -204,6 +207,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
 			propertiesXML = request.getParameter("propertiesXML");
+
 		}
 
 		invoicePrice = "";
@@ -223,9 +227,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			this.addInvalidField("RequestXMLString", "Invalid request xml");
 		}
 
-		if (request.getParameter("idProject") != null && !request.getParameter("idProject").equals("")) {
-			new Integer(request.getParameter("idProject"));
-		}
 
 		try {
 			launchAppURL = this.getLaunchAppURL(request);
@@ -239,6 +240,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("assaysXMLString") != null && !request.getParameter("assaysXMLString").equals("")) {
 			String assaysXMLString = "<assays>" + request.getParameter("assaysXMLString") + "</assays>";
+
 			reader = new StringReader(assaysXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -252,6 +254,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("primersXMLString") != null && !request.getParameter("primersXMLString").equals("")) {
 			String assaysXMLString = "<primers>" + request.getParameter("primersXMLString") + "</primers>";
+
 			reader = new StringReader(assaysXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -336,6 +339,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 						}
 					}
 				}
+				if(description != null && description.length() > MAX_DESCRIPT_LIMIT){
+					this.addInvalidField("MaxCharLimit", "Experiment's description is too long.\n");
+				}
 
 				if (this.isValid()) {
 					List labels = sess.createQuery("SELECT label from Label label").list();
@@ -362,67 +368,72 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					BillingTemplate oldBillingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, requestParser.getRequest());
 
 					// If the request has any approved billing items, prevent billing template modification
+					// Unless a new billing template is being opened, in which case deactivate old template
 					boolean allowBillingTemplateModification = true;
-					if (billingTemplate != null) {
-						Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
-						for (BillingItem billingItem : oldBillingItems) {
-							if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)
-									&& !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-								billingAccountMessage = "Billing was not adjusted because approved billing items cannot be reassigned.";
-								allowBillingTemplateModification = false;
-								break;
+					if (!requestParser.getIsOpeningNewBillingTemplate()) {
+						if (billingTemplate != null) {
+							Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
+							for (BillingItem billingItem : oldBillingItems) {
+								if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)
+										&& !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+									billingAccountMessage = "Billing was not adjusted because approved billing items cannot be reassigned.";
+									allowBillingTemplateModification = false;
+									break;
+								}
 							}
 						}
-					}
-					if (oldBillingTemplate != null) {
-						Set<BillingItem> oldBillingItems2 = oldBillingTemplate.getBillingItems(sess);
-						for (BillingItem billingItem : oldBillingItems2) {
-							if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)
-									&& !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-								billingAccountMessage = "Billing was not adjusted because approved billing items cannot be reassigned.";
-								allowBillingTemplateModification = false;
-								break;
+						if (oldBillingTemplate != null) {
+							Set<BillingItem> oldBillingItems2 = oldBillingTemplate.getBillingItems(sess);
+							for (BillingItem billingItem : oldBillingItems2) {
+								if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)
+										&& !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+									billingAccountMessage = "Billing was not adjusted because approved billing items cannot be reassigned.";
+									allowBillingTemplateModification = false;
+									break;
+								}
 							}
 						}
 					}
 
 					if (allowBillingTemplateModification && billingTemplate != null) {
 
-						if (requestParser.isNewRequest()) {
+						if (requestParser.isNewRequest() || requestParser.getIsOpeningNewBillingTemplate()) {
 							billingTemplate.setOrder(requestParser.getRequest());
 						}
 						sess.save(billingTemplate);
 						sess.flush();
 
-						Map<Integer, List<Object>> infoForRecreatingBillingItems;
-						if (oldBillingTemplate != null && !requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
-							infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(oldBillingTemplate.getAcceptingBalanceItem(),
-									oldBillingTemplate.getBillingItems(sess));
-						} else {
-							infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(null, null);
-						}
+						Map<Integer, List<Object>> infoForRecreatingBillingItems = null;
+						if (!requestParser.getIsOpeningNewBillingTemplate()) {
+							if (oldBillingTemplate != null && !requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+								infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(oldBillingTemplate.getAcceptingBalanceItem(),
+										oldBillingTemplate.getBillingItems(sess));
+							} else {
+								infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(null, null);
+							}
 
-						// Delete old billing template items if any
-						Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
-						oldBtiSet.addAll(billingTemplate.getItems());
-						for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
-							BillingTemplateItem persistentBTI = sess.load(BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem());
-							sess.delete(persistentBTI);
-						}
-						sess.flush();
-						billingTemplate.getItems().clear();
-
-						if (oldBillingTemplate != null && !requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
 							// Delete old billing template items if any
-							Set<BillingTemplateItem> oldBtiSet2 = new TreeSet<BillingTemplateItem>();
-							oldBtiSet2.addAll(oldBillingTemplate.getItems());
-							for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet2) {
-								BillingTemplateItem persistentBTI = sess
-										.load(BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem());
+							Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
+							oldBtiSet.addAll(billingTemplate.getItems());
+							for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
+								BillingTemplateItem persistentBTI = sess.load(BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem());
 								sess.delete(persistentBTI);
 							}
 							sess.flush();
-							oldBillingTemplate.getItems().clear();
+							billingTemplate.getItems().clear();
+
+							if (oldBillingTemplate != null && !requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+								// Delete old billing template items if any
+								Set<BillingTemplateItem> oldBtiSet2 = new TreeSet<BillingTemplateItem>();
+								oldBtiSet2.addAll(oldBillingTemplate.getItems());
+								for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet2) {
+									BillingTemplateItem persistentBTI = sess
+											.load(BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem());
+									sess.delete(persistentBTI);
+								}
+								sess.flush();
+								oldBillingTemplate.getItems().clear();
+							}
 						}
 
 						// Save new billing template items
@@ -436,7 +447,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 							sess.save(newlyCreatedItem);
 						}
 						sess.flush();
-						if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+
+						if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount() && !requestParser.getIsOpeningNewBillingTemplate()) {
 							// Transfer master billing items
 							if (oldBillingTemplate != null && !billingTemplate.getIdBillingTemplate().equals(oldBillingTemplate.getIdBillingTemplate())) {
 								Set<MasterBillingItem> masterBillingItems = new HashSet<MasterBillingItem>();
@@ -482,6 +494,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 						}
 
 						requestParser.getRequest().setIdBillingAccount(billingTemplate.getAcceptingBalanceItem().getIdBillingAccount());
+
+						if (requestParser.getIsOpeningNewBillingTemplate() && oldBillingTemplate != null) {
+							oldBillingTemplate.deactivate();
+							sess.save(oldBillingTemplate);
+						}
 					}
 
 					if (!allowBillingTemplateModification) {
@@ -983,6 +1000,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		} catch (GNomExRollbackException e) {
 			LOG.error("An exception has occurred in SaveRequest ", e);
 
+
 			throw e;
 		} catch (ProductException e) {
 			LOG.error("An exception has occurred in SaveRequest ", e);
@@ -999,6 +1017,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	}
 
 	private String sendEmails(Session sess) {
+
 
 		StringBuffer message = new StringBuffer();
 		if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
@@ -1147,16 +1166,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in SaveRequest ", e);
-			} finally {
-				try {
-					if (sessGuest != null) {
-						// dont close the session b/c the same one is being used during save request
-						// sessGuest.close();
-						// //closeReadOnlyHibernateSession;
-					}
-				} catch (Exception e) {
-					LOG.error("An exception has occurred in SaveRequest ", e);
-				}
 			}
 
 		}
@@ -1172,6 +1181,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
 
 		Request request = requestParser.getRequest();
+
 		request.setDescription(description);
 		sess.save(request);
 
@@ -3064,7 +3074,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		for (String file : f.list()) {
 			File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 			if (child.isDirectory()) {
-				deleteDir(child, child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+				deleteDir(child, child.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
 				throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 			} else {
@@ -3074,7 +3084,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		}
 		if (f.list().length == 0) {
 			if (!f.delete()) {
-				throw new Exception("Unable to delete file " + f.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+				throw new Exception("Unable to delete file " + f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			}
 			return;
 		}

@@ -805,7 +805,7 @@
 					if (this.selectedIdLab != null) {
 						selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
 					} else {
-						if (currentState == 'AdminState') {
+						if (currentState != 'GuestState') {
 							for each(var l:Object in labList) {
 								if (l.@isSelected == 'true') {
 									selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == l.@idLab);
@@ -832,7 +832,7 @@
 				if (this.selectedIdLab != null) {
 					selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@idLab == selectedIdLab);		 		
 				} else {
-					if (currentState == 'AdminState') {
+					if (currentState != 'GuestState') {
 						for each(var l:Object in labList) {
 							if (l.@isSelected == 'true') {
 								selectedLabNode =  parentApplication.getLabList.lastResult.Lab.(@idLab == l.@idLab);

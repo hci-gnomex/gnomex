@@ -152,7 +152,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
     for(int i = 0; i < folderContents.length; i++){
       File child = new File(folderName + Constants.FILE_SEPARATOR + folderContents[i]);
       if(child.isDirectory()){
-        removeUnregisteredFiles(child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+        removeUnregisteredFiles(child.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
       }
       else{
         if (!child.delete()) {

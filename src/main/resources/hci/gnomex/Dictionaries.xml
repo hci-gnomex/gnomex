@@ -101,6 +101,10 @@
   <Dictionary displayName="Illumina Single vs. Paired end Reads" className="hci.gnomex.model.SeqRunType" />
 
 	<Dictionary displayName="Library Prep QC Protocols" className="hci.gnomex.model.LibraryPrepQCProtocol" />
+	<Dictionary displayName="Pipeline Protocols" className="hci.gnomex.model.PipelineProtocol" editable="Y">
+			<Filter className="hci.gnomex.model.CoreFacility" filterField="idCoreFacility"/>
+			<Filter className="YN" filterField="isDefault"/>
+	</Dictionary>
 	<Dictionary displayName="Illumina Control Library" className="hci.gnomex.model.SequencingControl"  editable="Y"  >
 			<Filter className="hci.gnomex.model.AppUserLite" filterField="idAppUser"/>
 	</Dictionary>

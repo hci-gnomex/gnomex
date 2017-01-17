@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Pipeline Protocol"
+         verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+
+    <mx:Script>
+        <![CDATA[
+        import hci.flex.util.DictionaryManager;
+
+        import mx.controls.Alert;
+        import mx.events.CloseEvent;
+
+        [Bindable]
+        private var state:ExperimentPlatformState = null;
+
+        public function init(state:ExperimentPlatformState):void {
+            this.state = state;
+            updateCoreFacilityHeader();
+        }
+
+        private function addPipelineProtocol():void {
+            var newNode:XML = new XML("<PipelineProtocol " +
+                    " protocol='new protocol...' description=''" +
+                    " idCoreFacility='" + state.requestCategory.@idCoreFacility + "'" +
+                    " isNew='Y' isDefault='N'>" +
+                    " </PipelineProtocol>");
+            pipelineProtocols.addItemAt(newNode, 0);
+            pipelineProtocolGrid.selectedItem = newNode;
+            pipelineProtocolGrid.scrollToIndex(0);
+            protocol.setFocus();
+            state.dirty.setDirty();
+        }
+
+        private function removePipelineProtocol():void {
+            var item:Object = null;
+            if (pipelineProtocolGrid.selectedItem != null) {
+                item = pipelineProtocolGrid.selectedItem;
+            } else {
+                return;
+            }
+            Alert.show("Are you sure you want to remove pipeline protocol " + item.@display + "?",
+                    "Confirm",
+                    (Alert.YES | Alert.NO), this,
+                    onPromptToRemovePipelineProtocol,
+                    parentApplication.iconWarning);
+        }
+
+        private function onPromptToRemovePipelineProtocol(event:CloseEvent):void {
+            if (event.detail == Alert.YES) {
+                if (pipelineProtocolGrid.selectedItem != null) {
+                    pipelineProtocols.removeItemAt(pipelineProtocols.getItemIndex(pipelineProtocolGrid.selectedItem));
+                    state.dirty.setDirty();
+                }
+            }
+        }
+
+        private function changedDefault():void {
+            for each (var protocol:XML in pipelineProtocols) {
+                protocol.@isDefault = "N";
+            }
+            pipelineProtocolGrid.selectedItem.@isDefault = isDefault.selected ? "Y" : "N";
+        }
+
+        private function getIsDefaultString(item:Object,col:int) {
+            return (item.@isDefault == "Y" ? "( X )" : ".");
+        }
+
+        private function updateCoreFacilityHeader():void {
+            if (state == null || state.requestCategory == null) {
+                this.coreFacilityHeader.text = "";
+                return;
+            }
+            var coreFacilityDisplay:String = parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.CoreFacility", state.requestCategory.@idCoreFacility);
+            this.coreFacilityHeader.text = "Pipeline protocols for core facility: " + coreFacilityDisplay;
+        }
+
+        ]]>
+    </mx:Script>
+
+    <mx:XMLListCollection id="pipelineProtocols" source="{state.requestCategory.pipelineProtocols.PipelineProtocol}"/>
+
+    <mx:VBox width="100%" height="100%">
+
+        <mx:HBox width="100%">
+            <mx:Label id="coreFacilityHeader" text="" width="100%" styleName="formLabelLarge"/>
+        </mx:HBox>
+
+        <mx:HBox verticalAlign="middle">
+            <mx:LinkButton label="Add" styleName="linkMenuButton"
+                           enabled="{state.requestCategory.@canUpdate == 'Y'}"
+                           icon="@Embed(source='../../assets/add.png')"
+                           disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addPipelineProtocol()" fontSize="10"/>
+            <mx:LinkButton label="Remove" styleName="linkMenuButton"
+                           enabled="{state.requestCategory.@canUpdate == 'Y' &amp;&amp; pipelineProtocolGrid.selectedItem}"
+                           icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')"
+                           click="removePipelineProtocol()" fontSize="10"/>
+        </mx:HBox>
+
+        <mx:VBox width="100%" height="100%">
+            <mx:DataGrid id="pipelineProtocolGrid" horizontalScrollPolicy="auto"
+                         dataProvider="{pipelineProtocols}" editable="false"
+                         width="100%" height="100%" wordWrap="true" variableRowHeight="true" fontSize="11">
+
+                <mx:columns>
+                    <mx:DataGridColumn headerText="Default" labelFunction="getIsDefaultString" width="50" textAlign="center" />
+                    <mx:DataGridColumn headerText="Pipeline Protocol" dataField="@protocol" />
+                </mx:columns>
+
+            </mx:DataGrid>
+        </mx:VBox>
+
+        <mx:VBox width="100%" visible="{pipelineProtocolGrid.selectedItem}">
+            <mx:HBox width="100%">
+                <mx:Label text="Protocol" width="100" styleName="formLabel"/>
+                <mx:TextInput id="protocol" width="100%"
+                              text="{pipelineProtocolGrid.selectedItem.@protocol}"
+                              change="pipelineProtocolGrid.selectedItem.@protocol=protocol.text;" />
+            </mx:HBox>
+            <mx:HBox width="100%">
+                <mx:Label text="Description" width="100" styleName="formLabel"/>
+                <mx:TextArea id="description" height="150" width="100%"
+                             text="{pipelineProtocolGrid.selectedItem.@description}"
+                             change="pipelineProtocolGrid.selectedItem.@description=description.text;" />
+            </mx:HBox>
+            <mx:HBox width="100%">
+                <mx:Label text="Default" width="100" styleName="formLabel"/>
+                <mx:CheckBox id="isDefault" width="100%"
+                             selected="{pipelineProtocolGrid.selectedItem.@isDefault == 'Y'}"
+                             change="changedDefault()" />
+            </mx:HBox>
+         </mx:VBox>
+
+    </mx:VBox>
+
+</mx:VBox>

@@ -4,16 +4,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingInvoiceEmailFormatter;
-import hci.gnomex.utility.BillingItemParser;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.LogLongExecutionTimes;
-import hci.gnomex.utility.ProductUtil;
+import hci.gnomex.utility.*;
 import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -143,6 +135,21 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
           li = executionLogger.startLogItem("Parse");
           parser.parse(sess);
+          executionLogger.endLogItem(li);
+
+          li = executionLogger.startLogItem("Validation");
+          for (Iterator iter = parser.getBillingItems().iterator(); iter.hasNext();) {
+            BillingItem billingItem = (BillingItem) iter.next();
+            MasterBillingItem masterBillingItem = billingItem.getMasterBillingItem();
+
+            if (billingItem.getIdRequest() != null) {
+              Request req = (Request) sess.load(Request.class, billingItem.getIdRequest());
+              BillingTemplate billingTemplate = req.getBillingTemplate(sess);
+              if (!billingTemplate.hasBillingAccount(billingItem.getIdBillingAccount())) {
+                throw new GNomExRollbackException("Billing account is not on active billing template.", true, "Billing account is not active on request.");
+              }
+            }
+          }
           executionLogger.endLogItem(li);
 
           li = executionLogger.startLogItem("Initial Save");
@@ -278,11 +285,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         }
 
         this.executionLogger.LogTimes();
-      }catch (Exception e){
+      } catch (GNomExRollbackException e) {
         LOG.error("An exception has occurred in SaveBillingItem ", e);
-
-        throw new RollBackCommandException(e.getMessage());
-
+        throw new GNomExRollbackException(e.getMessage(), true, e.getDisplayFriendlyMessage());
+      } catch (Exception e){
+        LOG.error("An exception has occurred in SaveBillingItem ", e);
+        throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the billing items.");
       }finally {
         try {
           //closeHibernateSession;        

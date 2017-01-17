@@ -361,6 +361,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
     
     boolean hasMultipleAccounts = false;
+    boolean canOpenNewBillingTemplate = false;
     Request request = null;
     if (row[4] != null) {
         request = sess.load(Request.class, (Integer) row[4]);
@@ -368,6 +369,9 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     BillingTemplate billingTemplate = null;
     if (request != null) {
         billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+    }
+    if (billingTemplate != null) {
+      canOpenNewBillingTemplate = billingTemplate.canBeDeactivated(sess);
     }
     if (billingTemplate != null && billingTemplate.getItems() != null && billingTemplate.getItems().size() > 1) {
         hasMultipleAccounts = true;
@@ -403,6 +407,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("hasQcWorkItems",         hasQcWorkItems == true ? "Y" : "N");
     requestNode.setAttribute("idSubmitter",            row[32] == null ? "" : ((Integer)row[32]).toString());
     requestNode.setAttribute("hasMultipleAccounts",    hasMultipleAccounts ? "Y" : "N");
+    requestNode.setAttribute("canOpenNewBillingTemplate", canOpenNewBillingTemplate ? "Y" : "N");
 
     if (requestNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       requestNode.setAttribute("requestPublicNote",          "(Public) ");
