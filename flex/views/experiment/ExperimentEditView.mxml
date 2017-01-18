@@ -3834,6 +3834,11 @@
 
         private function updateBillingAccount():void {
             if (this.editedBillingTemplate != null) {
+                if (request.hasOwnProperty("@canOpenNewBillingTemplate") && request.@canOpenNewBillingTemplate == "Y") {
+                    request.@isOpeningNewBillingTemplate = "Y";
+                } else {
+                    request.@isOpeningNewBillingTemplate = "N";
+                }
                 request.replace("BillingTemplate", new XMLList(this.editedBillingTemplate));
                 request.@idBillingAccount = "";
                 request.@idBillingTemplate = "";
@@ -5919,6 +5924,16 @@
             }
         }
 
+        public function updateNewTemplateWarningLabel():void {
+            if (this.newTemplateWarning != null) {
+                if (this.editedBillingTemplate != null && this.request != null && request.hasOwnProperty("@canOpenNewBillingTemplate") && request.@canOpenNewBillingTemplate == "Y") {
+                    this.newTemplateWarning.text = "A New Billing Template Will Be Opened";
+                } else {
+                    this.newTemplateWarning.text = "";
+                }
+            }
+        }
+
         private function updateAccountAcceptingBalanceOnRequest():void {
             if (request != null && request.BillingTemplate != null) {
                 for each (var item:Object in request.BillingTemplate..BillingTemplateItem) {
@@ -5983,6 +5998,10 @@
             this.updateShowEditBillingTemplateOption();
             this.showEditBillingOption();
             this.editedBillingTemplate = null;
+            if (request != null) {
+                request.@isOpeningNewBillingTemplate = "N";
+            }
+            this.updateNewTemplateWarningLabel();
         }
 
         private function showEditBillingTemplateWindow():void {
@@ -6348,6 +6367,7 @@
                                       visible="{this.request.@isExternal != 'Y'}"
                                       styleName="formLabel"/>
                             <mx:Text id="accountLabel" visible="{this.request.@isExternal != 'Y'}"/>
+                            <mx:Text id="newTemplateWarning" visible="{this.request.@isExternal != 'Y'}"/>
                         </mx:HBox>
                         <mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"
                                              displayItemsExpanded="true"

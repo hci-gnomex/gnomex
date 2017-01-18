@@ -243,6 +243,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           if (billingTemplate != null) {
         	  requestNode.addContent(billingTemplate.toXML(sess, null));
+              requestNode.setAttribute("canOpenNewBillingTemplate", billingTemplate.canBeDeactivated(sess) ? "Y" : "N");
           }
 
           if (user != null) {
