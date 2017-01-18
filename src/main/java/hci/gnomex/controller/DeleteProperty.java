@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
@@ -124,7 +124,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
             return this;
 
           } catch(Exception e) {
-            LOG.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
+            this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteProperty when trying to inactivate property ", e);
 
             throw new RollBackCommandException(e.getMessage());
 
@@ -229,16 +229,10 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
     } catch (ConstraintViolationException ce) {
       LOG.error("An exception has occurred in DeleteProperty ", ce);
     } catch (Exception e){
-      LOG.error("An exception has occurred in DeleteProperty ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteProperty ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteProperty ", e);
-      }
     }
 
     return this;

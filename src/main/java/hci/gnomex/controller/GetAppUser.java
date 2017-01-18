@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.AppUser;
@@ -85,13 +85,9 @@ public Command execute() throws RollBackCommandException {
 			this.addInvalidField("insufficient permission", "Insufficient permission to access user details");
 		}
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in GetAppUser ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAppUser ", e);
 		throw new RollBackCommandException(e.getMessage());
 	}
-	/*
-	 * finally { try { //closeReadOnlyHibernateSession; } catch(Exception e) { LOG.error("An exception has occurred in GetAppUser ", e); }
-	 * }
-	 */
 	if (isValid()) {
 		setResponsePage(this.SUCCESS_JSP);
 	} else {

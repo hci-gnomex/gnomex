@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
@@ -32,23 +32,23 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   private static Logger LOG = Logger.getLogger(FastDataTransferUploadStart.class);
 
   private String serverName;
-  
+
   private Integer idAnalysis;
   private Integer idRequest;
   private Integer idDataTrack;
   private Integer idProductOrder;
-  
+
   private String analysisNumber;
   private String requestNumber;
-  
+
   private String targetDir;
 
   public void validate() {
   }
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    serverName = request.getServerName();     
-    
+    serverName = request.getServerName();
+
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
       idRequest = Integer.valueOf(request.getParameter("idRequest"));
     }
@@ -67,7 +67,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     if (request.getParameter("analysisNumber") != null && !request.getParameter("analysisNumber").equals("")) {
       analysisNumber = request.getParameter("analysisNumber");
     }
-    
+
     if (idAnalysis == null && idRequest == null && idDataTrack == null && analysisNumber == null && requestNumber == null && idProductOrder == null) {
       this.addInvalidField("missing id", "idRequest/requestNumber or idAnalysis/analysisNumber or idDataTrack or idProductOrder must be provided");
     }
@@ -82,7 +82,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy");
       String createYear = "";
       String targetNumber = "";
-      
+
       String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
       if (fdtSupported == null || !fdtSupported.equals("Y")) {
         this.addInvalidField("fdtNotSupport", "GNomEx is not configured to support FDT.  Please contact GNomEx support to set appropriate property");
@@ -106,8 +106,8 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
           targetDir = baseDir + createYear + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
           targetNumber = analysis.getNumber();
-          
-          
+
+
         }
       } else if (idRequest != null || requestNumber != null) {
         Request experiment = null;
@@ -161,37 +161,37 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           }
         }
       }
-      
+
       if (this.isValid()) {
         UUID uuid = UUID.randomUUID();
         String uuidStr = uuid.toString();
 
         // The softlinks_dir_gnomex is the place where the files will be uploaded to.  This may be a mount
         // point to a different server, so this is why we get the property known to where gnomex is running.
-        // Directories must be created one level at a time so that permissions will be set properly in Linux      
-        String softlinks_dir_gnomex = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;       
+        // Directories must be created one level at a time so that permissions will be set properly in Linux
+        String softlinks_dir_gnomex = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName) + uuidStr;
         makeDirectory(softlinks_dir_gnomex);
         changeOwnershipAndPermissions(sess, softlinks_dir_gnomex);
-      
+
         // Add on either request or analysis number to softlinks_dir
         softlinks_dir_gnomex  += Constants.FILE_SEPARATOR + targetNumber;
         makeDirectory(softlinks_dir_gnomex);
         changeOwnershipAndPermissions(sess, softlinks_dir_gnomex);
-        
+
         // The softlinks_dir is the place where the files will be uploaded to.  This is the directory referenced
         // by the FDT server which may be running on a different server than gnomex.
-        String softlinks_dir = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName) + uuidStr;  
+        String softlinks_dir = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName) + uuidStr;
         String softlinks_dir1  = softlinks_dir + File.separator + targetNumber;
-        
+
         // Create "info" file used by FDT postProcessing routine
 //        String taskFileDir = PropertyDictionaryHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName);
         addTask(softlinks_dir, softlinks_dir1, targetDir);
 
         this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + Constants.FILE_SEPARATOR + targetNumber + "'/>";
-        
+
       }
-      
-      
+
+
 
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
@@ -200,31 +200,31 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       }
 
     } catch (Exception e){
-      LOG.error("An exception has occurred in FastDataTransferUploadStart", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in FastDataTransferUploadStart", e);
 
       throw new RollBackCommandException(e.getMessage());
     }
 
-    return this;	  
+    return this;
 
   }
-  
+
   private boolean makeDirectory(String directoryName) {
     File dir = new File(directoryName);
-    boolean isDirCreated = dir.mkdir();  
+    boolean isDirCreated = dir.mkdir();
     if (!isDirCreated) {
-      this.addInvalidField("Error.", "Unable to create " + directoryName + " directory.");    
-    }     
+      this.addInvalidField("Error.", "Unable to create " + directoryName + " directory.");
+    }
     return isDirCreated;
   }
-  
+
   public static void changeOwnershipAndPermissions(Session sess, String dir) throws Exception {
     //Kludge for testing
     String osName = System.getProperty("os.name");
     if (osName.startsWith("Windows")) {
       return;
     }
-    
+
     // linux ownership code
     String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
     if (fdtUser == null || fdtUser.equals("")) {
@@ -234,30 +234,30 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     if (fdtGroup == null || fdtGroup.equals("")) {
       fdtGroup = "fdtsecurity";
     }
-    Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", fdtUser + ":" + fdtGroup, dir } );          
+    Process process = Runtime.getRuntime().exec( new String[] { "chown", "-R", fdtUser + ":" + fdtGroup, dir } );
     process.waitFor();
-    process.destroy();        
-    
+    process.destroy();
+
     // only fdt user and group have permissions on this directory
-    process = Runtime.getRuntime().exec( new String[] { "chmod", "770", dir } );              
+    process = Runtime.getRuntime().exec( new String[] { "chmod", "770", dir } );
     process.waitFor();
-    process.destroy();      
+    process.destroy();
   }
-  
-  private static void addTask(String taskFileDir, String sourceDir, String targetDir) { 
+
+  private static void addTask(String taskFileDir, String sourceDir, String targetDir) {
 /*
     if (!new File(taskFileDir).exists()) {
       File dir = new File(taskFileDir);
       boolean success = dir.mkdir();
       if (!success) {
         System.out.println("Error: unable to create task file directory: " + taskFileDir);
-        return;      
+        return;
       }
     }
 */
     String taskFileName = taskFileDir + "/" + "info";
     File taskFile;
-    int numTries = 10;    
+    int numTries = 10;
     while(true) {
 //      String taskFileName = taskFileDir + "/" + "info";
       taskFile = new File(taskFileName);
@@ -267,12 +267,12 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           success = taskFile.createNewFile();
           if (!success) {
             System.out.println("Error: unable to create task file. " + taskFileName);
-            return;      
-          } 
+            return;
+          }
           break;
         } catch (IOException e) {
           System.out.println("Error: unable to create task file. " + taskFileName);
-          return;  
+          return;
         }
       }
       // If the file already exists then try again but don't try forever
@@ -280,9 +280,9 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       if(numTries == 0) {
         System.out.println("Error: Unable to create task file: " + taskFileName);
         return;
-      }      
+      }
     }
-    
+
     try {
       PrintWriter pw = new PrintWriter(new FileWriter(taskFile));
       SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -291,10 +291,10 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       pw.println("SourceDirectory: " + sourceDir);
       pw.println("TargetDirectory: " + targetDir);
       pw.flush();
-      pw.close();      
+      pw.close();
     } catch (IOException e) {
       System.out.println("IOException: file " + taskFileName + " " + e.getMessage());
       return;
-    }    
+    }
   }
 }

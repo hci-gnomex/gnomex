@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Lab;
@@ -28,25 +28,25 @@ import org.apache.log4j.Logger;
 public class GetLibPrepApplicationPriceList extends GNomExCommand implements Serializable {
 
   private static Logger LOG = Logger.getLogger(GetLibPrepApplicationPriceList.class);
-  
+
   private Integer idLab;
   private String codeRequestCategory;
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
       idLab =  new Integer(request.getParameter("idLab"));
     } else {
       this.addInvalidField("IdLab", "IdLab required");
     }
 
-    
+
     if (request.getParameter("codeRequestCategory") != null && !request.getParameter("codeRequestCategory").equals("")) {
       codeRequestCategory =  request.getParameter("codeRequestCategory");
     } else {
       this.addInvalidField("codeRequestCategory", "codeRequestCategory required");
     }
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -56,8 +56,8 @@ public class GetLibPrepApplicationPriceList extends GNomExCommand implements Ser
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
       Lab lab = (Lab)sess.load(Lab.class, this.idLab);
-      
-      String queryString = 
+
+      String queryString =
           "select p, crit " +
           " from PriceSheet ps " +
           " join ps.requestCategories rc " +
@@ -68,9 +68,9 @@ public class GetLibPrepApplicationPriceList extends GNomExCommand implements Ser
           "   and pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'";
       Query query = sess.createQuery(queryString);
       query.setParameter("codeRequestCategory", this.codeRequestCategory);
-      
+
       List rows = query.list();
-      
+
       Document doc = new Document(new Element("IlluminaLibPrepPriceList"));
       for(Iterator i = rows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
@@ -90,14 +90,8 @@ public class GetLibPrepApplicationPriceList extends GNomExCommand implements Ser
       setResponsePage(this.SUCCESS_JSP);
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetLibPrepApplicationPrice ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;
@@ -110,11 +104,11 @@ public class GetLibPrepApplicationPriceList extends GNomExCommand implements Ser
       setResponsePage(this.ERROR_JSP);
     }
   }
-  
+
   private String toString(Object theValue) {
     if (theValue != null) {
       return theValue.toString();
-    } 
+    }
     return "";
   }
 

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
@@ -41,28 +41,28 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    // Search by idChromatogram or fileName.  If both are given, will search by id and 
+    // Search by idChromatogram or fileName.  If both are given, will search by id and
     // get fileName from db
     if (request.getParameter("fileName") != null) {
       fileName = request.getParameter("fileName");
-    } 
-    
+    }
+
     if (request.getParameter("idChromatogram") != null) {
       idChromatogram = new Integer(request.getParameter("idChromatogram"));
-    } 
-    
+    }
+
     if (request.getParameter("includeSeqString") != null && request.getParameter("includeSeqString").equals("Y")) {
       includeSeqString = true;
     }
-    
+
     if (request.getParameter("includeQualArray") != null && request.getParameter("includeQualArray").equals("Y")) {
       includeQualArray = true;
     }
-    
+
     if (request.getParameter("includeTrace") != null && request.getParameter("includeTrace").equals("Y")) {
       includeTrace = true;
     }
-    
+
     if (request.getParameter("includeRaw") != null && request.getParameter("includeRaw").equals("Y")) {
       includeRaw = true;
     }
@@ -71,35 +71,35 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
 
     try {
-      
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      
+
       // Get the chromatogram from the db
       Chromatogram c = null;
       if ( idChromatogram!=0 ) {
-        
+
         c = (Chromatogram) sess.get(Chromatogram.class, idChromatogram);
-        
+
         if (c == null) {
           this.addInvalidField("missingChromatogram", "Cannot find chromatogram idChromatogram=" + idChromatogram );
         }
-        
+
         fileName = c.getFileName();
-        
+
       } else if ( fileName!=null ){
-        
+
         StringBuffer buf = new StringBuffer("SELECT c from Chromatogram as c where c.fileName = '" + fileName + "'");
-        
+
         List chromats = sess.createQuery(buf.toString()).list();
         if (chromats.size() > 0) {
           c = (Chromatogram)chromats.get(0);
-        } 
-        
+        }
+
       } else {
         this.addInvalidField("idChromatogram or fileName", "Either idChromatogram or fileName must be provided");
       }
-            
+
       idChromatogram =  c!=null ? c.getIdChromatogram():0;
 
 
@@ -109,7 +109,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
 
 
-      
+
       // Get idPlateWell from the db, if db chromatogram not found, parse it from the abi comments:
       String comments = chromatReader.getComments();
       int ind1 = comments.indexOf("<");
@@ -121,7 +121,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         idPlateWellString = comments.substring(ind1+4, ind2);
       }
 
-      
+
       PlateWell plateWell = (PlateWell) sess.load( PlateWell.class, Integer.valueOf( idPlateWellString ) );
       String plateName = "";
       String instrumentRunName = "";
@@ -134,11 +134,11 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         Plate plate = plateWell.getPlate();
         if ( plate!=null && plate.getLabel()!=null ) {
           plateName = plate.getLabel();
-        } 
+        }
         InstrumentRun instrumentRun = plate.getInstrumentRun();
         if ( instrumentRun!=null && instrumentRun.getLabel()!=null ) {
           instrumentRunName = instrumentRun.getLabel();
-        } 
+        }
         if ( plateWell.getSampleName() != null ) {
           sampleName = plateWell.getSampleName();
         }
@@ -171,14 +171,14 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         wellRowCol = c.getPlateWell().getRow() != null ? c.getPlateWell().getRow() : "";
         wellRowCol += c.getPlateWell().getCol() != null ? c.getPlateWell().getCol().toString() : "";
       }
-      
+
       if (isValid())  {
 
         Document doc = new Document(new Element("ChromatogramList"));
-        
+
         // INFO
         Element chromNode = new Element("Chromatogram");
-        
+
         chromNode.setAttribute("idChromatogram", Integer.toString(idChromatogram));
         chromNode.setAttribute("displayName", abiFile.getName());
         chromNode.setAttribute("requestNumber", request != null ? request.getNumber() : "");
@@ -200,26 +200,26 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         chromNode.setAttribute("plateName", plateName);
         chromNode.setAttribute("redoFlag", isRedo);
         chromNode.setAttribute("sampleName", sampleName);
-        
-        
+
+
         // SEQUENCE
         if (includeSeqString) {
           Element seqNode = new Element("Sequence");
-          
+
           seqNode.setAttribute("sequenceString", chromatReader.getSeq());
-          
+
           chromNode.addContent(seqNode);
         }
 
 
         // QUALITY
         Element qualNode = new Element("Quality");
-        
+
         qualNode.setAttribute("q20", "" + chromatReader.getQ(20) + " b");
         qualNode.setAttribute("q40", "" + chromatReader.getQ(40) + " b");
         qualNode.setAttribute("q20_len", "" + chromatReader.getQPercent(20));
         qualNode.setAttribute("q40_len", "" + chromatReader.getQPercent(40));
-        
+
         if (includeQualArray) {
           // Quality to String
           int[] data = chromatReader.getQualVals();
@@ -229,52 +229,52 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           }
           qualNode.setAttribute("quality", q);
         }
-        
+
         chromNode.addContent(qualNode);
 
 
         // TRACE
         if (includeTrace) {
-          
+
           Element traceNode = new Element("Trace");
           traceNode.setAttribute("aTrace", chromatReader.getATrace());
           traceNode.setAttribute("cTrace", chromatReader.getCTrace());
           traceNode.setAttribute("gTrace", chromatReader.getGTrace());
           traceNode.setAttribute("tTrace", chromatReader.getTTrace());
           traceNode.setAttribute("baseCalls", chromatReader.getBaseCalls());
-          
+
           chromNode.addContent(traceNode);
 
 
         }
-        
+
         // RawData
         if (includeRaw) {
-          
+
           Element rawNode = new Element("RawData");
           rawNode.setAttribute("aRawData", chromatReader.getRawDataString("A"));
           rawNode.setAttribute("cRawData", chromatReader.getRawDataString("C"));
           rawNode.setAttribute("gRawData", chromatReader.getRawDataString("G"));
           rawNode.setAttribute("tRawData", chromatReader.getRawDataString("T"));
-          
+
           chromNode.addContent(rawNode);
 
 
         }
-        
-        
+
+
         // TRIM
         ChromatTrimUtil trimUtil = new ChromatTrimUtil(abiFile);
         Element trimNode = new Element("Trim");
         trimNode.setAttribute("trimLength", String.valueOf(trimUtil.getTrimInterval()[1]-trimUtil.getTrimInterval()[0] + 1));
         trimNode.setAttribute("trimPos", String.valueOf(trimUtil.getTrimInterval()[0]) + "-" + String.valueOf(trimUtil.getTrimInterval()[1]));
-        
+
         chromNode.addContent(trimNode);
 
 
 
         doc.getRootElement().addContent(chromNode);
-        
+
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
       }
@@ -286,19 +286,18 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       }
 
     }catch (UnsupportedChromatogramFormatException e){
-      LOG.error("An exception has occurred in ReadChromatogramFile ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ReadChromatogramFile ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }catch (Exception e){
-      LOG.error("An exception has occurred in ReadChromatogramFile ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ReadChromatogramFile ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
     }
 
     return this;
   }
 
-  
-  
+
+
 }

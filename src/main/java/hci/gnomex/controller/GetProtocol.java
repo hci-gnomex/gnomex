@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -24,12 +24,12 @@ public class GetProtocol extends GNomExCommand implements Serializable {
   private Integer idProtocol;
   private String codeProtocol;
   private String protocolClassName;
-  
+
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       String id = null;
       String protocolName = null;
       String codeRequestCategory = null;
@@ -44,7 +44,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
       String adapterSequenceThreePrime = null;
       String adapterSequenceFivePrime = null;
       String hasAdapters = "N";
-      
+
       if ((this.idProtocol != null && this.idProtocol.intValue() != 0) || (this.codeProtocol != null && this.codeProtocol.length() > 0)) {
         if (this.protocolClassName.equals(FeatureExtractionProtocol.class.getName())) {
           FeatureExtractionProtocol fep = (FeatureExtractionProtocol) sess.load(FeatureExtractionProtocol.class, this.idProtocol);
@@ -58,7 +58,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           canRead   = fep.canRead() ? "Y" : "N";
           canUpdate = fep.canUpdate() ? "Y" : "N";
           canDelete = fep.canDelete() ? "Y" : "N";
-          
+
         } else if (this.protocolClassName.equals(HybProtocol.class.getName())) {
           HybProtocol hp = (HybProtocol) sess.load(HybProtocol.class, this.idProtocol);
           id = hp.getIdHybProtocol().toString();
@@ -71,7 +71,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           canRead   = hp.canRead() ? "Y" : "N";
           canUpdate = hp.canUpdate() ? "Y" : "N";
           canDelete = hp.canDelete() ? "Y" : "N";
-          
+
         } else if (this.protocolClassName.equals(LabelingProtocol.class.getName())) {
           LabelingProtocol lp = (LabelingProtocol) sess.load(LabelingProtocol.class,this.idProtocol);
           id = lp.getIdLabelingProtocol().toString();
@@ -84,7 +84,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           canRead   = lp.canRead() ? "Y" : "N";
           canUpdate = lp.canUpdate() ? "Y" : "N";
           canDelete = lp.canDelete() ? "Y" : "N";
-          
+
         } else if (this.protocolClassName.equals(ScanProtocol.class.getName())) {
           ScanProtocol sp = (ScanProtocol) sess.load(ScanProtocol.class,this.idProtocol);
           id = sp.getIdScanProtocol().toString();
@@ -158,7 +158,7 @@ public class GetProtocol extends GNomExCommand implements Serializable {
           canUpdate = "N";
           canDelete = "N";
         }
-        
+
         Element root = new Element("Protocol");
         Document doc = new Document(root);
         root.addContent(new Element("id").addContent(id));
@@ -174,38 +174,30 @@ public class GetProtocol extends GNomExCommand implements Serializable {
         root.addContent(new Element("canRead").addContent(canRead));
         root.addContent(new Element("canUpdate").addContent(canUpdate));
         root.addContent(new Element("canDelete").addContent(canDelete));
-        
+
         if (this.protocolClassName.equals(AnalysisProtocol.class.getName())) {
           root.addContent(new Element("idAnalysisType").addContent(idAnalysisType != null ? idAnalysisType.toString() : ""));
         } else {
-          root.addContent(new Element("codeRequestCategory").addContent(codeRequestCategory));          
+          root.addContent(new Element("codeRequestCategory").addContent(codeRequestCategory));
         }
-        
+
         root.addContent(new Element("isActive").addContent(isActive));
         root.addContent(new Element("protocolClassName").addContent(this.protocolClassName));
-        
+
         XMLOutputter out = new XMLOutputter();
         this.xmlResult = out.outputString(doc);
-        
+
       } else {
         this.addInvalidField("Unknown Protocol", "Unknown Protocol");
       }
-      
+
       this.validate();
     } catch (HibernateException e) {
-      LOG.error(e.getClass().toString() + ": " , e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occured in GetProtocol " , e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      LOG.error(e.getClass().toString() + ": " , e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occured in GetProtocol "  , e);
       throw new RollBackCommandException();
-    }
-    finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error(e.getClass().toString() + ": " , e);
-        throw new RollBackCommandException();
-      }
     }
     return this;
   }
@@ -234,9 +226,9 @@ public class GetProtocol extends GNomExCommand implements Serializable {
 
 
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("id") != null && !request.getParameter("id").equals("")) {
       try {
         this.idProtocol = new Integer(request.getParameter("id"));
@@ -246,15 +238,15 @@ public class GetProtocol extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("Protocol Id", "Protocol ID is required.");
     }
-    
+
     if (request.getParameter("protocolClassName") != null && !request.getParameter("protocolClassName").equals("")) {
       this.protocolClassName = request.getParameter("protocolClassName");
     } else {
       this.addInvalidField("Protocol Class Name", "Protocol Class Name is required");
     }
-    
+
     this.validate();
-    
+
   }
 
   public void validate() {

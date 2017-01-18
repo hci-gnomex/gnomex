@@ -1,7 +1,7 @@
 
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -74,7 +74,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
           StringBuffer buf = runFilter.getQuery( this.getSecAdvisor() );
           LOG.info( "Query for GetInstrumentRunList: " + buf.toString() );
           List runs = sess.createQuery( buf.toString() ).list();
-          
+
           Integer maxRuns = getMaxRuns(sess);
           int              runCount = 0;
 
@@ -128,17 +128,17 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
             }
 
             doc.getRootElement().addContent( irNode );
-            
+
             runCount++;
             if (runCount >= maxRuns) {
                 break;
               }
           }
-          
+
           doc.getRootElement().setAttribute("runCount", Integer.valueOf(runCount).toString());
           message = runCount == maxRuns ? "First " + maxRuns + " displayed of " + runs.size() : "";
           doc.getRootElement().setAttribute("message", message);
-          
+
         }
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -151,33 +151,26 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
         "Insufficient permission to view run list." );
       }
     } catch( NamingException e ) {
-      LOG.error( "An exception has occurred in GetRunList ", e );
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRunList ", e );
 
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( SQLException e ) {
-      LOG.error( "An exception has occurred in GetRunList ", e );
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRunList ", e );
 
       throw new RollBackCommandException( e.getMessage() );
     } catch( XMLReflectException e ) {
-      LOG.error( "An exception has occurred in GetRunList ", e );
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRunList ", e );
 
       throw new RollBackCommandException( e.getMessage() );
     } catch( Exception e ) {
-      LOG.error( "An exception has occurred in GetRunList ", e );
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRunList ", e );
 
       throw new RollBackCommandException( e.getMessage() );
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch( Exception e ) {
-
-      }
     }
-
     return this;
   }
-  
+
   private Integer getMaxRuns(Session sess) {
 	  Integer maxRuns = DEFAULT_MAX_RUN_COUNT;
 	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.PLATE_AND_RUN_VIEW_LIMIT);
@@ -186,9 +179,9 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
 			  maxRuns = Integer.parseInt(prop);
 	      }
 	      catch(NumberFormatException e) {
-	      }    
+	      }
 	    }
 	    return maxRuns;
-  }  
+  }
 
 }

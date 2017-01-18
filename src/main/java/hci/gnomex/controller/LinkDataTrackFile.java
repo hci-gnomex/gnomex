@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AnalysisFile;
@@ -72,13 +72,13 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 
     if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
       idDataTrack = new Integer(request.getParameter("idDataTrack"));
-    } 
+    }
     if (idDataTrack == null) {
       isNewDataTrack = true;
     }
     if (request.getParameter("idDataTrackToDuplicate") != null && !request.getParameter("idDataTrackToDuplicate").equals("")) {
       idDataTrackToDuplicate = new Integer(request.getParameter("idDataTrackToDuplicate"));
-    } 
+    }
     if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
       idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
     } else {
@@ -86,7 +86,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
     }
     if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
       idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
-    } 
+    }
     if (request.getParameter("idAnalysisFile") != null && !request.getParameter("idAnalysisFile").equals("")) {
       idAnalysisFile = new Integer(request.getParameter("idAnalysisFile"));
     } else {
@@ -126,7 +126,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       if (isNewDataTrack) {
         dataTrack = new DataTrack();
         if (idDataTrackToDuplicate != null) {
-          cloneDataTrack(sourceDT, dataTrack, analysisFile, sess);          
+          cloneDataTrack(sourceDT, dataTrack, analysisFile, sess);
         } else {
           String dtName = analysisFile.getFileName();
           if(dtName.toUpperCase().contains("_PLUS")) {
@@ -154,14 +154,14 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
                 while(it.hasNext()) {
                   Institution thisInst = (Institution) it.next();
                   if(thisInst.getIsDefault().compareTo("Y") == 0) {
-                    dataTrack.setIdInstitution(thisInst.getIdInstitution());            
+                    dataTrack.setIdInstitution(thisInst.getIdInstitution());
                   }
                 }
               }
             }
           } else {
             dataTrack.setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
-          }                   
+          }
 
           if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
             dataTrack.setIdAppUser(this.getSecAdvisor().getIdAppUser());
@@ -176,9 +176,9 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());
         sess.flush();
       } else {
-        dataTrack = (DataTrack)sess.load(DataTrack.class, idDataTrack);               
+        dataTrack = (DataTrack)sess.load(DataTrack.class, idDataTrack);
       }
-      // Make sure the user can write this data Track 
+      // Make sure the user can write this data Track
       if (!this.getSecAdvisor().canUpdate(dataTrack)) {
         addInvalidField("writep", "Insufficient permission to write to data track.");
       }
@@ -245,7 +245,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 
           //do the baseNames match?
           String afFileNameUpperCase = af.getFileName().toUpperCase();
-          if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {						
+          if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {
             if (lookForBai && afFileNameUpperCase.endsWith(".BAI")) {
               idAnalysisFileOther = af.getIdAnalysisFile();
             } else if (lookForBam && afFileNameUpperCase.endsWith(".BAM")) {
@@ -269,7 +269,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       }
 
       //is it a paired file set? then must have other
-      String afFileNameUpper = analysisFile.getFileName().toUpperCase(); 
+      String afFileNameUpper = analysisFile.getFileName().toUpperCase();
       boolean saveDataTrack = true;
       if (afFileNameUpper.endsWith(".BAM") || afFileNameUpper.endsWith(".BAI") || afFileNameUpper.endsWith(".VCF.GZ") || afFileNameUpper.endsWith(".VCF.GZ.TBI")){
         if (pairedFileNames.size() == 0){
@@ -350,16 +350,10 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      LOG.error("An exception has occurred in LinkDataTrackFile ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in LinkDataTrackFile ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;
@@ -392,7 +386,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
     //
     // Clone the data track property entries
     //
-    Set<PropertyEntry> clonedPESet = new HashSet<PropertyEntry>(); 
+    Set<PropertyEntry> clonedPESet = new HashSet<PropertyEntry>();
 
     //for each PropertyEntry in the source data track
     for(Iterator<?> i = sourceDT.getPropertyEntries().iterator(); i.hasNext();) {
@@ -440,7 +434,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       //for each PropertyOption in the sourcePE
       for (Iterator<?> iY = sourcePE.getOptions().iterator(); iY.hasNext();) {
         PropertyOption sourceOption = (PropertyOption)iY.next();
-        clonedOptions.add(sourceOption);    
+        clonedOptions.add(sourceOption);
       }
 
       //add set to AP
@@ -458,7 +452,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
     Iterator<?> cIt = sourceDT.getCollaborators().iterator();
     while (cIt.hasNext()) {
       collaborators.add((AppUser)cIt.next());
-      dataTrack.setCollaborators(collaborators);      
+      dataTrack.setCollaborators(collaborators);
     }
   }
 }

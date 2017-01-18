@@ -4,7 +4,7 @@ import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ProductOrderFilter;
@@ -77,15 +77,9 @@ public class GetProductOrderDetails extends GNomExCommand {
 
 
       } catch(Exception e) {
-        LOG.error("An exception has occurred in GetProductOrderList ", e);
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProductOrderList ", e);
 
-        throw new RollBackCommandException(e.getMessage());  
-      } finally {
-        try {
-          //closeReadOnlyHibernateSession;        
-        } catch(Exception e){
-        LOG.error("Error", e);
-      }
+        throw new RollBackCommandException(e.getMessage());
       }
     }
 

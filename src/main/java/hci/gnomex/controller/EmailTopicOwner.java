@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
@@ -31,17 +31,17 @@ public class EmailTopicOwner extends GNomExCommand implements Serializable {
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idAppUser") != null && !request.getParameter("idAppUser").equals("")) {
       idAppUser = new Integer(request.getParameter("idAppUser"));
-    } 
+    }
     if (request.getParameter("fromAddress") != null && !request.getParameter("fromAddress").equals("")) {
       fromAddress = request.getParameter("fromAddress");
-    } 
+    }
     if (request.getParameter("body") != null && !request.getParameter("body").equals("")) {
       body = request.getParameter("body");
-    } 
+    }
     if (request.getParameter("subject") != null && !request.getParameter("subject").equals("")) {
       subject = request.getParameter("subject");
     }
-    
+
     serverName = request.getServerName();
 
   }
@@ -51,28 +51,28 @@ public class EmailTopicOwner extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      
+
       AppUser recipient = (AppUser)sess.get(AppUser.class, idAppUser);
-      
+
       if(recipient.getEmail() == null || recipient.getEmail().equals("")){
         this.addInvalidField("No Email address on file", "There is no email address on file for " + recipient.getFirstLastDisplayName());
       }
-      
+
       if(this.isValid()){
         String toAddress = recipient.getEmail();
-        
-        MailUtilHelper helper = new MailUtilHelper(	
+
+        MailUtilHelper helper = new MailUtilHelper(
         		toAddress,
         		fromAddress,
         		subject,
         		body,
         		null,
-        		false, 
+        		false,
         	    dh,
       		    serverName 	);
         helper.setRecipientAppUser(recipient);
         MailUtil.validateAndSendEmail(helper);
-        
+
         this.setResponsePage(SUCCESS_JSP);
       }
       else{
@@ -80,15 +80,9 @@ public class EmailTopicOwner extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e){
-      LOG.error("An exception has occurred in EmailTopicOwner ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in EmailTopicOwner ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in EmailTopicOwner ", e);
-      }
     }
     return this;
   }

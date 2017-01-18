@@ -17,12 +17,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.sql.SQLException;
 import java.util.Date;
 
 import javax.ejb.EJBException;
 import javax.mail.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -211,7 +213,17 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 			commandInstance.execute();
 		} catch (Exception e) {
 			LOG.error("Error in gnomex front controller:", e);
-			Util.printRequest(request);
+			StringBuilder requestDump = Util.printRequest(request);
+			String serverName = request.getServerName();
+
+			commandInstance.setRequestState(request);
+
+			String errorMessage = (String) request.getAttribute("errorDetails");
+//			String errorMessage = "*** This should be the traceback ***";
+
+			sendErrorReport(HibernateSession.currentSession(),"Tim.Maness@hci.utah.edu", "DoNotReply@hci.utah.edu", serverName, errorMessage, requestDump);
+
+
 			HibernateSession.rollback();
 			String msg = null;
 
@@ -366,6 +378,30 @@ private void sendRedirect(HttpServletResponse response, String url) {
 	}
 }
 
+	private void sendErrorReport(org.hibernate.Session sess, String softwareTestEmail, String fromAddress, String serverName, String errorMessage, StringBuilder requestDump) {
+		boolean sendMail = true;
+		try {
+			java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+			if (sendMail) {
+
+				String errorMessageString = "";
+				if (errorMessage != null) {
+					errorMessageString = errorMessage + "\n" + requestDump.toString() + "\n";
+				}
+				else {
+					errorMessageString = "No traceback available" + "\n" + requestDump.toString() + "\n";
+				}
+
+				MailUtilHelper helper = new MailUtilHelper(softwareTestEmail, null, null, fromAddress,
+						"GNomEx Runtime Error [Server: " + localMachine.getHostName() + "]", errorMessageString, null,
+						false, DictionaryHelper.getInstance(sess), serverName, true, "Tim.Maness@hci.utah.edu");
+				MailUtil.validateAndSendEmail(helper);
+
+			}
+		} catch (Exception e) {
+			System.err.println("GNomExFrontController unable to email error report.   " + e.toString());
+		}
+	}
 /**
  * Clean up resources
  */

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.utility.DictionaryHelper;
@@ -19,9 +19,9 @@ import org.hibernate.Session;
 
 
 public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetEstimatedDownloadDataTrackSize.class);
-  
+
   private String    keysString = null;
 
   private String    serverName;
@@ -32,22 +32,22 @@ public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements 
 
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     // Get input parameters
     keysString = request.getParameter("keys");
-    
+
     // Store download keys in session b/c Flex FileReference cannnot
     // handle long request parameter
     request.getSession().setAttribute(SESSION_DATATRACK_KEYS, keysString);
-    
+
     serverName = request.getServerName();
 
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     Session sess = null;
     try {
       sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
@@ -100,24 +100,18 @@ public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements 
             compressionRatio = 2;
           }  else if (file.getName().toUpperCase().endsWith("FASTA")) {
             compressionRatio = 2;
-          }       
+          }
           estimatedDownloadSize += new BigDecimal(file.length() / compressionRatio).longValue();
           uncompressedDownloadSize += file.length();
         }
       }
-      
+
       this.xmlResult = "<SUCCESS size=\"" +  Long.valueOf(estimatedDownloadSize).toString() + "\" uncompressedSize=\"" + Long.valueOf(uncompressedDownloadSize) + "\"" + "/>";
       this.setResponsePage(SUCCESS_JSP);
 
     } catch (Exception e) {
-      LOG.error("Error", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in GetEstimatedDownloadDataTrackSize ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error("Error", e);
-      }
     }
     return this;
   }

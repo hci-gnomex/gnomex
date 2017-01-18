@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrack;
 
@@ -17,18 +17,18 @@ import org.apache.log4j.Logger;
 
 
 public class CheckDataTrackPermission extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(CheckDataTrackPermission.class);
-  
+
   private Integer idDataTrack = null;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     String dataTrackNumber = "";
     if (request.getParameter("dataTrackNumber") != null && !request.getParameter("dataTrackNumber").equals("")) {
-      dataTrackNumber = request.getParameter("dataTrackNumber");   
+      dataTrackNumber = request.getParameter("dataTrackNumber");
     } else {
       this.addInvalidField("dataTrackNumber", "dataTrackNumber is required");
     }
@@ -39,17 +39,17 @@ public class CheckDataTrackPermission extends GNomExCommand implements Serializa
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       if(idDataTrack != null) {
         DataTrack dataTrack = (DataTrack) (sess.load(DataTrack.class, idDataTrack));
         if (!this.getSecAdvisor().canRead(dataTrack)) {
           this.addInvalidField("perm", "Insufficient permission to access this data track");
-        }          
+        }
       } else {
         this.addInvalidField("dataTrackNumber", "dataTrackNumber is either invalid or not provided");
       }
@@ -60,17 +60,10 @@ public class CheckDataTrackPermission extends GNomExCommand implements Serializa
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e) {
-      LOG.error("An exception has occurred in CheckDataTrackPermission ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in CheckDataTrackPermission ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        ;;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in CheckDataTrackPermission ", e);
-      }
     }
-    
     return this;
   }
 }

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -30,13 +30,13 @@ import org.apache.log4j.Logger;
 public class GetPriceCategories extends GNomExCommand implements Serializable {
 
 	private static Logger LOG = Logger.getLogger(GetPriceCategories.class);
-	
+
 	private boolean		addWhere;
-	
+
 	private Integer 	idPriceSheet;
 	private String		priceSheetName;
-	
-	private boolean		requireIsActive; 
+
+	private boolean		requireIsActive;
 
 	public void validate() {
 	}
@@ -46,18 +46,18 @@ public class GetPriceCategories extends GNomExCommand implements Serializable {
 		if (request.getParameter("idPriceSheet") != null) {
 			idPriceSheet = new Integer(request.getParameter("idPriceSheet"));
 		}
-		
+
 		if (request.getParameter("priceSheetName") != null) {
 			priceSheetName = request.getParameter("priceSheetName");
 		}
-		
+
 		requireIsActive = true;
 		if (request.getParameter("requireIsActive") != null && request.getParameter("requireIsActive").equalsIgnoreCase("Y")) {
 			requireIsActive = true;
 		} else if (request.getParameter("requireIsActive") != null && request.getParameter("requireIsActive").equalsIgnoreCase("N")) {
 			requireIsActive = false;
 		}
-		
+
 		if (idPriceSheet == null && priceSheetName == null) {
 			this.addInvalidField("idPriceSheet", "idPriceSheet is required");
 			this.addInvalidField("priceSheetName", "priceSheetName is required");
@@ -78,9 +78,9 @@ public class GetPriceCategories extends GNomExCommand implements Serializable {
 			if (isValid()) {
 				StringBuffer queryBuf = new StringBuffer();
 				addWhere = true;
-				
+
 				queryBuf.append(" SELECT DISTINCT ps FROM PriceSheet AS ps ");
-				
+
 				if (idPriceSheet != null) {
 					this.addWhereOrAnd(queryBuf);
 					queryBuf.append(" ps.idPriceSheet =:idPriceSheet ");
@@ -89,17 +89,17 @@ public class GetPriceCategories extends GNomExCommand implements Serializable {
 					this.addWhereOrAnd(queryBuf);
 					queryBuf.append(" ps.name =:priceSheetName ");
 				}
-				
+
 				LOG.info("GetPriceCategories Query (parameters not set): " + queryBuf.toString());
 				Query query = sess.createQuery(queryBuf.toString());
-				
+
 				if (idPriceSheet != null) {
 					query.setParameter("idPriceSheet", idPriceSheet);
 				}
 				if (priceSheetName != null) {
 					query.setParameter("priceSheetName", priceSheetName);
 				}
-				
+
 				List<PriceSheet> queryResult = (List<PriceSheet>) query.list();
 				HashSet<PriceCategory> priceCategories = new HashSet<PriceCategory>();
 				for (PriceSheet ps : queryResult) {
@@ -111,7 +111,7 @@ public class GetPriceCategories extends GNomExCommand implements Serializable {
 			            }
 					}
 				}
-				
+
 				Document doc = new Document(new Element("PriceCategoryList"));
 				for (PriceCategory pc : priceCategories) {
 					if (requireIsActive && (pc.getIsActive() == null || !pc.getIsActive().equalsIgnoreCase("Y"))) {
@@ -134,37 +134,30 @@ public class GetPriceCategories extends GNomExCommand implements Serializable {
 			}
 
 		} catch (UnknownPermissionException e) {
-			LOG.error("An exception has occurred in GetPriceCategories ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceCategories ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 		} catch (NamingException e) {
-			LOG.error("An exception has occurred in GetPriceCategories ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceCategories ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 		} catch (SQLException e) {
-			LOG.error("An exception has occurred in GetPriceCategories ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceCategories ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 		} catch (XMLReflectException e) {
-			LOG.error("An exception has occurred in GetPriceCategories ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceCategories ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in GetPriceCategories ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceCategories ", e);
 
 			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				//closeReadOnlyHibernateSession;
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in GetPriceCategories ", e);
-
-			}
 		}
 
 		return this;
 	}
-	
+
 	private boolean addWhereOrAnd(StringBuffer queryBuf) {
 	    if (addWhere) {
 	      queryBuf.append(" WHERE ");

@@ -80,12 +80,17 @@ public static Session currentReadOnlySession(String username) throws NamingExcep
 	return s;
 }
 
-public static Session currentSession() throws NamingException, HibernateException, SQLException {
-	Session s = (Session) session.get();
-	if (s == null) {
-		throw new HibernateException(
-				"This method can only be invoked if a session already exists in the thread of execution");
-	}
+public static Session currentSession()  {
+	Session s = null;
+	try {
+		s = (Session) session.get();
+	} catch (Exception e) {
+	};
+
+//	if (s == null) {
+//		throw new HibernateException(
+//				"This method can only be invoked if a session already exists in the thread of execution");
+//	}
 	return s;
 }
 

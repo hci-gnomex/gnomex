@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
@@ -23,35 +23,35 @@ import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
 
 public class DeleteChromatograms extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteChromatograms.class);
-  
+
   private String chromatsToDeleteXMLString;
   private Document chromatsToDeleteDoc;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("chromatsToDeleteXMLString") != null && !request.getParameter("chromatsToDeleteXMLString").equals("")) {
       chromatsToDeleteXMLString = request.getParameter("chromatsToDeleteXMLString");
       StringReader reader = new StringReader(chromatsToDeleteXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        chromatsToDeleteDoc = sax.build(reader);     
+        chromatsToDeleteDoc = sax.build(reader);
       } catch (JDOMException je ) {
         LOG.error( "Cannot parse chromatsToDeleteXMLString", je );
         this.addInvalidField( "chromatsToDeleteXMLString", "Invalid chromatsToDeleteXMLString");
       }
-    } 
+    }
 
-   
+
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
@@ -66,29 +66,23 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
           chromatFile.delete();
 
           sess.delete(ch);
-        }       
+        }
         sess.flush();
         setResponsePage(this.SUCCESS_JSP);
- 
+
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to edit dictionareis.");
         setResponsePage(this.ERROR_JSP);
       }
-      
-      
+
+
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteChromatograms ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteChromatograms ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteChromatograms ", e);
-      }
+
     }
-    
+
     return this;
   }
 }

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
@@ -115,7 +115,7 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
 
 
             for (Iterator i1 = dt.getFolders().iterator(); i1.hasNext();) {
-              DataTrackFolder parentFolder = (DataTrackFolder)i1.next(); 
+              DataTrackFolder parentFolder = (DataTrackFolder)i1.next();
               String path = parentFolder.getQualifiedTypeName();
               if (path.length() > 0) {
                 path += Constants.FILE_SEPARATOR;
@@ -164,7 +164,7 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
           dataTrackFolder.setName(folder.getName());
           dataTrackFolder.setDescription(folder.getDescription());
           dataTrackFolder.setIdGenomeBuild(folder.getIdGenomeBuild());
-          dataTrackFolder.setIdLab(folder.getIdLab());       
+          dataTrackFolder.setIdLab(folder.getIdLab());
 
           Set<DataTrack> dataTracksToKeep = new TreeSet<DataTrack>(new DataTrackComparator());
           for(Iterator<?> i = folder.getDataTracks().iterator(); i.hasNext();) {
@@ -175,10 +175,10 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
           sess.save(dataTrackFolder);
         }
 
-        // The move/copy is disallowed if the parent dataTrack grouping belongs to a 
+        // The move/copy is disallowed if the parent dataTrack grouping belongs to a
         // different genome build
         if (!parentDataTrackFolder.getIdGenomeBuild().equals(dataTrackFolder.getIdGenomeBuild())) {
-          throw new Exception("DataTrack folder '" + dataTrackFolder.getName() + 
+          throw new Exception("DataTrack folder '" + dataTrackFolder.getName() +
           "' cannot be moved to a different genome version");
         }
 
@@ -205,16 +205,10 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      LOG.error("An exception has occurred in MoveDataTrackFolder ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in MoveDataTrackFolder ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;

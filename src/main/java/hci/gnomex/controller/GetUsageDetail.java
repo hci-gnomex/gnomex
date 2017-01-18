@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.CoreFacility;
@@ -107,7 +107,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       if (this.getSecAdvisor().isGuest()) {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.  Guests cannot access usage data.");
         setResponsePage(this.ERROR_JSP);
-      } 
+      }
 
       // Admins can run this command.  Normal gnomex users can if usage_user_visibility
       // property is set to an appropriate level ('masked' or 'full').
@@ -139,28 +139,22 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       }
 
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetUsageDetail ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageDetail ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetUsageDetail ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageDetail ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetUsageDetail ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageDetail ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetUsageDetail ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageDetail ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;
@@ -242,10 +236,10 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       queryBuf.append("and r.idCoreFacility = " + idCoreFacility + " ");
     }
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName");
     rows = sess.createQuery(queryBuf.toString()).list();
 
-    Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
+    Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator());
     TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> ();
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -256,7 +250,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       thisDescriptor.setLabFirstName((String)row[2]);
       thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisDescriptor.setNumber((String)row[4]);
-      thisDescriptor.setFileName((String)row[5]); 
+      thisDescriptor.setFileName((String)row[5]);
 
       // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
       UsageRowDescriptor thisCounter = new UsageRowDescriptor();
@@ -267,7 +261,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
         Integer thisCount = rowCounterMap.get(thisCounter);
         if(thisCount != null) {
           // If counter already present then increment
-          thisCount = new Integer(thisCount.intValue()+1);        
+          thisCount = new Integer(thisCount.intValue()+1);
         } else {
           // If counter not present then start at 1
           thisCount = new Integer(1);
@@ -275,7 +269,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
         rowCounterMap.put(thisCounter, thisCount);
 
       }
-    } 
+    }
     // Now traverse the rowCounter list and retrieve the counts
     Iterator<UsageRowDescriptor> it = rowCounterMap.keySet().iterator();
     while(it.hasNext()) {
@@ -302,10 +296,10 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = 'upload' ");
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName"); 
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName");
     rows = sess.createQuery(queryBuf.toString()).list();
 
-    uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
+    uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator());
     rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -316,7 +310,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       thisDescriptor.setLabFirstName((String)row[2]);
       thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisDescriptor.setNumber((String)row[4]);
-      thisDescriptor.setFileName((String)row[5]); 
+      thisDescriptor.setFileName((String)row[5]);
 
       // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
       UsageRowDescriptor thisCounter = new UsageRowDescriptor();
@@ -327,7 +321,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
         Integer thisCount = rowCounterMap.get(thisCounter);
         if(thisCount != null) {
           // If counter already present then increment
-          thisCount = new Integer(thisCount.intValue()+1);        
+          thisCount = new Integer(thisCount.intValue()+1);
         } else {
           // If counter not present then start at 1
           thisCount = new Integer(1);
@@ -335,7 +329,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
         rowCounterMap.put(thisCounter, thisCount);
 
       }
-    } 
+    }
     // Now traverse the rowCounter list and retrieve the counts
     it = rowCounterMap.keySet().iterator();
     while(it.hasNext()) {
@@ -375,7 +369,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     if (idCoreFacility != null) {
       queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
     }    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName");
     rows = sess.createQuery(queryBuf.toString()).list();
 
     TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
@@ -389,18 +383,18 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       thisCounter.setLabFirstName((String)row[2]);
       thisCounter.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisCounter.setNumber((String)row[4]);
-      thisCounter.setFileName(""); 
+      thisCounter.setFileName("");
 
       Integer thisCount = rowCounterMap.get(thisCounter);
       if(thisCount != null) {
         // If counter already present then increment
-        thisCount = new Integer(thisCount.intValue()+1);        
+        thisCount = new Integer(thisCount.intValue()+1);
       } else {
         // If counter not present then start at 1
         thisCount = new Integer(1);
       }
       rowCounterMap.put(thisCounter, thisCount);
-    } 
+    }
     // Now traverse the rowCounter list and retrieve the counts
     Iterator<UsageRowDescriptor> it = rowCounterMap.keySet().iterator();
     while(it.hasNext()) {
@@ -427,7 +421,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("and tl.startDateTime < '" + this.formatDate(endDate.getTime(), GNomExCommand.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and tl.transferType = 'download' ");
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName"); 
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName");
     rows = sess.createQuery(queryBuf.toString()).list();
 
     rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
@@ -441,19 +435,19 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       thisCounter.setLabFirstName((String)row[2]);
       thisCounter.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisCounter.setNumber((String)row[4]);
-      thisCounter.setFileName(""); 
+      thisCounter.setFileName("");
 
       // If current row descriptor not already on the list, then increment counter
       Integer thisCount = rowCounterMap.get(thisCounter);
       if(thisCount != null) {
         // If counter already present then increment
-        thisCount = new Integer(thisCount.intValue()+1);        
+        thisCount = new Integer(thisCount.intValue()+1);
       } else {
         // If counter not present then start at 1
         thisCount = new Integer(1);
       }
       rowCounterMap.put(thisCounter, thisCount);
-    } 
+    }
     // Now traverse the rowCounter list and retrieve the counts
     it = rowCounterMap.keySet().iterator();
     while(it.hasNext()) {
@@ -495,7 +489,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
     }
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number ");
-    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number"); 
+    queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number");
     rows = sess.createQuery(queryBuf.toString()).list();
 
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {

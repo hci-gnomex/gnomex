@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -27,18 +27,18 @@ import org.jdom.output.XMLOutputter;
 public class GetSlideDesign extends GNomExCommand implements Serializable {
 
   private static Logger LOG = Logger.getLogger(GetSlideDesign.class);
-  
+
   private SlideDesignFilter filter;
-  
+
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
       LOG.info("Query for GetSlideDesign: "+buf.toString());
       Object[] row = (Object[]) sess.createQuery(buf.toString()).uniqueResult();
-      
+
       if (row[0] != null) {
         SlideDesign sd = (SlideDesign) row[0];
         Element design = sd.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
@@ -68,22 +68,14 @@ public class GetSlideDesign extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (HibernateException e) {
-      LOG.error(e.getClass().toString() + ": " , e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in GetSlideDesign ", e);
       throw new RollBackCommandException();
     } catch (XMLReflectException e) {
-      LOG.error(e.getClass().toString() + ": " , e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in GetSlideDesign ", e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      LOG.error(e.getClass().toString() + ": " , e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in GetSlideDesign " , e);
       throw new RollBackCommandException();
-    }
-    finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error(e.getClass().toString() + ": " , e);
-        throw new RollBackCommandException();
-      }
     }
     return this;
   }

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
@@ -34,24 +34,24 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetMultiplexLaneList extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(GetMultiplexLaneList.class);
-  
+
 
   private String           requestXMLString;
   private Document         requestDoc;
   private RequestParser    requestParser;
-  
+
 
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-  
-    
+
+
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
       this.requestXMLString = this.requestXMLString.replaceAll("&", "&amp;");
@@ -65,25 +65,25 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
         this.addInvalidField( "RequestXMLString", "Invalid request xml");
       }
     }
-    
 
-    
+
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    
-     
+
+
 
       // Read the experiment
       Request request = null;
@@ -97,9 +97,9 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       request = requestParser.getRequest();
 
       // Admins and users authorized to submit requests can view estimated
-      // charges            
+      // charges
       if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) &&
-          !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) && 
+          !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) &&
           !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) &&
           !this.getSecAdvisor().isGroupICollaborateWith(request.getIdLab())) {
         throw new RollBackCommandException("Insufficient permission to view estimated charges");
@@ -107,7 +107,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
 
       if (request.getIdRequest() == null) {
         request.setIdRequest(new Integer(0));
-        request.setNumber("");          
+        request.setNumber("");
       }
 
       samples = new TreeSet(new SampleComparator());
@@ -126,7 +126,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
             sample.setIdSample(new Integer(x++));
           }
           samples.add(sample);
-        }          
+        }
       }
 
       // Parse the sequence lanes
@@ -158,7 +158,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
         boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
         Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
         if (sample.getIdOligoBarcode() != null) {
-          sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
+          sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));
         }
 
         // Set the barcodeSequenceB if  idOligoBarcodeB is filled in
@@ -179,45 +179,38 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       sess.clear();
 
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetMultiplexLaneList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetMultiplexLaneList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetMultiplexLaneList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetMultiplexLaneList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
-  
+
   public class SampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       Sample s1 = (Sample)o1;
       Sample s2 = (Sample)o2;
       return s1.getIdSample().compareTo(s2.getIdSample());
-      
+
     }
   }
   public class LabeledSampleComparator implements Comparator, Serializable {
@@ -225,7 +218,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       LabeledSample ls1 = (LabeledSample)o1;
       LabeledSample ls2 = (LabeledSample)o2;
       return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
-      
+
     }
   }
   public class HybComparator implements Comparator, Serializable {
@@ -233,7 +226,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       Hybridization h1 = (Hybridization)o1;
       Hybridization h2 = (Hybridization)o2;
       return h1.getIdHybridization().compareTo(h2.getIdHybridization());
-      
+
     }
   }
   public class LaneComparator implements Comparator, Serializable {
@@ -241,7 +234,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       SequenceLane l1 = (SequenceLane)o1;
       SequenceLane l2 = (SequenceLane)o2;
       return l1.getIdSequenceLane().compareTo(l2.getIdSequenceLane());
-      
+
     }
   }
 }

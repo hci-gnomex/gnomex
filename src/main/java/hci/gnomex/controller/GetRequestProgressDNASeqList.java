@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.InstrumentRunStatus;
 import hci.gnomex.model.PlateType;
@@ -31,38 +31,38 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetRequestProgressDNASeqList extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetRequestProgressSolexaList.class);
-  
+
   private RequestProgressDNASeqFilter filter;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new RequestProgressDNASeqFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
-    
-    
+
+
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion");
     }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
       Map<Integer, java.util.Date> chromoMap = getChromoMap(sess, dictionaryHelper);
 
       Document doc = new Document(new Element("RequestProgressList"));
-      
+
       StringBuffer buf = filter.getDNASeqQuery(this.getSecAdvisor(), dictionaryHelper);
       LOG.info(buf.toString());
       List rows = (List)sess.createQuery(buf.toString()).list();
@@ -71,7 +71,7 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
         RowContainer container = new RowContainer((Object[])i.next());
         rowMap.put(container.getCompareKey(), container);
       }
-      
+
       RowContainer prevContainer = null;
       Element currentNode = null;
       boolean alt = false;
@@ -93,7 +93,7 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
           currentNode = new Element("RequestProgress");
           currentNode.setAttribute("isSeletected",          "N");
           currentNode.setAttribute("altColor",              new Boolean(alt).toString());
-          currentNode.setAttribute("showRequestNumber",     prevContainer == null || !container.getRequestNumber().equals(prevContainer.getRequestNumber()) ? "Y" : "N");       
+          currentNode.setAttribute("showRequestNumber",     prevContainer == null || !container.getRequestNumber().equals(prevContainer.getRequestNumber()) ? "Y" : "N");
           currentNode.setAttribute("requestNumber",         container.getRequestNumber());
           currentNode.setAttribute("createDate",            container.getCreateDate() != null ? this.formatDate(container.getCreateDate()) : "");
           currentNode.setAttribute("codeRequestCategory",   container.getCodeRequestCategory());
@@ -116,22 +116,16 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
       if (prevContainer != null) {
         doc.getRootElement().addContent(currentNode);
       }
-    
+
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
-    
+
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetRequestProgressList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequestProgressList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
 
@@ -154,10 +148,10 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
         chromoMap.put(idPlateWell, releaseDate);
       }
     }
-    
+
     return chromoMap;
   }
-  
+
   public static class  RowContainer {
     private Integer           idRequest;
     private java.util.Date    createDate;
@@ -214,7 +208,7 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
       assayName = (String)row[RequestProgressDNASeqFilter.ASSAY_NAME];
       runStatus = (String)row[RequestProgressDNASeqFilter.RUN_CODE_INSTRUMENT_RUN_STATUS];
     }
-    
+
     public String getRequestNumber() {
       return requestNumber;
     }
@@ -280,10 +274,10 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
           }
         }
       }
-     
+
       return res;
     }
-    
+
     public String getCompareKey() {
       // Makes sure sorted by request, sample, assay or primer, well creation.
       String key = requestNumber;
@@ -302,10 +296,10 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
       key += "\t" + new Integer(cal.get(Calendar.MONTH)+100).toString();
       key += "\t" + new Integer(cal.get(Calendar.DAY_OF_MONTH)+100).toString();
       key += "\t" + idPlateWellLeadingZeroes.toString();
-      
+
       return key;
     }
-    
+
     public Status getWellStatus(Map<Integer, java.util.Date> chromoMap) {
       Status status = Status.PROCESSING;
       if (this.codePlateType == null || this.codePlateType.equals(PlateType.SOURCE_PLATE_TYPE)) {
@@ -330,7 +324,7 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
 
       return status;
     }
-    
+
     public Status getEffectiveWellStatus(Map<Integer, java.util.Date> chromoMap, Status previousStatus) {
       // Redo trumps, but otherwise get status from reaction well most recently created.
       Status status = previousStatus;
@@ -342,7 +336,7 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
       return status;
     }
   }
- 
+
   private enum Status {
     NEW(0, "New"),
     SUBMITTED(1, "Submitted"),
@@ -350,19 +344,19 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
     PROCESSING(3, "Processing"),
     COMPLETE(4, "Complete"),
     REDO(5, "Redo");
-    
+
     private final Integer level;
     private final String phrase;
-    
+
     Status(Integer level, String phrase) {
       this.level = level;
       this.phrase = phrase;
     }
-    
+
     public Integer getLevel() {
       return level;
     }
-    
+
     public String getPhrase() {
       return phrase;
     }

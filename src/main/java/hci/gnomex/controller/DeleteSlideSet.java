@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.SlideDesign;
@@ -21,23 +21,23 @@ import org.apache.log4j.Logger;
 
 
 public class DeleteSlideSet extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteSlideSet.class);
-  
-  
+
+
   private Integer      idSlideProduct = null;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idSlideProduct") != null && !request.getParameter("idSlideProduct").equals("")) {
      idSlideProduct = new Integer(request.getParameter("idSlideProduct"));
    } else {
@@ -54,10 +54,10 @@ public class DeleteSlideSet extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       // Check permissions
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         SlideProduct slideProduct = (SlideProduct)sess.load(SlideProduct.class, idSlideProduct);
@@ -78,7 +78,7 @@ public class DeleteSlideSet extends GNomExCommand implements Serializable {
           this.addInvalidField("slideDesigns", "Slide(s) " + buf.toString() + " must be unassigned from the slide set before the slide set can be deleted." );
         }
          */
-        
+
         //
         // Delete slide
         //
@@ -96,34 +96,28 @@ public class DeleteSlideSet extends GNomExCommand implements Serializable {
               ArrayCoordinate ac  = (ArrayCoordinate)i.next();
               sess.delete(ac);
             }
-            
+
           }
           sess.delete(slideProduct);
           sess.flush();
         }
-        
+
 
         this.xmlResult = "<SUCCESS/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
-   
+
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete slide set.");
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteSlideSet ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteSlideSet ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteSlideSet ", e);
-      }
+
     }
-    
+
 
     // see if we have a valid form
     if (isValid()) {
@@ -131,13 +125,13 @@ public class DeleteSlideSet extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
-  
- 
-  
-  
-  
+
+
+
+
+
 
 }

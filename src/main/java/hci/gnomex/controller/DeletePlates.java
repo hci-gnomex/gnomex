@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
@@ -30,35 +30,35 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
 public class DeletePlates extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteInstrumentRuns.class);
-  
+
   private String platesToDeleteXMLString;
   private Document platesToDeleteDoc;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("platesToDeleteXMLString") != null && !request.getParameter("platesToDeleteXMLString").equals("")) {
       platesToDeleteXMLString = request.getParameter("platesToDeleteXMLString");
       StringReader reader = new StringReader(platesToDeleteXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        platesToDeleteDoc = sax.build(reader);     
+        platesToDeleteDoc = sax.build(reader);
       } catch (JDOMException je ) {
         LOG.error( "Cannot parse platesToDeleteXMLString", je );
         this.addInvalidField( "platesToDeleteXMLString", "Invalid platesToDeleteXMLString");
       }
-    } 
+    }
 
-   
+
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
@@ -70,35 +70,29 @@ public class DeletePlates extends GNomExCommand implements Serializable {
           Plate plate = (Plate) sess.load(Plate.class, idPlate);
           changeStatusDeletePlates(sess, plate, RequestStatus.PROCESSING);
           sess.delete(plate); //delete the instrument run after all associations to it have been removed(ie:plate, plate wells)
-          
-        }       
+
+        }
         sess.flush();
         setResponsePage(this.SUCCESS_JSP);
- 
+
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to edit dictionaries.");
         setResponsePage(this.ERROR_JSP);
       }
-      
-      
+
+
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeletePlate ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeletePlate ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeletePlate ", e);
-      }
+
     }
-    
+
     return this;
   }
- 
+
  private void changeStatusDeletePlates( Session sess, Plate plate, String status ) throws ProductException {
-    
+
     // Get any requests on that run
     Map requests = new HashMap();
     ChromatogramParser cp = new ChromatogramParser();
@@ -106,7 +100,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
         " where pw.idPlate =" + plate.getIdPlate()).list();
     for(Iterator i1 = wells.iterator(); i1.hasNext();) {
       PlateWell well = (PlateWell)i1.next();
-      
+
       if(well.getRedoFlag().equals("Y")){
         cp.requeueSourceWells(well.getIdPlateWell(), sess);
       }
@@ -117,8 +111,8 @@ public class DeletePlates extends GNomExCommand implements Serializable {
       }
       sess.delete(well);
     }
-    
-    // Change request Status 
+
+    // Change request Status
     for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
@@ -127,7 +121,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
     }
     sess.flush();
   }
-  
-  
+
+
 
 }

@@ -64,7 +64,27 @@ public class MailUtilHelper {
 		this.setForceTestEmailTo(forceTestEmailTo);
 
 	}
-	
+
+	public MailUtilHelper(	String to, String from, String subject, String body, File file,
+							  boolean formatHtml, DictionaryHelper dictionaryHelper, String serverName, boolean forceTestEmail, String forceTestEmailTo	) {
+
+		this(to, null, null, from, subject, body, file, formatHtml, null, serverName, dictionaryHelper);
+		this.setSession(GNomExFrontController.getMailSession());
+		this.setForceTestEmail(forceTestEmail);
+		this.setForceTestEmailTo(forceTestEmailTo);
+
+	}
+
+	public MailUtilHelper(	String to, String cc, String bcc, String from, String subject,
+							  String body, File file, boolean formatHtml, DictionaryHelper dictionaryHelper,
+							  String serverName, boolean forceTestEmail, String forceTestEmailTo) {
+
+		this(to, cc, bcc, from, subject, body, file, formatHtml, null, serverName, dictionaryHelper);
+		this.setSession(GNomExFrontController.getMailSession());
+		this.setForceTestEmail(forceTestEmail);
+		this.setForceTestEmailTo(forceTestEmailTo);
+	}
+
 	private MailUtilHelper(	String to, String cc, String bcc, String from, String subject, 
 							String body, File file, boolean formatHtml, Session session, 
 							String serverName, DictionaryHelper dictionaryHelper			) {

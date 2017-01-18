@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.Product;
@@ -88,16 +88,10 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteProduct ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteProduct ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteProduct ", e);
-      }
     }
 
     return this;

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AnalysisGroupFilter;
@@ -77,7 +77,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
       } else {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        
+
         maxAnalysisCount = getMaxAnalyses(sess);
 
         HashMap myLabMap = new HashMap();
@@ -92,7 +92,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
         //        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
         //        	filter.setIsForExternalDataSharingSite(true);
-        //        }        	
+        //        }
 
         boolean labsWithAnalysesIsASubsetOfAllLabsInQuery = false;
         if( (filter.getLabKeys() != null && filter.getLabKeys() != "") || (filter.getSearchText() != null && filter.getSearchText() != "") ){
@@ -106,11 +106,11 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
           List allLabsInQueryResults = (List)sess.createQuery(queryBuf.toString()).list();
           ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
           for(Iterator i = allLabsInQueryResults.iterator(); i.hasNext();) {
-            Object[] row = (Object[])i.next();          
+            Object[] row = (Object[])i.next();
             allLabsInQuery.add(row);
-          }       
+          }
 
-          HashMap<Integer, ArrayList<Object[]>> labsWithAnalyses = new HashMap<Integer, ArrayList<Object[]>>();      
+          HashMap<Integer, ArrayList<Object[]>> labsWithAnalyses = new HashMap<Integer, ArrayList<Object[]>>();
           StringBuffer buf = filter.getQuery(this.getSecAdvisor());
           LOG.info("Query for GetAnalysisGroupList: " + buf.toString());
           results = (List)sess.createQuery(buf.toString()).list();
@@ -121,7 +121,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
             ArrayList<Object[]> temp = labsWithAnalyses.get((Integer)row[3]);
             if(temp == null)
             {
-              temp = new ArrayList<Object[]>();            	
+              temp = new ArrayList<Object[]>();
               labsWithAnalyses.put((Integer)row[3], temp);
             }
             temp.add(row);
@@ -148,13 +148,13 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
                 Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
                 Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
-                Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
+                Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];
 
                 Element n = null;
                 if (idLab.intValue() != prevIdLab.intValue()) {
                   // Keep track of which of users labs are in results set
                   if (showMyLabsAlways.equals("Y")) {
-                    myLabMap.remove(idLab);            
+                    myLabMap.remove(idLab);
                   }
                   addLabNode(row);
                   addAnalysisGroupNode(row);
@@ -168,9 +168,9 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
                   }
                 } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
                   if (idAnalysis.intValue() != -2) {
-                    addAnalysisNode(row);          
+                    addAnalysisNode(row);
                   }
-                } 
+                }
 
                 prevIdAnalysis      = idAnalysis;
                 prevIdAnalysisGroup = idAnalysisGroup;
@@ -197,13 +197,13 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
             Integer idAnalysisGroup = row[0] == null ? new Integer(-2) : (Integer)row[0];
             Integer idAnalysis      = row[7] == null ? new Integer(-2) : (Integer)row[7];
-            Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];    
+            Integer idLab           = row[3] == null ? new Integer(-2) : (Integer)row[3];
 
             Element n = null;
             if (idLab.intValue() != prevIdLab.intValue()) {
               // Keep track of which of users labs are in results set
               if (showMyLabsAlways.equals("Y")) {
-                myLabMap.remove(idLab);            
+                myLabMap.remove(idLab);
               }
               addLabNode(row);
               addAnalysisGroupNode(row);
@@ -217,9 +217,9 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
               }
             } else if (idAnalysis.intValue() != prevIdAnalysis.intValue()) {
               if (idAnalysis.intValue() != -2) {
-                addAnalysisNode(row);          
+                addAnalysisNode(row);
               }
-            } 
+            }
 
             prevIdAnalysis      = idAnalysis;
             prevIdAnalysisGroup = idAnalysisGroup;
@@ -241,7 +241,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
           }
         }
         rootNode.setAttribute("analysisCount", Integer.valueOf(analysisCount).toString());
-        message = analysisCount == maxAnalysisCount ? "First " + maxAnalysisCount + " displayed" : ""; 
+        message = analysisCount == maxAnalysisCount ? "First " + maxAnalysisCount + " displayed" : "";
         rootNode.setAttribute("message", message);
       }
 
@@ -259,14 +259,8 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetAnalysisGroupList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAnalysisGroupList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetAnalysisGroupList ", e);
-      }
     }
 
     return this;
@@ -320,11 +314,11 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     analysisNode.setAttribute("createDateDisplay",  row[11] == null ? ""  : this.formatDate((java.sql.Date)row[11], this.DATE_OUTPUT_SQL));
     analysisNode.setAttribute("createDate",         row[11] == null ? ""  : this.formatDate((java.sql.Date)row[11], this.DATE_OUTPUT_SLASH));
     analysisNode.setAttribute("idLab",              row[12] == null ? ""  : ((Integer)row[12]).toString());
-    analysisNode.setAttribute("labName",            aLabName);    
+    analysisNode.setAttribute("labName",            aLabName);
     analysisNode.setAttribute("idAnalysisType",     row[15] == null ? ""  : ((Integer)row[15]).toString());
     analysisNode.setAttribute("idAnalysisProtocol", row[16] == null ? ""  : ((Integer)row[16]).toString());
     analysisNode.setAttribute("idOrganism",         row[17] == null ? ""  : ((Integer)row[17]).toString());
-    analysisNode.setAttribute("codeVisibility",     row[18] == null ? ""  : (String)row[18]);    
+    analysisNode.setAttribute("codeVisibility",     row[18] == null ? ""  : (String)row[18]);
     analysisNode.setAttribute("idAppUser",          row[21] == null ? ""  : ((Integer)row[21]).toString());
     analysisNode.setAttribute("idInstitution",      row[22] == null ? ""  : ((Integer)row[22]).toString());
 
@@ -355,7 +349,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     String createDay   = tokens[1];
     String createYear  = tokens[2];
     String sortDate = createYear + createMonth + createDay;
-    String key = createYear + "-" + sortDate + "-" + analysisNumber;    
+    String key = createYear + "-" + sortDate + "-" + analysisNumber;
     analysisNode.setAttribute("key", key);
 
     Integer idLab = (Integer)row[3];
@@ -375,7 +369,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     labNode.setAttribute("idLab",            ((Integer)row[0]).toString());
     labNode.setAttribute("labName",          labName);
     labNode.setAttribute("label",            labName);
-    rootNode.addContent(labNode);	  
+    rootNode.addContent(labNode);
 
 
     //		    analysisGroupNode = new Element("AnalysisGroup");
@@ -383,13 +377,13 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     //		    analysisGroupNode.setAttribute("name",            "Analysis Group Name");		//row[1] == null ? ""  : (String)row[1]);
     //		    analysisGroupNode.setAttribute("label",           "Analysis Group Name");							//row[1] == null ? ""  : (String)row[1]);
     //		    analysisGroupNode.setAttribute("description",     "Analysis Group Description");							//row[2] == null ? ""  : (String)row[2]);
-    //		    
+    //
     //		    analysisGroupNode.setAttribute("idLab",           row[0] == null ? "" : ((Integer)row[0]).toString());
     //		    analysisGroupNode.setAttribute("labName",         labName);
-    //		    
+    //
     //		    labNode.addContent(analysisGroupNode);
   }
-  
+
   private Integer getMaxAnalyses(Session sess) {
 	    Integer maxAnalyses = MAX_ANALYSIS_COUNT_DEFAULT;
 	    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.ANALYSIS_VIEW_LIMIT);
@@ -398,7 +392,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 	    	  maxAnalyses = Integer.parseInt(prop);
 	      }
 	      catch(NumberFormatException e) {
-	      }    
+	      }
 	    }
 	    return maxAnalyses;
   }

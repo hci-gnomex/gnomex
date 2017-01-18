@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Topic;
 
@@ -17,18 +17,18 @@ import org.apache.log4j.Logger;
 
 
 public class CheckTopicPermission extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(CheckTopicPermission.class);
-  
+
   private Integer idTopic = null;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     String topicNumber = "";
     if (request.getParameter("topicNumber") != null && !request.getParameter("topicNumber").equals("")) {
-      topicNumber = request.getParameter("topicNumber");   
+      topicNumber = request.getParameter("topicNumber");
     } else {
       this.addInvalidField("topicNumber", "topicNumber is required");
     }
@@ -38,17 +38,17 @@ public class CheckTopicPermission extends GNomExCommand implements Serializable 
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       if(idTopic != null) {
         Topic dataTrack = (Topic) (sess.load(Topic.class, idTopic));
         if (!this.getSecAdvisor().canRead(dataTrack)) {
           this.addInvalidField("perm", "Insufficient permission to access this topic");
-        }          
+        }
       } else {
         this.addInvalidField("topicNumber", "topicNumber is either invalid or not provided");
       }
@@ -59,16 +59,10 @@ public class CheckTopicPermission extends GNomExCommand implements Serializable 
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e) {
-      LOG.error("An exception has occurred in CheckTopicPermission ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in CheckTopicPermission ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //test;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in CheckTopicPermission ", e);
-      }
     }
-    
+
     return this;
   }
 }

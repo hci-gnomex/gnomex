@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Segment;
@@ -17,41 +17,41 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 public class ImportSegments extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(ImportSegments.class);
-  
+
   private String             chromosomeInfo;
   private Integer            idGenomeBuild;
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("chromosomeInfo") != null && !request.getParameter("chromosomeInfo").equals("")) {
       chromosomeInfo = request.getParameter("chromosomeInfo");
-    } 
+    }
     if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
       idGenomeBuild = Integer.valueOf(request.getParameter("idGenomeBuild"));
     } else {
       this.addInvalidField("idGenomeBuild", "idGenomeBuild is required");
     }
 
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       GenomeBuild genomeBuild = (GenomeBuild)sess.load(GenomeBuild.class, idGenomeBuild);
-      
-      
+
+
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
 
         String line;
@@ -62,7 +62,7 @@ public class ImportSegments extends GNomExCommand implements Serializable {
           Pattern pat = Pattern.compile("^([A-Za-z0-9_.]*)\\s+(\\d+)", Pattern.MULTILINE);
           chromosomeInfo = chromosomeInfo.replaceAll(",", "");
           Matcher mat = pat.matcher(chromosomeInfo);
-         
+
           while (mat.find()){
             Segment s = new Segment();
             s.setName(mat.group(1));
@@ -78,27 +78,21 @@ public class ImportSegments extends GNomExCommand implements Serializable {
         }
 
         this.xmlResult = "<SUCCESS idGenomeBuild=\"" + idGenomeBuild + "\"/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
-      
+
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to save data track folder.");
         setResponsePage(this.ERROR_JSP);
       }
-      
+
     }catch (Exception e){
-      LOG.error("An exception has occurred in ImportSegments ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ImportSegments ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
+
     }
-    
+
     return this;
   }
 }

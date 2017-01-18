@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingItemFilter;
 import hci.gnomex.model.BillingPeriod;
@@ -26,41 +26,41 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetBillingInvoiceList extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetBillingInvoiceList.class);
-  
+
   private BillingItemFilter billingItemFilter;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     billingItemFilter = new BillingItemFilter(this.getSecAdvisor());
     HashMap errors = this.loadDetailObject(request, billingItemFilter);
     this.addInvalidFields(errors);
-    
+
     if (!this.billingItemFilter.hasCriteria()) {
       this.addInvalidField("criteria", "Please select a billing period, group, or billing account; or enter a request number");
     }
-    
+
     if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
       this.addInvalidField("permission", "Insufficient permission to manage billing items");
     }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-      
-   
+
+
+
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-    
+
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    
+
     HashMap statusNodeMap = new HashMap();
-    
+
     if (billingItemFilter.getIdBillingPeriod() != null) {
       BillingPeriod bp = dh.getBillingPeriod(billingItemFilter.getIdBillingPeriod());
       if (bp == null) {
@@ -68,9 +68,9 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
       }
       billingItemFilter.setBillingPeriod(bp);
     }
-    
+
     TreeMap<Integer, Invoice> invoiceMap = new TreeMap<Integer, Invoice>();
-    
+
     StringBuffer buf = billingItemFilter.getBillingInvoiceQuery();
     LOG.info("Query: " + buf.toString());
     List invoices = sess.createQuery(buf.toString()).list();
@@ -78,7 +78,7 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
       Invoice invoice = (Invoice)i.next();
       invoiceMap.put(invoice.getIdInvoice(), invoice);
     }
-    
+
     buf = billingItemFilter.getDiskUsageInvoiceQuery();
     LOG.info("Query: " + buf.toString());
     invoices = sess.createQuery(buf.toString()).list();
@@ -86,7 +86,7 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
       Invoice invoice = (Invoice)i.next();
       invoiceMap.put(invoice.getIdInvoice(), invoice);
     }
-    
+
     Document doc = new Document(new Element("BillingInvoiceList"));
     for(Integer key: invoiceMap.keySet()) {
       Invoice invoice = invoiceMap.get(key);
@@ -99,17 +99,11 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
 
     setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e) {
-      LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetBillingInvoiceList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
-      }
     }
-    
+
     return this;
   }
 

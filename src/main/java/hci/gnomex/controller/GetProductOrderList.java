@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProductOrder;
@@ -32,7 +32,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
     productOrderFilter = new ProductOrderFilter(this.getSecAdvisor());
     HashMap errors = this.loadDetailObject(request, productOrderFilter);
-    this.addInvalidFields(errors);  
+    this.addInvalidFields(errors);
   }
 
   public Command execute() throws RollBackCommandException {
@@ -50,14 +50,14 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
       for(Iterator i = productOrders.iterator(); i.hasNext();) {
         Object row[] = (Object[])i.next();
         Integer idProductOrder = (Integer)row[0];
-        
+
         if (productOrderFilter.getCodeProductOrderStatus() != null) {
         	ProductOrder po = (ProductOrder) sess.load(ProductOrder.class, idProductOrder);
         	if (po != null && !productOrderFilter.getCodeProductOrderStatus().equalsIgnoreCase(po.getStatus())) {
         		continue;
         	}
         }
-        
+
         String  productOrderNumber = (String)row[1];
         productOrderMap.put( idProductOrder, productOrderNumber!=null ? productOrderNumber:"" );
         Integer idLab = (Integer)row[2];
@@ -103,15 +103,9 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
 
     }catch(Exception e) {
-      LOG.error("An exception has occurred in GetProductOrderList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProductOrderList ", e);
 
-      throw new RollBackCommandException(e.getMessage());  
-    }finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
+      throw new RollBackCommandException(e.getMessage());
     }
     return this;
   }

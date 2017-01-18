@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.SlideDesign;
@@ -21,25 +21,25 @@ import org.apache.log4j.Logger;
 
 
 public class DeleteSlideDesign extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteSlideDesign.class);
-  
-  
+
+
   private Integer      idSlideDesign = null;
   private Integer      idSlideProductOld = null;
   private Integer      idSlideDesignOld = null;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idSlideDesign") != null && !request.getParameter("idSlideDesign").equals("")) {
      idSlideDesign = new Integer(request.getParameter("idSlideDesign"));
    }
@@ -47,16 +47,16 @@ public class DeleteSlideDesign extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         SlideDesign sd = (SlideDesign)sess.load(SlideDesign.class, idSlideDesign);
         idSlideProductOld = sd.getIdSlideProduct();
         idSlideDesignOld = sd.getIdSlideDesign();
-        
-        
+
+
         //
         // Delete array coordinates
         //
@@ -65,65 +65,59 @@ public class DeleteSlideDesign extends GNomExCommand implements Serializable {
           ArrayCoordinate ac  = (ArrayCoordinate)i.next();
           sess.delete(ac);
         }
-        
+
         //
         // Delete slide design
         //
         sess.delete(sd);
-        
+
         sess.flush();
-        
+
 
         //
         // Get rid of unused slide products or update slide count
         //
         if (this.idSlideProductOld != null) {
           SlideProduct oldSlideProduct = (SlideProduct)sess.load(SlideProduct.class, idSlideProductOld);
-         
+
           if (oldSlideProduct.getSlideDesigns().size() == 0) {
             oldSlideProduct.setApplications(null);
             sess.delete(oldSlideProduct);
           } else {
             oldSlideProduct.setSlidesInSet(new Integer(oldSlideProduct.getSlideDesigns().size()));
           }
-          
+
         }
 
 
-        
 
-        sess.flush();    
-        
-       
+
+        sess.flush();
+
+
 
         this.xmlResult = "<SUCCESS/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
-        
+
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permissions to delete slide design.");
         setResponsePage(this.ERROR_JSP);
       }
-      
+
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteSlideDesign ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteSlideDesign ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteSlideDesign ", e);
-      }
+
     }
-    
+
     return this;
   }
-  
- 
-  
-  
-  
+
+
+
+
+
 
 }

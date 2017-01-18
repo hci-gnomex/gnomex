@@ -13,7 +13,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderFilter;
@@ -76,19 +76,11 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
       }
 
     } catch(Exception e) {
-      LOG.error("An exception has occurred in GetProductOrderList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProductOrderList ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
-
     }
-
     return this;
   }
 

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ExperimentPickListFilter;
@@ -33,14 +33,14 @@ import org.apache.log4j.Logger;
 
 
 public class GetExperimentPickList extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetExperimentPickList.class);
-  
+
   private ExperimentPickListFilter       filter;
   private HashMap                        slideDesignMap = new HashMap();
   private HashMap<Integer, String>       numberSequencingCyclesAllowedMap = new HashMap<Integer, String>();
   private HashMap                        sampleTypeMap = new HashMap();
-  
+
   private HashMap                        requestSampleTypeMap = new HashMap();
   private HashMap<String, Object>        requestNumberSequencingCyclesAllowedMap = new HashMap<String, Object>();
 
@@ -48,31 +48,31 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
   private Element                        projectNode = null;
   private Element                        requestNode = null;
   private Element                        itemNode = null;
-  
+
   private static final String          KEY_DELIM = "&-&-&";
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new ExperimentPickListFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
-    
+
     if  (!filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion.");
     }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      
+
       List slideDesigns = sess.createQuery("SELECT sd from SlideDesign sd ").list();
       for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
         SlideDesign sd = (SlideDesign)i.next();
@@ -89,30 +89,30 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         SampleType st = (SampleType)i.next();
         sampleTypeMap.put(st.getIdSampleType(), st.getSampleType());
       }
-      
+
       TreeMap projectMap = new TreeMap();
-      
-    
+
+
       StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor(), dh);
       LOG.debug("Query for GetExperimentPickList (1): " + buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybLaneComparator());
       for(Iterator i = rows1.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String projectName   = (String)row[0];
         String requestNumber = (String)row[3];
         String hybNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
-        
+
         String createDate    = this.formatDate((java.util.Date)row[2]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
-        
+
         String key = projectName + KEY_DELIM + createYear + KEY_DELIM + sortDate + KEY_DELIM + requestNumber + KEY_DELIM + hybNumber;
-        
+
         rowMap.put(key, row);
       }
 
@@ -121,70 +121,70 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String projectName   = (String)row[0];
         String requestNumber = (String)row[3];
         String laneNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
-        
+
         String createDate    = this.formatDate((java.util.Date)row[2]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
         String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
-        
+
         String key = projectName + KEY_DELIM + createYear + KEY_DELIM + sortDate + KEY_DELIM + requestNumber + KEY_DELIM + laneNumber;
-        
+
         rowMap.put(key, row);
       }
-      
+
       buf = filter.getSampleQuery(this.getSecAdvisor(), dh);
       LOG.debug("Query for GetExperimentPickList (3): " + buf.toString());
       List rows3 = (List) sess.createQuery(buf.toString()).list();
       for (Iterator i = rows3.iterator(); i.hasNext();) {
     	  Object[] row = (Object[]) i.next();
-          
+
           String projectName   = (String) row[0];
           String requestNumber = (String) row[3];
           String sampleNumber  = (row[14] == null || row[14].equals("")) ? "" : (String) row[14];
-          
+
           String createDate    = this.formatDate((java.util.Date) row[2]);
           String tokens[]      = createDate.split("/");
           String createMonth   = tokens[0];
           String createDay     = tokens[1];
           String createYear    = tokens[2];
           String sortDate      = createYear + createMonth + createDay;
-          
+
           String key = projectName + KEY_DELIM + createYear + KEY_DELIM + sortDate + KEY_DELIM + requestNumber + KEY_DELIM + sampleNumber;
-          
+
           rowMap.put(key, row);
       }
- 
-      
-    
+
+
+
       Document doc = new Document(new Element("AnalysisExperimentPickList"));
       String prevProjectName  = "";
       Integer prevIdRequest  = new Integer(-1);
-      
+
       rootNode = doc.getRootElement();
       for(Iterator i = rowMap.keySet().iterator(); i.hasNext();) {
         String key = (String)i.next();
         Object[] row = (Object[])rowMap.get(key);
-        
-        
+
+
         String  projectName = (String)row[0];
         Integer idRequest = row[1] == null ? new Integer(-2) : (Integer)row[1];
-        
+
         Element n = null;
         if (!projectName.equals(prevProjectName)) {
           addProjectNode(row);
           if (idRequest.intValue() != -2) {
-            addRequestNode(row, dh);          
+            addRequestNode(row, dh);
             addItemNode(row,sess, dh);
           }
         } else if (idRequest.intValue() != prevIdRequest.intValue()) {
           if (idRequest.intValue() != -2) {
-            addRequestNode(row, dh);          
+            addRequestNode(row, dh);
             addItemNode(row,sess, dh);
           }
         } else {
@@ -196,40 +196,33 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         prevIdRequest = idRequest;
         prevProjectName = projectName;
       }
-      
+
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
-    
+
       setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e) {
-      LOG.error("An exception has occurred in GetExperimentPickList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExperimentPickList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-          LOG.error("An exception has occurred in GetExperimentPickList ", e);
-      }
     }
-    
     return this;
   }
-  
+
   private void addProjectNode(Object[] row) {
     projectNode = new Element("Project");
     projectNode.setAttribute("projectName",            row[0] == null ? ""  : (String)row[0]);
     projectNode.setAttribute("label",                  row[0] == null ? ""  : (String)row[0]);
-    
+
     rootNode.addContent(projectNode);
   }
-  
+
   private void addRequestNode(Object[] row, DictionaryHelper dh) {
     String codeRequestCategory = row[4] == null ? "" : ((String)row[4]).toString();
     RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
-    
+
     String experimentName = row[25] == null ? "" : (String)row[25];
     String experimentNameLabel = experimentName.equals("") ? "" : (" - " + experimentName);
-    
+
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[1] == null ? ""  : ((Integer)row[1]).toString());
     requestNode.setAttribute("createDate",             row[2] == null ? ""  : this.formatDate((java.util.Date)row[2], this.DATE_OUTPUT_ALTIO));
@@ -251,14 +244,14 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
               experimentNameLabel +
               " - " + requestNode.getAttributeValue("createDateDisplay");
     } else {
-      label = requestNode.getAttributeValue("number") + " - " + 
-          experimentNameLabel + 
+      label = requestNode.getAttributeValue("number") + " - " +
+          experimentNameLabel +
           requestNode.getAttributeValue("slideProduct");
     }
     requestNode.setAttribute("label", label);
-    
+
     projectNode.addContent(requestNode);
-    
+
     this.requestNumberSequencingCyclesAllowedMap = new HashMap<String, Object>();
     this.requestSampleTypeMap = new HashMap();
   }
@@ -285,29 +278,29 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
 		    if (row.length > 27) {
 		      itemNode.setAttribute("idNumberSequencingCyclesAllowed", row[27] == null ? "" : ((Integer)row[27]).toString());
 		    }
-		    
+
 		    Integer idNumberSequencingCyclesAllowed = -1;
 		    if (row.length > 27) {
 		      idNumberSequencingCyclesAllowed = (Integer)row[27];
 		    }
 		    if (idNumberSequencingCyclesAllowed != null && idNumberSequencingCyclesAllowed.intValue() != -1) {
 		      String numberSequencingCyclesAllowed = (String)this.numberSequencingCyclesAllowedMap.get(idNumberSequencingCyclesAllowed);
-		      itemNode.setAttribute("numberSequencingCyclesAllowed", numberSequencingCyclesAllowed);      
+		      itemNode.setAttribute("numberSequencingCyclesAllowed", numberSequencingCyclesAllowed);
 		      this.requestNumberSequencingCyclesAllowedMap.put(numberSequencingCyclesAllowed, null);
 		    } else {
-		      itemNode.setAttribute("numberSequencingCyclesAllowed", "?");      
+		      itemNode.setAttribute("numberSequencingCyclesAllowed", "?");
 		    }
 
 		    Integer idSampleType = (Integer)row[18];
 		    if (idSampleType != null && idSampleType.intValue() != -1) {
 		      String sampleType = (String)this.sampleTypeMap.get(idSampleType);
-		      itemNode.setAttribute("sampleType", sampleType);      
+		      itemNode.setAttribute("sampleType", sampleType);
 		      this.requestSampleTypeMap.put(sampleType, null);
-		    }  
-		    
+		    }
+
 
 		    StringBuffer label = new StringBuffer(itemNode.getAttributeValue("itemNumber"));
-		   
+
 		    if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
 		      label.append(" -  ");
 		      label.append(itemNode.getAttributeValue("sampleName1"));
@@ -345,7 +338,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
 		          buf.append(", ");
 		        }
 		      }
-		      
+
 		      String experimentNameLabel = requestNode.getAttributeValue("name");
 		      if (!experimentNameLabel.equals("")) {
 		        experimentNameLabel = " - " + experimentNameLabel;
@@ -361,15 +354,15 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
 		        id = sl.getIdFlowCellChannel();
 		      }
 		      itemNode.setAttribute("idFlowCellChannel", id == null ? "" : id.toString());
-		      
+
 		    } else {
 		      itemNode.setAttribute("type", "Hybridization");
 		      itemNode.setAttribute("idHybridization", ((Integer)row[23]).toString());
 		      itemNode.setAttribute("slideDesignName", row[24] == null ? ""  : (String)row[24]);
 		    }
-		    
+
 		    requestNode.addContent(itemNode);
-		    
+
 	  } else if (row.length == 29) {
 		  // Adding a sample
 		  itemNode = new Element("Item");
@@ -379,47 +372,47 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
 		  itemNode.setAttribute("idSample", 				row[28] == null ? "" : ((Integer) row[28]).toString());
 		  itemNode.setAttribute("name", 					row[15] == null ? "" : (String) row[15]);
 		  itemNode.setAttribute("sampleNumber",				row[14] == null ? "" : (String) row[14]);
-		  
+
 		  StringBuffer label = new StringBuffer(itemNode.getAttributeValue("itemNumber"));
 		  label.append(" - ");
 		  label.append(itemNode.getAttributeValue("name"));
 		  itemNode.setAttribute("label", label.toString());
-		  
+
 		  itemNode.setAttribute("type", "Sample");
-		   
+
 		  requestNode.addContent(itemNode);
-		  
+
 	  }
 
   }
-  
+
   public static class  HybLaneComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       String key1 = (String)o1;
       String key2 = (String)o2;
 
-      
-      
+
+
       String[] tokens1 = key1.split(KEY_DELIM);
       String[] tokens2 = key2.split(KEY_DELIM);
-      
+
       String proj1         = tokens1[0];
       String yr1           = tokens1[1];
       String date1         = tokens1[2];
       String reqNumber1    = tokens1[3];
       String hybNumber1    = tokens1[4];
-      
-      
+
+
       String proj2         = tokens2[0];
       String yr2           = tokens2[1];
       String date2         = tokens2[2];
       String reqNumber2    = tokens2[3];
       String hybNumber2    = tokens2[4];
-      
-      
+
+
       String itemNumber1 = null;
       String seq1 = null;
-      
+
       String splitLetter = "";
       if (hybNumber1.indexOf("E") >= 0) {
         splitLetter = "E";
@@ -431,17 +424,17 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     	  splitLetter = "X";
       }
       String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
-      itemNumber1 = hybNumberTokens1[hybNumberTokens1.length - 1];     
-      
+      itemNumber1 = hybNumberTokens1[hybNumberTokens1.length - 1];
+
       if (splitLetter.equals(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER))) {
         String[] numberTokens  = itemNumber1.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         itemNumber1            = numberTokens[0];
-        seq1                   = numberTokens[1];                
+        seq1                   = numberTokens[1];
       } else {
         seq1 = "0";
       }
-      
-      
+
+
       String itemNumber2 = null;
       String seq2 = null;
       splitLetter = "";
@@ -456,16 +449,16 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       }
 
       String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
-      itemNumber2 = hybNumberTokens2[hybNumberTokens2.length - 1];     
+      itemNumber2 = hybNumberTokens2[hybNumberTokens2.length - 1];
       if (splitLetter.equals(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER))) {
         String[] numberTokens  = itemNumber2.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         itemNumber2            = numberTokens[0];
-        seq2                   = numberTokens[1];                
+        seq2                   = numberTokens[1];
       } else {
         seq2 = "0";
       }
-     
-     
+
+
 
       if (proj1.equals(proj2)) {
         if (date1.equals(date2)) {
@@ -473,22 +466,22 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
             if (itemNumber1.equals(itemNumber2)) {
               return new Integer(seq1).compareTo(new Integer(seq2));
             } else {
-              return new Integer(itemNumber1).compareTo(new Integer(itemNumber2));                      
+              return new Integer(itemNumber1).compareTo(new Integer(itemNumber2));
             }
           } else {
             return reqNumber2.compareTo(reqNumber1);
-          }  
+          }
         } else {
           return date2.compareTo(date1);
-        }        
+        }
       } else {
         return proj1.compareTo(proj2);
       }
-              
-      
-      
+
+
+
     }
   }
-  
-  
+
+
 }

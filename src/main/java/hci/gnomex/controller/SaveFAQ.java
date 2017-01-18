@@ -4,7 +4,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.FAQ;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;

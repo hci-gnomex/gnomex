@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.DataTrack;
@@ -25,33 +25,33 @@ import org.apache.log4j.Logger;
 
 
 public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(MoveOrCopyTopic.class);
-  
+
   private Integer idTopic = null;
   private Integer idParentTopicNew = null;
-  
+
   private boolean isMove = false;
-  
+
   public void validate() {
   }
-  
-  public void loadCommand(HttpServletRequest request, HttpSession session) {   
-   
+
+  public void loadCommand(HttpServletRequest request, HttpSession session) {
+
     if (request.getParameter("idTopic") != null && !request.getParameter("idTopic").equals("")) {
       idTopic = new Integer(request.getParameter("idTopic"));
     } else {
       this.addInvalidField("Missing idTopic", "idTopic is required.");
     }
-    
+
     if (request.getParameter("idParentTopicNew") != null && !request.getParameter("idParentTopicNew").equals("")) {
       idParentTopicNew = new Integer(request.getParameter("idParentTopicNew"));
-    }    
-    
-    
+    }
+
+
     if (request.getParameter("isMove") != null && !request.getParameter("isMove").equals("")) {
       // If move or copy make sure idTopicOld present as well
       if(request.getParameter("isMove").compareTo("Y") == 0) {
@@ -66,10 +66,10 @@ public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
     Session sess = null;
     Topic topic = null;
     boolean topicUpdated = false;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if (this.isValid()) {
         topic = (Topic)sess.load(Topic.class, idTopic);
         if(isMove) {
@@ -81,32 +81,26 @@ public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
           Topic topicCopy = copyTopic(sess, topic, idParentTopicNew);
           if(topicCopy != null) {
             idTopic = topicCopy.getIdTopic();
-            topicUpdated = true;            
+            topicUpdated = true;
           }
         }
       }
       if (topicUpdated) {
-        this.xmlResult = "<SUCCESS idTopic=\"" + idTopic + "\"/>";        
+        this.xmlResult = "<SUCCESS idTopic=\"" + idTopic + "\"/>";
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
-      }      
+      }
     } catch (Exception e){
-      LOG.error("An exception has occurred in MoveOrCopyTopic ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in MoveOrCopyTopic ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    } finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
+
     }
-    
+
     return this;
   }
-  
+
   private Topic copyTopic(Session sess, Topic topic, Integer idParentTopic) {
     Topic topicCopy = new Topic();
     topicCopy.setName(topic.getName());
@@ -114,33 +108,33 @@ public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
     topicCopy.setIdParentTopic(idParentTopic);
     topicCopy.setIdLab(topic.getIdLab());
     topicCopy.setCreatedBy(this.getSecAdvisor().getUID());
-    topicCopy.setCreateDate(new java.sql.Date(System.currentTimeMillis()));          
+    topicCopy.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
     topicCopy.setIdAppUser(this.getSecAdvisor().getIdAppUser());
-    
+
     // Save copy of requests
     Set<Request> newRequests = new TreeSet<Request>(new RequestComparator());
     for(Iterator<?> i = topic.getRequests().iterator(); i.hasNext();) {
       Request r = (Request) i.next();
       newRequests.add(r);
-    }    
+    }
     topicCopy.setRequests(newRequests);
-    
+
     // Save copy of analyses
     Set<Analysis> newAnalyses = new TreeSet<Analysis>(new AnalysisComparator());
     for(Iterator<?> i = topic.getAnalyses().iterator(); i.hasNext();) {
       Analysis a = (Analysis) i.next();
       newAnalyses.add(a);
-    }      
+    }
     topicCopy.setAnalyses(newAnalyses);
-    
-    // Save copy of datatracks 
+
+    // Save copy of datatracks
     Set<DataTrack> newDataTracks = new TreeSet<DataTrack>(new DataTrackComparator());
     for(Iterator<?> i = topic.getDataTracks().iterator(); i.hasNext();) {
       DataTrack dt = (DataTrack) i.next();
       newDataTracks.add(dt);
     }
     topicCopy.setDataTracks(newDataTracks);
-    
+
     // Create and save any child topics
     Set<Topic> newTopics = new TreeSet<Topic>(new TopicComparator());
     for(Iterator<?> i = topic.getTopics().iterator(); i.hasNext();) {
@@ -151,10 +145,10 @@ public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
       }
     }
     topicCopy.setTopics(newTopics);
-   
+
     sess.save(topicCopy);
     sess.flush();
-    
+
     return topicCopy;
   }
 }

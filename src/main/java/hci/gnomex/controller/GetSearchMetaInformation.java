@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.lucene.AllObjectsIndexHelper;
@@ -34,7 +34,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
 
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(SearchIndex.class);
-  
+
   private Map<String, List<DictionaryEntry>> dictionaryMap = new HashMap<String, List<DictionaryEntry>>();
   private List<SearchListEntry> experimentSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> analysisSearchList = new ArrayList<SearchListEntry>();
@@ -42,7 +42,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
   private List<SearchListEntry> protocolSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> topicSearchList = new ArrayList<SearchListEntry>();
   private List<SearchListEntry> allObjectsSearchList = new ArrayList<SearchListEntry>();
-  
+
   public void validate() {
   }
 
@@ -50,15 +50,15 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      
+
       // All Objects Fields
       addLabEntry(sess, allObjectsSearchList);
       addEntry(sess, "Organism", AllObjectsIndexHelper.ID_ORGANISM, DictionaryManager.getDictionaryEntries("hci.gnomex.model.OrganismLite"), allObjectsSearchList);
-      
+
       // Experiment fields
       addLabEntry(sess, experimentSearchList);
       addEntry(sess, "Organism", AllObjectsIndexHelper.ID_ORGANISM, DictionaryManager.getDictionaryEntries("hci.gnomex.model.OrganismLite"), experimentSearchList);
@@ -75,10 +75,10 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
         if (property.getForSample() == null || !property.getForSample().equals("Y") || property.getIsActive().equals("N")) {
           continue;
         }
-        
+
         addEntry(sess, property, experimentSearchList);
       }
-      
+
       // Analysis Fields
       addLabEntry(sess, analysisSearchList);
       addEntry(sess, "Organism", AllObjectsIndexHelper.ID_ORGANISM, DictionaryManager.getDictionaryEntries("hci.gnomex.model.OrganismLite"), analysisSearchList);
@@ -90,7 +90,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
         if (property.getForAnalysis() == null || !property.getForAnalysis().equals("Y") || property.getIsActive().equals("N")) {
           continue;
         }
-        
+
         addEntry(sess, property, analysisSearchList);
       }
 
@@ -102,36 +102,30 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
         if (property.getForDataTrack() == null || !property.getForDataTrack().equals("Y") || property.getIsActive().equals("N")) {
           continue;
         }
-        
+
         addEntry(sess, property, dataTrackSearchList);
       }
-      
+
       // Add topic properties
       addLabEntry(sess, topicSearchList);
 
       Document xmlDoc = this.buildXMLDocument();
-      
+
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(xmlDoc);
 
 
     }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in GetSearchMetaInformation ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSearchMetaInformation ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
+
     } catch (Exception e){
-      LOG.error("An exception has occurred in getSearchMetaInformation ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in getSearchMetaInformation ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -140,7 +134,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
 
     return this;
   }
-  
+
   private void addEntry(Session sess, Property property, List<SearchListEntry>searchList) {
     String displayName = property.getName();
     String searchName = property.getName().replaceAll("[^A-Za-z0-9]", "");
@@ -156,19 +150,19 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       addEntry(sess, displayName, searchName, null, searchList, "N", "N");
     }
   }
-  
+
   private void addEntry(Session sess, String displayName, String searchName, String query, List<SearchListEntry> searchList) throws HibernateException {
     List entries = (List)sess.createQuery(query).list();
     addEntry(sess, displayName, searchName, entries, searchList);
   }
-  
+
   private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList) {
     addEntry(sess, displayName, searchName, entries, searchList, "Y", "Y");
   }
-  
+
   private void addLabEntry(Session sess, List<SearchListEntry> searchList) {
     SearchListEntry entry = new SearchListEntry();
-    
+
     entry.DisplayName = "Group";
     entry.SearchName = AllObjectsIndexHelper.ID_LAB;
     entry.IsOptionChoice = "Y";
@@ -179,7 +173,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     filter.setUnbounded(true);
     StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
     List labs = (List)sess.createQuery(queryBuf.toString()).list();
-    
+
     List<DictionaryEntry> designList = new ArrayList<DictionaryEntry>();
     for(Iterator i = labs.iterator(); i.hasNext();) {
       Lab lab = (Lab)i.next();
@@ -190,7 +184,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       dictionaryMap.put("Group", designList);
     }
   }
-  
+
   private void addEntry(Session sess, String displayName, String searchName, Iterable entries, List<SearchListEntry> searchList, String isOptionChoice, String allowMultipleChoice) {
     SearchListEntry entry = new SearchListEntry();
     entry.DisplayName = displayName;
@@ -198,7 +192,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     entry.IsOptionChoice = isOptionChoice;
     entry.AllowMultipleChoice = allowMultipleChoice;
     searchList.add(entry);
-    
+
     if (entries != null) {
       List<DictionaryEntry> designList = new ArrayList<DictionaryEntry>();
       for(Iterator i = entries.iterator(); i.hasNext();) {
@@ -210,7 +204,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       dictionaryMap.put(displayName, designList);
     }
   }
-  
+
   private Document buildXMLDocument() {
     Document doc = new Document(new Element("SearchInfo"));
 
@@ -221,14 +215,14 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     buildSearchList(doc.getRootElement(), topicSearchList, "TopicSearchList");
     buildSearchList(doc.getRootElement(), allObjectsSearchList, "AllObjectsSearchList");
     buildDictionaryMap(doc.getRootElement());
-    
+
     return doc;
   }
-  
+
   private void buildSearchList(Element root, List<SearchListEntry> searchList, String nodeName) {
     Element parent = new Element(nodeName);
     root.addContent(parent);
-    
+
     for(SearchListEntry entry:searchList) {
       Element fieldNode = new Element("Field");
       fieldNode.setAttribute("displayName", entry.DisplayName);
@@ -239,7 +233,7 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       parent.addContent(fieldNode);
     }
   }
-  
+
   private void buildDictionaryMap(Element root) {
     Element parent = new Element("DictionaryMap");
     root.addContent(parent);
@@ -257,45 +251,45 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
       }
     }
   }
- 
+
   private class SearchListEntry implements Serializable {
     public String DisplayName;
     public String SearchName;
     public String IsOptionChoice;
     public String AllowMultipleChoice;
   }
-  
+
   private class CheckBoxDictionaryEntry extends DictionaryEntry implements Serializable {
     private Boolean isYes;
-    
+
     public CheckBoxDictionaryEntry(Boolean isYes) {
       this.isYes = isYes;
     }
-    
+
     public String getValue() {
       if (isYes) return "Y";
       else return "N";
     }
-    
+
     public String getDisplay() {
       if (isYes) return "Yes";
       else return "No";
     }
   }
-  
+
   private class GenericDictionaryEntry extends DictionaryEntry implements Serializable {
     private String value;
     private String display;
-    
+
     public GenericDictionaryEntry(String v, String d) {
       value = v;
       display = d;
     }
-    
+
     public String getValue() {
       return value;
     }
-    
+
     public String getDisplay() {
       return display;
     }

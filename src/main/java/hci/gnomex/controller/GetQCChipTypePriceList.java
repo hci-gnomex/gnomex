@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Lab;
@@ -59,7 +59,7 @@ public class GetQCChipTypePriceList extends GNomExCommand implements Serializabl
 
       Lab lab = (Lab)sess.load(Lab.class, this.idLab);
 
-      String queryString = 
+      String queryString =
         "select p, crit " +
         " from PriceSheet ps " +
         " join ps.requestCategories rc " +
@@ -92,22 +92,22 @@ public class GetQCChipTypePriceList extends GNomExCommand implements Serializabl
       setResponsePage(this.SUCCESS_JSP);
 
     }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in GetQCChipTypePrice ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetQCChipTypePrice ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetQCChipTypePrice ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetQCChipTypePrice ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetQCChipTypePrice ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetQCChipTypePrice ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetQCChipTypePrice ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetQCChipTypePrice ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }
@@ -126,7 +126,7 @@ public class GetQCChipTypePriceList extends GNomExCommand implements Serializabl
   private String toString(Object theValue) {
     if (theValue != null) {
       return theValue.toString();
-    } 
+    }
     return "";
   }
 

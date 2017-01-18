@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
@@ -25,9 +25,9 @@ import org.hibernate.Session;
 import org.apache.log4j.Logger;
 
 public class GetDownloadEstimatedSize extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetDownloadEstimatedSize.class);
-  
+
   private String    keysString = null;
   private String    includeTIF = "N";
   private String    includeJPG = "N";
@@ -36,10 +36,10 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
   private String    baseDir;
   private String    baseDirFlowCell;
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     // Get input parameters
@@ -56,38 +56,32 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
-      
-      
-      Map fileNameMap = new HashMap();      
+
+
+      Map fileNameMap = new HashMap();
       long compressedFileSizeTotal = getFileNamesToDownload(sess, serverName, baseDirFlowCell, keysString, fileNameMap, includeTIF.equals("Y"), includeJPG.equals("Y"), dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
       this.xmlResult = "<DownloadEstimatedSize size='" + compressedFileSizeTotal + "'/>";
-      
+
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetProject ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProject ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in GetProject ", e);
-      }
     }
-    
+
     return this;
   }
-  
+
 private long getFileNamesToDownload(Session sess, String serverName, String baseDirFlowCell, String keysString, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellDirectoryFlag) {
 
   long fileSizeTotal = 0;
@@ -106,10 +100,10 @@ private long getFileNamesToDownload(Session sess, String serverName, String base
     if (tokens.length > 5) {
       flowCellIndicator = tokens[5];
     }
-    
+
     String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 
-    
+
     String directoryName = "";
     String theBaseDir;
     if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
@@ -119,16 +113,16 @@ private long getFileNamesToDownload(Session sess, String serverName, String base
       directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + requestNumberBase + Constants.FILE_SEPARATOR + resultDirectory;
       theBaseDir = baseDir;
     }
-    
 
-    
+
+
     fileSizeTotal += getFileNames(requestNumber, directoryName, fileDescriptorMap, includeAllTIFFiles, includeAllJPGFiles, flowCellIndicator, theBaseDir, flowCellDirectoryFlag);
   }
   return fileSizeTotal;
-}      
-    
-   
-  
+}
+
+
+
 private long getFileNames(String requestNumber, String directoryName, Map fileDescriptorMap, boolean includeAllTIFFiles, boolean includeAllJPGFiles, String flowCellIndicator, String theBaseDir, String flowCellDirectoryFlag) {
   File fd = new File(directoryName);
   long fileSizeTotal = 0;
@@ -144,10 +138,10 @@ private long getFileNames(String requestNumber, String directoryName, Map fileDe
         boolean include = true;
         if (!includeAllJPGFiles && fileName.toLowerCase().endsWith(".jpg")) {
           include = false;
-        } else if (!includeAllTIFFiles && 
-            (fileName.toLowerCase().endsWith(".tif") || 
-             fileName.toLowerCase().endsWith(".tif.gz") || 
-             fileName.toLowerCase().endsWith(".tif.gzip") || 
+        } else if (!includeAllTIFFiles &&
+            (fileName.toLowerCase().endsWith(".tif") ||
+             fileName.toLowerCase().endsWith(".tif.gz") ||
+             fileName.toLowerCase().endsWith(".tif.gzip") ||
              fileName.toLowerCase().endsWith(".tif.zip"))) {
           include = false;
         } else if (fileName.toUpperCase().endsWith(".DS_Store")) {
@@ -156,17 +150,17 @@ private long getFileNames(String requestNumber, String directoryName, Map fileDe
           include = false;
         }
         if (include) {
-          long fileSize = f1.length();            
-          
+          long fileSize = f1.length();
+
           fileSizeTotal += getEstimatedCompressedFileSize(fileName, fileSize);
-          
-          
+
+
           List fileDescriptors = (List)fileDescriptorMap.get(requestNumber);
           if (fileDescriptors == null) {
             fileDescriptors = new ArrayList<FileDescriptor>();
             fileDescriptorMap.put(requestNumber, fileDescriptors);
           }
-          
+
           String zipEntryName;
           if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
             zipEntryName = Request.getBaseRequestNumber(requestNumber) + Constants.FILE_SEPARATOR + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", Constants.FILE_SEPARATOR);
@@ -177,7 +171,7 @@ private long getFileNames(String requestNumber, String directoryName, Map fileDe
               zipEntryName = zipEntryName.substring(1);
             }
           }
-          
+
           fileDescriptors.add(new FileDescriptor(requestNumber, "", f1, zipEntryName));
         }
       }
@@ -201,7 +195,7 @@ private long getEstimatedCompressedFileSize(String fileName, long fileSize) {
   } else if (fileName.toUpperCase().endsWith("JPEG")) {
     compressionRatio = 1;
   } else if (fileName.toUpperCase().endsWith("TXT")) {
-    compressionRatio = 2.7; 
+    compressionRatio = 2.7;
   } else if (fileName.toUpperCase().endsWith("RTF")) {
     compressionRatio = 2.7;
   } else if (fileName.toUpperCase().endsWith("DAT")) {
@@ -212,7 +206,7 @@ private long getEstimatedCompressedFileSize(String fileName, long fileSize) {
     compressionRatio = 1;
   } else if (fileName.toUpperCase().endsWith("GZ")) {
     compressionRatio = 1;
-  }     
+  }
   return new BigDecimal(fileSize / compressionRatio).longValue();
 }
 

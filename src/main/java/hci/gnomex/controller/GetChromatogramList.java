@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
@@ -38,7 +38,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
   private String                      abiFileName;
   private Element                     rootNode = null;
   private String                      message = "";
-  
+
   private static final int			  DEFAULT_MAX_CHROM_COUNT = 1000;
 
   public void validate() {
@@ -64,9 +64,9 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
 
     try {
       Document doc = new Document(new Element(listKind));
-      
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       StringBuffer buf = chromFilter.getQuery(this.getSecAdvisor());
       LOG.info("Query for GetChromatogramList: " + buf.toString());
       List chromats = sess.createQuery(buf.toString()).list();
@@ -75,10 +75,10 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
       String runNumberPrev = "";
       Integer idPlatePrev = new Integer(-1);
       AppUser releaser = null;
-      
+
       Integer maxChromatograms = getMaxChromatograms(sess);
       int             chromCount = 0;
-      
+
       for(Iterator i = chromats.iterator(); i.hasNext();) {
 
         Object[] row = (Object[])i.next();
@@ -123,21 +123,21 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         if (quadrant != null) {
           quadrantDisplay = Integer.valueOf(quadrant.intValue() + 1).toString();
         }
-        
-        
+
+
         if (!runNumber.equals(runNumberPrev)) {
           alt = !alt;
         } else if (!idPlate.equals(idPlatePrev)) {
           alt = !alt;
         }
-        
+
         abiFileName = qualifiedFilePath + Constants.FILE_SEPARATOR + fileName;
         File abiFile = new File(qualifiedFilePath, fileName);
 
-        
+
         double q20_len;
         double q40_len;
-        
+
         if ( readLength!=0 ) {
           DecimalFormat twoDForm = new DecimalFormat("#.##");
           q20_len = (double) q20/readLength;
@@ -148,17 +148,17 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           q20_len = new Integer(0);
           q40_len =  new Integer(0);
         }
-        
+
         releaser = (AppUser)sess.get(AppUser.class, idReleaser);
-        
+
         String submitter = AppUser.formatShortName(submitterLastName, submitterFirstName);
 
         SampleType sampleType = null;
         if (idSampleType != null) {
-          sampleType = (SampleType) sess.get( SampleType.class, idSampleType ); 
+          sampleType = (SampleType) sess.get( SampleType.class, idSampleType );
         }
-         
-        
+
+
         Element cNode = new Element("Chromatogram");
         cNode.setAttribute("idChromatogram", idChromatogram.toString());
         cNode.setAttribute("idPlateWell", idPlateWell.toString());
@@ -194,12 +194,12 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         cNode.setAttribute("wellPosition", wellPosDisplay);
         cNode.setAttribute("quadrant", quadrantDisplay);
         cNode.setAttribute("sampleType", sampleType != null ? sampleType.getDisplay() : "");
-        
+
         doc.getRootElement().addContent(cNode);
 
         runNumberPrev = runNumber;
         idPlatePrev = idPlate;
-        
+
         chromCount++;
         if (chromCount >= maxChromatograms) {
             break;
@@ -215,19 +215,12 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e){
-      LOG.error("An exception has occurred in GetRunList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRunList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetRunList ", e);
-      }
     }
-
     return this;
   }
-  
+
   private Integer getMaxChromatograms(Session sess) {
 	  Integer maxChromatograms = DEFAULT_MAX_CHROM_COUNT;
 	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CHROMATOGRAM_VIEW_LIMIT);
@@ -236,13 +229,13 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
 			  maxChromatograms = Integer.parseInt(prop);
 	      }
 	      catch(NumberFormatException e) {
-	      }    
+	      }
 	    }
 	    return maxChromatograms;
   }
-  
+
   public String getViewURL(Integer idChromatogram) {
-    String viewURL = Constants.DOWNLOAD_CHROMATOGRAM_FILE_SERVLET + "?idChromatogram=" + idChromatogram;    
+    String viewURL = Constants.DOWNLOAD_CHROMATOGRAM_FILE_SERVLET + "?idChromatogram=" + idChromatogram;
     return viewURL;
   }
 

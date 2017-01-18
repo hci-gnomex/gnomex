@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -21,15 +21,15 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetAnalysisGroup extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetAnalysisGroup.class);
-  
+
   private Integer idAnalysisGroup;
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idAnalysisGroup") != null) {
@@ -40,9 +40,9 @@ public class GetAnalysisGroup extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       AnalysisGroup ag = null;
       if (idAnalysisGroup.intValue() == 0) {
@@ -54,39 +54,33 @@ public class GetAnalysisGroup extends GNomExCommand implements Serializable {
           this.addInvalidField("permissionerror", "Insufficient permissions to access this analysis Group.");
         } else {
           this.getSecAdvisor().flagPermissions(ag);
-          
+
         }
       }
-   
-    
+
+
       if (isValid())  {
-      
+
         Document doc = new Document(new Element("OpenAnalysisGroupList"));
         Element agNode = ag.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(agNode);
-      
+
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
       }
-    
+
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     }catch (Exception e){
-      LOG.error("An exception has occurred in GetAnalysisGroup ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAnalysisGroup ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetAnalysisGroup ", e);
-      }
     }
-    
+
     return this;
   }
 

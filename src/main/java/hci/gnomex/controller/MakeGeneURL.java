@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
@@ -225,7 +225,7 @@ public Command execute() throws RollBackCommandException {
 		}
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in MakeGeneURL ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in MakeGeneURL ", e);
 		throw new RollBackCommandException(e.getMessage());
 	}
 

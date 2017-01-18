@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUserLite;
 import hci.gnomex.model.Property;
@@ -28,25 +28,25 @@ import org.apache.log4j.Logger;
 
 
 public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
-  
+
   private Integer idProperty;
   private Document appUsersDoc;
-  
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(AddPropertyAppUsers.class);
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     try {
       idProperty = Integer.parseInt(request.getParameter("idProperty"));
     } catch(Exception ex) {
       addInvalidField("idProperty", "Invalid idProperty string" + (request.getParameter("idProperty") == null ? "NULL" : request.getParameter("idProperty")));
       LOG.error("AddPropertyAppUsers: Invalid idProperty string" + (request.getParameter("idProperty") == null ? "NULL" : request.getParameter("idProperty")), ex);
     }
-    
+
     String appUsersXMLString = request.getParameter("appUsersXMLString");
     try {
       StringReader reader = new StringReader(appUsersXMLString);
@@ -55,21 +55,21 @@ public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
     } catch(Exception ex) {
       addInvalidField("idProperty", "Invalid appUsers string" + (appUsersXMLString == null ? "NULL" : appUsersXMLString));
       LOG.error("AddPropertyAppUsers: Invalid appUsers string" + (appUsersXMLString == null ? "NULL" : appUsersXMLString), ex);
-    }    
+    }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
         Property property = (Property)sess.load(Property.class, idProperty);
         Hibernate.initialize(property.getOptions());
         Hibernate.initialize(property.getOrganisms());
         Hibernate.initialize(property.getAppUsers());
         Hibernate.initialize(property.getAnalysisTypes());
-          
+
         //
         // Save property users
         //
@@ -90,31 +90,25 @@ public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
               }
           }
         }
-        
+
         sess.save(property);
         sess.flush();
 
         DictionaryHelper.reload(sess);
-        
+
         this.xmlResult = "<SUCCESS idProperty=\"" + property.getIdProperty() + "\"/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to save property.");
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      LOG.error("An exception has occurred in AddPropertyAppUsers ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in AddPropertyAppUsers ", e);
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in AddPropertyAppUsers", e);
-      }
+
     }
-    
+
     return this;
   }
 

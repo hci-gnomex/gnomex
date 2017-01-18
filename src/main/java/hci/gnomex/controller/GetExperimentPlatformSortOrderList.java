@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.RequestCategory;
 
@@ -16,15 +16,15 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.apache.log4j.Logger;
 public class GetExperimentPlatformSortOrderList extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(GetExperimentPlatformSortOrderList.class);
 
   private Integer idCoreFacility = null;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
@@ -38,7 +38,7 @@ public class GetExperimentPlatformSortOrderList extends GNomExCommand implements
       this.addInvalidField("Missing parameters", "idCoreFacility required");
     }
 
-    
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -63,19 +63,13 @@ public class GetExperimentPlatformSortOrderList extends GNomExCommand implements
         node.setAttribute("sortOrder", cat.getSortOrder() == null ? "0" : cat.getSortOrder().toString());
         doc.getRootElement().addContent(node);
       }
-      
+
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
-      
+
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetExperimentPlatformSortOrderList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExperimentPlatformSortOrderList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetExperimentPlatformSortOrderList ", e);
-      }
     }
 
     if (isValid()) {
@@ -83,7 +77,7 @@ public class GetExperimentPlatformSortOrderList extends GNomExCommand implements
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
 }

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -29,16 +29,16 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetProject extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetProject.class);
-  
+
   private Integer idProject;
   private Integer idLab;
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idProject") != null) {
@@ -55,9 +55,9 @@ public class GetProject extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       Project project = null;
       if (idProject.intValue() == 0) {
@@ -72,11 +72,11 @@ public class GetProject extends GNomExCommand implements Serializable {
           this.addInvalidField("permissionerror", "Insufficient permissions to access this project.");
         } else {
           this.getSecAdvisor().flagPermissions(project);
-          
+
         }
       }
-   
-    
+
+
       if (isValid())  {
         StringBuffer queryBuf = new StringBuffer();
         queryBuf.append("SELECT ed from ExperimentDesign as ed ");
@@ -94,9 +94,9 @@ public class GetProject extends GNomExCommand implements Serializable {
             break;
           }
         }
-      
 
-      
+
+
         Document doc = new Document(new Element("OpenProjectList"));
         Element projectNode = project.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         projectNode.setAttribute("showProjectAnnotations", showProjectAnnotations);
@@ -121,10 +121,10 @@ public class GetProject extends GNomExCommand implements Serializable {
           edNode.setAttribute("experimentDesign", ed.getExperimentDesign());
           edNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
           edNode.setAttribute("isSelected", entry != null ? "true" : "false");
-                  
+
           edParentNode.addContent(edNode);
         }
-        
+
         // Show list of experiment Factor entries
         Element efParentNode = new Element("ExperimentFactorEntries");
         projectNode.addContent(efParentNode);
@@ -144,50 +144,44 @@ public class GetProject extends GNomExCommand implements Serializable {
           efNode.setAttribute("experimentFactor", ef.getExperimentFactor());
           efNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
           efNode.setAttribute("isSelected", entry != null ? "true" : "false");
-                  
+
           efParentNode.addContent(efNode);
         }
 
-      
+
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
       }
-    
+
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in GetProject ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProject ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetProject ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProject ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetProject ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProject ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetProject ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProject ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetProject ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProject ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
 

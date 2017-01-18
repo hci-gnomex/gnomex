@@ -4,7 +4,7 @@ import hci.gnomex.model.ExperimentOverviewFilter;
 import hci.gnomex.model.Step;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
@@ -26,43 +26,43 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetExperimentOverviewList extends GNomExCommand implements Serializable {
-  
-  
+
+
 private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
-  
+
   private ExperimentOverviewFilter filter;
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new ExperimentOverviewFilter();
-    
+
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-    	
+
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        
+
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-        /// Process filter calling here 
+        /// Process filter calling here
         TreeMap clusterGenMap = new TreeMap();
         Document doc = new Document(new Element("ExperimentOverviewList"));
-        
+
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
         List rows = (List) sess.createQuery(queryBuf.toString()).list();
-        
+
         for (Iterator<Object[]> i1 = rows.iterator(); i1.hasNext();) {
             Object[] row = (Object[]) i1.next();
-            
+
             Element n = new Element("ExperimentOverview");
 
             n.setAttribute("sampleId",              	 row[0] == null ? "" :  ((Integer)row[0]).toString());
@@ -85,7 +85,7 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
             n.setAttribute("sampleCodeStepNext",		 row[17] == null ? "" : (String)row[17]);
             n.setAttribute("idCoreFacility",	 		 row[18] == null ? "" : ((Integer)row[18]).toString());
             n.setAttribute("sampleNumber",	 		 	 row[19] == null ? "" : (String)row[19]);
-            
+
             String labFullName = "";
             if (row[16] != null) {
               labFullName = (String)row[16];
@@ -96,9 +96,9 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
               }
               labFullName += (String)row[11];
             }
-            
-            n.setAttribute("labFullName", labFullName); 
-            
+
+            n.setAttribute("labFullName", labFullName);
+
             String userFullName = "";
             if (row[9] != null) {
               userFullName = (String)row[9];
@@ -109,37 +109,31 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
               }
               userFullName += (String)row[8];
             }
-            
-            n.setAttribute("userFullName", userFullName); 
+
+            n.setAttribute("userFullName", userFullName);
 
             // Add node content to rootElement XML output.
             doc.getRootElement().addContent(n);
         }
-  	  
+
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
-        
+
         // Send redirect with response SUCCESS or ERROR page.
         setResponsePage(this.SUCCESS_JSP);
-        
+
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to manage workflow.");
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetExperimentOverviewList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExperimentOverviewList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-          LOG.error("An exception has occurred in GetExperimentOverviewList ", e);
-      }
     }
-    
+
     return this;
   }
-  
-     
+
+
 }

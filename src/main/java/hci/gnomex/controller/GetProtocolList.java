@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -29,18 +29,18 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
 
   private static Logger LOG = Logger.getLogger(GetProtocolList.class);
   private String protocolClassName;
-  
-  
+
+
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       List l = null;
-      
+
       Element root = new Element("ProtocolList");
       Document doc = new Document(root);
-      
+
       // get the Feature Extraction Protocols
       if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.FeatureExtractionProtocol")) {
         Element featureExtractionProtocols = new Element("Protocols");
@@ -55,9 +55,9 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
             addFeatureExtractProtocolNode(fep, featureExtractionProtocols);
           }
         }
-        
+
       }
-      
+
       // get the HybProtocols
       if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.HybProtocol")) {
       Element hybProtocols = new Element("Protocols");
@@ -73,7 +73,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
           }
         }
       }
-      
+
       // get the LabelingProtocols
       if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.LabelingProtocol")) {
         Element labelingProtocols = new Element("Protocols");
@@ -87,9 +87,9 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
             LabelingProtocol lp = (LabelingProtocol) iter.next();
             addLabelingProtocolNode(lp, labelingProtocols);
           }
-        }        
+        }
       }
-      
+
       // get the Scan Protocols
       if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.ScanProtocol")) {
         Element scanProtocols = new Element("Protocols");
@@ -138,26 +138,18 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
           }
         }
       }
-      
-      
+
+
       XMLOutputter out = new XMLOutputter();
       xmlResult = out.outputString(doc);
-      
+
       this.validate();
-      
+
     }  catch (Exception e) {
-      LOG.error(e.getClass().toString() + ": " , e);
+      LOG.error("An exception occurred in GetProtocolList ", e);
       throw new RollBackCommandException();
     }
-    finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error(e.getClass().toString() + ": " , e);
-        throw new RollBackCommandException();
-      }
-    }
-    
+
     return this;
   }
 
@@ -174,7 +166,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
   }
 
   public void addFeatureExtractProtocolNode(FeatureExtractionProtocol fep, Element parent) {
@@ -187,11 +179,11 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     setPermissions(fep);
     e.setAttribute("canRead",   fep.canRead()   ? "Y" : "N");
     e.setAttribute("canDelete", fep.canDelete() ? "Y" : "N");
-    e.setAttribute("canUpdate", fep.canUpdate() ? "Y" : "N");    
-    
+    e.setAttribute("canUpdate", fep.canUpdate() ? "Y" : "N");
+
     parent.addContent(e);
   }
-  
+
   public void addHybProtocolNode(HybProtocol hp, Element parent) {
     Element e = new Element("Protocol");
     e.setAttribute("id", this.getNonNullString(hp.getIdHybProtocol()));
@@ -202,11 +194,11 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     setPermissions(hp);
     e.setAttribute("canRead",   hp.canRead()   ? "Y" : "N");
     e.setAttribute("canDelete", hp.canDelete() ? "Y" : "N");
-    e.setAttribute("canUpdate", hp.canUpdate() ? "Y" : "N");    
-    
+    e.setAttribute("canUpdate", hp.canUpdate() ? "Y" : "N");
+
     parent.addContent(e);
   }
-  
+
   public void addLabelingProtocolNode(LabelingProtocol lp, Element parent) {
     Element e = new Element("Protocol");
     e.setAttribute("id", this.getNonNullString(lp.getIdLabelingProtocol()));
@@ -218,10 +210,10 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("canRead",   lp.canRead()   ? "Y" : "N");
     e.setAttribute("canDelete", lp.canDelete() ? "Y" : "N");
     e.setAttribute("canUpdate", lp.canUpdate() ? "Y" : "N");
-    
+
     parent.addContent(e);
   }
-  
+
   public void addScanProtocolNode(ScanProtocol sp, Element parent) {
     Element e = new Element("Protocol");
     e.setAttribute("id", this.getNonNullString(sp.getIdScanProtocol()));
@@ -233,10 +225,10 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("canRead",   sp.canRead()   ? "Y" : "N");
     e.setAttribute("canDelete", sp.canDelete() ? "Y" : "N");
     e.setAttribute("canUpdate", sp.canUpdate() ? "Y" : "N");
-        
+
     parent.addContent(e);
   }
-  
+
   public void addSeqLibProtocolNode(SeqLibProtocol sp, Element parent) {
     Element e = new Element("Protocol");
     e.setAttribute("id", this.getNonNullString(sp.getIdSeqLibProtocol()));
@@ -250,10 +242,10 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("canRead",   sp.canRead()   ? "Y" : "N");
     e.setAttribute("canDelete", sp.canDelete() ? "Y" : "N");
     e.setAttribute("canUpdate", sp.canUpdate() ? "Y" : "N");
-        
+
     parent.addContent(e);
   }
-  
+
   public void addAnalysisProtocolNode(AnalysisProtocol ap, Element parent) {
     Element e = new Element("Protocol");
     e.setAttribute("id", this.getNonNullString(ap.getIdAnalysisProtocol()));
@@ -261,15 +253,15 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
     e.setAttribute("isActive", this.getNonNullString(ap.getIsActive()));
     e.setAttribute("protocolClassName", ap.getClass().getName());
     e.setAttribute("idAppUser", this.getNonNullString(ap.getIdAppUser()));
-    
+
     setPermissions(ap);
     e.setAttribute("canRead",   ap.canRead()   ? "Y" : "N");
     e.setAttribute("canDelete", ap.canDelete() ? "Y" : "N");
     e.setAttribute("canUpdate", ap.canUpdate() ? "Y" : "N");
-    
+
     parent.addContent(e);
-  }  
-  
+  }
+
   public void setPermissions(DetailObject o) {
     try {
       o.canRead(this.getSecAdvisor().canRead(o));

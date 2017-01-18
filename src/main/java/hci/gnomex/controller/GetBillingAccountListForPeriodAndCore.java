@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingStatus;
@@ -22,17 +22,17 @@ import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 public class GetBillingAccountListForPeriodAndCore extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetBillingAccountListForPeriodAndCore.class);
-  
+
   private Integer idBillingPeriod;
   private Integer idCoreFacility;
   private Integer idLab;
-  
+
   @Override
   public void validate() {
   }
-  
+
   @Override
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idBillingPeriod") != null && request.getParameter("idBillingPeriod").length() > 0) {
@@ -56,10 +56,10 @@ public class GetBillingAccountListForPeriodAndCore extends GNomExCommand impleme
   @Override
   @SuppressWarnings("unchecked")
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       ArrayList<String> statuses = new ArrayList<String>();
       statuses.add(BillingStatus.COMPLETED);
       statuses.add(BillingStatus.APPROVED);
@@ -77,31 +77,25 @@ public class GetBillingAccountListForPeriodAndCore extends GNomExCommand impleme
         Element baNode = acct.toXMLDocument(null, GNomExCommand.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(baNode);
       }
-      
+
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
 
-      throw new RollBackCommandException(e.getMessage());        
+      throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
-      }
     }
-      
+
     return this;
   }
 }

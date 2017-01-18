@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.FeatureExtractionProtocol;

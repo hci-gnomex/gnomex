@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
@@ -19,24 +19,24 @@ import org.hibernate.Session;
 import org.apache.log4j.Logger;
 
 public class DeleteDataTrack extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteDataTrack.class);
-  
-  
+
+
   private Integer      idDataTrack = null;
   private String       serverName = null;
   private String       baseDir = "";
- 
-  
-  
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
      idDataTrack = new Integer(request.getParameter("idDataTrack"));
    } else {
@@ -50,11 +50,11 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
     Session sess = null;
     DataTrack dataTrack = null;
     baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       dataTrack = (DataTrack)sess.load(DataTrack.class, idDataTrack);
-      
+
       // Check permissions
       if (this.getSecAdvisor().canDelete(dataTrack)) {
         dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
@@ -92,27 +92,21 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
         sess.delete(dataTrack);
 
         sess.flush();
-        
+
         this.xmlResult = "<SUCCESS/>";
         setResponsePage(this.SUCCESS_JSP);
-   
+
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete data track.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      LOG.error("An exception has occurred in DeleteDataTrack ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteDataTrack ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteDataTrack ", e);
-      }
+
     }
-    
+
     return this;
   }
 }

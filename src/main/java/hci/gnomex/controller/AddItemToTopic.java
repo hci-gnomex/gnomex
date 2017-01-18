@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.DataTrack;
@@ -29,12 +29,12 @@ import org.apache.log4j.Logger;
 
 
 public class AddItemToTopic extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(AddItemToTopic.class);
-  
+
   private Integer idRequest = null;
   private Integer idAnalysis = null;
   private Integer idDataTrack = null;
@@ -44,13 +44,13 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
 
   private Integer idTopic = null;
   private Integer idTopicOld = null;
-  
+
   private boolean isMove = false;
-  
+
   public void validate() {
   }
-  
-  public void loadCommand(HttpServletRequest request, HttpSession session) {   
+
+  public void loadCommand(HttpServletRequest request, HttpSession session) {
     int idCnt = 0;
     if (request.getParameter("idRequest0") != null && !request.getParameter("idRequest0").equals("")) {
       idRequest = new Integer(request.getParameter("idRequest0"));
@@ -71,15 +71,15 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
         idCnt++;
       }
     } else {
-      this.addInvalidField("Missing id", "idRequest, idAnalysis, or idDataTrack is required.");      
+      this.addInvalidField("Missing id", "idRequest, idAnalysis, or idDataTrack is required.");
     }
-    
+
     if (request.getParameter("idTopic") != null && !request.getParameter("idTopic").equals("")) {
       idTopic = new Integer(request.getParameter("idTopic"));
     } else {
       this.addInvalidField("Missing idTopic", "idTopic is required.");
     }
-    
+
     if (request.getParameter("isMove") != null && !request.getParameter("isMove").equals("")) {
       // If move or copy make sure idTopicOld present as well
       if (request.getParameter("idTopicOld") != null && !request.getParameter("idTopicOld").equals("")) {
@@ -87,7 +87,7 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
       } else {
         this.addInvalidField("Missing idTopicOld", "idTopicOld is required.");
         return;
-      }      
+      }
       if(request.getParameter("isMove").compareTo("Y") == 0) {
         isMove = true;
       }
@@ -102,18 +102,18 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
     Topic topic = null;
     Topic oldTopic = null;
     boolean topicUpdated = false;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if (this.isValid()) {
         topic = (Topic)sess.load(Topic.class, idTopic);
-        if(reqList.size() > 0) {         
+        if(reqList.size() > 0) {
           Set<Request> newRequests = new TreeSet<Request>(new RequestComparator());
           for(Iterator<?> i = topic.getRequests().iterator(); i.hasNext();) {
             Request r = Request.class.cast(i.next());
             newRequests.add(r);
-          } 
+          }
           for(Integer thisIdRequest : reqList) {
             request = (Request)sess.load(Request.class, thisIdRequest);
             newRequests.add(request);
@@ -129,23 +129,23 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
               if(r.getIdRequest().compareTo(idRequest) != 0) {
                 oldTopicRequests.add(r);
               }
-            } 
+            }
             oldTopic.setRequests(oldTopicRequests);
           }
           sess.flush();
-          topicUpdated = true;       
+          topicUpdated = true;
         } else if (anList.size() > 0) {
           Set<Analysis> newAnalyses = new TreeSet<Analysis>(new AnalysisComparator());
           for(Iterator<?> i = topic.getAnalyses().iterator(); i.hasNext();) {
             Analysis a = Analysis.class.cast(i.next());
             newAnalyses.add(a);
-          }          
+          }
           for(Integer thisIdAnalysis : anList) {
-            analysis = (Analysis) sess.load(Analysis.class, thisIdAnalysis);       
+            analysis = (Analysis) sess.load(Analysis.class, thisIdAnalysis);
             newAnalyses.add(analysis);
           }
           topic.setAnalyses(newAnalyses);
-          
+
           if(idTopicOld != null && isMove) {
             // If this is a move then remove item from the old topic
             Set<Analysis> oldTopicAnalyses = new TreeSet<Analysis>(new AnalysisComparator());
@@ -155,11 +155,11 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
               if(a.getIdAnalysis().compareTo(idAnalysis) != 0) {
                 oldTopicAnalyses.add(a);
               }
-            } 
+            }
             oldTopic.setAnalyses(oldTopicAnalyses);
-          } 
+          }
           sess.flush();
-          topicUpdated = true;          
+          topicUpdated = true;
         } else if (dtList.size() > 0) {
           Set<DataTrack> newDataTracks = new TreeSet<DataTrack>(new DataTrackComparator());
           for(Iterator<?> i = topic.getDataTracks().iterator(); i.hasNext();) {
@@ -171,7 +171,7 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
             newDataTracks.add(dataTrack);
           }
           topic.setDataTracks(newDataTracks);
-          
+
           if(idTopicOld != null && isMove) {
             // If this is a move then remove item from the old topic
             Set<DataTrack> oldTopicDataTracks = new TreeSet<DataTrack>(new DataTrackComparator());
@@ -181,16 +181,16 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
               if(dt.getIdDataTrack().compareTo(idDataTrack) != 0) {
                 oldTopicDataTracks.add(dt);
               }
-            } 
+            }
             oldTopic.setDataTracks(oldTopicDataTracks);
           }
           sess.flush();
-          topicUpdated = true;          
+          topicUpdated = true;
         } else {
           this.addInvalidField("Error", "Unable to update topic items.");
         }
       }
-      
+
       if (topicUpdated) {
         Element root = new Element("SUCCESS");
         Document doc = new Document(root);
@@ -204,19 +204,13 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
         this.setResponsePage(SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
-      }      
-    } catch (Exception e){
-      LOG.error("An exception has occurred in AddItemToTopic ", e);
-      throw new RollBackCommandException(e.getMessage());
-        
-    } finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
       }
+    } catch (Exception e){
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in AddItemToTopic ", e);
+      throw new RollBackCommandException(e.getMessage());
+
     }
-    
+
     return this;
   }
 }

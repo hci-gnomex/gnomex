@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
@@ -22,23 +22,23 @@ import org.apache.log4j.Logger;
 
 
 public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteGenomeBuild.class);
-  
-  
+
+
   private Integer      idGenomeBuild = null;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
      idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
    } else {
@@ -50,14 +50,14 @@ public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     GenomeBuild genomeBuild = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       genomeBuild = (GenomeBuild)sess.load(GenomeBuild.class, idGenomeBuild);
-      
+
       // Check permissions
       if (this.getSecAdvisor().canDelete(genomeBuild)) {
-        
+
         // Delete the root annotation grouping
         DataTrackFolder dtFolder = genomeBuild.getRootDataTrackFolder();
         if (dtFolder != null) {
@@ -80,60 +80,54 @@ public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
           sess.delete(alias);
         }
 
-       
+
         //
         // Delete genomeBuild
         //
         sess.delete(genomeBuild);
-      
-        
+
+
         sess.flush();
-        
-       
+
+
         DictionaryHelper.reload(sess);
-        
+
         this.xmlResult = "<SUCCESS/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
-   
+
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete genome build.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
       this.addInvalidField("constraint", "Unable to delete because genome build is associated with other objects in the database.");
-      
+
       try {
         sess.clear();
         genomeBuild = (GenomeBuild)sess.load(GenomeBuild.class, idGenomeBuild);
         genomeBuild.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteGenomeBuild when trying to inactivate genome build ", e);
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteGenomeBuild when trying to inactivate genome build ", e);
 
         throw new RollBackCommandException(e.getMessage());
-        
+
       }
-      
+
     } catch (Exception e){
-      LOG.error("An exception has occurred in DeleteGenomeBuild ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteGenomeBuild ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteGenomeBuild ", e);
-      }
+
     }
-    
+
     return this;
   }
-  
- 
-  
-  
-  
+
+
+
+
+
 
 }

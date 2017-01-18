@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
@@ -35,7 +35,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
   private String               listKind = "PlateList";
   private Element              rootNode = null;
   private String               message = "";
-  
+
   private static final int	   DEFAULT_MAX_PLATE_COUNT = 200;
 
   public void validate() {
@@ -69,7 +69,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           StringBuffer buf = plateFilter.getQuery(this.getSecAdvisor());
           LOG.info("Query for GetPlateList: " + buf.toString());
           List plates = sess.createQuery(buf.toString()).list();
-          
+
           Integer maxPlates = getMaxPlates(sess);
           int          plateCount = 0;
           for(Iterator i = plates.iterator(); i.hasNext();) {
@@ -113,11 +113,11 @@ public class GetPlateList extends GNomExCommand implements Serializable {
                 break;
             }
           }
-          
+
           doc.getRootElement().setAttribute("plateCount", Integer.valueOf(plateCount).toString());
           message = plateCount == maxPlates ? "First " + maxPlates + " displayed of " + plates.size() : "";
           doc.getRootElement().setAttribute("message", message);
-          
+
         }
 
 
@@ -131,33 +131,26 @@ public class GetPlateList extends GNomExCommand implements Serializable {
         "Insufficient permission to view plate list." );
       }
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetPlateList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlateList ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetPlateList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlateList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetPlateList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlateList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetPlateList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlateList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-
     return this;
   }
-  
+
   private Integer getMaxPlates(Session sess) {
 	  Integer maxPlates = DEFAULT_MAX_PLATE_COUNT;
 	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.PLATE_AND_RUN_VIEW_LIMIT);
@@ -166,7 +159,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
 			  maxPlates = Integer.parseInt(prop);
 	      }
 	      catch(NumberFormatException e) {
-	      }    
+	      }
 	    }
 	    return maxPlates;
   }

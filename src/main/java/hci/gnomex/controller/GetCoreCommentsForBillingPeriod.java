@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.BillingItemFilter;
@@ -96,22 +96,22 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
       setResponsePage(this.SUCCESS_JSP);
 
     }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }
@@ -130,7 +130,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
   private String toString(Object theValue) {
     if (theValue != null) {
       return theValue.toString();
-    } 
+    }
     return "";
   }
 

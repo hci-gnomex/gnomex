@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
@@ -19,17 +19,17 @@ import org.hibernate.Session;
 import org.apache.log4j.Logger;
 
 public class DeleteNewsItem extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteNewsItem.class);
-  
+
   private Integer      idNewsItem = null;
-   
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idNewsItem") != null && !request.getParameter("idNewsItem").equals("")) {
      idNewsItem = new Integer(request.getParameter("idNewsItem"));
    } else {
@@ -39,13 +39,13 @@ public class DeleteNewsItem extends GNomExCommand implements Serializable {
 
   public Command execute() throws RollBackCommandException {
     try {
-      
+
       Session sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       NewsItem newsitem = (NewsItem)sess.load(NewsItem.class, idNewsItem);
-      
+
       if (this.getSecAdvisor().canDelete(newsitem)) {
-    	  
+
         //
         // Delete NewsItem
         //
@@ -60,18 +60,12 @@ public class DeleteNewsItem extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteNewsItem", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteNewsItem", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteNewsItem", e);
-      }
+
     }
-    
+
     return this;
   }
 }

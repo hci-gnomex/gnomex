@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
@@ -88,7 +88,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       // We hash these so that they will be excluded from the
       // pending sample list
       //
-      HashMap<Integer, List<Object[]>> samplesToFilter = new HashMap<Integer, List<Object[]>>(); 
+      HashMap<Integer, List<Object[]>> samplesToFilter = new HashMap<Integer, List<Object[]>>();
       StringBuffer buf = filter.getPendingSamplesAlreadyOnPlateQuery();
       LOG.info("Pending samples already on plate GetPendingSampleList: " + buf.toString());
       Query query = sess.createQuery(buf.toString());
@@ -122,7 +122,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
 
       //
       // Get the pending samples under a status xml node, and then assay or
-      // primer (if applicable), then by request, then well.  
+      // primer (if applicable), then by request, then well.
       // Tubes have wells that don't belong to a source plate.
       //
       buf = filter.getPendingSamplesQuery();
@@ -139,14 +139,8 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e) {
-      LOG.error("An exception has occurred in GetPendingSampleList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPendingSampleList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;
@@ -260,7 +254,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
         boolean firstTime = true;
         for (Object[]row : results) {
           if (firstTime && !assayKey.equals(" ")) {
-            parentNode = createAssayNode(row, dictionaryHelper); 
+            parentNode = createAssayNode(row, dictionaryHelper);
             requestNode.addContent(parentNode);
           }
           if (firstTime) {
@@ -329,7 +323,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
     }
     n.setAttribute("label", label);
 
-    return n;      
+    return n;
   }
 
   private void addWellNode(Object[] row, DictionaryHelper dictionaryHelper, Element parentNode, List<Object[]> results, int plateCount) {

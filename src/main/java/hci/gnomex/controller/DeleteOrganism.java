@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Organism;
@@ -22,23 +22,23 @@ import org.apache.log4j.Logger;
 
 
 public class DeleteOrganism extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteOrganism.class);
-  
-  
+
+
   private Integer      idOrganism = null;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idOrganism") != null && !request.getParameter("idOrganism").equals("")) {
      idOrganism = new Integer(request.getParameter("idOrganism"));
    } else {
@@ -50,88 +50,82 @@ public class DeleteOrganism extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     Organism organism = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       organism = (Organism)sess.load(Organism.class, idOrganism);
-      
+
       // Check permissions
       if (this.getSecAdvisor().canDelete(organism)) {
-        
-        
-        
+
+
+
         //
         // First delete associated genome builds
-        //        
+        //
         StringBuffer query = new StringBuffer("SELECT gb from GenomeBuild gb");
         query.append(" where gb.idOrganism=" + organism.getIdOrganism());
         query.append(" order by gb.genomeBuildName");
         List genomeBuilds = sess.createQuery(query.toString()).list();
-        
-        if (!genomeBuilds.isEmpty()) {          
+
+        if (!genomeBuilds.isEmpty()) {
           Element gbEle = new Element("genomeBuilds");
           for(Iterator j = genomeBuilds.iterator(); j.hasNext();) {
             GenomeBuild gb = (GenomeBuild)j.next();
             sess.delete(gb);
           }
         }
-        
-        sess.flush();        
-        
-       
+
+        sess.flush();
+
+
         //
         // Delete organism
         //
         sess.delete(organism);
-      
-        
+
+
         sess.flush();
-        
-       
+
+
         DictionaryHelper.reload(sess);
-        
+
         this.xmlResult = "<SUCCESS/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
-   
+
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete organism.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
       this.addInvalidField("constraint", "Organism set to inactive.  Unable to delete because organism is referenced on existing db objects.");
-      
+
       try {
         sess.clear();
         organism = (Organism)sess.load(Organism.class, idOrganism);
         organism.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteOrganism when trying to inactivate organism ", e);
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteOrganism when trying to inactivate organism ", e);
 
         throw new RollBackCommandException(e.getMessage());
-        
+
       }
-      
+
     } catch (Exception e){
-      LOG.error("An exception has occurred in DeleteOrganism ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteOrganism ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteOrganism ", e);
-      }
+
     }
-    
+
     return this;
   }
-  
- 
-  
-  
-  
+
+
+
+
+
 
 }

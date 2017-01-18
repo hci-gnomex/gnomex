@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 
 import hci.gnomex.model.ProductLedger;
@@ -97,16 +97,10 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
       setResponsePage(this.SUCCESS_JSP);
 
     }catch(Exception e) {
-      LOG.error("An exception has occurred in GetLabLedgerEntries ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetLabLedgerEntries ", e);
 
-      throw new RollBackCommandException(e.getMessage()); 
+      throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
 

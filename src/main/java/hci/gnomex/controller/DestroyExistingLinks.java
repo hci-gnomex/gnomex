@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
@@ -41,7 +41,7 @@ public Command execute() throws RollBackCommandException {
 		setResponsePage(this.SUCCESS_JSP);
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in DestroyExistingLinks", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DestroyExistingLinks", e);
 		this.xmlResult = "Failed to Delete Links: " + e.getMessage();
 		throw new RollBackCommandException(e.getMessage());
 	}

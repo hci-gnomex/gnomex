@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestProgressSolexaFilter;
@@ -26,52 +26,52 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetRequestProgressSolexaList extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetRequestProgressSolexaList.class);
-  
+
   private RequestProgressSolexaFilter filter;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new RequestProgressSolexaFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
-    
-    
+
+
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion");
     }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-      
+
       StringBuffer buf = filter.getSolexaQuery(this.getSecAdvisor(), dictionaryHelper);
       LOG.info(buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new SampleComparator());
       for(Iterator i = rows1.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String requestNumber = (String)row[2];
         String sampleNumber     = row[4] == null || row[3].equals("") ? "" : (String)row[4];
         String key = requestNumber + "," + sampleNumber;
-        
+
         rowMap.put(key, row);
       }
-      
-      
+
+
       boolean alt = false;
       String prevRequestNumber = "";
-      
+
       // Get sequenced lane count by sample
       buf = filter.getSolexaLaneSeqStatusQuery(this.getSecAdvisor(), dictionaryHelper);
       LOG.info(buf.toString());
@@ -79,14 +79,14 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       HashMap laneSeqStatusMap = new HashMap();
       for(Iterator i = sequencedLaneRows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String sampleNumber          = (String)row[0];
         java.sql.Date lastCycleDate  = (java.sql.Date)row[1];
         Integer laneCount            = (int) (long)row[2];
-        
-        laneSeqStatusMap.put(sampleNumber, laneCount); 
-      }   
-      
+
+        laneSeqStatusMap.put(sampleNumber, laneCount);
+      }
+
       // Get processed (gone through pipeline) lane count by sample
       buf = filter.getSolexaLanePipelineStatusQuery(this.getSecAdvisor());
       LOG.info(buf.toString());
@@ -94,13 +94,13 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       HashMap lanePipelineStatusMap = new HashMap();
       for(Iterator i = processedLanes.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String sampleNumber          = (String)row[0];
         java.sql.Date pipelineDate   = (java.sql.Date)row[1];
         Integer laneCount            = (int) (long)row[2];
-        
-        lanePipelineStatusMap.put(sampleNumber, laneCount); 
-      }            
+
+        lanePipelineStatusMap.put(sampleNumber, laneCount);
+      }
 
       // Get requested lane count by sample
       buf = filter.getSolexaLaneStatusQuery(this.getSecAdvisor(), dictionaryHelper);
@@ -109,32 +109,32 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       HashMap laneStatusMap = new HashMap();
       for(Iterator i = laneRows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String sampleNumber          = (String)row[0];
         Integer laneCount            = (int) (long)row[1];
-        
-        laneStatusMap.put(sampleNumber, laneCount); 
-      }      
+
+        laneStatusMap.put(sampleNumber, laneCount);
+      }
 
       Document doc = new Document(new Element("RequestProgressList"));
       for(Iterator i = rowMap.keySet().iterator(); i.hasNext();) {
         String key = (String)i.next();
         Object[] row = (Object[])rowMap.get(key);
-        
+
         String requestNumber = (String)row[2];
         if (!requestNumber.equals(prevRequestNumber)) {
           alt = !alt;
         }
-        
+
         String codeRequestCategory = row[12] == null ? "" : (String)row[12];
         RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
 
-        
+
         Element n = new Element("RequestProgress");
         n.setAttribute("key", key);
         n.setAttribute("isSelected",      "N");
         n.setAttribute("altColor",        new Boolean(alt).toString());
-        n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");        
+        n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");
         n.setAttribute("idRequest",       row[0].toString());
         n.setAttribute("createDate",      this.formatDate((java.util.Date)row[1]));
         n.setAttribute("requestNumber",  (String)row[2]);
@@ -150,7 +150,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         n.setAttribute("codeRequestCategory", codeRequestCategory);
         n.setAttribute("icon",            requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
         n.setAttribute("type",            requestCategory != null && requestCategory.getType() != null ? requestCategory.getType() : "");
-        
+
         String sampleNumber = (String)row[4];
         Integer sequencedLaneCount = (Integer)laneSeqStatusMap.get(sampleNumber);
         if (sequencedLaneCount == null) {
@@ -164,16 +164,16 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         }
         n.setAttribute("numberLanesProcessed", processedLaneCount != null ? processedLaneCount.toString() : "0");
 
-        
+
         Integer laneCount = (Integer)laneStatusMap.get(sampleNumber);
         n.setAttribute("numberLanes", laneCount != null ? laneCount.toString() : "0");
         if (laneCount == null) {
           laneCount = new Integer(0);
         }
-   
-        
-        
-        
+
+
+
+
         String seqStatus = "";
         if (laneCount.intValue() > 0) {
           if (laneCount.intValue() == processedLaneCount.intValue()) {
@@ -193,26 +193,20 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         n.setAttribute("seqStatus", seqStatus);
 
         doc.getRootElement().addContent(n);
-        
+
         prevRequestNumber = requestNumber;
-        
+
       }
-    
+
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
-    
+
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetRequestProgressList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequestProgressList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
 
@@ -221,39 +215,39 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       String key1 = (String)o1;
       String key2 = (String)o2;
 
-      
-      
+
+
       String[] tokens1 = key1.split(",");
       String[] tokens2 = key2.split(",");
-      
+
       String reqNumber1       = tokens1[0];
       String itemNumber1      = tokens1[1];
-      
+
       String reqNumber2       = tokens2[0];
       String itemNumber2      = tokens2[1];
-      
+
       String number1 = null;
-      
+
       String[] itemNumberTokens1 = itemNumber1.split("X");
-      number1 = itemNumberTokens1[itemNumberTokens1.length - 1];        
-      
-      
+      number1 = itemNumberTokens1[itemNumberTokens1.length - 1];
+
+
       String number2 = null;
-      
-      
+
+
       String[] itemNumberTokens2 = itemNumber2.split("X");
-      number2 = itemNumberTokens2[itemNumberTokens2.length - 1];        
-      
+      number2 = itemNumberTokens2[itemNumberTokens2.length - 1];
+
 
 
       if (reqNumber1.equals(reqNumber2)) {
-        return new Integer(number1).compareTo(new Integer(number2));        
+        return new Integer(number1).compareTo(new Integer(number2));
       } else {
         return reqNumber1.compareTo(reqNumber2);
       }
-      
+
     }
   }
-  
-  
+
+
 }

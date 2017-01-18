@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Lab;
@@ -157,7 +157,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       doc.getRootElement().addContent(summarySeqExperimentsByAppNode);
 
       Element summaryAnalysisByTypeNode = new Element(SUMMARY_ANALYSIS_BY_TYPE);
-      doc.getRootElement().addContent(summaryAnalysisByTypeNode);     
+      doc.getRootElement().addContent(summaryAnalysisByTypeNode);
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
@@ -168,7 +168,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       if (this.getSecAdvisor().isGuest()) {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.  Guests cannot access usage data.");
         setResponsePage(this.ERROR_JSP);
-      } 
+      }
 
       // Admins can run this command.  Normal gnomex users can if usage_user_visibility
       // property is set to an appropriate level ('masked' or 'full').
@@ -182,8 +182,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       // the usage.
       boolean hasPermission = true;
       if (idCoreFacility != null) {
-        // Turn it off so we can figure out if user has permission by looking at core facilities 
-        hasPermission = false;  
+        // Turn it off so we can figure out if user has permission by looking at core facilities
+        hasPermission = false;
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
           hasPermission = true;
         } else if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
@@ -225,29 +225,29 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           labIdMap.put(lab.getIdLab(), lab);
         }
 
-        // Hash all weeks from a specific date on        
+        // Hash all weeks from a specific date on
         Calendar now = GregorianCalendar.getInstance();
 
         // Back up today's date to correct interval
         if (asOfLast6Months.equals("Y")) {
-          now.add(Calendar.MONTH, -6);          
+          now.add(Calendar.MONTH, -6);
         }else if (asOfLastYear.equals("Y")) {
-          now.add(Calendar.YEAR, -1);          
+          now.add(Calendar.YEAR, -1);
         }else if (asOfLast2Years.equals("Y")) {
-          now.add(Calendar.YEAR, - 2);          
+          now.add(Calendar.YEAR, - 2);
         }else {
           now.add(Calendar.YEAR, -10);
         }
         // Now back up to a Monday
-        int weekday = now.get(Calendar.DAY_OF_WEEK);  
-        if (weekday != Calendar.MONDAY)   
-        {   
-          // calculate how much to add   
-          // the 2 is the difference between Saturday and Monday   
-          int days = (Calendar.SATURDAY - weekday + 2) % 7;   
+        int weekday = now.get(Calendar.DAY_OF_WEEK);
+        if (weekday != Calendar.MONDAY)
+        {
+          // calculate how much to add
+          // the 2 is the difference between Saturday and Monday
+          int days = (Calendar.SATURDAY - weekday + 2) % 7;
           now.add(Calendar.DAY_OF_YEAR, days);
           now.add(Calendar.DAY_OF_YEAR, -7);
-        }           
+        }
 
 
         int week = 0;
@@ -408,7 +408,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
         totalDiskSpace = totalExperimentDiskSpace != null ? totalExperimentDiskSpace.add(totalAnalysisDiskSpace != null ? totalAnalysisDiskSpace : new BigDecimal(0)) : new BigDecimal(0);
 
-        summaryDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+        summaryDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());
         summaryDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
         summaryDiskSpaceNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
 
@@ -445,7 +445,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         }
 
         addEntryDiskSpaceNodes(summaryDiskSpaceByYearNode, diskSpaceMap, false, false, analysisTypes);
-        summaryDiskSpaceByYearNode.setAttribute("diskSpace",   totalDiskSpace != null ? totalDiskSpace.toString() : "0");      
+        summaryDiskSpaceByYearNode.setAttribute("diskSpace",   totalDiskSpace != null ? totalDiskSpace.toString() : "0");
         summaryDiskSpaceByYearNode.setAttribute("diskSpaceMB", totalDiskSpace != null ? totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
         summaryDiskSpaceByYearNode.setAttribute("diskSpaceGB", totalDiskSpace != null ? totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString() : "0");
 
@@ -476,7 +476,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           if(experimentFileSize == null){
             experimentFileSize = new BigDecimal(0);
           }
-          summaryDiskSpaceByExperimentNode.setAttribute("diskSpace",   experimentFileSize.toString());      
+          summaryDiskSpaceByExperimentNode.setAttribute("diskSpace",   experimentFileSize.toString());
           summaryDiskSpaceByExperimentNode.setAttribute("diskSpaceMB", experimentFileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
           summaryDiskSpaceByExperimentNode.setAttribute("diskSpaceGB", experimentFileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
 
@@ -497,12 +497,12 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           if(analysisFileSize == null){
             analysisFileSize = new BigDecimal(0);
           }
-          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpace",   analysisFileSize.toString());      
+          summaryDiskSpaceByAnalysisNode.setAttribute("diskSpace",   analysisFileSize.toString());
           summaryDiskSpaceByAnalysisNode.setAttribute("diskSpaceMB", analysisFileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
           summaryDiskSpaceByAnalysisNode.setAttribute("diskSpaceGB", analysisFileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
 
           totalDiskSpace = experimentFileSize.add(analysisFileSize);
-          totalDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());      
+          totalDiskSpaceNode.setAttribute("diskSpace",   totalDiskSpace.toString());
           totalDiskSpaceNode.setAttribute("diskSpaceMB", totalDiskSpace.divide(MB, BigDecimal.ROUND_HALF_EVEN).toString());
           totalDiskSpaceNode.setAttribute("diskSpaceGB", totalDiskSpace.divide(GB, BigDecimal.ROUND_HALF_EVEN).toString());
 
@@ -610,28 +610,22 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       }
 
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetUsageData ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageData ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetUsageData ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageData ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetUsageData ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageData ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetUsageData ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetUsageData ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;
@@ -697,7 +691,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       buf.append("AND tl.idRequest is not NULL ");
       if (idCoreFacility != null) {
         buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
-      }    
+      }
       buf.append("GROUP BY tl.startDateTime, tl.fileName ");
       buf.append("ORDER BY tl.startDateTime, tl.fileName");
     }
@@ -705,14 +699,14 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       buf.append("SELECT tl.startDateTime, tl.fileName ");
       buf.append("FROM TransferLog tl ");
       buf.append("WHERE transferType = 'upload' ");
-      buf.append("AND tl.idAnalysis is not NULL ");    
+      buf.append("AND tl.idAnalysis is not NULL ");
       buf.append("GROUP BY tl.startDateTime, tl.fileName ");
       buf.append("ORDER BY tl.startDateTime, tl.fileName");
     }
 
     summaryRows = sess.createQuery(buf.toString()).list();
 
-    Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
+    Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator());
     TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> ();
     for(Iterator<Object> i = summaryRows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -723,7 +717,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       thisDescriptor.setLabFirstName("");
       thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[0]));
       thisDescriptor.setNumber("");
-      thisDescriptor.setFileName((String)row[1]); 
+      thisDescriptor.setFileName((String)row[1]);
 
       // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
       UsageRowDescriptor thisCounter = new UsageRowDescriptor();
@@ -734,7 +728,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         Integer thisCount = rowCounterMap.get(thisCounter);
         if(thisCount != null) {
           // If counter already present then increment
-          thisCount = new Integer(thisCount.intValue()+1);        
+          thisCount = new Integer(thisCount.intValue()+1);
         } else {
           // If counter not present then start at 1
           thisCount = new Integer(1);
@@ -742,7 +736,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         rowCounterMap.put(thisCounter, thisCount);
 
       }
-    } 
+    }
     // Now traverse the rowCounter list and retrieve the counts
     Iterator<UsageRowDescriptor> it = rowCounterMap.keySet().iterator();
     while(it.hasNext()) {
@@ -757,8 +751,8 @@ public class GetUsageData extends GNomExCommand implements Serializable {
         if (ai != null) {
           ai.uploadCount += thisCount;
         }
-      }      
-    }       
+      }
+    }
 
     // Tally download count by week
     buf = new StringBuffer();
@@ -770,7 +764,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       buf.append("AND tl.idRequest is not NULL ");
       if (idCoreFacility != null) {
         buf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
-      }    
+      }
       buf.append("GROUP BY tl.startDateTime ");
       buf.append("ORDER BY tl.startDateTime, count(tl.fileName) ");
     }
@@ -778,7 +772,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       buf.append("SELECT tl.startDateTime, count(tl.fileName) ");
       buf.append("FROM TransferLog tl ");
       buf.append("WHERE transferType = 'download' ");
-      buf.append("AND tl.idAnalysis is not NULL "); 
+      buf.append("AND tl.idAnalysis is not NULL ");
       buf.append("GROUP BY tl.startDateTime ");
       buf.append("ORDER BY tl.startDateTime, count(tl.fileName) ");
     }
@@ -928,7 +922,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
 
 
       BigDecimal fileSize   = info.totalFileSize;
-      String label       = info.label;         
+      String label       = info.label;
 
       BigDecimal fileSizeMB = fileSize.divide(MB, BigDecimal.ROUND_HALF_EVEN);
       BigDecimal fileSizeGB = fileSize.divide(GB, BigDecimal.ROUND_HALF_EVEN);
@@ -1036,15 +1030,15 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     return labName;
   }
 
-  private int daysBetween(Calendar startDate, Calendar endDate) {  
-    Calendar date = (Calendar) startDate.clone();  
-    int daysBetween = 0;  
-    while (date.before(endDate)) {  
-      date.add(Calendar.DAY_OF_MONTH, 1);  
-      daysBetween++;  
-    }  
-    return daysBetween;  
-  }  
+  private int daysBetween(Calendar startDate, Calendar endDate) {
+    Calendar date = (Calendar) startDate.clone();
+    int daysBetween = 0;
+    while (date.before(endDate)) {
+      date.add(Calendar.DAY_OF_MONTH, 1);
+      daysBetween++;
+    }
+    return daysBetween;
+  }
 
 
   static class DiskSpaceComparator implements Comparator {

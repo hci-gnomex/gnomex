@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisGroup;
@@ -126,16 +126,10 @@ public class MoveAnalysis extends GNomExCommand implements Serializable {
 				setResponsePage(this.SUCCESS_JSP);
 			}
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in MoveAnalysis ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in MoveAnalysis ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 
-		} finally {
-			try {
-				//closeHibernateSession;
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in MoveAnalysis ", e);
-			}
 		}
 		return this;
 	}

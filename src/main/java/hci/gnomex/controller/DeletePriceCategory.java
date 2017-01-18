@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
@@ -147,18 +147,11 @@ public class DeletePriceCategory extends GNomExCommand implements Serializable {
         this.setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeletePriceCategory ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeletePriceCategory ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeletePriceCategory ", e);
-      }
     }
-
     return this;
   }
 

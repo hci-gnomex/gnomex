@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
@@ -160,16 +160,9 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetProductOrder ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProductOrder ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in GetProductOrder ", e);
-      }
-
     }
     return this;
   }

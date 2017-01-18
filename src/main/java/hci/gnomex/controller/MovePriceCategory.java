@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
@@ -23,22 +23,22 @@ import org.apache.log4j.Logger;
 
 
 public class MovePriceCategory extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(MovePriceCategory.class);
-  
+
 
   private Integer               idPriceCategorySource;
   private Integer               idPriceSheetTarget;
   private Integer               idPriceCategoryPosition;
   private String                dropPosition = "after";
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idPriceCategorySource") != null && !request.getParameter("idPriceCategorySource").equals("")) {
@@ -52,7 +52,7 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
     } else {
       this.addInvalidField("idPriceSheetTarget", "idPriceSheetTarget required");
     }
-    
+
     if (request.getParameter("idPriceCategoryPosition") != null && !request.getParameter("idPriceCategoryPosition").equals("")) {
       idPriceCategoryPosition = Integer.valueOf(request.getParameter("idPriceCategoryPosition"));
       if (this.idPriceCategorySource.equals(this.idPriceCategoryPosition)) {
@@ -63,22 +63,22 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
     if (request.getParameter("dropPosition") != null && !request.getParameter("dropPosition").equals("")) {
       dropPosition = request.getParameter("dropPosition");
     }
-    
-    
+
+
 
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
-        
-        
+
+
         PriceCategory priceCategory = (PriceCategory)sess.load(PriceCategory.class, idPriceCategorySource);
-        String message = "";  
-      
+        String message = "";
+
 
         if (idPriceSheetTarget != null) {
           PriceSheet priceSheet = (PriceSheet)sess.load(PriceSheet.class, idPriceSheetTarget);
@@ -107,7 +107,7 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
             x.setIdPriceSheet(priceSheet.getIdPriceSheet());
             x.setPriceCategory(priceCategory);
             if (positionPriceCategory != null) {
-              x.setSortOrder(Integer.valueOf(positionPriceCategory.getSortOrder().intValue() + 1));              
+              x.setSortOrder(Integer.valueOf(positionPriceCategory.getSortOrder().intValue() + 1));
             } else {
               x.setSortOrder(Integer.valueOf(maxSortOrder.intValue() + 1));
             }
@@ -122,26 +122,26 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
               for(Iterator i = priceSheet.getPriceCategories().iterator(); i.hasNext();) {
                 PriceSheetPriceCategory x = (PriceSheetPriceCategory)i.next();
                 PriceCategory cat = x.getPriceCategory();
-                
-                // If we are positioned at the correct price category, 
+
+                // If we are positioned at the correct price category,
                 // add the price category we are moving
                 if (dropPosition.equals("before")) {
                   if (cat.getIdPriceCategory().equals(positionPriceCategory.getPriceCategory().getIdPriceCategory())) {
                     orderedCategories.add(existingPriceCategory);
-                  } 
+                  }
                 }
-                
+
                 // Add everything in the existing order, except for the price category
                 // we are moving
                 if (!cat.getIdPriceCategory().equals(existingPriceCategory.getPriceCategory().getIdPriceCategory())) {
                   orderedCategories.add(x);
                 }
-                // If we are positioned at the correct price category, 
+                // If we are positioned at the correct price category,
                 // add the price category we are moving
                 if (dropPosition.equals("after")) {
                   if (cat.getIdPriceCategory().equals(positionPriceCategory.getPriceCategory().getIdPriceCategory())) {
                     orderedCategories.add(existingPriceCategory);
-                  } 
+                  }
                 }
               }
               int sortOrder = 0;
@@ -152,41 +152,35 @@ public class MovePriceCategory extends GNomExCommand implements Serializable {
                 sortOrder++;
               }
               message = "Category " + priceCategory.getName() + " repositioned in Price Sheet " + priceSheet.getName() + ".";
-              
+
             }
-            
-            
+
+
           }
-          
+
         }
- 
+
         sess.flush();
-        
-        this.xmlResult = "<SUCCESS idPriceCategory=\"" + priceCategory.getIdPriceCategory() + "\"" + 
+
+        this.xmlResult = "<SUCCESS idPriceCategory=\"" + priceCategory.getIdPriceCategory() + "\"" +
                                    " message=\"" + message + "\"" + "/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to move priceCategory.");
         setResponsePage(this.ERROR_JSP);
       }
-      
+
     }catch (Exception e){
-      LOG.error("An exception has occurred in MovePriceCategory ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in MovePriceCategory ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
+
     }
-    
+
     return this;
   }
-  
+
 
 
 }

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.AppUser;
@@ -68,14 +68,8 @@ public class GetCoreAdmins extends GNomExCommand implements Serializable {
             }
 
         }catch(Exception e){
-            LOG.error("An exception has occurred in GetCoreAdmins ", e);
+            this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetCoreAdmins ", e);
 
-        } finally{
-            try {
-                //closeReadOnlyHibernateSession;
-            } catch (Exception e) {
-                LOG.error("An exception has occurred in GetCoreAdmins ", e);
-            }
         }
 
         return this;

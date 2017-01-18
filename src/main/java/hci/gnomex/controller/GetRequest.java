@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -240,7 +240,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         	  }
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
-          
+
           if (billingTemplate != null) {
         	  requestNode.addContent(billingTemplate.toXML(sess, null));
           }
@@ -1039,30 +1039,24 @@ public class GetRequest extends GNomExCommand implements Serializable {
       }
 
     } catch (UnknownPermissionException e) {
-      LOG.error("An exception has occurred in GetRequest ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequest ", e);
       throw new RollBackCommandException(e.getMessage());
     } catch (NamingException e) {
-      LOG.error("An exception has occurred in GetRequest ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequest ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (SQLException e) {
-      LOG.error("An exception has occurred in GetRequest ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequest ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
-      LOG.error("An exception has occurred in GetRequest ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequest ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetRequest ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequest ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in GetRequest ", e);
-      }
     }
 
     String dinfo = "GetRequest (" + this.getUsername() + " - " + reqNumber + "), ";

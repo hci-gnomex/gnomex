@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.PropertyDictionary;
@@ -53,7 +53,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			idCoreFacility = null;
 		}
 	} catch (Exception e) {
-		LOG.error(e.getClass().toString() + ": ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception occurred in GetLaunchProperties ", e);
 
 	}
 }

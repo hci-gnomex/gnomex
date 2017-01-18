@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
@@ -40,17 +40,17 @@ public class EmailServlet extends GNomExCommand implements Serializable {
   private String requestsXMLString = null;
   private String recipientAddress = null;
   private String senderAddress = null;
-  
+
   private String sendingMode = "";
-  
+
   private String           serverName;
-  
+
   private static final String ORDER_EMAIL = "order";
   private static final String GENERIC_EMAIL = "contact_core";
 
   public void loadCommand(HttpServletRequest req, HttpSession res) {
 	sendingMode = "";
-    if (req.getParameter("body") != null && !req.getParameter("body").equals("")) { 
+    if (req.getParameter("body") != null && !req.getParameter("body").equals("")) {
       body = new StringBuffer(req.getParameter("body"));
     }
     if (req.getParameter("subject") != null && !req.getParameter("subject").equals("")) {
@@ -74,25 +74,25 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       StringReader reader = new StringReader(runsSelectedXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        selectedRunsDoc = sax.build(reader);     
+        selectedRunsDoc = sax.build(reader);
       } catch (JDOMException je ) {
         LOG.error( "Cannot parse runsSelectedXMLString", je );
         this.addInvalidField( "runsSelectedXMLString", "Invalid runsSelectedXMLString");
       }
     }
-    
+
     if (req.getParameter("platesSelectedXMLString") != null && !req.getParameter("platesSelectedXMLString").equals("")) {
     	sendingMode = ORDER_EMAIL;
         platesSelectedXMLString = req.getParameter("platesSelectedXMLString");
         StringReader reader = new StringReader(platesSelectedXMLString);
         try {
           SAXBuilder sax = new SAXBuilder();
-          selectedPlatesDoc = sax.build(reader);     
+          selectedPlatesDoc = sax.build(reader);
         } catch (JDOMException je ) {
           LOG.error( "Cannot parse platesSelectedXMLString", je );
           this.addInvalidField( "platesSelectedXMLString", "Invalid platesSelectedXMLString");
         }
-      } 
+      }
 
     if (req.getParameter("requestsXMLString") != null && !req.getParameter("requestsXMLString").equals("")) {
       sendingMode = ORDER_EMAIL;
@@ -100,12 +100,12 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       StringReader reader = new StringReader(requestsXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        selectedRequestsDoc = sax.build(reader);     
+        selectedRequestsDoc = sax.build(reader);
       } catch (JDOMException je ) {
         LOG.error( "Cannot parse requestsXMLString", je );
         this.addInvalidField( "requestsXMLString", "Invalid requestsXMLString");
       }
-    } 
+    }
 
     if ( sendingMode.equals(ORDER_EMAIL) && selectedRunsDoc == null && selectedPlatesDoc == null && selectedRequestsDoc == null ) {
       this.addInvalidField( "XMLString", "Run or Request XML required");
@@ -116,7 +116,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
     if ( sendingMode.equals(GENERIC_EMAIL) && senderAddress != null && !MailUtil.isValidEmail(senderAddress) ) {
       this.addInvalidField( "Sender Address", "Sender addresses is not valid");
     }
-    
+
     serverName = req.getServerName();
   }
 
@@ -129,28 +129,28 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      
+
       if (sendingMode.equals(GENERIC_EMAIL)) {
-    	  
+
     	  if (MailUtil.isValidEmail(recipientAddress)) {
-            
-              MailUtilHelper helper = new MailUtilHelper(	
+
+              MailUtilHelper helper = new MailUtilHelper(
             		  recipientAddress,
             		  senderAddress,
             		  subject,
             		  body.toString(),
             		  null,
-            		  format.equalsIgnoreCase("HTML") ? true : false, 
+            		  format.equalsIgnoreCase("HTML") ? true : false,
             		  dh,
             		  serverName 										);
               MailUtil.validateAndSendEmail(helper);
-              
+
               setResponsePage(this.SUCCESS_JSP);
     	  } else {
     		  setResponsePage(this.ERROR_JSP);
     	  }
       } else {
-    	senderAddress = dh.getAppUserObject( this.getSecAdvisor().getIdAppUser() ).getEmail();  
+    	senderAddress = dh.getAppUserObject( this.getSecAdvisor().getIdAppUser() ).getEmail();
       	if (senderAddress == null) {
       		this.addInvalidField("Invalid email address", "Please  check the email address you are sending from");
       		setResponsePage(this.ERROR_JSP);
@@ -167,7 +167,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
             if(i.hasNext()){
               queryPart += " or ir.idInstrumentRun= ";
             }
-          } 
+          }
           idRequests = sess.createQuery("SELECT distinct pws.idRequest from Plate as p Left Join p.plateWells as pws Left Join p.instrumentRun as ir " + queryPart).list();
 
         } else if ( selectedPlatesDoc != null ) {
@@ -180,18 +180,18 @@ public class EmailServlet extends GNomExCommand implements Serializable {
               if(i.hasNext()){
                 queryPart += " OR pws.idPlate= ";
               }
-            } 
+            }
             idRequests = sess.createQuery("SELECT distinct pws.idRequest from Plate as p Left Join p.plateWells as pws " + queryPart).list();
-        	
+
         } else if ( selectedRequestsDoc != null ) {
           for(Iterator i = this.selectedRequestsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
             Element node = (Element)i.next();
             String nextId = node.getText();
             idRequests.add( Integer.parseInt( nextId ) );
-          } 
+          }
         }
         idRequests.remove( null );
-        
+
         List<String> appUserEmail = new ArrayList<String>();
 
         if (body != null && body.length() > 0) {
@@ -203,25 +203,25 @@ public class EmailServlet extends GNomExCommand implements Serializable {
             Request request = (Request)sess.load(Request.class, nextId );
             AppUser appUser = request.getAppUser();
             recipientAddress = appUser.getEmail();
-            
+
             if(recipientAddress == null || recipientAddress.equals("") || appUserEmail.contains(recipientAddress) || !MailUtil.isValidEmail(recipientAddress)){
               continue;
             }
 
             appUserEmail.add(recipientAddress);
-            
-            MailUtilHelper helper = new MailUtilHelper(	
+
+            MailUtilHelper helper = new MailUtilHelper(
             		recipientAddress,
             		senderAddress,
             		subject,
             		body.toString(),
             		null,
-            		format.equalsIgnoreCase("HTML") ? true : false, 
+            		format.equalsIgnoreCase("HTML") ? true : false,
             	    dh,
           		    serverName 										);
             helper.setRecipientAppUser(appUser);
             MailUtil.validateAndSendEmail(helper);
-             
+
           }
         }
         setResponsePage(this.SUCCESS_JSP);
@@ -232,15 +232,9 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       }
      }
     }catch (Exception e) {
-      LOG.error("Error in emailServlet", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in emailServlet", e);
 
       throw new RollBackCommandException(e.getMessage());
-    }  finally {
-      try {
-        //closeHibernateSession;        
-      } catch (Exception e1) {
-        LOG.error("Error in emailServlet", e1);
-      }
     }
     return this;
   }

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -29,14 +29,14 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetSlideProductList extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetSlideProductList.class);
-  
+
   private SlideProductFilter filter;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new SlideProductFilter();
@@ -45,19 +45,19 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-    
-    
+
+
     Document doc = new Document(new Element("SlideProductList"));
-    
+
     StringBuffer buf = new StringBuffer();
     List slideProducts = null;
     TreeMap slideProductSortedMap = new TreeMap();
-    
+
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       buf = filter.getQuery(this.getSecAdvisor());
       LOG.info("Query for GetSlideProductList: " + buf.toString());
@@ -69,7 +69,7 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
       SlideProduct sp = (SlideProduct)i.next();
       slideProductSortedMap.put(sp.getName() + sp.getIdSlideProduct(), sp);
     }
-    
+
     // Figure out the slides that have public experiments on them.  All users
     // can see these slides
     buf = new StringBuffer();
@@ -84,16 +84,16 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
     // Indicate that this slides have public experiments on them
     for(Iterator i = publicSlideProducts.iterator(); i.hasNext();) {
       SlideProduct sp = (SlideProduct)i.next();
-      
+
       sp.hasPublicExperiments(true);
       slideProductSortedMap.put(sp.getName() + sp.getIdSlideProduct(), sp);
     }
 
-    
-      
+
+
     for(Iterator i = slideProductSortedMap.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
-      
+
       SlideProduct sp = (SlideProduct)slideProductSortedMap.get(key);
       Hibernate.initialize(sp.getSlideDesigns());
       Hibernate.initialize(sp.getApplications());
@@ -106,36 +106,30 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
       Element spNode = sp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
       doc.getRootElement().addContent(spNode);
 
-    }      
-    
+    }
+
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
-    
+
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetSlideProductList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideProductList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetSlideProductList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideProductList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetSlideProductList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideProductList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetSlideProductList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideProductList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
 

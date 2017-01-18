@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
@@ -155,7 +155,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           statusList.add(BillingStatus.PENDING);
 
           // There can be multiple requests nodes for a given request number when
-          // the request's billing items are split among multiple billing 
+          // the request's billing items are split among multiple billing
           // accounts.  Keep a hash map of these different request nodes.
 
           TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
@@ -249,9 +249,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       LOG.info("Query: " + buf.toString());
       List billingItemRequests = sess.createQuery(buf.toString()).list();
       String prevCodeBillingStatus = "NEW";
-      // 
+      //
       // Query all requests with billing items.  Determine status by looking
-      // at all of billing items for request.  
+      // at all of billing items for request.
       // Hash nodes for lab/billing account, status.
       //
       for(Iterator i = billingItemRequests.iterator(); i.hasNext();) {
@@ -334,8 +334,8 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         Element node = new Element("Request");
         node.setAttribute("idRequest", idRequest.toString());
         node.setAttribute("idProductOrder", "");
-        node.setAttribute("label", requestNumber);        
-        node.setAttribute("requestNumber", requestNumber);        
+        node.setAttribute("label", requestNumber);
+        node.setAttribute("requestNumber", requestNumber);
         node.setAttribute("toolTip", toolTip);
         node.setAttribute("codeRequestCategory", codeRequestCategory);
         node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
@@ -354,7 +354,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         }
 
         // There can be multiple requests nodes for a given request number when
-        // the request's billing items are split among multiple billing 
+        // the request's billing items are split among multiple billing
         // accounts.  Keep a hash map of these different request nodes.
         TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
         if (requestNodes == null) {
@@ -375,9 +375,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       LOG.info("Query: " + buf.toString());
       List billingItemDiskUsage = sess.createQuery(buf.toString()).list();
       prevCodeBillingStatus = "NEW";
-      // 
+      //
       // Query all disk usage rows with billing items.  Determine status by looking
-      // at all of billing items for disk usage (should only be one but...)  
+      // at all of billing items for disk usage (should only be one but...)
       // Hash nodes for lab/billing account, status.
       //
       for(Iterator i = billingItemDiskUsage.iterator(); i.hasNext();) {
@@ -449,8 +449,8 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         Element node = new Element("Request");
         node.setAttribute("idRequest", idDiskUsage.toString());
         node.setAttribute("idProductOrder", "");
-        node.setAttribute("label", "Disk Usage");        
-        node.setAttribute("requestNumber", "Disk Usage");        
+        node.setAttribute("label", "Disk Usage");
+        node.setAttribute("requestNumber", "Disk Usage");
         node.setAttribute("toolTip", toolTip);
         node.setAttribute("codeRequestCategory", DiskUsageByMonth.DISK_USAGE_REQUEST_CATEGORY);
         node.setAttribute("icon", DiskUsageByMonth.DISK_USAGE_ICON);
@@ -469,7 +469,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         }
 
         // There can be multiple requests nodes for a given request number when
-        // the request's billing items are split among multiple billing 
+        // the request's billing items are split among multiple billing
         // accounts.  This should never happen for disk usage, but keeping the code anyway.
         TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
         if (requestNodes == null) {
@@ -488,9 +488,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       List billingItemProductOrder = sess.createQuery(buf.toString()).list();
       prevCodeBillingStatus = "NEW";
       List labNames = new ArrayList();
-      // 
+      //
       // Query all product order rows with billing items.  Determine status by looking
-      // at all of billing items for product order (should only be one but...)  
+      // at all of billing items for product order (should only be one but...)
       // Hash nodes for lab/billing account, status.
       //
       for(Iterator i = billingItemProductOrder.iterator(); i.hasNext();) {
@@ -565,7 +565,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("idRequest", idProductOrder.toString());
         node.setAttribute("idProductOrder", idProductOrder.toString());
         node.setAttribute("idCoreFacility", idCoreFacility.toString());
-        node.setAttribute("label", "Product Order " + (productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber));       
+        node.setAttribute("label", "Product Order " + (productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber));
         node.setAttribute("requestNumber", productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber);
         node.setAttribute("toolTip", toolTip);
         node.setAttribute("codeRequestCategory", ProductOrder.PRODUCT_ORDER_REQUEST_CATEGORY);
@@ -585,7 +585,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         }
 
         // There can be multiple requests nodes for a given request number when
-        // the request's billing items are split among multiple billing 
+        // the request's billing items are split among multiple billing
         // accounts.  This should never happen for disk usage, but keeping the code anyway.
         TreeMap requestNodes = (TreeMap)requestNodeMap.get(requestNumberBilled);
         if (requestNodes == null) {
@@ -611,7 +611,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       // Organize requests under lab/billing account node if request is Completed or Approved; and
       // then place lab/billing account nodes under appropriate status node).
       // Organize requests directly under status node if request is Pending.
-      //    
+      //
       for(Iterator i = requestToStatusMap.keySet().iterator(); i.hasNext();) {
         String requestNumberBilled = (String)i.next();
 
@@ -692,7 +692,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         if (codeBillingStatus.equals(BillingStatus.PENDING)) {
           String key = (String)requestNodes.keySet().iterator().next();
           Element requestNode = (Element)requestNodes.get(key);
-          statusNode.addContent(requestNode);        
+          statusNode.addContent(requestNode);
         } else {
           // If the status is COMPLETED or APPROVED,
           // For each request/billing account combination, attach
@@ -729,7 +729,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       Document doc = new Document(new Element("BillingRequestList"));
       Element status = (Element)statusNodeMap.get(BillingStatus.NEW);
       if (status != null) {
-        doc.getRootElement().addContent(status);      
+        doc.getRootElement().addContent(status);
       }
       status = (Element)statusNodeMap.get(BillingStatus.PENDING);
       if (status != null) {
@@ -737,7 +737,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       }
       status = (Element)statusNodeMap.get(BillingStatus.COMPLETED);
       if (status != null) {
-        doc.getRootElement().addContent(status);      
+        doc.getRootElement().addContent(status);
 
         // Add non-empty labNodes onto status
         Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.COMPLETED);
@@ -751,7 +751,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       }
       status = (Element)statusNodeMap.get(BillingStatus.APPROVED_CC);
       if (status != null) {
-        doc.getRootElement().addContent(status);      
+        doc.getRootElement().addContent(status);
 
         // Add non-empty labNodes onto status
         Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_CC);
@@ -761,11 +761,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           if (labNode.hasChildren()) {
             status.addContent(labNode);
           }
-        }      
+        }
       }
       status = (Element)statusNodeMap.get(BillingStatus.APPROVED_PO);
       if (status != null) {
-        doc.getRootElement().addContent(status);      
+        doc.getRootElement().addContent(status);
 
         // Add non-empty labNodes onto status
         Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED_PO);
@@ -775,11 +775,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           if (labNode.hasChildren()) {
             status.addContent(labNode);
           }
-        }      
+        }
       }
       status = (Element)statusNodeMap.get(BillingStatus.APPROVED);
       if (status != null) {
-        doc.getRootElement().addContent(status);      
+        doc.getRootElement().addContent(status);
 
         // Add non-empty labNodes onto status
         Map labNodeMap = (Map)statusToLabNodeMap.get(BillingStatus.APPROVED);
@@ -789,7 +789,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           if (labNode.hasChildren()) {
             status.addContent(labNode);
           }
-        }      
+        }
       }
 
 
@@ -798,14 +798,8 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetBillingRequestList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetBillingRequestList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetBillingRequestList ", e);
-      }
     }
 
     return this;
@@ -835,9 +829,9 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       String remainder2    = tokens2[1];
 
       if (reqNumber1.equals(reqNumber2)) {
-        return remainder1.compareTo(remainder2);        
+        return remainder1.compareTo(remainder2);
       }
-      return Util.compareRequestNumbers(reqNumber1, reqNumber2);      
+      return Util.compareRequestNumbers(reqNumber1, reqNumber2);
     }
   }
 

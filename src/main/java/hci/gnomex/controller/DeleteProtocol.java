@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisProtocol;
 import hci.gnomex.model.FeatureExtractionProtocol;
@@ -57,7 +57,7 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
 
     if (request.getParameter("idProtocol") != null && !request.getParameter("idProtocol").equals("")) {
       idProtocol = new Integer(request.getParameter("idProtocol"));
-    } 
+    }
     if (request.getParameter("protocolClassName") != null && !request.getParameter("protocolClassName").equals("")) {
       protocolClassName = request.getParameter("protocolClassName");
     }
@@ -65,7 +65,7 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
       this.addInvalidField("protocolClassName", "protocolClassName is required");
     }
     if (idProtocol == null) {
-      this.addInvalidField("idProtocol", "idProtocol is required");      
+      this.addInvalidField("idProtocol", "idProtocol is required");
     }
 
 
@@ -93,7 +93,7 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
 
         } else if(protocolClassName.equals(HYB_PROTOCOL_CLASS_NAME)) {
           List l = sess.createQuery("Select h from Hybridization h where idHybProtocol = " + idProtocol ).list();
-          
+
           if(l.size() > 0) {
             canDelete = false;
             HybProtocol h = (HybProtocol)sess.load(HybProtocol.class, idProtocol);
@@ -105,7 +105,7 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
 
         } else if(protocolClassName.equals(FEATURE_EXTRACTION_PROTOCOL_CLASS_NAME)) {
           List l = sess.createQuery("Select h from Hybridization h where idFeatureExtractionProtocol = " + idProtocol ).list();
-          
+
           if(l.size() > 0) {
             canDelete = false;
             FeatureExtractionProtocol fep = (FeatureExtractionProtocol)sess.load(FeatureExtractionProtocol.class, idProtocol);
@@ -114,10 +114,10 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
           } else {
             deleteFeatureOrHybOrScanOrLabelingProtocolAssociations(sess, "idFeatureExtractionProtocolDefault");
           }
-          
+
         } else if(protocolClassName.equals(SCAN_PROTOCOL_CLASS_NAME)) {
           List l = sess.createQuery("Select h from Hybridization h where idScanProtocol = " + idProtocol ).list();
-          
+
           if(l.size() > 0) {
             canDelete = false;
             ScanProtocol sp = (ScanProtocol)sess.load(ScanProtocol.class, idProtocol);
@@ -126,10 +126,10 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
           } else {
             deleteFeatureOrHybOrScanOrLabelingProtocolAssociations(sess, "idScanProtocolDefault");
           }
-          
+
         } else if(protocolClassName.equals(LABELING_PROTOCOL_CLASS_NAME)) {
           List l = sess.createQuery("Select ls from LabeledSample ls where idLabelingProtocol = " + idProtocol ).list();
-          
+
           if(l.size() > 0) {
             canDelete = false;
             LabelingProtocol lp = (LabelingProtocol)sess.load(LabelingProtocol.class, idProtocol);
@@ -138,10 +138,10 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
           } else {
             deleteFeatureOrHybOrScanOrLabelingProtocolAssociations(sess, "idLabelingProtocolDefault");
           }
-          
+
         }else if(protocolClassName.equals(ANALYSIS_PROTOCOL_CLASS_NAME)) {
           List l = sess.createQuery("Select a from Analysis a where idAnalysisProtocol = " + idProtocol ).list();
-          
+
           if(l.size() > 0) {
             canDelete = false;
             AnalysisProtocol a = (AnalysisProtocol)sess.load(AnalysisProtocol.class, idProtocol);
@@ -173,21 +173,15 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
 
 
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteProtocol ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteProtocol ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteProtocol ", e);
-      }
     }
 
     return this;
   }
-  
+
   private void deleteSeqLibAssociations(Session sess) {
     List l = sess.createQuery("Select app from SeqLibProtocolApplication app where idSeqLibProtocol = " + idProtocol ).list();
 
@@ -202,19 +196,19 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
       OligoBarcodeSchemeAllowed oligo = (OligoBarcodeSchemeAllowed) i.next();
       sess.delete(oligo);
     }
-    
+
   }
-  
+
   private void deleteFeatureOrHybOrScanOrLabelingProtocolAssociations(Session sess, String colName) {
-    
+
     List l = sess.createQuery("Select rca from RequestCategoryApplication rca where " + colName + " = " + idProtocol ).list();
 
     for(Iterator i = l.iterator(); i.hasNext();){
       RequestCategoryApplication rca = (RequestCategoryApplication) i.next();
       sess.delete(rca);
     }
-    
+
   }
-    
+
 
 }

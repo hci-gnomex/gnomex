@@ -69,6 +69,15 @@ public abstract class GNomExCommand extends Command implements Serializable {
    */
   public HttpServletRequest setRequestState(HttpServletRequest request) {
     // load any result objects into request attributes, keyed by the useBean id in the jsp
+
+    if (this.errorDetails != null) {
+      // remember the error information
+      request.setAttribute("errorDetails", this.errorDetails);
+
+      // Garbage collect
+      this.errorDetails = null;
+    }
+
     request.setAttribute("xmlResult",this.xmlResult);
 
     // Garbage collect
@@ -77,6 +86,7 @@ public abstract class GNomExCommand extends Command implements Serializable {
 
     return request;
   }
+
 
   /**
    *  The callback method called after the loadCommand, and execute methods,

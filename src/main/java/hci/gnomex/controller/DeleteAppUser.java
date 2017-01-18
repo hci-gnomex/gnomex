@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
@@ -133,16 +133,10 @@ public Command execute() throws GNomExRollbackException {
 		}
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in DeleteAppUser ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteAppUser ", e);
 
 		throw new GNomExRollbackException(e.getMessage(), true, "Unable to delete app user");
 
-	} finally {
-		try {
-			//closeHibernateSession;
-		} catch (Exception e) {
-			LOG.error("Exception trying to close the Hibernate session: ", e);
-		}
 	}
 
 	return this;

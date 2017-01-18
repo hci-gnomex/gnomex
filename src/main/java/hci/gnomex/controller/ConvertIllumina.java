@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
@@ -142,19 +142,11 @@ public class ConvertIllumina extends GNomExCommand implements Serializable {
 			}
 
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in ConvertIllumina ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ConvertIllumina ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 
-		} finally {
-			try {
-				//closeHibernateSession;
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in ConvertIllumina ", e);
-			}
-
 		}
-
 		return this;
 	}
 

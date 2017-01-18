@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
@@ -91,9 +91,9 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
           continue;
         }
 
-        // Check permissions - bypass this analysis if the user 
+        // Check permissions - bypass this analysis if the user
         // does not have  permission to read it.
-        if (!this.getSecAdvisor().canRead(analysis)) {  
+        if (!this.getSecAdvisor().canRead(analysis)) {
           LOG.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + this.getUsername() + ".");
           continue;
         }
@@ -121,17 +121,17 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
               firstDirForAnalysis = false;
             } else {
               fdNode.setAttribute("showAnalysisNumber", "N");
-            }          
+            }
             if (firstFileInDir) {
               fdNode.setAttribute("showAnalysisNumber", "Y");
               firstFileInDir = false;
             } else {
               fdNode.setAttribute("showAnalysisNumber", "N");
-            }          
+            }
 
 
             analysisNode.addContent(fdNode);
-          } 
+          }
         }
       }
 
@@ -142,27 +142,21 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExpandedAnalysisFileList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExpandedAnalysisFileList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExpandedAnalysisFileList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExpandedAnalysisFileList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
-      }
     }
 
     return this;
@@ -195,7 +189,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
         analysisNumbers.add(analysisNumber);
       }
 
-      List theFiles = new ArrayList(5000);    
+      List theFiles = new ArrayList(5000);
       getFileNames(analysisNumber, directoryName, theFiles, null, baseDir, flattenSubDirs);
 
       // Hash the list of file names (by directory name)
@@ -210,26 +204,26 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       // Hash the list of directories (by analysisNumber)
       analysisMap.put(analysisNumber, directoryKeys);
     }
-  }      
+  }
 
   public static void getFileNames(String analysisNumber, String directoryName, List theFiles, String subDirName, String baseDir, boolean flattenSubDirs) {
     File fd = new File(directoryName);
 
     if (fd.isDirectory()) {
       File[] fileList = fd.listFiles();
-      
-      Arrays.sort(fileList, new Comparator<File>(){     
-        public int compare(File f1, File f2)     {         
-          return f1.getName().compareTo(f2.getName());     
-          } }); 
-      
-      
+
+      Arrays.sort(fileList, new Comparator<File>(){
+        public int compare(File f1, File f2)     {
+          return f1.getName().compareTo(f2.getName());
+          } });
+
+
       for (int x = 0; x < fileList.length; x++) {
         File f1 = fileList[x];
 //        if (k(f1)) {
 //          continue;
 //        }
-        
+
         String fileName = directoryName + Constants.FILE_SEPARATOR + f1.getName();
 
         // Show the subdirectory in the name if we are not at the main folder level
@@ -237,7 +231,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
         if (flattenSubDirs && subDirName != null) {
           displayName = subDirName + Constants.FILE_SEPARATOR + f1.getName();
         } else {
-          displayName = f1.getName();        
+          displayName = f1.getName();
         }
 
         if (f1.isDirectory()) {
@@ -250,7 +244,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
           boolean include = true;
           if (fileName.toLowerCase().endsWith("thumbs.db")) {
             include = false;
-          } 
+          }
           if (include) {
             FileDescriptor fileDescriptor = new FileDescriptor(analysisNumber, displayName, f1, baseDir);
             fileDescriptor.setQualifiedFilePath(subDirName!=null ? subDirName : "");

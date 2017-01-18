@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
@@ -203,14 +203,8 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       setResponsePage(this.SUCCESS_JSP);
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetLinkedSampleFiles ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetLinkedSampleFiles ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;
@@ -237,7 +231,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
 
 class MyComparator implements Comparator<String>{
   @Override
-  public int compare(String o1, String o2) {  
+  public int compare(String o1, String o2) {
     if (o1.length() > o2.length()) {
       return 1;
     } else if (o1.length() < o2.length()) {

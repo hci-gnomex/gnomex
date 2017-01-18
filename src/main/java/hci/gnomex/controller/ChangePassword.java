@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
@@ -126,7 +126,7 @@ public Command execute() throws RollBackCommandException {
 		}
 	} catch (Exception e) {
 		addInvalidField("exception", "An error occurred processing your request");
-		LOG.error(e.getClass().toString() + ": ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception occured in ChangePassword ", e);
 		throw new RollBackCommandException();
 	} finally {
 		this.validate();

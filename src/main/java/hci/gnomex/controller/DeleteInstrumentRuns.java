@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
@@ -47,12 +47,12 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
       StringReader reader = new StringReader(runsToDeleteXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        runsToDeleteDoc = sax.build(reader);     
+        runsToDeleteDoc = sax.build(reader);
       } catch (JDOMException je ) {
         LOG.error( "Cannot parse runsToDeleteXMLString", je );
         this.addInvalidField( "runsToDeleteXMLString", "Invalid runsToDeleteXMLString");
       }
-    } 
+    }
 
 
   }
@@ -71,7 +71,7 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
           changeStatusDeletePlates(sess, ir, RequestStatus.PROCESSING);
           sess.delete(ir); //delete the instrument run after all associations to it have been removed(ie:plate, plate wells)
 
-        }       
+        }
         sess.flush();
         setResponsePage(this.SUCCESS_JSP);
 
@@ -82,16 +82,10 @@ public class DeleteInstrumentRuns extends GNomExCommand implements Serializable 
 
 
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteInstrumentRuns ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteInstrumentRuns ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteInstrumentRuns ", e);
-      }
     }
 
     return this;

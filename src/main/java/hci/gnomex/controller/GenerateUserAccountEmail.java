@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
@@ -95,7 +95,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
           if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
             managers.put(manager.getQualifiedDisplayName(), null);
           }
-        }          
+        }
         TreeMap<String, String> members = new TreeMap<String, String>();
         for(Iterator i2 = l.getMembers().iterator(); i2.hasNext();) {
           AppUser member = (AppUser)i2.next();
@@ -104,14 +104,14 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
               members.put(member.getQualifiedDisplayName(), null);
             }
           }
-        }          
+        }
         TreeMap<String, String> collaborators = new TreeMap<String, String>();
         for(Iterator i3 = l.getCollaborators().iterator(); i3.hasNext();) {
           AppUser collab = (AppUser)i3.next();
           if (collab.getIsActive() != null && collab.getIsActive().equalsIgnoreCase("Y")) {
             collaborators.put(collab.getQualifiedDisplayName(), null);
           }
-        }          
+        }
 
         String labName =  l.getName(false, true);
 
@@ -139,15 +139,9 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       }
 
     } catch (Exception e){
-      LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GenerateUserAccountEmail ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
-      }
     }
 
     return this;
@@ -166,8 +160,8 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     if(from.equals("") || !MailUtil.isValidEmail(from)){
         from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
-    
-    MailUtilHelper helper = new MailUtilHelper(	
+
+    MailUtilHelper helper = new MailUtilHelper(
     		sendTo,
     		ccTo,
     		null,
@@ -175,11 +169,11 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     		subject,
     		emailBody,
     		null,
-    		true, 
+    		true,
     		DictionaryHelper.getInstance(sess),
   		    serverName 	);
     MailUtil.validateAndSendEmail(helper);
-    
+
     emailCount++;
 
   }

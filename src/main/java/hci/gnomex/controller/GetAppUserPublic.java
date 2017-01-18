@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -99,30 +99,22 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
 			setResponsePage(this.SUCCESS_JSP);
 
 		} catch (NamingException e) {
-			LOG.error("An exception has occurred in GetAppUserPublic ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAppUserPublic ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (SQLException e) {
-			LOG.error("An exception has occurred in GetAppUserPublic ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAppUserPublic ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 		} catch (XMLReflectException e) {
-			LOG.error("An exception has occurred in GetAppUserPublic ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAppUserPublic ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in GetAppUserPublic ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAppUserPublic ", e);
 
 			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				if (sess != null) {
-					//closeHibernateSession;
-				}
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in GetAppUserPublic ", e);
-			}
 		}
 
 		if (isValid()) {

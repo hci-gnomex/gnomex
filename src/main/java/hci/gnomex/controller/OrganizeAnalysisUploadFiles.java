@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
@@ -433,7 +433,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                 }
 
             } catch (Exception e) {
-                LOG.error("An exception has occurred in OrganizeAnalysisUploadFiles ", e);
+                this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in OrganizeAnalysisUploadFiles ", e);
 
                 // Note: we don't throw a new RollBackCommandException here because we can't reverse any file system changes that have been made
                 // That's also why we have the finally clause...

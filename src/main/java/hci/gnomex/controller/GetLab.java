@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.AppUser;
@@ -232,13 +232,9 @@ public Command execute() throws RollBackCommandException {
 		this.xmlResult = new XMLOutputter().outputString(doc);
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in GetLab ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetLab ", e);
 		throw new RollBackCommandException(e.getMessage());
 	}
-	/*
-	 * finally { try { this.getSecAdvisor().closeReadOnlyHibernateSession("GetLab"); } catch (Exception e) { LOG.error("An exception has occurred in GetLab ",
-	 * e); } }
-	 */
 	if (isValid()) {
 		setResponsePage(this.SUCCESS_JSP);
 	} else {

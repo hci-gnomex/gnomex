@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
@@ -22,23 +22,23 @@ import org.apache.log4j.Logger;
 
 
 public class DeleteLab extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteLab.class);
-  
-  
+
+
   private Integer      idLab = null;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
      idLab = new Integer(request.getParameter("idLab"));
    } else {
@@ -79,7 +79,7 @@ public class DeleteLab extends GNomExCommand implements Serializable {
               if(topic){
                  errorMessage.add("Topics");
               }
-              
+
               if(errorMessage.size() > 0){
                   StringBuilder frmtErrorMessage = new StringBuilder();
                   frmtErrorMessage.append(" The lab still has these items attached: ");
@@ -113,26 +113,19 @@ public class DeleteLab extends GNomExCommand implements Serializable {
               setResponsePage(this.ERROR_JSP);
           }
       }catch(GNomExRollbackException e){
-        LOG.error("An exception has occurred in DeleteLab ", e);
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteLab ", e);
         throw e;
       }catch (Exception e){
-        LOG.error("An exception has occurred in DeleteLab ", e);
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteLab ", e);
         throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteLab ", e);
-      }
     }
-    
     return this;
   }
-  
- 
-  
-  
-  
+
+
+
+
+
 
 }

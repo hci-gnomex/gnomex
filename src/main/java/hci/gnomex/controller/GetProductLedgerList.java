@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
@@ -59,19 +59,19 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       if(this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         buf = generateSuperAdminLedgerQuery();
         ledger = sess.createQuery(buf.toString()).list();
-        
+
         buf = generateSuperAdminPendingQuery();
         pendingLedger = sess.createQuery(buf.toString()).list();
       } else if(coreList.size() > 0) { //Get labs in cores they manage if not super admin
         buf = generateLedgerQuery(true, coreList);
         ledger = sess.createQuery(buf.toString()).list();
-        
+
         buf = generatePendingQuery(true, coreList);
         pendingLedger = sess.createQuery(buf.toString()).list();
       } else if(userLabList.size() > 0) { //If no admin capabilities then add all labs that user is a part of
         buf = generateLedgerQuery(false, userLabList);
         ledger = sess.createQuery(buf.toString()).list();
-        
+
         buf = generatePendingQuery(false, userLabList);
         pendingLedger = sess.createQuery(buf.toString()).list();
       }
@@ -87,7 +87,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         String idProduct = row[3] != null ? ((Integer)row[3]).toString() : "";
         String name = row[4] != null ? (String)row[4] : "";
         String idLab = row[5] != null ? ((Integer)row[5]).toString() : "";
-        
+
         Object[] pendingRow = getPendingRow(idLab, idProduct, pendingLedger);
         String pendingQty = "";
         if (pendingRow != null) {
@@ -118,7 +118,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         }
 
       }
-      
+
       // Add products that only have pending balances
       for (Iterator remainingPendingIter = pendingLedger.iterator(); remainingPendingIter.hasNext();) {
           Object[] pendingRow = (Object[]) remainingPendingIter.next();
@@ -175,16 +175,10 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       setResponsePage(this.SUCCESS_JSP);
 
     }catch(Exception e) {
-      LOG.error("An exception has occurred in GetLabList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetLabList ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
 
@@ -194,12 +188,12 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
 
   @Override
   public void validate() {
-    
+
   }
-  
+
   private Object[] getPendingRow(String idLab, String idProduct, List pendingLedger) {
 	  Object[] pendingRow = null;
-	  
+
 	  if (!idLab.equals("") && !idProduct.equals("")) {
 		  for (int index = 0; index < pendingLedger.size(); index++) {
 			  Object[] candidate = (Object[]) pendingLedger.get(index);
@@ -211,10 +205,10 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
 			  }
 		  }
 	  }
-	  
+
 	  return pendingRow;
   }
-  
+
   private StringBuffer generateSuperAdminLedgerQuery() {
 	  StringBuffer buf = new StringBuffer();
       buf.append("SELECT lab.firstName, lab.lastName, SUM(pl.qty), pl.idProduct, prod.name, lab.idLab ");
@@ -223,7 +217,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       buf.append(" JOIN pl.product as prod ");
 
       boolean addWhereOrAnd = false;
-      
+
       if(idLab != null) {
         buf.append(" WHERE lab.idLab = " + idLab);
         addWhereOrAnd = true;
@@ -231,26 +225,26 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
 
       if(idProduct != null) {
         if(addWhereOrAnd) {
-          buf.append(" AND pl.idProduct = " + idProduct); 
+          buf.append(" AND pl.idProduct = " + idProduct);
         } else {
           buf.append(" WHERE pl.idProduct = " + idProduct);
         }
       }
       buf.append(" GROUP BY lab.lastName, lab.firstName, lab.idLab, pl.idProduct, prod.name ");
       buf.append(" ORDER BY lab.lastName, SUM(pl.qty) ");
-      
+
       return buf;
   }
-  
+
   private StringBuffer generateSuperAdminPendingQuery() {
 	  StringBuffer buf = new StringBuffer();
-	  
+
       buf.append(" SELECT lab.idLab, pli.idProduct, SUM(pli.qty), lab.firstName, lab.lastName, prod.name ");
       buf.append(" FROM ProductLineItem as pli ");
       buf.append(" JOIN pli.productOrder as po ");
       buf.append(" JOIN pli.product as prod ");
       buf.append(" JOIN po.lab as lab ");
-      
+
       buf.append(" WHERE pli.codeProductOrderStatus != \'COMPLETE\' ");
       if (idLab != null) {
         buf.append(" AND po.idLab = " + idLab);
@@ -258,9 +252,9 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       if (idProduct != null) {
     	  buf.append(" AND pli.idProduct = " + idProduct);
       }
-      
+
       buf.append(" GROUP BY lab.idLab, pli.idProduct, lab.firstName, lab.lastName, prod.name ");
-      
+
       return buf;
   }
 
@@ -273,7 +267,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       buf.append(" JOIN pl.product as prod ");
       buf.append(" JOIN prod.productType as prodType ");
       buf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
-      
+
       // Lab core facility
       buf.append(" WHERE coreFacility.idCoreFacility in ( ");
 
@@ -287,7 +281,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       }
 
       buf.append(" ) ");
-      
+
       // Product type core facility
       buf.append(" AND prodType.idCoreFacility in ( ");
 
@@ -301,7 +295,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       }
 
       buf.append(" ) ");
-      
+
       // Other Criteria
       if(idLab != null) {
         buf.append(" AND lab.idLab = " + idLab);
@@ -348,10 +342,10 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
 
     return buf;
   }
-  
+
   private StringBuffer generatePendingQuery(Boolean forCore, Set criteria) {
       StringBuffer buf = new StringBuffer();
-      
+
       if (forCore) {
         buf.append(" SELECT lab.idLab, pli.idProduct, SUM(pli.qty), lab.firstName, lab.lastName, prod.name ");
         buf.append(" FROM ProductLineItem as pli ");
@@ -360,9 +354,9 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         buf.append(" JOIN pli.product as prod ");
         buf.append(" JOIN prod.productType as prodType ");
         buf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
-        
+
         buf.append(" WHERE pli.codeProductOrderStatus != \'COMPLETE\' ");
-        
+
         // Lab core facility
         buf.append(" AND coreFacility.idCoreFacility in ( ");
 
@@ -376,7 +370,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         }
 
         buf.append(" ) ");
-        
+
         // Product type core facility
         buf.append(" AND prodType.idCoreFacility in ( ");
 
@@ -390,7 +384,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         }
 
         buf.append(" ) ");
-        
+
         // Other Criteria
         if (idLab != null) {
           buf.append(" AND lab.idLab = " + idLab);
@@ -408,9 +402,9 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         buf.append(" JOIN pli.productOrder as po ");
         buf.append(" JOIN pli.product as prod ");
         buf.append(" JOIN po.lab as lab ");
-        
+
         buf.append(" WHERE pli.codeProductOrderStatus != \'COMPLETE\' ");
-        
+
         buf.append(" AND lab.idLab in ( ");
 
         for (Iterator i = criteria.iterator(); i.hasNext();) {

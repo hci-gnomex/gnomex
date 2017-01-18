@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.Annotations;
@@ -24,34 +24,34 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetExperimentDesignList extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(GetExperimentDesignList.class);
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-    
-    
+
+
 
     // Get codes that are used
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append("SELECT distinct ed.codeExperimentDesign from ExperimentDesignEntry as ed ");
     List usedCodes = (List)sess.createQuery(queryBuf.toString()).list();
-    
-    
+
+
     //  Now get all used experiment designs
     List usedDesigns = new ArrayList();
     if (usedCodes.size() > 0) {
@@ -70,8 +70,8 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
       }
       usedDesigns = sess.createQuery(queryBuf.toString()).list();
     }
-    
-    
+
+
     // Now get all other experiment designs
     queryBuf = new StringBuffer();
     queryBuf.append("SELECT ed from ExperimentDesign as ed ");
@@ -86,32 +86,26 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
       }
       queryBuf.append(")");
     }
-    
+
     List notUsedDesigns = (List)sess.createQuery(queryBuf.toString()).list();
-    
-    
+
+
     // Generate XML for each experiment design.
     Document doc = new Document(new Element("ExperimentDesignList"));
     generateXML(doc, usedDesigns,    "Y");
     generateXML(doc, notUsedDesigns, "N");
-    
-    
+
+
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
-    
+
     setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e){
-      LOG.error("An exception has occurred in GetExperimentDesignList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExperimentDesignList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetExperimentDesignList ", e);
-      }
     }
-    
+
     return this;
   }
 
@@ -121,7 +115,7 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
       Element node = ed.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
       node.setAttribute("isUsed", isUsed);
       node.setAttribute("isSelected", "false");
-      doc.getRootElement().addContent(node);      
+      doc.getRootElement().addContent(node);
     }
   }
 

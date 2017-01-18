@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
@@ -38,14 +38,14 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
   private Document            doc;
-  
+
   private java.util.Date visitDateTime;
   private Integer idAppUser;
   private String ipAddress;
   private String sessionID;
   private hci.gnomex.model.VisitLog visitLog;
   private Integer idCoreFacility;
-  
+
 
   /**
    *  The method in which you can do any final validation and add any additional
@@ -79,20 +79,20 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       }
     }
     try {
-    	
+
     	// VisitLog Info from request
         sessionID = request.getSession().getId();
         visitDateTime = new java.util.Date(System.currentTimeMillis());
         ipAddress = GNomExCommand.getRemoteIP(request);
 
-      Session sess = HibernateSession.currentSession(this.getUsername());      
+      Session sess = HibernateSession.currentSession(this.getUsername());
 
-      
+
       //workaround until NullPointer exception is dealt with
       InternalAccountFieldsConfiguration.getConfiguration(sess);
-      
+
       secAdvisor = SecurityAdvisor.create(sess, this.getUsername(), idCoreFacility);
-      
+
       // Get gnomex version
       String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
       filename = filename.replace("%20", " ");      // convert any blanks
@@ -110,25 +110,16 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       this.addInvalidField("invalid permission", e.getMessage());
     }
     catch (HibernateException ex) {
-      LOG.error("Hibernate exception while trying to Create Security Advisor: ", ex);
+      this.errorDetails = Util.GNLOG(LOG,"An Hibernate exception while trying to Create Security Advisor: ", ex);
       this.addInvalidField("Error", "Hibernate exception while trying to Create Security Advisor: "+ ex);
     }
     catch (SQLException ex) {
-      LOG.error("SQL exception while trying to Create Security Advisor: ",ex);
+      this.errorDetails = Util.GNLOG(LOG,"An SQL exception while trying to Create Security Advisor: ",ex);
       this.addInvalidField("Error", "SQL exception while trying to Create Security Advisor: "+ ex);
     }
     catch (Exception ex) {
-      ex.printStackTrace();
-      LOG.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor ", ex);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in CreateSecurityAdvisor ", ex);
       this.addInvalidField("Error", ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
-    }
-    finally {
-      try {
-        //closeHibernateSession;
-      }
-      catch (Exception ex) {
-        LOG.error("Exception trying to close the Hibernate session: ", ex);
-      }
     }
 
     // see if we have a valid form
@@ -151,11 +142,11 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
    *@exception  RollBackCommandException  Description of the Exception
    */
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
-      
+
       // VisitLog info from secAdvisor
       idAppUser = secAdvisor.getIdAppUser();
       // save VisitLog
@@ -164,19 +155,19 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
 	  visitLog.setIdAppUser(idAppUser);
 	  visitLog.setIpAddress(ipAddress);
 	  visitLog.setSessionID(sessionID);
-	  
+
       Session sess = HibernateSession.currentSession(this.getUsername());
 	  sess.save(visitLog);
 	  sess.flush();
-	  
+
 
     }
     catch (Exception ex) {
-      ex.printStackTrace();
-      LOG.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
+
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in CreateSecurityAdvisor ", ex);
       throw new RollBackCommandException();
     }
-    
+
     if (isValid()) {
       if (launchAction != null && !launchAction.equals("")) {
         setResponsePage(launchAction);
@@ -188,7 +179,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     }
     return this;
   }
-  
+
   /**
    *  The callback method called after the loadCommand and execute methods
    *  allowing you to do any post-execute processing of the HttpSession. Should

@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
@@ -55,7 +55,7 @@ public class GetFAQ extends GNomExCommand implements Serializable {
 
       if(!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
         if(!isManageMode.equals("Y")) {
-          coreFacilities = this.getSecAdvisor().getCoreFacilitiesForMyLab(); 
+          coreFacilities = this.getSecAdvisor().getCoreFacilitiesForMyLab();
         }
         coreFacilities.addAll(this.getSecAdvisor().getCoreFacilitiesIManage());
         buf.append(" where f.idCoreFacility is null or f.idCoreFacility in (-1  ");
@@ -84,7 +84,7 @@ public class GetFAQ extends GNomExCommand implements Serializable {
         /*
          * Add values to Element n
          */
-        n.setAttribute("idFAQ",              			row[0] == null ? "" :  ((Integer)row[0]).toString()); 
+        n.setAttribute("idFAQ",              			row[0] == null ? "" :  ((Integer)row[0]).toString());
         n.setAttribute("title",              	 		row[1] == null ? "" :  ((String) row[1]));
         n.setAttribute("url", 						        row[2] == null ? "" :  ((String) row[2]));
         n.setAttribute("idCoreFacility",	        row[3] == null ? "-1" : ((Integer)row[3]).toString());
@@ -105,14 +105,8 @@ public class GetFAQ extends GNomExCommand implements Serializable {
       //      }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetFAQ ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetFAQ ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetFAQ ", e);
-      }
     }
 
     return this;

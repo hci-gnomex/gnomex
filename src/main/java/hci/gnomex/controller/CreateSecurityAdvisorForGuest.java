@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.InvalidSecurityAdvisorException;
@@ -33,7 +33,7 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
   private String              errorAction;
-  
+
   private java.util.Date visitDateTime;
   private Integer idAppUser;
   private String ipAddress;
@@ -77,7 +77,7 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
       setResponsePage(this.SUCCESS_JSP);
     } else {
       if (errorAction != null && !errorAction.equals("")) {
-        setResponsePage(this.errorAction);                
+        setResponsePage(this.errorAction);
       }
     }
   }
@@ -94,10 +94,10 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
    *@exception  RollBackCommandException  Description of the Exception
    */
   public Command execute() throws RollBackCommandException {
-      
+
 	  try {
       secAdvisor = SecurityAdvisor.createGuest();
-      
+
       // VisitLog info from secAdvisor
       idAppUser = secAdvisor.getIdAppUser();
       // save VisitLog
@@ -106,15 +106,15 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
 	  visitLog.setIdAppUser(idAppUser);
 	  visitLog.setIpAddress(ipAddress);
 	  visitLog.setSessionID(sessionID);
-	  
+
       Session sess = HibernateSession.currentSession(this.getUsername());
 	  sess.save(visitLog);
 	  sess.flush();
-      
+
 
       // Output the security advisor information
       Document doc = secAdvisor.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL);
-      
+
       // Set gnomex version
       String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
       filename = filename.replace("%20", " ");      // convert any blanks
@@ -136,11 +136,10 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
       }
     }
     catch (Exception ex) {
-      ex.printStackTrace();
-      LOG.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisorForGuest " + ex);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in CreateSecurityAdvisorForGuest ", ex);
       throw new RollBackCommandException();
     }
-    
+
     if (isValid()) {
       if (launchAction != null && !launchAction.equals("")) {
         setResponsePage(launchAction);
@@ -149,12 +148,12 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
       }
     } else {
       if (errorAction != null && !errorAction.equals("")) {
-        setResponsePage(this.errorAction);                
+        setResponsePage(this.errorAction);
       }
     }
     return this;
   }
-  
+
   /**
    *  The callback method called after the loadCommand and execute methods
    *  allowing you to do any post-execute processing of the HttpSession. Should

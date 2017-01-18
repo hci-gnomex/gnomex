@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.SlideDesign;
@@ -26,14 +26,14 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetSlideList extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetSlideList.class);
-  
+
   private SlideProductFilter filter;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new SlideProductFilter();
@@ -42,12 +42,12 @@ public class GetSlideList extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-    
+
     Document doc = new Document(new Element("SlideList"));
     Element slideNode = null;
     // Only return a list of slide products if the user is a GNomEx user that participates
@@ -56,17 +56,17 @@ public class GetSlideList extends GNomExCommand implements Serializable {
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
       LOG.info("Query for GetSlideProductList: " + buf.toString());
       List slideDesigns = (List)sess.createQuery(buf.toString()).list();
-      
+
       for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
         SlideProduct sp = (SlideProduct)i.next();
-        
+
         // Don't show any slides that user doesn't have read permission
         // on.
         if (!getSecAdvisor().canRead(sp)) {
           continue;
         }
 
-        
+
         Hibernate.initialize(sp.getSlideDesigns());
         Iterator sdIter = sp.getSlideDesigns().iterator();
         if (sp.getIsSlideSet() != null && sp.getIsSlideSet().equals("Y")) {
@@ -96,42 +96,36 @@ public class GetSlideList extends GNomExCommand implements Serializable {
             slideNode.setAttribute("isInSlideSet", "N");
           }
         }
-        
+
         if(slideNode.getParent() != null){
           slideNode.detach();
         }
         doc.getRootElement().addContent(slideNode);
       }
-    } 
-    
+    }
+
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     this.xmlResult = out.outputString(doc);
-    
+
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetSlideList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetSlideList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetSlideList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideList ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetSlideList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetSlideList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
 

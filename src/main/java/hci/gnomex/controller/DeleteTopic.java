@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.Analysis;
@@ -24,23 +24,23 @@ import org.apache.log4j.Logger;
 
 
 public class DeleteTopic extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteTopic.class);
-  
-  
+
+
   private Integer      idTopic = null;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idTopic") != null && !request.getParameter("idTopic").equals("")) {
      idTopic = new Integer(request.getParameter("idTopic"));
    } else {
@@ -52,14 +52,14 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     Topic topic = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       topic = (Topic)sess.load(Topic.class, idTopic);
-      
+
       // Check permissions
       if (this.getSecAdvisor().canDelete(topic)) {
-       
+
         List<Object> descendents = new ArrayList<Object>();
         descendents.add(topic);
         topic.recurseGetChildren(descendents);
@@ -71,13 +71,13 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
           DetailObject descendent = (DetailObject)i.next();
           if (!this.getSecAdvisor().canDelete(descendent)) {
             if (descendent.equals(topic)) {
-              this.addInvalidField("folderp", "Insufficient permision to delete this topic.");    
+              this.addInvalidField("folderp", "Insufficient permision to delete this topic.");
               break;
             } else if (descendent instanceof Topic){
               Topic ct = (Topic)descendent;
               this.addInvalidField("cfolderp", "Insufficent permission to delete child topic '" + ct.getName() + "'.");
               break;
-            }   
+            }
           }
         }
 
@@ -88,7 +88,7 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
         // folder.
         if (this.isValid()) {
           for(int i = descendents.size() - 1; i >= 0; i--) {
-            Object descendent = descendents.get(i);        
+            Object descendent = descendents.get(i);
             if (descendent instanceof Topic) {
               // Remove links to all child experiments, analyses, and datatracks
               Topic t = (Topic)descendent;
@@ -97,11 +97,11 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
               Set<DataTrack> emptyDataTracks = new TreeSet<DataTrack>();
               t.setRequests(emptyRequests);
               t.setAnalyses(emptyAnalyses);
-              t.setDataTracks(emptyDataTracks); 
+              t.setDataTracks(emptyDataTracks);
               // Delete the topic
-              sess.delete(descendent);   
-            }    
-          }        
+              sess.delete(descendent);
+            }
+          }
         }
 
 
@@ -109,28 +109,22 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
           sess.flush();
           this.xmlResult = "<SUCCESS/>";
           setResponsePage(this.SUCCESS_JSP);
-          
+
         } else {
           setResponsePage(this.ERROR_JSP);
         }
-   
+
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete topic folder.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      LOG.error("An exception has occurred in DeleteTopic ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteTopic ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteTopic ", e);
-      }
+
     }
-    
+
     return this;
   }
 }

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -27,16 +27,16 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetPlate extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(GetPlate.class);
 
   private Integer                   idPlate;
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idPlate") != null && !request.getParameter( "idPlate" ).equals( "0" )) {
@@ -65,7 +65,7 @@ public class GetPlate extends GNomExCommand implements Serializable {
         if ( p.getInstrumentRun() == null ) {
           p.setQuadrant( -1 );
         }
-        
+
         Document doc = new Document(new Element("PlateList"));
 
         p.excludeMethodFromXML("getPlateWells");
@@ -79,7 +79,7 @@ public class GetPlate extends GNomExCommand implements Serializable {
         } else {
           pNode.setAttribute( "creator", creator);
         }
-        
+
         Element pwNode = new Element("plateWells");
 
         List plateWells = sess.createQuery("SELECT pw from PlateWell as pw where pw.idPlate=" + idPlate ).list();
@@ -129,28 +129,22 @@ public class GetPlate extends GNomExCommand implements Serializable {
         "Insufficient permission to view plate." );
       }
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetPlate ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlate ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetPlate ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlate ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetPlate ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlate ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetPlate ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPlate ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     if (isValid()) {
@@ -158,7 +152,7 @@ public class GetPlate extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
 

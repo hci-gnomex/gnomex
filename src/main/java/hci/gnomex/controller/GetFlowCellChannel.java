@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -44,10 +44,10 @@ public class GetFlowCellChannel extends GNomExCommand implements Serializable {
 		try {
 
 			if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
-			  
+
 				Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 				FlowCellChannel fcc = null;
-				
+
 				if (idFlowCellChannel == null || idFlowCellChannel.intValue() == 0) {
 					fcc = new FlowCellChannel();
 				} else {
@@ -55,7 +55,7 @@ public class GetFlowCellChannel extends GNomExCommand implements Serializable {
 				}
 
 				Hibernate.initialize(fcc.getSequenceLanes());
-				
+
 				Document doc = new Document(new Element("FlowCellChannel"));
 
 				Element fccNode = fcc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
@@ -63,23 +63,17 @@ public class GetFlowCellChannel extends GNomExCommand implements Serializable {
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
 				this.xmlResult = out.outputString(doc);
-				
+
 			} else {
 				this.addInvalidField("Insufficient permissions", "Insufficient permission to manage workflow.");
 				setResponsePage(this.ERROR_JSP);
 				}
-			
+
 		}catch (Exception e){
-			LOG.error("An exception has occurred in GetFlowCellChannel ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetFlowCellChannel ", e);
 
 			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				//closeReadOnlyHibernateSession;        
-			} catch(Exception e) {
-				LOG.error("An exception has occurred in GetFlowCellChannel ", e);
-			}
-		} 
+		}
 
 		return this;
 	}

@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
@@ -24,25 +24,25 @@ import org.apache.log4j.Logger;
 
 
 public class DeleteDataTrackFolder extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DeleteDataTrackFolder.class);
-  
-  
+
+
   private Integer      idDataTrackFolder = null;
   private String       serverName;
   private String       baseDir;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
      idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
    } else {
@@ -54,17 +54,17 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DataTrackFolder dataTrackFolder = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
-      
+
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 
       dataTrackFolder = (DataTrackFolder)sess.load(DataTrackFolder.class, idDataTrackFolder);
-      
+
       // Check permissions
       if (this.getSecAdvisor().canDelete(dataTrackFolder)) {
-       
+
         List<Object> descendents = new ArrayList<Object>();
         descendents.add(dataTrackFolder);
         dataTrackFolder.recurseGetChildren(descendents);
@@ -76,7 +76,7 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
           DetailObject descendent = (DetailObject)i.next();
           if (!this.getSecAdvisor().canDelete(descendent)) {
             if (descendent.equals(dataTrackFolder)) {
-              this.addInvalidField("folderp", "Insufficient permision to delete this folder.");    
+              this.addInvalidField("folderp", "Insufficient permision to delete this folder.");
               break;
             } else if (descendent instanceof DataTrackFolder){
               DataTrackFolder ag = (DataTrackFolder)descendent;
@@ -112,10 +112,10 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
                     }
                   }
                   if (!inDeleteList) {
-                    this.addInvalidField("deletefolderp", "Cannot remove contents of folder '" + folder.getName() + 
-                        "' because data track '" + dt.getName() + 
-                        "' exists in folder '" + 
-                        folder.getName() + 
+                    this.addInvalidField("deletefolderp", "Cannot remove contents of folder '" + folder.getName() +
+                        "' because data track '" + dt.getName() +
+                        "' exists in folder '" +
+                        folder.getName() +
                     "'.  Please remove this data track first.");
                     break;
                   }
@@ -123,7 +123,7 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
               }
             }
           }
-          
+
         }
 
         // Now delete all of the contents of the data track folder and then the
@@ -136,9 +136,9 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
 
             // Remove data track file(s)
             if (descendent instanceof DataTrack) {
-              DataTrack dt = (DataTrack)descendent;            
-              dt.removeFiles(baseDir);  
-              
+              DataTrack dt = (DataTrack)descendent;
+              dt.removeFiles(baseDir);
+
               // insert dataTrack reload entry which will cause
               // das/2 type to be unloaded on next 'das2 reload' request
               // Note:  If dataTrack is under more than one folder, there
@@ -158,12 +158,12 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
                 sess.save(unload);
               }
 
-            } 
+            }
 
             // Delete the object from db
-            sess.delete(descendent);          
+            sess.delete(descendent);
           }
-          
+
         }
 
 
@@ -171,34 +171,28 @@ public class DeleteDataTrackFolder extends GNomExCommand implements Serializable
           sess.flush();
           this.xmlResult = "<SUCCESS/>";
           setResponsePage(this.SUCCESS_JSP);
-          
+
         } else {
           setResponsePage(this.ERROR_JSP);
         }
-   
+
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete data track folder.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      LOG.error("An exception has occurred in DeleteDataTrackFolder ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteDataTrackFolder ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteDataTrackFolder ", e);
-      }
+
     }
-    
+
     return this;
   }
-  
- 
-  
-  
-  
+
+
+
+
+
 
 }

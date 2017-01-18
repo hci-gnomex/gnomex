@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -235,32 +235,28 @@ public Command execute() throws RollBackCommandException {
 		}
 
 	} catch (UnknownPermissionException e) {
-		LOG.error("An exception has occurred in GetAnalysis ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAnalysis ", e);
 
 		throw new RollBackCommandException(e.getMessage());
 
 	} catch (NamingException e) {
-		LOG.error("An exception has occurred in GetAnalysis ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAnalysis ", e);
 
 		throw new RollBackCommandException(e.getMessage());
 	} catch (SQLException e) {
-		LOG.error("An exception has occurred in GetAnalysis ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAnalysis ", e);
 
 		throw new RollBackCommandException(e.getMessage());
 	} catch (XMLReflectException e) {
-		LOG.error("An exception has occurred in GetAnalysis ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAnalysis ", e);
 
 		throw new RollBackCommandException(e.getMessage());
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in GetAnalysis ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetAnalysis ", e);
 
 		throw new RollBackCommandException(e.getMessage());
 	}
-	/*
-	 * finally { try { this.getSecAdvisor().closeReadOnlyHibernateSession("GetAnalysis"); } catch (Exception e) { LOG.error("Error in getAnalysis", e);
-	 * 
-	 * } }
-	 */
+
 	String dinfo = " GetAnalysis (" + this.getUsername() + " - " + reqNumber + "), ";
 	Util.showTime(startTime, dinfo);
 
@@ -433,7 +429,7 @@ public HttpServletRequest setRequestState(HttpServletRequest request) {
  * The callback method called after the loadCommand, and execute methods, this method allows you to manipulate the HttpServletResponse object prior to
  * forwarding to the result JSP (add a cookie, etc.)
  *
- * @param request
+ * @param response
  *            The HttpServletResponse for the command
  * @return The processed response
  */

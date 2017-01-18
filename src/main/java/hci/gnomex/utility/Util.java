@@ -3,6 +3,8 @@ package hci.gnomex.utility;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -216,29 +218,46 @@ public class Util {
 	}
 
 	// output request header / parameters and postrequestbody
-	public static String printRequest(HttpServletRequest httpRequest) {
+	public static StringBuilder printRequest(HttpServletRequest httpRequest) {
+		int MAXSIZE = 250000;
 		String theRequest = "";
 		StringBuilder request = new StringBuilder(65536);
-		System.out.println(" \n\n *** Headers ***");
+		String headers = "\n\n *** Headers ***\n";
+		request.append(headers);
+		System.out.print(headers);
+		String warning = "";
 
 		Enumeration headerNames = httpRequest.getHeaderNames();
 		while(headerNames.hasMoreElements()) {
+			warning = "";
 			String headerName = (String)headerNames.nextElement();
-			System.out.println(headerName + " = " + httpRequest.getHeader(headerName));
+			String theHeader = httpRequest.getHeader(headerName);
+			System.out.println(headerName + " = " + theHeader);
+			if (theHeader.length() > MAXSIZE) {
+				warning = "\nWARNING: header truncated to " + MAXSIZE + " characters\n";
+				theHeader = theHeader.substring(0,MAXSIZE);
+			}
+			request.append (warning + headerName + " = " + theHeader + "\n");
 		}
 
-		System.out.println("\n\n *** Parameters ***");
+		String parameters = "\n\n *** Parameters ***\n";
+		System.out.print(parameters);
+		request.append(parameters);
 
 		Enumeration params = httpRequest.getParameterNames();
 		while(params.hasMoreElements()){
+			warning = "";
 			String paramName = (String)params.nextElement();
-			System.out.println(paramName + " = " + httpRequest.getParameter(paramName));
+			String theParameter = httpRequest.getParameter(paramName);
+			System.out.println(paramName + " = " + theParameter);
+			if (theParameter.length() > MAXSIZE) {
+				warning = "\nWARNING: parameter truncated to " + MAXSIZE + " characters\n";
+				theParameter = theParameter.substring(0,MAXSIZE);
+			}
+			request.append (warning + paramName + " = " + theParameter + "\n");
 		}
 
-		System.out.println("\n\n *** Row data ***");
-		System.out.println(extractPostRequestBody(httpRequest));
-
-		return theRequest;
+		return request;
 	}
 
 	public static String extractPostRequestBody(HttpServletRequest request) {
@@ -254,4 +273,21 @@ public class Util {
 		return "";
 	}
 
+	public static String GNLOG(org.apache.log4j.Logger LOG, String whathappend, Exception e) {
+		String theInfo = null;
+
+		theInfo = whathappend + "\n\n";
+
+		StringWriter errors = new StringWriter();
+		e.printStackTrace(new PrintWriter(errors));
+		theInfo = theInfo + errors.toString() + "\n";
+
+//		StackTraceElement[] trace = e.getStackTrace();
+//		for (StackTraceElement traceElement : trace)
+//			theInfo = theInfo + "\tat " + traceElement + "\n";
+
+		LOG.error (whathappend, e);
+
+		return theInfo;
+	}
 }

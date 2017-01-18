@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.Hybridization;
@@ -102,15 +102,9 @@ public class LinkExpToAnalysis extends GNomExCommand implements Serializable {
 
     } catch (Exception e) {
 
-      LOG.error("An exception has occurred in LinkExpToAnalysis ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in LinkExpToAnalysis ", e);
 
       throw new GNomExRollbackException(e.getMessage(), true, "Unable to link analysis to experiment");
-    } finally {
-      try {
-        //closeHibernateSession;
-      } catch (Exception e) {
-        LOG.error("Exception trying to close the Hibernate session: ",e);
-      }
     }
 
     return this;

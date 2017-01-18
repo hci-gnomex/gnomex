@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
@@ -15,17 +15,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingAccountComparator;
-import hci.gnomex.utility.BillingAccountParser;
-import hci.gnomex.utility.BillingAccountUtil;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.LabCoreFacilityParser;
-import hci.gnomex.utility.LabInstitutionParser;
-import hci.gnomex.utility.LabMemberParser;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.*;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -615,7 +605,7 @@ public Command execute() throws RollBackCommandException {
 		}
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in SaveLab ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveLab ", e);
 
 		throw new RollBackCommandException(e.getMessage());
 

@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 
 import java.io.Serializable;
@@ -153,7 +153,7 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
         Document doc = new Document();
 
         try{
-          doc = builder.build(new StringReader(srvResp)); 
+          doc = builder.build(new StringReader(srvResp));
         }catch(JDOMException JEx){
           System.out.println("Error in SAXBuilder " + JEx);
         }
@@ -170,14 +170,8 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
       }
       //	}	// end main isValid()
     }catch (Exception e) {
-      LOG.error("An exception has occurred in MetrixServerInterface ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in MetrixServerInterface ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;

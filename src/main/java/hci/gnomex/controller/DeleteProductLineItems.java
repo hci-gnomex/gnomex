@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
@@ -50,7 +50,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
       StringReader reader = new StringReader(productOrdersToDeleteXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        productOrdersToDeleteDoc = sax.build(reader);     
+        productOrdersToDeleteDoc = sax.build(reader);
       } catch (JDOMException je ) {
         LOG.error( "Cannot parse productOrdersToDeleteXMLString", je );
         this.addInvalidField( "productOrdersToDeleteXMLString", "Invalid productOrdersToDeleteXMLString");
@@ -60,7 +60,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
       StringReader reader = new StringReader(productLineItemsToDeleteXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        productLineItemsToDeleteDoc = sax.build(reader);     
+        productLineItemsToDeleteDoc = sax.build(reader);
       } catch (JDOMException je ) {
         LOG.error( "Cannot parse productLineItemsToDeleteXMLString", je );
         this.addInvalidField( "productLineItemsToDeleteXMLString", "Invalid productLineItemsToDeleteXMLString");
@@ -82,7 +82,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
           Integer idProductOrder = Integer.parseInt(node.getAttributeValue("idProductOrder") );
           ProductOrder po = (ProductOrder) sess.load( ProductOrder.class, idProductOrder );
 
-          if (po != null && po.getIdCoreFacility() != null && (this.getSecAdvisor().isCoreFacilityIManage(po.getIdCoreFacility()) 
+          if (po != null && po.getIdCoreFacility() != null && (this.getSecAdvisor().isCoreFacilityIManage(po.getIdCoreFacility())
               || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) ){
 
             if ( po.getProductLineItems() == null || po.getProductLineItems().size() == 0 ) {
@@ -108,7 +108,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
           } else {
             this.addInvalidField("Insufficient permissions", "Insufficient permissions to delete product order id:" + po.getIdProductOrder() + ".");
             setResponsePage(this.ERROR_JSP);
-          } 
+          }
         }
       }
       if ( productLineItemsToDeleteDoc != null ) {
@@ -117,7 +117,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
           Integer idProductLineItem = Integer.parseInt(node.getAttributeValue("idProductLineItem") );
           ProductLineItem pli = (ProductLineItem)sess.load(ProductLineItem.class, idProductLineItem);
           ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, pli.getIdProductOrder());
-          if (po != null && po.getIdCoreFacility() != null && (this.getSecAdvisor().isCoreFacilityIManage(po.getIdCoreFacility()) 
+          if (po != null && po.getIdCoreFacility() != null && (this.getSecAdvisor().isCoreFacilityIManage(po.getIdCoreFacility())
               || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) ){
 
             this.deleteProductLineItem( pli, sess );
@@ -130,11 +130,11 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
           } else {
             this.addInvalidField("Insufficient permissions", "Insufficient permissions to delete product order id:" + po.getIdProductOrder() + ".");
             setResponsePage(this.ERROR_JSP);
-          } 
+          }
         }
       }
-      
-      
+
+
 
       this.xmlResult = "<SUCCESS message=\"" + resultMessage + "\"/>";
       sess.flush();
@@ -142,16 +142,10 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
 
 
     }catch (Exception e){
-      LOG.error("An exception has occurred in DeleteProductOrders ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DeleteProductOrders ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DeleteProductOrders ", e);
-      }
     }
 
     return this;
@@ -163,7 +157,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
       resultMessage += "Cannot delete completed product line item: " + pli.getDisplay() + ".\r\n";
       this.addInvalidField("Cannot delete line item", "Cannot delete completed product line item: " + pli.getDisplay() + ".");
       return false;
-    } 
+    }
 
     sess.delete(pli);
     resultMessage += "Product line item: " + pli.getDisplay() + " deleted.\r\n";

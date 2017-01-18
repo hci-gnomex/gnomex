@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
@@ -26,26 +26,26 @@ import org.apache.log4j.Logger;
 
 
 public class MoveDataTrack extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(MoveDataTrack.class);
-  
-  
+
+
   private Integer idDataTrack = null;
   private Integer idGenomeBuild = null;
   private Integer idDataTrackFolder = null;
   private Integer idDataTrackFolderOld = null;
   private String  isMove = null;
- 
-  
-  
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
      idDataTrack = new Integer(request.getParameter("idDataTrack"));
    } else {
@@ -63,7 +63,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
    if (request.getParameter("idDataTrackFolderOld") != null && !request.getParameter("idDataTrackFolderOld").equals("")) {
      idDataTrackFolderOld = new Integer(request.getParameter("idDataTrackFolderOld"));
    }
-   
+
    if (request.getParameter("isMove") != null && !request.getParameter("isMove").equals("")) {
      isMove = request.getParameter("isMove");
    } else {
@@ -74,15 +74,15 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DataTrack dataTrack = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       dataTrack = (DataTrack)sess.load(DataTrack.class, idDataTrack);
 
-      
+
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
 
-      // Make sure the user can write this dataTrack 
+      // Make sure the user can write this dataTrack
       if (isMove.equals("Y")) {
         if (!this.getSecAdvisor().canUpdate(dataTrack)) {
           addInvalidField("writep", "Insufficient permision to move dataTrack.");
@@ -92,7 +92,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
       if (this.isValid()) {
         // Force the data track to be re-loaded on das2 server refresh
         dataTrack.setIsLoaded("N");
-      
+
         // Get the dataTrack grouping this dataTrack should be moved to.
         DataTrackFolder folderNew = null;
         if (idDataTrackFolder == null) {
@@ -106,28 +106,28 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
           // Otherwise, find the dataTrack grouping passed in as a request parameter.
           folderNew = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolder));
         }
-  
-  
-  
-        // The move/copy is disallowed if the parent dataTrack grouping belongs to a 
+
+
+
+        // The move/copy is disallowed if the parent dataTrack grouping belongs to a
         // different genome version
         if (!folderNew.getIdGenomeBuild().equals(dataTrack.getIdGenomeBuild())) {
-          throw new Exception("DataTrack '" + dataTrack.getName() + 
+          throw new Exception("DataTrack '" + dataTrack.getName() +
           "' cannot be moved to a different genome version");
         }
-  
+
         // The move/copy is disallowed if the from and to dataTrack grouping are the
         // same
         if (idDataTrackFolderOld != null) {
           if (folderNew.getIdDataTrackFolder().equals(idDataTrackFolderOld)) {
             this.addInvalidField("movesame", "Move/copy operation to same dataTrack folder is not allowed.");
-          }       
+          }
         } else {
           if (idDataTrackFolder == null) {
             this.addInvalidField("movesame1", "Move/copy operation to same folder is not allowed.");
           }
         }
-  
+
         if (this.isValid()) {
           //
           // Add the dataTrack to the dataTrack grouping
@@ -141,9 +141,9 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
           dataTrack.setIsLoaded("N");
           folderNew.setDataTracks(newDataTracks);
           sess.flush();
-    
-    
-    
+
+
+
           // If this is a move instead of a copy,
           // get the dataTrack folder this dataTrack should be removed from.
           if (isMove.equals("Y")) {
@@ -159,15 +159,15 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
               // Otherwise, find the dataTrack folder passed in as a request parameter.
               dataTrackFolderOld = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolderOld));
             }
-    
+
             //
             // Remove the dataTrack folder the dataTrack was in
-            // by adding back the dataTracks to the dataTrack folder, 
+            // by adding back the dataTracks to the dataTrack folder,
             // excluding the dataTrack that has moved
             Set<DataTrack> dataTracksToKeep = new TreeSet<DataTrack>(new DataTrackComparator());
             for(Iterator<?> i1 = dataTrackFolderOld.getDataTracks().iterator(); i1.hasNext();) {
               DataTrack a = DataTrack.class.cast(i1.next());
-              
+
               if (a.getIdDataTrack().equals(dataTrack.getIdDataTrack())) {
                 //
                 // Unload the data track from its old folder for next das2 refresh
@@ -184,7 +184,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
                 unload.setIdGenomeBuild(dataTrack.getIdGenomeBuild());
 
                 sess.save(unload);
-                
+
                 continue;
               }
               // All of the existing data tracks under the old folder remain...
@@ -192,17 +192,17 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
             }
             dataTrackFolderOld.setDataTracks(dataTracksToKeep);
             sess.flush();
-            
+
             // Unload data track that moved
             // insert dataTrack reload entry which will cause
             // das/2 type to be unloaded on next 'das2 reload' request
             // Note:  If dataTrack is under more than one folder, there
             // can be multiple das/2 types for one dataTrack.
             for(DataTrackFolder folder : (Set<DataTrackFolder>)dataTrack.getFolders()) {
-              
+
             }
-    
-          }          
+
+          }
           Element root = new Element("SUCCESS");
           Document doc = new Document(root);
           root.setAttribute("idDataTrack", dataTrack.getIdDataTrack().toString());
@@ -219,18 +219,12 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      LOG.error("An exception has occurred in MoveDataTrack ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in MoveDataTrack ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
+
     }
-    
+
     return this;
   }
 }

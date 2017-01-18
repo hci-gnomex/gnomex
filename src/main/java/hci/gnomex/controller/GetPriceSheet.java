@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -23,15 +23,15 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class GetPriceSheet extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetPriceSheet.class);
-  
+
   private Integer idPriceSheet;
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idPriceSheet") != null) {
@@ -42,9 +42,9 @@ public class GetPriceSheet extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
       if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
@@ -62,51 +62,45 @@ public class GetPriceSheet extends GNomExCommand implements Serializable {
           Hibernate.initialize(priceSheet.getRequestCategories());
         }
 
-      
+
         Document doc = new Document(new Element("PriceSheetList"));
         Element priceSheetNode = priceSheet.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(priceSheetNode);
 
-      
+
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
       }
-    
+
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in GetPriceSheet ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceSheet ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (NamingException e){
-      LOG.error("An exception has occurred in GetPriceSheet ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceSheet ", e);
 
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetPriceSheet ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceSheet ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetPriceSheet ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceSheet ", e);
 
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      LOG.error("An exception has occurred in GetPriceSheet ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetPriceSheet ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
 

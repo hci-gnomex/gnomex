@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
@@ -33,24 +33,24 @@ import org.apache.log4j.Logger;
 
 
 public class DuplicateDataTrack extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(DuplicateDataTrack.class);
-  
-  
+
+
   private Integer idDataTrack = null;
   private Integer idDataTrackFolder = null;
 
 
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
    if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
      idDataTrack = new Integer(request.getParameter("idDataTrack"));
    } else {
@@ -61,19 +61,19 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
    } else {
      this.addInvalidField("idDataTrackFolder", "idDataTrackFolder is required.");
    }
-  
+
   }
 
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DataTrack sourceDataTrack  = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       sourceDataTrack = (DataTrack)sess.load(DataTrack.class, idDataTrack);
 
-      
-      // Make sure the user can write this dataTrack 
+
+      // Make sure the user can write this dataTrack
       if (this.getSecAdvisor().canUpdate(sourceDataTrack)) {
         DataTrack dup = new DataTrack();
 
@@ -91,8 +91,8 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
         //save DataTrack so that it's assigned an ID
         sess.save(dup);
 
-        //add dataTrack properties     
-        Set<PropertyEntry> clonesPESet = new HashSet<PropertyEntry>(); 
+        //add dataTrack properties
+        Set<PropertyEntry> clonesPESet = new HashSet<PropertyEntry>();
 
         //for each PropertyEntry in the source DataTrack
         for(Iterator<?> i = sourceDataTrack.getPropertyEntries().iterator(); i.hasNext();) {
@@ -141,7 +141,7 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
           //don't understand how this will work!
           for (Iterator<?> iY = sourcePE.getOptions().iterator(); iY.hasNext();) {
             PropertyOption sourceOption = (PropertyOption)iY.next();
-            clonedOptions.add(sourceOption);    
+            clonedOptions.add(sourceOption);
           }
 
           //add set to AP
@@ -151,7 +151,7 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
         //add Set of DataTrackPropery to cloned DataTrack
         dup.setPropertyEntries(clonesPESet);
 
-        //colaborators 
+        //colaborators
         TreeSet<AppUser> collaborators = new TreeSet<AppUser>(new AppUserComparator());
         Iterator<?> cIt = sourceDataTrack.getCollaborators().iterator();
         while (cIt.hasNext()) collaborators.add((AppUser)cIt.next());
@@ -178,14 +178,14 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
           if (folder == null) {
             throw new Exception("Cannot find root dataTrack folder for " + gb.getGenomeBuildName());
           }
-        } else {        
+        } else {
           // Otherwise, find the dataTrack folder passed in as a request parameter.
           folder = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolder));
         }
 
         // Add the dataTrack to the  folder
         Set<DataTrack> newDataTracks = new TreeSet<DataTrack>(new DataTrackComparator());
-        for(Iterator<?> i = folder.getDataTracks().iterator(); i.hasNext();) { 
+        for(Iterator<?> i = folder.getDataTracks().iterator(); i.hasNext();) {
           DataTrack a = DataTrack.class.cast(i.next());
           newDataTracks.add(a);
         }
@@ -194,9 +194,9 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
 
         // Assign a file directory name
         dup.setFileName("DT" + dup.getIdDataTrack());
-        
+
         sess.flush();
-        
+
         Element root = new Element("SUCCESS");
         Document doc = new Document(root);
         root.setAttribute("idDataTrack", dup.getIdDataTrack().toString());
@@ -206,23 +206,17 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
         this.xmlResult = out.outputString(doc);
         this.setResponsePage(SUCCESS_JSP);
 
-        
+
       } else {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      LOG.error("An exception has occurred in DuplicateDataTrack ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in DuplicateDataTrack ", e);
 
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in DuplicateDataTrack ", e);
-      }
+
     }
-    
+
     return this;
   }
 }

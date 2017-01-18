@@ -24,7 +24,7 @@ import org.jdom.Element;
 
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -276,17 +276,10 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e) {
-      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExperimentPlatformList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
-      }
     }
-
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {

@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Product;
 import hci.gnomex.model.ProductOrder;
@@ -87,17 +87,10 @@ public class GetProductOrderLineItemList extends GNomExCommand implements Serial
       }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetProductOrderLineItemList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetProductOrderLineItemList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in GetProductOrderLineItemList ", e);
-      }
     }
-
     return this;
   }
 

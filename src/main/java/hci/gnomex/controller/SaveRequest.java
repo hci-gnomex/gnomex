@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
@@ -51,28 +51,8 @@ import hci.gnomex.model.TreatmentEntry;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FileDescriptorUploadParser;
-import hci.gnomex.utility.FreeMarkerConfiguration;
-import hci.gnomex.utility.GNomExRollbackException;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HybNumberComparator;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.ProductException;
-import hci.gnomex.utility.ProductUtil;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.PropertyEntryComparator;
-import hci.gnomex.utility.PropertyOptionComparator;
-import hci.gnomex.utility.RequestEmailBodyFormatter;
-import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.*;
 import hci.gnomex.utility.RequestParser.HybInfo;
-import hci.gnomex.utility.SampleAssaysParser;
-import hci.gnomex.utility.SampleNumberComparator;
-import hci.gnomex.utility.SamplePrimersParser;
-import hci.gnomex.utility.SequenceLaneNumberComparator;
-import hci.gnomex.utility.WorkItemHybParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -177,6 +157,817 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	private Integer sampleCountOnPlate;
 	private Integer previousCapSeqPlateId = null;
 	private Integer previousIScanPlateId = null;
+
+	public static String saveRequest(Session sess, RequestParser requestParser, String description) throws Exception {
+		boolean isImport = false;
+		return saveRequest(sess, requestParser, description, isImport);
+	}
+
+	public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
+
+		Request request = requestParser.getRequest();
+
+		request.setDescription(description);
+		sess.save(request);
+
+		if (requestParser.isNewRequest() && !isImport) {
+			request.setNumber(getNextRequestNumber(requestParser, sess));
+			sess.save(request);
+
+			if (request.getName() == null || request.getName().trim().equals("")) {
+				sess.flush();
+				sess.refresh(request);
+				request.setName(request.getAppUser().getShortName() + "-" + request.getNumber());
+				sess.save(request);
+			}
+		}
+
+		sess.flush();
+
+		return requestParser.getRequest().getNumber();
+	}
+
+	public static String getNextRequestNumber(RequestParser requestParser, Session sess) throws SQLException {
+		String requestNumber = "";
+
+		// do external experiments have their own numbering?
+		String isExternal = requestParser.getRequest().getIsExternal();
+
+		PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+		if (propertyHelper.getProperty(PropertyDictionary.USE_EXTERNAL_EXPERIMENT_NUMBERING) != null
+				&& propertyHelper.getProperty(PropertyDictionary.USE_EXTERNAL_EXPERIMENT_NUMBERING).equals("Y")
+				&& propertyHelper.getProperty(PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE_EXTERNAL) != null
+				&& propertyHelper.getProperty(PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE_EXTERNAL).length() > 0 && isExternal != null
+				&& isExternal.equals("Y")) {
+			String procedure = propertyHelper.getProperty(PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE_EXTERNAL);
+			Connection con = ((SessionImpl) sess).connection();
+
+			String queryString = "";
+			if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
+				queryString = "exec " + procedure;
+			} else {
+				queryString = "select " + procedure + "();";
+			}
+
+			NativeQuery query = sess.createNativeQuery(queryString);
+			List l = query.list();
+			if (l.size() != 0) {
+				Object o = l.get(0);
+				if (o.getClass().equals(String.class)) {
+					requestNumber = (String) o;
+					requestNumber = requestNumber.toUpperCase();
+					if (!requestNumber.endsWith("R")) {
+						requestNumber = requestNumber + "R";
+					}
+				}
+			}
+
+		} else {
+			// See if there is a stored procedure for the core
+			String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(
+					requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(),
+					PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
+			if (procedure != null && procedure.length() > 0) {
+
+				SessionImpl sessionImpl = (SessionImpl) sess;
+				Connection con = sessionImpl.connection();
+
+				String queryString = "";
+				if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
+					queryString = "exec " + procedure;
+				} else {
+					queryString = "select " + procedure + "();";
+				}
+				NativeQuery query = sess.createNativeQuery(queryString);
+				List l = query.list();
+				if (l.size() != 0) {
+					Object o = l.get(0);
+					if (o.getClass().equals(String.class)) {
+						requestNumber = (String) o;
+						requestNumber = requestNumber.toUpperCase();
+						if (!requestNumber.endsWith("R")) {
+							requestNumber = requestNumber + "R";
+						}
+					}
+				}
+			}
+		}
+
+		if (requestNumber.length() == 0) {
+			requestNumber = requestParser.getRequest().getIdRequest().toString() + "R";
+		}
+
+		return requestNumber;
+	}
+
+	public static Integer saveSample(Session sess, RequestParser requestParser, String idSampleString, Sample sample, Map idSampleMap, Set samples,
+			Set samplesAdded, Map<Integer, Property> propertyMap, Integer nextSampleNumber) throws Exception {
+
+		boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
+
+		nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
+
+		if (requestParser.getSampleAnnotationMap() != null && propertyMap != null) {
+			setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample, (Map) requestParser.getSampleAnnotationMap().get(idSampleString),
+					requestParser.getOtherCharacteristicLabel(), propertyMap);
+			addStandardSampleProperties(sess, requestParser, idSampleString, sample);
+
+			// Delete the existing sample treatments
+			if (!isNewSample && sample.getTreatmentEntries() != null) {
+				for (Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
+					TreatmentEntry entry = (TreatmentEntry) i.next();
+					sess.delete(entry);
+				}
+			}
+
+			// Add treatment
+			String treatment = (String) requestParser.getSampleTreatmentMap().get(idSampleString);
+			if (requestParser.getShowTreatments() && treatment != null && !treatment.equals("")) {
+				TreatmentEntry entry = new TreatmentEntry();
+				entry.setIdSample(sample.getIdSample());
+				entry.setTreatment(treatment);
+				sess.save(entry);
+			}
+		}
+
+		sess.flush();
+
+		idSampleMap.put(idSampleString, sample.getIdSample());
+		samples.add(sample);
+
+		if (isNewSample) {
+			samplesAdded.add(sample);
+		}
+
+		return nextSampleNumber;
+
+	}
+
+	public static Integer initSample(Session sess, Request request, Sample sample, Boolean isNewSample, Integer nextSampleNumber) {
+		sample.setIdRequest(request.getIdRequest());
+		sess.save(sample);
+
+		if (isNewSample) {
+			sample.setNumber(Request.getRequestNumberNoR(request.getNumber()) + "X" + nextSampleNumber);
+			nextSampleNumber++;
+			sess.save(sample);
+		}
+
+		return nextSampleNumber;
+	}
+
+	public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations,
+			String otherCharacteristicLabel, Map<Integer, Property> idToPropertyMap) {
+		setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, otherCharacteristicLabel, null, idToPropertyMap);
+	}
+
+	public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations,
+			String otherCharacteristicLabel, Map propertiesToDelete, Map<Integer, Property> idToPropertyMap) {
+		// Delete the existing sample property entries
+		if (!isNewSample) {
+			for (Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
+				PropertyEntry entry = (PropertyEntry) i.next();
+				if (propertiesToDelete == null || propertiesToDelete.get(entry.getIdProperty()) != null) {
+					for (Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
+						PropertyEntryValue v = (PropertyEntryValue) i1.next();
+						sess.delete(v);
+					}
+					sess.flush();
+					entry.setValues(null);
+					entry.setOptions(null);
+					sess.delete(entry);
+				}
+			}
+		}
+
+		// Create sample property entries and options
+		for (Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext();) {
+
+			Integer idProperty = (Integer) i.next();
+			String value = (String) sampleAnnotations.get(idProperty);
+			if (idProperty == -1) {
+				continue;
+			}
+
+			Property property = idToPropertyMap.get(idProperty);
+
+			PropertyEntry entry = new PropertyEntry();
+			entry.setIdSample(sample.getIdSample());
+			if (property.getName().equals("Other")) {
+				entry.setOtherLabel(otherCharacteristicLabel);
+			}
+			entry.setIdProperty(idProperty);
+			entry.setValue(value);
+			sess.save(entry);
+			sess.flush();
+
+			// If the sample property type is "url", save the options. If it is option or multi option, save the options as well
+			if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
+				String[] valueTokens = value.split("\\|");
+				for (int x = 0; x < valueTokens.length; x++) {
+					String v = valueTokens[x];
+					PropertyEntryValue urlValue = new PropertyEntryValue();
+					urlValue.setValue(v);
+					urlValue.setIdPropertyEntry(entry.getIdPropertyEntry());
+					sess.save(urlValue);
+				}
+			} else if (value != null && !value.equals("")
+					&& (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
+				String[] valueTokens = value.split(",");
+				Set<PropertyOption> entryOptions = new TreeSet<PropertyOption>();
+				for (int x = 0; x < valueTokens.length; x++) {
+					String v = valueTokens[x];
+					for (Iterator j = property.getOptions().iterator(); j.hasNext();) {
+						PropertyOption option = (PropertyOption) j.next();
+						if (option.getOption().equals(v)) {
+							entryOptions.add(option);
+							break;
+						}
+					}
+				}
+				entry.setOptions(entryOptions);
+				sess.save(entry);
+			}
+			sess.flush();
+
+		}
+	}
+
+	public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, RequestCategory requestCategory,
+			Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded) throws Exception {
+		return saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, false);
+	}
+
+	public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, RequestCategory requestCategory,
+			Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
+
+		HashMap sampleToLaneMap = new HashMap();
+		HashMap existingLanesSaved = new HashMap();
+		if (!requestParser.getSequenceLaneInfos().isEmpty()) {
+
+			// Hash lanes by sample id
+			for (Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
+				RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i.next();
+
+				List lanes = (List) sampleToLaneMap.get(laneInfo.getIdSampleString());
+				if (lanes == null) {
+					lanes = new ArrayList();
+					sampleToLaneMap.put(laneInfo.getIdSampleString(), lanes);
+				}
+				lanes.add(laneInfo);
+			}
+
+			Date timestamp = new Date(System.currentTimeMillis()); // save the current time here so that the timestamp is the same on every sequence lane in
+			// this batch
+			for (Iterator i = sampleToLaneMap.keySet().iterator(); i.hasNext();) {
+				String idSampleString = (String) i.next();
+				List lanes = (List) sampleToLaneMap.get(idSampleString);
+
+				Integer idSample = (Integer) idSampleMap.get(idSampleString);
+				Sample s = null;
+				if (idSample != null) {
+					s = sess.load(Sample.class, idSample);
+				}
+
+				int lastSampleSeqCount = 0;
+
+				// Figure out next number to assign for a
+				for (Iterator i1 = lanes.iterator(); i1.hasNext();) {
+					RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i1.next();
+					boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null
+							|| laneInfo.getIdSequenceLane().startsWith("SequenceLane");
+					if (!isNewLane) {
+
+						SequenceLane sl = sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
+						boolean seqLaneReassignment = isSeqReassignment(sess, laneInfo, idSampleMap);
+
+						if (!seqLaneReassignment) {
+							lastSampleSeqCount++;
+						}
+
+					}
+				}
+
+				for (Iterator i1 = lanes.iterator(); i1.hasNext();) {
+					RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i1.next();
+					if (idSampleMap.get(laneInfo.getIdSampleString()) == null) {
+						// Looks like sample for this lane is deleted. This will cause lane to get deleted as well.
+						continue;
+					}
+					boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null
+							|| laneInfo.getIdSequenceLane().startsWith("SequenceLane");
+					// If the sample id's don't match up then we had a drag and drop reassignment from one sample to another. We need to adjust the number to
+					// match new sample
+					boolean seqLaneReassignment = false;
+					Integer idSampleReal = null;
+					if (!isNewLane) {
+						SequenceLane sl = sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
+						if (laneInfo.getIdSampleString() != null && !laneInfo.getIdSampleString().equals("") && !laneInfo.getIdSampleString().equals("0")) {
+							idSampleReal = (Integer) idSampleMap.get(laneInfo.getIdSampleString());
+						}
+
+						if (idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())) {
+							seqLaneReassignment = true;
+						}
+					}
+
+					SequenceLane lane = saveSequenceLane(secAdvisor, requestParser, laneInfo, sess, lastSampleSeqCount, timestamp, idSampleMap, sequenceLanes,
+							sequenceLanesAdded, isImport);
+
+					if (!isNewLane) {
+						existingLanesSaved.put(lane.getIdSequenceLane(), lane);
+					}
+
+					// if this is a not a new request, but these is a new sequence lane,
+					// create a work item for the Cluster Gen (Assemble) worklist.
+					// Also ignore this if this is a QC Amend as seqPrep work items were
+					// created above.
+					if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane && s != null
+							&& s.getWorkItems() != null && s.getWorkItems().size() == 0)) {
+						WorkItem workItem = new WorkItem();
+						workItem.setIdRequest(requestParser.getRequest().getIdRequest());
+						workItem.setIdCoreFacility(requestParser.getRequest().getIdCoreFacility());
+						workItem.setSequenceLane(lane);
+						String codeStepNext = "";
+						if (requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
+							codeStepNext = Step.HISEQ_CLUSTER_GEN;
+						} else if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ)) {
+							codeStepNext = Step.MISEQ_CLUSTER_GEN;
+						}
+						workItem.setCodeStepNext(codeStepNext);
+						workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+						sess.save(workItem);
+					}
+
+					if (isNewLane || seqLaneReassignment) {
+						lastSampleSeqCount++;
+					}
+				}
+			}
+
+		}
+		return existingLanesSaved;
+
+	}
+
+	/*
+	 * Helper function to determine if an existing sequence lane had a new sample reassigned to it
+	 */
+	private static boolean isSeqReassignment(Session sess, RequestParser.SequenceLaneInfo laneInfo, Map idSampleMap) {
+		SequenceLane sl = sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
+		Integer idSampleReal = null;
+		if (laneInfo.getIdSampleString() != null && !laneInfo.getIdSampleString().equals("") && !laneInfo.getIdSampleString().equals("0")) {
+			idSampleReal = (Integer) idSampleMap.get(laneInfo.getIdSampleString());
+		}
+
+		if (idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	private static SequenceLane saveSequenceLane(SecurityAdvisor secAdvisor, RequestParser requestParser, RequestParser.SequenceLaneInfo sequenceLaneInfo,
+			Session sess, int lastSampleSeqCount, Date theTime, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
+
+		SequenceLane sequenceLane = null;
+		boolean seqLaneReassignment = false;
+		boolean isNewSequenceLane = requestParser.isNewRequest() || sequenceLaneInfo.getIdSequenceLane() == null
+				|| sequenceLaneInfo.getIdSequenceLane().startsWith("SequenceLane");
+
+		if (isNewSequenceLane) {
+			sequenceLane = new SequenceLane();
+			sequenceLane.setIdRequest(requestParser.getRequest().getIdRequest());
+			sequenceLane.setCreateDate(theTime);
+			isNewSequenceLane = true;
+		} else {
+			sequenceLane = sess.load(SequenceLane.class, new Integer(sequenceLaneInfo.getIdSequenceLane()));
+		}
+
+		Integer idSampleReal = null;
+		if (sequenceLaneInfo.getIdSampleString() != null && !sequenceLaneInfo.getIdSampleString().equals("")
+				&& !sequenceLaneInfo.getIdSampleString().equals("0")) {
+			idSampleReal = (Integer) idSampleMap.get(sequenceLaneInfo.getIdSampleString());
+		}
+
+		// If the samples don't line up then we had a drag and drop reassignment. We need to adjust the number to match new sample
+		if (idSampleReal != null && sequenceLane.getIdSample() != null && !idSampleReal.equals(sequenceLane.getIdSample())) {
+			seqLaneReassignment = true;
+		}
+		sequenceLane.setIdSample(idSampleReal);
+
+		sequenceLane.setIdSeqRunType(sequenceLaneInfo.getIdSeqRunType());
+		sequenceLane.setIdNumberSequencingCycles(sequenceLaneInfo.getIdNumberSequencingCycles());
+		sequenceLane.setIdNumberSequencingCyclesAllowed(sequenceLaneInfo.getIdNumberSequencingCyclesAllowed());
+		sequenceLane.setIdGenomeBuildAlignTo(sequenceLaneInfo.getIdGenomeBuildAlignTo());
+		sequenceLane.setAnalysisInstructions(sequenceLaneInfo.getAnalysisInstructions());
+
+		Sample theSample = sess.get(Sample.class, idSampleReal);
+		String seqLaneLetter = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
+		String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", seqLaneLetter);
+
+		if (isNewSequenceLane) {
+			if (isImport) {
+				// Use the sequence lane ID in the XML
+				sequenceLane.setNumber(sequenceLaneInfo.getNumber());
+			} else {
+				// Generate a new sequence lane number
+				sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR)
+						+ (lastSampleSeqCount + 1));
+			}
+			sequenceLanes.add(sequenceLane);
+			sequenceLanesAdded.add(sequenceLane); // used in createBillingItems
+		}
+
+		if (seqLaneReassignment) {
+			sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR)
+					+ (lastSampleSeqCount + 1));
+		}
+
+		sess.save(sequenceLane);
+
+		// Update workflow fields (for flow cell channel)
+		if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
+			if (sequenceLane.getFlowCellChannel() != null) {
+				FlowCellChannel channel = sequenceLane.getFlowCellChannel();
+				channel.setClustersPerTile(sequenceLaneInfo.getClustersPerTile());
+				channel.setNumberSequencingCyclesActual(sequenceLaneInfo.getNumberSequencingCyclesActual());
+				channel.setFileName(sequenceLaneInfo.getFileName());
+
+				if (sequenceLaneInfo.getSeqRunFirstCycleCompleted().equals("Y") && channel.getFirstCycleDate() == null) {
+					channel.setFirstCycleDate(new java.sql.Date(System.currentTimeMillis()));
+				}
+				channel.setFirstCycleFailed(sequenceLaneInfo.getSeqRunFirstCycleFailed());
+
+				if (sequenceLaneInfo.getSeqRunLastCycleCompleted().equals("Y") && channel.getLastCycleDate() == null) {
+					channel.setLastCycleDate(new java.sql.Date(System.currentTimeMillis()));
+				}
+				channel.setLastCycleFailed(sequenceLaneInfo.getSeqRunLastCycleFailed());
+
+				if (sequenceLaneInfo.getSeqRunPipelineCompleted().equals("Y") && channel.getPipelineDate() == null) {
+					channel.setPipelineDate(new java.sql.Date(System.currentTimeMillis()));
+				}
+				channel.setPipelineFailed(sequenceLaneInfo.getSeqRunPipelineFailed());
+
+			}
+		}
+
+		if (sequenceLane.getFlowCellChannel() != null) {
+			FlowCellChannel channel = sequenceLane.getFlowCellChannel();
+			channel.setSampleConcentrationpM(sequenceLaneInfo.getFlowCellChannelSampleConcentrationpM());
+		}
+
+		sess.flush();
+		sess.refresh(sequenceLane);
+		return sequenceLane;
+	}
+
+	public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh,
+			Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes,
+			Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, BillingTemplate billingTemplate,
+			Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
+		createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus,
+				null, billingTemplate, requestPropertiesOnly, comingFromWorkflow);
+	}
+
+	public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh,
+			Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes,
+			Map<String, ArrayList<String>> sampleToAssaysMap, BillingTemplate billingTemplate, Boolean requestPropertiesOnly, Boolean comingFromWorkflow)
+			throws Exception {
+		createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING,
+				null, billingTemplate, requestPropertiesOnly, comingFromWorkflow);
+	}
+
+	public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh,
+			Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes,
+			Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries,
+			BillingTemplate billingTemplate, Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
+
+		// if someone is trying to edit a very old request (i.e, 2014) we could get here with no billing template
+		// if so, just leave
+		if (billingTemplate == null) {
+			return;
+		}
+
+		List billingItems = new ArrayList<BillingItem>();
+		List discountBillingItems = new ArrayList<BillingItem>();
+
+		// Find the appropriate price sheet
+		PriceSheet priceSheet = null;
+		List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
+		for (Iterator i = priceSheets.iterator(); i.hasNext();) {
+			PriceSheet ps = (PriceSheet) i.next();
+			for (Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
+				RequestCategory requestCategory = (RequestCategory) i1.next();
+				if (requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
+					priceSheet = ps;
+					break;
+				}
+
+			}
+		}
+
+		// if (priceSheet == null) {
+		// throw new Exception("Cannot find price sheet to create billing items for added services");
+		// }
+
+		if (priceSheet != null) {
+			for (Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
+				PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory) i1.next();
+				PriceCategory priceCategory = priceCategoryX.getPriceCategory();
+
+				// we want to only create request property billing items AND/OR unit charge billing items for products
+				// at submit when we have a bill during workflow
+				if (requestPropertiesOnly
+						&& (priceCategory.getPluginClassName() != null
+								&& !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin")
+								&& !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin") && !priceCategory
+								.getPluginClassName().equals("hci.gnomex.billing.UnitChargeAppFilterPlugin"))) {
+					continue;
+				}
+
+				// if this is being called from a workflow servlet then skip the creation of request property billing items
+				// because we already created them at submit time.
+				if (comingFromWorkflow
+						&& (priceCategory.getPluginClassName() != null && (priceCategory.getPluginClassName()
+								.equals("hci.gnomex.billing.PropertyPricingPlugin") || priceCategory.getPluginClassName().equals(
+								"hci.gnomex.billing.PropertyPricingNotBySamplePlugin")))) {
+					continue;
+				}
+
+				// Ignore inactive price categories
+				if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
+					continue;
+				}
+
+				// If a step is provided, ignore price categories that are not available for that step
+				if (codeStepNext != null) {
+					Boolean found = false;
+					for (Step s : (Set<Step>) priceCategory.getSteps()) {
+						if (s.getCodeStep().equals(codeStepNext)) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						continue;
+					}
+				}
+
+				// Instantiate plugin for billing category
+				BillingPlugin plugin = null;
+				Boolean isDiscount = false;
+				if (priceCategory.getPluginClassName() != null) {
+					try {
+						plugin = (BillingPlugin) Class.forName(priceCategory.getPluginClassName()).newInstance();
+						if (priceCategory.getPluginClassName().toLowerCase().indexOf("discount") != -1) {
+							isDiscount = true;
+						}
+					} catch (Exception e) {
+						LOG.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
+					}
+
+				}
+
+				// Get the billing items
+				if (plugin != null) {
+					List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples,
+							labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries, billingTemplate);
+					if (isDiscount) {
+						discountBillingItems.addAll(billingItemsForCategory);
+					} else {
+						billingItems.addAll(billingItemsForCategory);
+					}
+				}
+			}
+
+			for (MasterBillingItem masterBillingItem : billingTemplate.getMasterBillingItems()) {
+				sess.save(masterBillingItem);
+				for (BillingItem billingItem : masterBillingItem.getBillingItems()) {
+					billingItem.setIdMasterBillingItem(masterBillingItem.getIdMasterBillingItem());
+				}
+			}
+
+			BigDecimal grandInvoicePrice = new BigDecimal(0);
+			for (Iterator i = billingItems.iterator(); i.hasNext();) {
+				BillingItem bi = (BillingItem) i.next();
+				grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
+				sess.save(bi);
+			}
+			for (Iterator i = discountBillingItems.iterator(); i.hasNext();) {
+				BillingItem bi = (BillingItem) i.next();
+				if (bi.getUnitPrice() != null) {
+					BigDecimal invoicePrice = bi.getUnitPrice().multiply(grandInvoicePrice);
+					bi.setUnitPrice(invoicePrice);
+					bi.setInvoicePrice(invoicePrice);
+					bi.resetInvoiceForBillingItem(sess);
+					sess.save(bi);
+				}
+			}
+
+		}
+	}
+
+	public static Integer getStartingNextSampleNumber(RequestParser requestParser) {
+		Integer nextSampleNumber = 0;
+		for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+			String idSampleString = (String) i.next();
+			Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
+			String numberAsString = sample.getNumber();
+			if (numberAsString != null && numberAsString.length() != 0 && numberAsString.indexOf("X") > 0) {
+				numberAsString = numberAsString.substring(numberAsString.indexOf("X") + 1);
+				try {
+					Integer number = Integer.parseInt(numberAsString);
+					if (number.intValue() > nextSampleNumber.intValue()) {
+						nextSampleNumber = number;
+					}
+				} catch (Exception ex) {
+				}
+			}
+		}
+		return ++nextSampleNumber;
+	}
+
+	public static Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser, boolean saveToDB) throws org.jdom.JDOMException {
+		Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
+		// Delete properties
+		if (propertiesXML != null && !propertiesXML.equals("")) {
+			StringReader reader = new StringReader(propertiesXML);
+			SAXBuilder sax = new SAXBuilder();
+			Document propsDoc = sax.build(reader);
+			if (requestParser.getRequest().getPropertyEntries() != null && saveToDB) {
+				for (Iterator<?> i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext();) {
+					PropertyEntry pe = PropertyEntry.class.cast(i.next());
+					boolean found = false;
+					for (Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
+						Element propNode = (Element) i1.next();
+						String idPropertyEntry = propNode.getAttributeValue("idPropertyEntry");
+						if (idPropertyEntry != null && !idPropertyEntry.equals("")) {
+							if (pe.getIdPropertyEntry().equals(new Integer(idPropertyEntry))) {
+								found = true;
+								break;
+							}
+						}
+					}
+					if (!found) {
+						// delete property values
+						for (Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
+							PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
+							sess.delete(av);
+						}
+						sess.flush();
+						pe.setValues(null);
+						sess.save(pe);
+						sess.flush();
+						// delete property
+						sess.delete(pe);
+					}
+				}
+				sess.flush();
+			}
+
+			// Add properties
+			for (Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+				Element node = (Element) i.next();
+				// Adding dataTracks
+				String idPropertyEntry = node.getAttributeValue("idPropertyEntry");
+
+				PropertyEntry pe = null;
+				if (idPropertyEntry == null || idPropertyEntry.equals("")) {
+					pe = new PropertyEntry();
+				} else {
+					pe = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry)));
+				}
+				pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
+				pe.setValue(node.getAttributeValue("value"));
+				pe.setIdRequest(requestParser.getRequest().getIdRequest());
+
+				if ((idPropertyEntry == null || idPropertyEntry.equals("")) && saveToDB) {
+					sess.save(pe);
+					sess.flush();
+				}
+
+				// Remove PropertyEntryValues
+				if (pe.getValues() != null) {
+					for (Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
+						PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
+						boolean found = false;
+						for (Iterator<?> i2 = node.getChildren().iterator(); i2.hasNext();) {
+							Element n = (Element) i2.next();
+							if (n.getName().equals("PropertyEntryValue")) {
+								String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
+								if (idPropertyEntryValue != null && !idPropertyEntryValue.equals("")) {
+									if (av.getIdPropertyEntryValue().equals(new Integer(idPropertyEntryValue))) {
+										found = true;
+										break;
+									}
+								}
+							}
+						}
+						if (!found && saveToDB) {
+							sess.delete(av);
+						}
+					}
+					if (saveToDB) {
+						sess.flush();
+					}
+				}
+
+				// Add and update PropertyEntryValues
+				for (Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
+					Element n = (Element) i1.next();
+					if (n.getName().equals("PropertyEntryValue")) {
+						String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
+						String value = n.getAttributeValue("value");
+						PropertyEntryValue av = null;
+						// Ignore 'blank' url value
+						if (value == null || value.equals("") || value.equals("Enter URL here...")) {
+							continue;
+						}
+						if (idPropertyEntryValue == null || idPropertyEntryValue.equals("")) {
+							av = new PropertyEntryValue();
+							av.setIdPropertyEntry(pe.getIdPropertyEntry());
+						} else {
+							av = PropertyEntryValue.class.cast(sess.load(PropertyEntryValue.class, Integer.valueOf(idPropertyEntryValue)));
+						}
+						av.setValue(n.getAttributeValue("value"));
+
+						if ((idPropertyEntryValue == null || idPropertyEntryValue.equals("")) && saveToDB) {
+							sess.save(av);
+						}
+					}
+				}
+				if (saveToDB) {
+					sess.flush();
+				}
+
+				String optionValue = "";
+				TreeSet<PropertyOption> options = new TreeSet<PropertyOption>(new PropertyOptionComparator());
+				for (Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
+					Element n = (Element) i1.next();
+					if (n.getName().equals("PropertyOption")) {
+						Integer idPropertyOption = Integer.parseInt(n.getAttributeValue("idPropertyOption"));
+						String selected = n.getAttributeValue("selected");
+						if (selected != null && selected.equals("Y")) {
+							PropertyOption option = PropertyOption.class.cast(sess.load(PropertyOption.class, idPropertyOption));
+							if (!saveToDB) {
+								// Need to explicitly save if not using hibernate to save to db
+								option.setIdPropertyOption(idPropertyOption);
+							}
+							options.add(option);
+							if (optionValue.length() > 0) {
+								optionValue += ",";
+							}
+							optionValue += option.getOption();
+						}
+					}
+				}
+				pe.setOptions(options);
+				if (options.size() > 0) {
+					pe.setValue(optionValue);
+				}
+				if (saveToDB) {
+					sess.flush();
+				}
+
+				propertyEntries.add(pe);
+			}
+		}
+		return propertyEntries;
+	}
+
+	// Sequenom experiments add a default annotation that doesn't show up in submit but then
+	// shows up in view and edit.
+	private static void addStandardSampleProperties(Session sess, RequestParser requestParser, String idSampleString, Sample sample) {
+		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+		RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
+		Boolean addedProperty = false;
+		if (requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
+			Map sampleAnnotations = (Map) requestParser.getSampleAnnotationMap().get(idSampleString);
+			for (Property prop : dh.getPropertyList()) {
+				if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
+					for (Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
+						PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
+						if (pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
+								&& (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
+							PropertyEntry entry = new PropertyEntry();
+							entry.setIdSample(sample.getIdSample());
+							entry.setIdProperty(prop.getIdProperty());
+							entry.setValue("");
+							sess.save(entry);
+							addedProperty = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (addedProperty) {
+			sess.flush();
+		}
+	}
 
 	public void validate() {
 	}
@@ -1008,7 +1799,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 			throw new GNomExRollbackException(e.getMessage(), true, e.getMessage());
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in SaveRequest ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveRequest ", e);
 
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the request.");
 		}
@@ -1173,108 +1964,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		return status;
 	}
 
-	public static String saveRequest(Session sess, RequestParser requestParser, String description) throws Exception {
-		boolean isImport = false;
-		return saveRequest(sess, requestParser, description, isImport);
-	}
-
-	public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
-
-		Request request = requestParser.getRequest();
-
-		request.setDescription(description);
-		sess.save(request);
-
-		if (requestParser.isNewRequest() && !isImport) {
-			request.setNumber(getNextRequestNumber(requestParser, sess));
-			sess.save(request);
-
-			if (request.getName() == null || request.getName().trim().equals("")) {
-				sess.flush();
-				sess.refresh(request);
-				request.setName(request.getAppUser().getShortName() + "-" + request.getNumber());
-				sess.save(request);
-			}
-		}
-
-		sess.flush();
-
-		return requestParser.getRequest().getNumber();
-	}
-
-	public static String getNextRequestNumber(RequestParser requestParser, Session sess) throws SQLException {
-		String requestNumber = "";
-
-		// do external experiments have their own numbering?
-		String isExternal = requestParser.getRequest().getIsExternal();
-
-		PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-		if (propertyHelper.getProperty(PropertyDictionary.USE_EXTERNAL_EXPERIMENT_NUMBERING) != null
-				&& propertyHelper.getProperty(PropertyDictionary.USE_EXTERNAL_EXPERIMENT_NUMBERING).equals("Y")
-				&& propertyHelper.getProperty(PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE_EXTERNAL) != null
-				&& propertyHelper.getProperty(PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE_EXTERNAL).length() > 0 && isExternal != null
-				&& isExternal.equals("Y")) {
-			String procedure = propertyHelper.getProperty(PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE_EXTERNAL);
-			Connection con = ((SessionImpl) sess).connection();
-
-			String queryString = "";
-			if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
-				queryString = "exec " + procedure;
-			} else {
-				queryString = "select " + procedure + "();";
-			}
-
-			NativeQuery query = sess.createNativeQuery(queryString);
-			List l = query.list();
-			if (l.size() != 0) {
-				Object o = l.get(0);
-				if (o.getClass().equals(String.class)) {
-					requestNumber = (String) o;
-					requestNumber = requestNumber.toUpperCase();
-					if (!requestNumber.endsWith("R")) {
-						requestNumber = requestNumber + "R";
-					}
-				}
-			}
-
-		} else {
-			// See if there is a stored procedure for the core
-			String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(
-					requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(),
-					PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
-			if (procedure != null && procedure.length() > 0) {
-
-				SessionImpl sessionImpl = (SessionImpl) sess;
-				Connection con = sessionImpl.connection();
-
-				String queryString = "";
-				if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
-					queryString = "exec " + procedure;
-				} else {
-					queryString = "select " + procedure + "();";
-				}
-				NativeQuery query = sess.createNativeQuery(queryString);
-				List l = query.list();
-				if (l.size() != 0) {
-					Object o = l.get(0);
-					if (o.getClass().equals(String.class)) {
-						requestNumber = (String) o;
-						requestNumber = requestNumber.toUpperCase();
-						if (!requestNumber.endsWith("R")) {
-							requestNumber = requestNumber + "R";
-						}
-					}
-				}
-			}
-		}
-
-		if (requestNumber.length() == 0) {
-			requestNumber = requestParser.getRequest().getIdRequest().toString() + "R";
-		}
-
-		return requestNumber;
-	}
-
 	private void saveSamples(Session sess) throws Exception {
 		nextSampleNumber = getStartingNextSampleNumber(requestParser);
 
@@ -1401,139 +2090,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			sampleCountOnPlate++;
 		}
 
-	}
-
-	public static Integer saveSample(Session sess, RequestParser requestParser, String idSampleString, Sample sample, Map idSampleMap, Set samples,
-			Set samplesAdded, Map<Integer, Property> propertyMap, Integer nextSampleNumber) throws Exception {
-
-		boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
-
-		nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
-
-		if (requestParser.getSampleAnnotationMap() != null && propertyMap != null) {
-			setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample, (Map) requestParser.getSampleAnnotationMap().get(idSampleString),
-					requestParser.getOtherCharacteristicLabel(), propertyMap);
-			addStandardSampleProperties(sess, requestParser, idSampleString, sample);
-
-			// Delete the existing sample treatments
-			if (!isNewSample && sample.getTreatmentEntries() != null) {
-				for (Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
-					TreatmentEntry entry = (TreatmentEntry) i.next();
-					sess.delete(entry);
-				}
-			}
-
-			// Add treatment
-			String treatment = (String) requestParser.getSampleTreatmentMap().get(idSampleString);
-			if (requestParser.getShowTreatments() && treatment != null && !treatment.equals("")) {
-				TreatmentEntry entry = new TreatmentEntry();
-				entry.setIdSample(sample.getIdSample());
-				entry.setTreatment(treatment);
-				sess.save(entry);
-			}
-		}
-
-		sess.flush();
-
-		idSampleMap.put(idSampleString, sample.getIdSample());
-		samples.add(sample);
-
-		if (isNewSample) {
-			samplesAdded.add(sample);
-		}
-
-		return nextSampleNumber;
-
-	}
-
-	public static Integer initSample(Session sess, Request request, Sample sample, Boolean isNewSample, Integer nextSampleNumber) {
-		sample.setIdRequest(request.getIdRequest());
-		sess.save(sample);
-
-		if (isNewSample) {
-			sample.setNumber(Request.getRequestNumberNoR(request.getNumber()) + "X" + nextSampleNumber);
-			nextSampleNumber++;
-			sess.save(sample);
-		}
-
-		return nextSampleNumber;
-	}
-
-	public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations,
-			String otherCharacteristicLabel, Map<Integer, Property> idToPropertyMap) {
-		setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, otherCharacteristicLabel, null, idToPropertyMap);
-	}
-
-	public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations,
-			String otherCharacteristicLabel, Map propertiesToDelete, Map<Integer, Property> idToPropertyMap) {
-		// Delete the existing sample property entries
-		if (!isNewSample) {
-			for (Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
-				PropertyEntry entry = (PropertyEntry) i.next();
-				if (propertiesToDelete == null || propertiesToDelete.get(entry.getIdProperty()) != null) {
-					for (Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
-						PropertyEntryValue v = (PropertyEntryValue) i1.next();
-						sess.delete(v);
-					}
-					sess.flush();
-					entry.setValues(null);
-					entry.setOptions(null);
-					sess.delete(entry);
-				}
-			}
-		}
-
-		// Create sample property entries and options
-		for (Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext();) {
-
-			Integer idProperty = (Integer) i.next();
-			String value = (String) sampleAnnotations.get(idProperty);
-			if (idProperty == -1) {
-				continue;
-			}
-
-			Property property = idToPropertyMap.get(idProperty);
-
-			PropertyEntry entry = new PropertyEntry();
-			entry.setIdSample(sample.getIdSample());
-			if (property.getName().equals("Other")) {
-				entry.setOtherLabel(otherCharacteristicLabel);
-			}
-			entry.setIdProperty(idProperty);
-			entry.setValue(value);
-			sess.save(entry);
-			sess.flush();
-
-			// If the sample property type is "url", save the options. If it is option or multi option, save the options as well
-			if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
-				String[] valueTokens = value.split("\\|");
-				for (int x = 0; x < valueTokens.length; x++) {
-					String v = valueTokens[x];
-					PropertyEntryValue urlValue = new PropertyEntryValue();
-					urlValue.setValue(v);
-					urlValue.setIdPropertyEntry(entry.getIdPropertyEntry());
-					sess.save(urlValue);
-				}
-			} else if (value != null && !value.equals("")
-					&& (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
-				String[] valueTokens = value.split(",");
-				Set<PropertyOption> entryOptions = new TreeSet<PropertyOption>();
-				for (int x = 0; x < valueTokens.length; x++) {
-					String v = valueTokens[x];
-					for (Iterator j = property.getOptions().iterator(); j.hasNext();) {
-						PropertyOption option = (PropertyOption) j.next();
-						if (option.getOption().equals(v)) {
-							entryOptions.add(option);
-							break;
-						}
-					}
-				}
-				entry.setOptions(entryOptions);
-				sess.save(entry);
-			}
-			sess.flush();
-
-		}
 	}
 
 	private void updatePlates(Session sess, RequestParser requestParser, Sample sample, String idSampleString) {
@@ -2310,382 +2866,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		sess.flush();
 	}
 
-	public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, RequestCategory requestCategory,
-			Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded) throws Exception {
-		return saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, false);
-	}
-
-	public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, RequestCategory requestCategory,
-			Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
-
-		HashMap sampleToLaneMap = new HashMap();
-		HashMap existingLanesSaved = new HashMap();
-		if (!requestParser.getSequenceLaneInfos().isEmpty()) {
-
-			// Hash lanes by sample id
-			for (Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
-				RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i.next();
-
-				List lanes = (List) sampleToLaneMap.get(laneInfo.getIdSampleString());
-				if (lanes == null) {
-					lanes = new ArrayList();
-					sampleToLaneMap.put(laneInfo.getIdSampleString(), lanes);
-				}
-				lanes.add(laneInfo);
-			}
-
-			Date timestamp = new Date(System.currentTimeMillis()); // save the current time here so that the timestamp is the same on every sequence lane in
-			// this batch
-			for (Iterator i = sampleToLaneMap.keySet().iterator(); i.hasNext();) {
-				String idSampleString = (String) i.next();
-				List lanes = (List) sampleToLaneMap.get(idSampleString);
-
-				Integer idSample = (Integer) idSampleMap.get(idSampleString);
-				Sample s = null;
-				if (idSample != null) {
-					s = sess.load(Sample.class, idSample);
-				}
-
-				int lastSampleSeqCount = 0;
-
-				// Figure out next number to assign for a
-				for (Iterator i1 = lanes.iterator(); i1.hasNext();) {
-					RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i1.next();
-					boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null
-							|| laneInfo.getIdSequenceLane().startsWith("SequenceLane");
-					if (!isNewLane) {
-
-						SequenceLane sl = sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
-						boolean seqLaneReassignment = isSeqReassignment(sess, laneInfo, idSampleMap);
-
-						if (!seqLaneReassignment) {
-							lastSampleSeqCount++;
-						}
-
-					}
-				}
-
-				for (Iterator i1 = lanes.iterator(); i1.hasNext();) {
-					RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i1.next();
-					if (idSampleMap.get(laneInfo.getIdSampleString()) == null) {
-						// Looks like sample for this lane is deleted. This will cause lane to get deleted as well.
-						continue;
-					}
-					boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null
-							|| laneInfo.getIdSequenceLane().startsWith("SequenceLane");
-					// If the sample id's don't match up then we had a drag and drop reassignment from one sample to another. We need to adjust the number to
-					// match new sample
-					boolean seqLaneReassignment = false;
-					Integer idSampleReal = null;
-					if (!isNewLane) {
-						SequenceLane sl = sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
-						if (laneInfo.getIdSampleString() != null && !laneInfo.getIdSampleString().equals("") && !laneInfo.getIdSampleString().equals("0")) {
-							idSampleReal = (Integer) idSampleMap.get(laneInfo.getIdSampleString());
-						}
-
-						if (idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())) {
-							seqLaneReassignment = true;
-						}
-					}
-
-					SequenceLane lane = saveSequenceLane(secAdvisor, requestParser, laneInfo, sess, lastSampleSeqCount, timestamp, idSampleMap, sequenceLanes,
-							sequenceLanesAdded, isImport);
-
-					if (!isNewLane) {
-						existingLanesSaved.put(lane.getIdSequenceLane(), lane);
-					}
-
-					// if this is a not a new request, but these is a new sequence lane,
-					// create a work item for the Cluster Gen (Assemble) worklist.
-					// Also ignore this if this is a QC Amend as seqPrep work items were
-					// created above.
-					if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane && s != null
-							&& s.getWorkItems() != null && s.getWorkItems().size() == 0)) {
-						WorkItem workItem = new WorkItem();
-						workItem.setIdRequest(requestParser.getRequest().getIdRequest());
-						workItem.setIdCoreFacility(requestParser.getRequest().getIdCoreFacility());
-						workItem.setSequenceLane(lane);
-						String codeStepNext = "";
-						if (requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
-							codeStepNext = Step.HISEQ_CLUSTER_GEN;
-						} else if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ)) {
-							codeStepNext = Step.MISEQ_CLUSTER_GEN;
-						}
-						workItem.setCodeStepNext(codeStepNext);
-						workItem.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-						sess.save(workItem);
-					}
-
-					if (isNewLane || seqLaneReassignment) {
-						lastSampleSeqCount++;
-					}
-				}
-			}
-
-		}
-		return existingLanesSaved;
-
-	}
-
-	/*
-	 * Helper function to determine if an existing sequence lane had a new sample reassigned to it
-	 */
-	private static boolean isSeqReassignment(Session sess, RequestParser.SequenceLaneInfo laneInfo, Map idSampleMap) {
-		SequenceLane sl = sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
-		Integer idSampleReal = null;
-		if (laneInfo.getIdSampleString() != null && !laneInfo.getIdSampleString().equals("") && !laneInfo.getIdSampleString().equals("0")) {
-			idSampleReal = (Integer) idSampleMap.get(laneInfo.getIdSampleString());
-		}
-
-		if (idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())) {
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	private static SequenceLane saveSequenceLane(SecurityAdvisor secAdvisor, RequestParser requestParser, RequestParser.SequenceLaneInfo sequenceLaneInfo,
-			Session sess, int lastSampleSeqCount, Date theTime, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
-
-		SequenceLane sequenceLane = null;
-		boolean seqLaneReassignment = false;
-		boolean isNewSequenceLane = requestParser.isNewRequest() || sequenceLaneInfo.getIdSequenceLane() == null
-				|| sequenceLaneInfo.getIdSequenceLane().startsWith("SequenceLane");
-
-		if (isNewSequenceLane) {
-			sequenceLane = new SequenceLane();
-			sequenceLane.setIdRequest(requestParser.getRequest().getIdRequest());
-			sequenceLane.setCreateDate(theTime);
-			isNewSequenceLane = true;
-		} else {
-			sequenceLane = sess.load(SequenceLane.class, new Integer(sequenceLaneInfo.getIdSequenceLane()));
-		}
-
-		Integer idSampleReal = null;
-		if (sequenceLaneInfo.getIdSampleString() != null && !sequenceLaneInfo.getIdSampleString().equals("")
-				&& !sequenceLaneInfo.getIdSampleString().equals("0")) {
-			idSampleReal = (Integer) idSampleMap.get(sequenceLaneInfo.getIdSampleString());
-		}
-
-		// If the samples don't line up then we had a drag and drop reassignment. We need to adjust the number to match new sample
-		if (idSampleReal != null && sequenceLane.getIdSample() != null && !idSampleReal.equals(sequenceLane.getIdSample())) {
-			seqLaneReassignment = true;
-		}
-		sequenceLane.setIdSample(idSampleReal);
-
-		sequenceLane.setIdSeqRunType(sequenceLaneInfo.getIdSeqRunType());
-		sequenceLane.setIdNumberSequencingCycles(sequenceLaneInfo.getIdNumberSequencingCycles());
-		sequenceLane.setIdNumberSequencingCyclesAllowed(sequenceLaneInfo.getIdNumberSequencingCyclesAllowed());
-		sequenceLane.setIdGenomeBuildAlignTo(sequenceLaneInfo.getIdGenomeBuildAlignTo());
-		sequenceLane.setAnalysisInstructions(sequenceLaneInfo.getAnalysisInstructions());
-
-		Sample theSample = sess.get(Sample.class, idSampleReal);
-		String seqLaneLetter = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
-		String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", seqLaneLetter);
-
-		if (isNewSequenceLane) {
-			if (isImport) {
-				// Use the sequence lane ID in the XML
-				sequenceLane.setNumber(sequenceLaneInfo.getNumber());
-			} else {
-				// Generate a new sequence lane number
-				sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR)
-						+ (lastSampleSeqCount + 1));
-			}
-			sequenceLanes.add(sequenceLane);
-			sequenceLanesAdded.add(sequenceLane); // used in createBillingItems
-		}
-
-		if (seqLaneReassignment) {
-			sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR)
-					+ (lastSampleSeqCount + 1));
-		}
-
-		sess.save(sequenceLane);
-
-		// Update workflow fields (for flow cell channel)
-		if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
-			if (sequenceLane.getFlowCellChannel() != null) {
-				FlowCellChannel channel = sequenceLane.getFlowCellChannel();
-				channel.setClustersPerTile(sequenceLaneInfo.getClustersPerTile());
-				channel.setNumberSequencingCyclesActual(sequenceLaneInfo.getNumberSequencingCyclesActual());
-				channel.setFileName(sequenceLaneInfo.getFileName());
-
-				if (sequenceLaneInfo.getSeqRunFirstCycleCompleted().equals("Y") && channel.getFirstCycleDate() == null) {
-					channel.setFirstCycleDate(new java.sql.Date(System.currentTimeMillis()));
-				}
-				channel.setFirstCycleFailed(sequenceLaneInfo.getSeqRunFirstCycleFailed());
-
-				if (sequenceLaneInfo.getSeqRunLastCycleCompleted().equals("Y") && channel.getLastCycleDate() == null) {
-					channel.setLastCycleDate(new java.sql.Date(System.currentTimeMillis()));
-				}
-				channel.setLastCycleFailed(sequenceLaneInfo.getSeqRunLastCycleFailed());
-
-				if (sequenceLaneInfo.getSeqRunPipelineCompleted().equals("Y") && channel.getPipelineDate() == null) {
-					channel.setPipelineDate(new java.sql.Date(System.currentTimeMillis()));
-				}
-				channel.setPipelineFailed(sequenceLaneInfo.getSeqRunPipelineFailed());
-
-			}
-		}
-
-		if (sequenceLane.getFlowCellChannel() != null) {
-			FlowCellChannel channel = sequenceLane.getFlowCellChannel();
-			channel.setSampleConcentrationpM(sequenceLaneInfo.getFlowCellChannelSampleConcentrationpM());
-		}
-
-		sess.flush();
-		sess.refresh(sequenceLane);
-		return sequenceLane;
-	}
-
-	public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh,
-			Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes,
-			Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, BillingTemplate billingTemplate,
-			Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
-		createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus,
-				null, billingTemplate, requestPropertiesOnly, comingFromWorkflow);
-	}
-
-	public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh,
-			Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes,
-			Map<String, ArrayList<String>> sampleToAssaysMap, BillingTemplate billingTemplate, Boolean requestPropertiesOnly, Boolean comingFromWorkflow)
-			throws Exception {
-		createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING,
-				null, billingTemplate, requestPropertiesOnly, comingFromWorkflow);
-	}
-
-	public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh,
-			Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes,
-			Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries,
-			BillingTemplate billingTemplate, Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
-
-		// if someone is trying to edit a very old request (i.e, 2014) we could get here with no billing template
-		// if so, just leave
-		if (billingTemplate == null) {
-			return;
-		}
-
-		List billingItems = new ArrayList<BillingItem>();
-		List discountBillingItems = new ArrayList<BillingItem>();
-
-		// Find the appropriate price sheet
-		PriceSheet priceSheet = null;
-		List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
-		for (Iterator i = priceSheets.iterator(); i.hasNext();) {
-			PriceSheet ps = (PriceSheet) i.next();
-			for (Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
-				RequestCategory requestCategory = (RequestCategory) i1.next();
-				if (requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
-					priceSheet = ps;
-					break;
-				}
-
-			}
-		}
-
-		// if (priceSheet == null) {
-		// throw new Exception("Cannot find price sheet to create billing items for added services");
-		// }
-
-		if (priceSheet != null) {
-			for (Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
-				PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory) i1.next();
-				PriceCategory priceCategory = priceCategoryX.getPriceCategory();
-
-				// we want to only create request property billing items AND/OR unit charge billing items for products
-				// at submit when we have a bill during workflow
-				if (requestPropertiesOnly
-						&& (priceCategory.getPluginClassName() != null
-								&& !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin")
-								&& !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin") && !priceCategory
-								.getPluginClassName().equals("hci.gnomex.billing.UnitChargeAppFilterPlugin"))) {
-					continue;
-				}
-
-				// if this is being called from a workflow servlet then skip the creation of request property billing items
-				// because we already created them at submit time.
-				if (comingFromWorkflow
-						&& (priceCategory.getPluginClassName() != null && (priceCategory.getPluginClassName()
-								.equals("hci.gnomex.billing.PropertyPricingPlugin") || priceCategory.getPluginClassName().equals(
-								"hci.gnomex.billing.PropertyPricingNotBySamplePlugin")))) {
-					continue;
-				}
-
-				// Ignore inactive price categories
-				if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {
-					continue;
-				}
-
-				// If a step is provided, ignore price categories that are not available for that step
-				if (codeStepNext != null) {
-					Boolean found = false;
-					for (Step s : (Set<Step>) priceCategory.getSteps()) {
-						if (s.getCodeStep().equals(codeStepNext)) {
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						continue;
-					}
-				}
-
-				// Instantiate plugin for billing category
-				BillingPlugin plugin = null;
-				Boolean isDiscount = false;
-				if (priceCategory.getPluginClassName() != null) {
-					try {
-						plugin = (BillingPlugin) Class.forName(priceCategory.getPluginClassName()).newInstance();
-						if (priceCategory.getPluginClassName().toLowerCase().indexOf("discount") != -1) {
-							isDiscount = true;
-						}
-					} catch (Exception e) {
-						LOG.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
-					}
-
-				}
-
-				// Get the billing items
-				if (plugin != null) {
-					List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples,
-							labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries, billingTemplate);
-					if (isDiscount) {
-						discountBillingItems.addAll(billingItemsForCategory);
-					} else {
-						billingItems.addAll(billingItemsForCategory);
-					}
-				}
-			}
-
-			for (MasterBillingItem masterBillingItem : billingTemplate.getMasterBillingItems()) {
-				sess.save(masterBillingItem);
-				for (BillingItem billingItem : masterBillingItem.getBillingItems()) {
-					billingItem.setIdMasterBillingItem(masterBillingItem.getIdMasterBillingItem());
-				}
-			}
-
-			BigDecimal grandInvoicePrice = new BigDecimal(0);
-			for (Iterator i = billingItems.iterator(); i.hasNext();) {
-				BillingItem bi = (BillingItem) i.next();
-				grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
-				sess.save(bi);
-			}
-			for (Iterator i = discountBillingItems.iterator(); i.hasNext();) {
-				BillingItem bi = (BillingItem) i.next();
-				if (bi.getUnitPrice() != null) {
-					BigDecimal invoicePrice = bi.getUnitPrice().multiply(grandInvoicePrice);
-					bi.setUnitPrice(invoicePrice);
-					bi.setInvoicePrice(invoicePrice);
-					bi.resetInvoiceForBillingItem(sess);
-					sess.save(bi);
-				}
-			}
-
-		}
-	}
-
 	private void sendPrintableReqFormToCore(Session sess) {
 
 		CoreFacility cf = sess.load(CoreFacility.class, requestParser.getRequest().getIdCoreFacility());
@@ -3040,36 +3220,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 	}
 
-	public static Integer getStartingNextSampleNumber(RequestParser requestParser) {
-		Integer nextSampleNumber = 0;
-		for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-			String idSampleString = (String) i.next();
-			Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
-			String numberAsString = sample.getNumber();
-			if (numberAsString != null && numberAsString.length() != 0 && numberAsString.indexOf("X") > 0) {
-				numberAsString = numberAsString.substring(numberAsString.indexOf("X") + 1);
-				try {
-					Integer number = Integer.parseInt(numberAsString);
-					if (number.intValue() > nextSampleNumber.intValue()) {
-						nextSampleNumber = number;
-					}
-				} catch (Exception ex) {
-				}
-			}
-		}
-		return ++nextSampleNumber;
-	}
-
-	public class LabeledSampleComparator implements Comparator, Serializable {
-		public int compare(Object o1, Object o2) {
-			LabeledSample ls1 = (LabeledSample) o1;
-			LabeledSample ls2 = (LabeledSample) o2;
-
-			return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
-
-		}
-	}
-
 	public void deleteDir(File f, String fileName) throws Exception {
 		for (String file : f.list()) {
 			File child = new File(fileName + Constants.FILE_SEPARATOR + file);
@@ -3095,183 +3245,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		return saveRequestProperties(propertiesXML, sess, requestParser, true);
 	}
 
-	public static Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser, boolean saveToDB) throws org.jdom.JDOMException {
-		Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
-		// Delete properties
-		if (propertiesXML != null && !propertiesXML.equals("")) {
-			StringReader reader = new StringReader(propertiesXML);
-			SAXBuilder sax = new SAXBuilder();
-			Document propsDoc = sax.build(reader);
-			if (requestParser.getRequest().getPropertyEntries() != null && saveToDB) {
-				for (Iterator<?> i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext();) {
-					PropertyEntry pe = PropertyEntry.class.cast(i.next());
-					boolean found = false;
-					for (Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
-						Element propNode = (Element) i1.next();
-						String idPropertyEntry = propNode.getAttributeValue("idPropertyEntry");
-						if (idPropertyEntry != null && !idPropertyEntry.equals("")) {
-							if (pe.getIdPropertyEntry().equals(new Integer(idPropertyEntry))) {
-								found = true;
-								break;
-							}
-						}
-					}
-					if (!found) {
-						// delete property values
-						for (Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
-							PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
-							sess.delete(av);
-						}
-						sess.flush();
-						pe.setValues(null);
-						sess.save(pe);
-						sess.flush();
-						// delete property
-						sess.delete(pe);
-					}
-				}
-				sess.flush();
-			}
+	public class LabeledSampleComparator implements Comparator, Serializable {
+		public int compare(Object o1, Object o2) {
+			LabeledSample ls1 = (LabeledSample) o1;
+			LabeledSample ls2 = (LabeledSample) o2;
 
-			// Add properties
-			for (Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-				Element node = (Element) i.next();
-				// Adding dataTracks
-				String idPropertyEntry = node.getAttributeValue("idPropertyEntry");
+			return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
 
-				PropertyEntry pe = null;
-				if (idPropertyEntry == null || idPropertyEntry.equals("")) {
-					pe = new PropertyEntry();
-				} else {
-					pe = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry)));
-				}
-				pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
-				pe.setValue(node.getAttributeValue("value"));
-				pe.setIdRequest(requestParser.getRequest().getIdRequest());
-
-				if ((idPropertyEntry == null || idPropertyEntry.equals("")) && saveToDB) {
-					sess.save(pe);
-					sess.flush();
-				}
-
-				// Remove PropertyEntryValues
-				if (pe.getValues() != null) {
-					for (Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
-						PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
-						boolean found = false;
-						for (Iterator<?> i2 = node.getChildren().iterator(); i2.hasNext();) {
-							Element n = (Element) i2.next();
-							if (n.getName().equals("PropertyEntryValue")) {
-								String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
-								if (idPropertyEntryValue != null && !idPropertyEntryValue.equals("")) {
-									if (av.getIdPropertyEntryValue().equals(new Integer(idPropertyEntryValue))) {
-										found = true;
-										break;
-									}
-								}
-							}
-						}
-						if (!found && saveToDB) {
-							sess.delete(av);
-						}
-					}
-					if (saveToDB) {
-						sess.flush();
-					}
-				}
-
-				// Add and update PropertyEntryValues
-				for (Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
-					Element n = (Element) i1.next();
-					if (n.getName().equals("PropertyEntryValue")) {
-						String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
-						String value = n.getAttributeValue("value");
-						PropertyEntryValue av = null;
-						// Ignore 'blank' url value
-						if (value == null || value.equals("") || value.equals("Enter URL here...")) {
-							continue;
-						}
-						if (idPropertyEntryValue == null || idPropertyEntryValue.equals("")) {
-							av = new PropertyEntryValue();
-							av.setIdPropertyEntry(pe.getIdPropertyEntry());
-						} else {
-							av = PropertyEntryValue.class.cast(sess.load(PropertyEntryValue.class, Integer.valueOf(idPropertyEntryValue)));
-						}
-						av.setValue(n.getAttributeValue("value"));
-
-						if ((idPropertyEntryValue == null || idPropertyEntryValue.equals("")) && saveToDB) {
-							sess.save(av);
-						}
-					}
-				}
-				if (saveToDB) {
-					sess.flush();
-				}
-
-				String optionValue = "";
-				TreeSet<PropertyOption> options = new TreeSet<PropertyOption>(new PropertyOptionComparator());
-				for (Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
-					Element n = (Element) i1.next();
-					if (n.getName().equals("PropertyOption")) {
-						Integer idPropertyOption = Integer.parseInt(n.getAttributeValue("idPropertyOption"));
-						String selected = n.getAttributeValue("selected");
-						if (selected != null && selected.equals("Y")) {
-							PropertyOption option = PropertyOption.class.cast(sess.load(PropertyOption.class, idPropertyOption));
-							if (!saveToDB) {
-								// Need to explicitly save if not using hibernate to save to db
-								option.setIdPropertyOption(idPropertyOption);
-							}
-							options.add(option);
-							if (optionValue.length() > 0) {
-								optionValue += ",";
-							}
-							optionValue += option.getOption();
-						}
-					}
-				}
-				pe.setOptions(options);
-				if (options.size() > 0) {
-					pe.setValue(optionValue);
-				}
-				if (saveToDB) {
-					sess.flush();
-				}
-
-				propertyEntries.add(pe);
-			}
-		}
-		return propertyEntries;
-	}
-
-	// Sequenom experiments add a default annotation that doesn't show up in submit but then
-	// shows up in view and edit.
-	private static void addStandardSampleProperties(Session sess, RequestParser requestParser, String idSampleString, Sample sample) {
-		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-		RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
-		Boolean addedProperty = false;
-		if (requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
-			Map sampleAnnotations = (Map) requestParser.getSampleAnnotationMap().get(idSampleString);
-			for (Property prop : dh.getPropertyList()) {
-				if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
-					for (Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
-						PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
-						if (pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
-								&& (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
-							PropertyEntry entry = new PropertyEntry();
-							entry.setIdSample(sample.getIdSample());
-							entry.setIdProperty(prop.getIdProperty());
-							entry.setValue("");
-							sess.save(entry);
-							addedProperty = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-
-		if (addedProperty) {
-			sess.flush();
 		}
 	}
 }

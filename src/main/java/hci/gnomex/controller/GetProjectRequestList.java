@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Lab;
@@ -52,7 +52,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
   private int                  experimentCount = 0;
   private String               message = "";
-  
+
   private static final int     DEFAULT_MAX_REQUESTS_COUNT = 100;
 
 
@@ -124,7 +124,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
         //        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
         //        	filter.setIsForExternalDataSharingSite(true);
-        //        }   
+        //        }
 
 
         String message = "";
@@ -176,8 +176,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
             // skip request due to bstx security.
             continue;
           }
-          Integer idLab     = row[11]== null ? new Integer(-2) : (Integer)row[11];    
-          String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
+          Integer idLab     = row[11]== null ? new Integer(-2) : (Integer)row[11];
+          String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];
           String  codeApplication     = row[16]== null ? "" : (String)row[16];
           StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
 
@@ -200,20 +200,20 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           if (idLab.intValue() != prevIdLab.intValue()) {
             // Keep track of which of users labs are in results set
             if (showMyLabsAlways.equals("Y")) {
-              myLabMap.remove(idLab);            
+              myLabMap.remove(idLab);
             }
             addLabNode(row);
             addProjectNode(row);
             if (idRequest.intValue() != -2) {
               addRequestCategoryNode(row);
-              addRequestNode(row, analysisNames, dictionaryHelper, sess);                   
-              addSampleNode(row);            
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);
+              addSampleNode(row);
             }
           } else if (idProject.intValue() != prevIdProject.intValue()) {
             addProjectNode(row);
             if (idRequest.intValue() != -2) {
               addRequestCategoryNode(row);
-              addRequestNode(row, analysisNames, dictionaryHelper, sess);          
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);
               addSampleNode(row);
             }
           } else if (filter.getShowCategory().equals("Y") &&
@@ -221,12 +221,12 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
               !codeApplication.equals(prevCodeApplication)) {
             if (idRequest.intValue() != -2) {
               addRequestCategoryNode(row);
-              addRequestNode(row, analysisNames, dictionaryHelper, sess);          
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);
               addSampleNode(row);
             }
           } else if (idRequest.intValue() != prevIdRequest.intValue()) {
             if (idRequest.intValue() != -2) {
-              addRequestNode(row, analysisNames, dictionaryHelper, sess);          
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);
               addSampleNode(row);
             }
           } else {
@@ -257,7 +257,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         }
 
         rootNode.setAttribute("experimentCount", Integer.valueOf(experimentCount).toString());
-        message = experimentCount == maxExperiments ? "First " + maxExperiments + " displayed" : ""; 
+        message = experimentCount == maxExperiments ? "First " + maxExperiments + " displayed" : "";
         rootNode.setAttribute("message", message);
 
       }
@@ -275,14 +275,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e) {
-      LOG.error("An exception has occurred in GetRequestList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequestList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;
@@ -297,7 +291,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       }
       catch(NumberFormatException e) {
         LOG.error("Error in GetProjectRequestList", e);
-      }    
+      }
     }
     return maxExperiments;
   }
@@ -359,7 +353,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
     String codeRequestCategory =  row[15] == null ? "" : ((String)row[15]).toString();
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
-    
+
     boolean hasMultipleAccounts = false;
     boolean canOpenNewBillingTemplate = false;
     Request request = null;
@@ -424,16 +418,16 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       displayName.append(requestNode.getAttributeValue("requestNumber"));
       if (requestNode.getAttributeValue("name") != null && !requestNode.getAttributeValue("name").equals("")) {
         displayName.append(" - ");
-        displayName.append(requestNode.getAttributeValue("name"));                
-      }      
+        displayName.append(requestNode.getAttributeValue("name"));
+      }
       displayName.append(" - ");
-      displayName.append(requestNode.getAttributeValue("slideProductName"));      
+      displayName.append(requestNode.getAttributeValue("slideProductName"));
       displayName.append(" - ");
       displayName.append(requestNode.getAttributeValue("ownerFirstName"));
       displayName.append(" ");
       displayName.append(requestNode.getAttributeValue("ownerLastName"));
       displayName.append(" ");
-      displayName.append(requestNode.getAttributeValue("requestCreateDateDisplayMedium"));      
+      displayName.append(requestNode.getAttributeValue("requestCreateDateDisplayMedium"));
 
       requestNode.setAttribute("displayName", displayName.toString());
       requestNode.setAttribute("label",       displayName.toString());
@@ -443,18 +437,18 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       displayName.append(requestNode.getAttributeValue("requestNumber"));
       if (requestNode.getAttributeValue("name") != null && !requestNode.getAttributeValue("name").equals("")) {
         displayName.append(" - ");
-        displayName.append(requestNode.getAttributeValue("name"));                
+        displayName.append(requestNode.getAttributeValue("name"));
       }
       if (requestNode.getAttributeValue("codeApplication") != null && !requestNode.getAttributeValue("codeApplication").equals("")) {
         displayName.append(" - ");
-        displayName.append(dictionaryHelper.getApplication(requestNode.getAttributeValue("codeApplication")));                
+        displayName.append(dictionaryHelper.getApplication(requestNode.getAttributeValue("codeApplication")));
       }
       displayName.append(" - ");
       displayName.append(requestNode.getAttributeValue("ownerFirstName"));
       displayName.append(" ");
       displayName.append(requestNode.getAttributeValue("ownerLastName"));
       displayName.append(" ");
-      displayName.append(requestNode.getAttributeValue("requestCreateDateDisplayMedium"));      
+      displayName.append(requestNode.getAttributeValue("requestCreateDateDisplayMedium"));
 
       requestNode.setAttribute("displayName", displayName.toString());
       requestNode.setAttribute("label",       displayName.toString());
@@ -462,7 +456,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     }
 
     if (filter.getShowCategory().equals("Y")) {
-      requestCatNode.addContent(requestNode);         
+      requestCatNode.addContent(requestNode);
     } else {
       projectNode.addContent(requestNode);
     }
@@ -475,7 +469,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       n.setAttribute("label",                row[7] == null ? ""  : (String)row[7]);
       n.setAttribute("idSampleType",         row[8] == null ? ""  : ((Integer)row[8]).toString());
       n.setAttribute("idSample",             row[10] == null ? "" : ((Integer)row[10]).toString());
-      requestNode.addContent(n);      
+      requestNode.addContent(n);
     }
   }
 }

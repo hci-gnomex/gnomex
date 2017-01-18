@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
@@ -21,17 +21,17 @@ import org.jdom.Element;
 import org.apache.log4j.Logger;
 
 public class GetAccountFieldsConfiguration extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(GetAccountFieldsConfiguration.class);
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -49,7 +49,7 @@ public class GetAccountFieldsConfiguration extends GNomExCommand implements Seri
       OtherAccountFieldsConfiguration.reloadConfigurations(sess);
 
       Document doc = new Document(new Element("AccountFieldsConfiguration"));
-      
+
       Element internalNode = new Element("InternalAccountFieldsConfigurationList");
       List<InternalAccountFieldsConfiguration> internalFields = InternalAccountFieldsConfiguration.getConfiguration(sess);
       for(InternalAccountFieldsConfiguration conf:internalFields) {
@@ -57,7 +57,7 @@ public class GetAccountFieldsConfiguration extends GNomExCommand implements Seri
         internalNode.addContent(node);
       }
       doc.getRootElement().addContent(internalNode);
-      
+
       Element otherNode = new Element("OtherAccountFieldsConfigurationList");
       List<OtherAccountFieldsConfiguration> otherFields = OtherAccountFieldsConfiguration.getConfiguration(sess);
       for(OtherAccountFieldsConfiguration conf:otherFields) {
@@ -71,22 +71,15 @@ public class GetAccountFieldsConfiguration extends GNomExCommand implements Seri
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetOrganismList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetOrganismList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetOrganismList ", e);
-      }
     }
-
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
 

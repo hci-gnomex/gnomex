@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestProgressFilter;
@@ -26,87 +26,87 @@ import org.jdom.output.XMLOutputter;
 
 import org.apache.log4j.Logger;
 public class GetRequestProgressList extends GNomExCommand implements Serializable {
-  
+
   private static Logger LOG = Logger.getLogger(GetRequestProgressList.class);
-  
+
   private RequestProgressFilter filter;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new RequestProgressFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
-    
-    
+
+
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !filter.hasCriteria()) {
       this.addInvalidField("filterRequired", "Please enter at least one search criterion");
     }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-      
-   
+
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-      
+
       StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor(), dictionaryHelper);
       LOG.info(buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybSampleComparator());
       for(Iterator i = rows1.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String requestNumber = (String)row[1];
         String hybNumber     = row[5] == null || row[5].equals("") ? "" : (String)row[5];
         String key = requestNumber + "," + hybNumber + ",0";
-        
+
         rowMap.put(key, row);
       }
-      
+
       buf = filter.getQualityControlQuery(this.getSecAdvisor(), dictionaryHelper);
       LOG.info(buf.toString());
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
-        
+
         String requestNumber = (String)row[1];
         String sampleNumber     = row[11] == null || row[11].equals("") ? "" : (String)row[11];
         String key = requestNumber + ",0," + sampleNumber;
-        
+
         rowMap.put(key, row);
       }
-      
+
       boolean alt = false;
       String prevRequestNumber = "";
-      
-      
-    
+
+
+
       Document doc = new Document(new Element("RequestProgressList"));
       for(Iterator i = rowMap.keySet().iterator(); i.hasNext();) {
         String key = (String)i.next();
         Object[] row = (Object[])rowMap.get(key);
-        
+
         String requestNumber = (String)row[1];
         if (!requestNumber.equals(prevRequestNumber)) {
           alt = !alt;
         }
-        
-    
+
+
         String codeRequestCategory = row[2] == null ? "" : (String)row[2];
         RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
-          
-          
-        
+
+
+
         Element n = new Element("RequestProgress");
         n.setAttribute("key", key);
         n.setAttribute("isSelected", "N");
         n.setAttribute("altColor", new Boolean(alt).toString());
-        n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");        
+        n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");
         n.setAttribute("idRequest", row[19].toString());
         n.setAttribute("createDate", this.formatDate((java.util.Date)row[0]));
         n.setAttribute("requestNumber", (String)row[1]);
@@ -131,40 +131,34 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
         n.setAttribute("hasResults", row[18] == null ? "" : (String)row[18]);
         n.setAttribute("ownerFirstName", row[20] == null ? "" : (String)row[20]);
         n.setAttribute("ownerLastName", row[21] == null ? "" : (String)row[21]);
-        
+
         String appUserName = "";
         if (row[21] != null) {
           appUserName = (String)row[21];
         }
         if (row[20] != null) {
           if (appUserName.length() > 0) {
-            appUserName += ", ";            
+            appUserName += ", ";
           }
           appUserName += (String)row[20];
         }
         n.setAttribute("appUserName", appUserName);
 
         doc.getRootElement().addContent(n);
-        
+
         prevRequestNumber = requestNumber;
-        
+
       }
-    
+
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
-    
+
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetRequestProgressList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetRequestProgressList ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
 
@@ -173,51 +167,51 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
       String key1 = (String)o1;
       String key2 = (String)o2;
 
-      
-      
+
+
       String[] tokens1 = key1.split(",");
       String[] tokens2 = key2.split(",");
-      
+
       String reqNumber1    = tokens1[0];
       String hybNumber1    = tokens1[1];
       String itemNumber1   = tokens1[2];
-      
+
       String reqNumber2    = tokens2[0];
       String hybNumber2    = tokens2[1];
       String itemNumber2   = tokens2[2];
-      
+
       String number1 = null;
-      
+
       if (hybNumber1.equals("0")) {
         String[] itemNumberTokens1 = itemNumber1.split("X");
-        number1 = itemNumberTokens1[itemNumberTokens1.length - 1];        
+        number1 = itemNumberTokens1[itemNumberTokens1.length - 1];
       } else {
         String[] hybNumberTokens1 = hybNumber1.split("E");
-        number1 = hybNumberTokens1[hybNumberTokens1.length - 1];        
+        number1 = hybNumberTokens1[hybNumberTokens1.length - 1];
       }
-      
-      
+
+
       String number2 = null;
-      
-      
+
+
       if (hybNumber2.equals("0")) {
         String[] itemNumberTokens2 = itemNumber2.split("X");
-        number2 = itemNumberTokens2[itemNumberTokens2.length - 1];        
+        number2 = itemNumberTokens2[itemNumberTokens2.length - 1];
       } else {
         String[] hybNumberTokens2 = hybNumber2.split("E");
-        number2 = hybNumberTokens2[hybNumberTokens2.length - 1];        
+        number2 = hybNumberTokens2[hybNumberTokens2.length - 1];
       }
 
 
 
       if (reqNumber1.equals(reqNumber2)) {
-        return new Integer(number1).compareTo(new Integer(number2));        
+        return new Integer(number1).compareTo(new Integer(number2));
       } else {
         return reqNumber1.compareTo(reqNumber2);
       }
-      
+
     }
   }
-  
-  
+
+
 }

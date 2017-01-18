@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.Product;

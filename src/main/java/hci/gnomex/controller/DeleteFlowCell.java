@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
@@ -44,7 +44,7 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
 	private String						launchAppURL;
 	private String            lastCycleDateStr;
 	private String            numberSequencingCyclesActualStr;
-	
+
 	public void validate() {}
 
   public void loadCommand(HttpServletRequest request, HttpSession session)
@@ -63,7 +63,7 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
     	     FlowCell flowCell = null;
              flowCell = (FlowCell) sess.get(FlowCell.class, fc.getIdFlowCell());
              //initializeFlowCell(flowCell);
-             
+
              for(Iterator i1 = flowCell.getFlowCellChannels().iterator(); i1.hasNext();) {
                  FlowCellChannel channel = (FlowCellChannel)i1.next();
                  // Move all SequenceLanes in this FlowCellChannel back to HSEQASSEM
@@ -82,7 +82,7 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
 						wi.setCodeStepNext("MISEQASSEM");
 					} else {
 						throw new RollBackCommandException();
-					}					
+					}
 					sess.save(wi);
 					sess.flush();
                  }
@@ -113,18 +113,9 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
 
     }
     catch (Exception e) {
-      LOG.error("An exception has occurred in SaveFlowCell ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveFlowCell ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    }
-    finally {
-      try {
-        //closeHibernateSession;
-      } 
-      catch (Exception e) {
-          LOG.error("An exception has occurred in SaveFlowCell ", e);
-
-      }
     }
     return this;
   }

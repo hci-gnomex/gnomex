@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.billing.BillingPlugin;
@@ -60,9 +60,9 @@ import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
 public class CreateBillingItems extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(CreateBillingItems.class);
 
@@ -77,13 +77,13 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
       idRequest = new Integer(request.getParameter("idRequest"));
     }
-    
+
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
       this.requestXMLString = this.requestXMLString.replaceAll("&", "&amp;");
@@ -97,7 +97,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         this.addInvalidField( "RequestXMLString", "Invalid request xml");
       }
     }
-    
+
     if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
       propertiesXML = request.getParameter("propertiesXML");
     }
@@ -177,7 +177,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         hybs = request.getHybridizations();
         lanes = request.getSequenceLanes();
         Hibernate.initialize(request.getAppUser());
-        
+
       } else {
         requestParser.parse(sess);
         request = requestParser.getRequest();
@@ -203,7 +203,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           request.setNumber("");
         }
 
-        
+
         // Plugin assumes lab is initialized on request
         if (request.getIdLab() != null) {
           request.setLab((Lab)sess.load(Lab.class, request.getIdLab()));
@@ -214,7 +214,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         	AppUser au = (AppUser)sess.load(AppUser.class,  request.getIdAppUser());
             request.setAppUser(au);
         }
-        
+
 
 
         // Plugin assumes slide product initialized on request
@@ -306,7 +306,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
           RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
           SequenceLane lane = new SequenceLane();
-          
+
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
 
           if (isNewLane) {
@@ -330,7 +330,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       Set propertyEntries = SaveRequest.saveRequestProperties( propertiesXML, sess, requestParser, false );
 
       List discountBillingItems = new ArrayList<BillingItem>();
-      
+
       // Find the appropriate price sheet
       PriceSheet priceSheet = null;
       List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
@@ -371,7 +371,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
             } catch(Exception e) {
               LOG.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
             }
-            
+
           }
 
           // Get the billing items
@@ -386,7 +386,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         }
 
       }
-      
+
 
       Document doc = new Document(new Element("NewBilling"));
 
@@ -477,7 +477,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         	  exceedsBillingAccountBalance = account.getTotalDollarAmountRemaining() != null && account.getTotalDollarAmountRemaining().doubleValue() < 0;
           }
       }
-      
+
       requestNode.setAttribute("invoicePrice", NumberFormat.getCurrencyInstance().format(grandInvoicePrice.doubleValue()));
       requestNode.setAttribute("exceedsBillingAccountBalance", exceedsBillingAccountBalance ? "Y" : "N");
 
@@ -490,16 +490,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       sess.clear();
 
     }catch (Exception e) {
-      LOG.error("An exception has occurred in CreateBillingItems ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in CreateBillingItems ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in CreateBillingItems ", e);
-      }
     }
-
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -527,7 +520,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         if (idPropertyEntry == null || idPropertyEntry.equals("")) {
           pe = new PropertyEntry();
         } else {
-          pe  = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry))); 
+          pe  = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry)));
         }
         pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
         pe.setValue(node.getAttributeValue("value"));
@@ -538,13 +531,13 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     }
     return propertyEntries;
   }
-  
+
   public class SampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       Sample s1 = (Sample)o1;
       Sample s2 = (Sample)o2;
       return s1.getIdSample().compareTo(s2.getIdSample());
-      
+
     }
   }
   public class LabeledSampleComparator implements Comparator, Serializable {
@@ -552,7 +545,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       LabeledSample ls1 = (LabeledSample)o1;
       LabeledSample ls2 = (LabeledSample)o2;
       return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
-      
+
     }
   }
   public class HybComparator implements Comparator, Serializable {
@@ -560,7 +553,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       Hybridization h1 = (Hybridization)o1;
       Hybridization h2 = (Hybridization)o2;
       return h1.getIdHybridization().compareTo(h2.getIdHybridization());
-      
+
     }
   }
   public class LaneComparator implements Comparator, Serializable {
@@ -568,7 +561,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       SequenceLane l1 = (SequenceLane)o1;
       SequenceLane l2 = (SequenceLane)o2;
       return l1.getIdSequenceLane().compareTo(l2.getIdSequenceLane());
-      
+
     }
   }
 }

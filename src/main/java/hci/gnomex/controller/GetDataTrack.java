@@ -1,6 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
+import hci.framework.control.Command;import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisExperimentItem;
@@ -44,7 +44,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
-      idDataTrack = new Integer(request.getParameter("idDataTrack"));   
+      idDataTrack = new Integer(request.getParameter("idDataTrack"));
     } else if ( request.getParameter( "dataTrackNumber" ) != null && !request.getParameter("dataTrackNumber").equals("")) {
       dataTrackNumber = request.getParameter( "dataTrackNumber" );
     } else {
@@ -87,16 +87,9 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in GetDataTrack ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetDataTrack ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetDataTrack ", e);
-      }
     }
-
     return this;
   }
 
@@ -106,7 +99,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     StringBuffer buf = new StringBuffer("SELECT dt from DataTrack as dt where dt.fileName = '" + dataTrackNumber.toUpperCase() + "'");
     List datatracks = sess.createQuery(buf.toString()).list();
     if (datatracks.size() > 0) {
-      dt = (DataTrack)datatracks.get(0);      
+      dt = (DataTrack)datatracks.get(0);
     }
     return dt;
   }
@@ -121,8 +114,8 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
     node.addContent(relatedNode);
 
     // Hash analysis and experiments
-    TreeMap<Integer, Analysis> analysisMap = new TreeMap<Integer, Analysis>();  
-    TreeMap<Integer, TreeMap<Integer, Request>> analysisToRequestMap = new TreeMap<Integer, TreeMap<Integer, Request>>();  
+    TreeMap<Integer, Analysis> analysisMap = new TreeMap<Integer, Analysis>();
+    TreeMap<Integer, TreeMap<Integer, Request>> analysisToRequestMap = new TreeMap<Integer, TreeMap<Integer, Request>>();
     for (DataTrackFile dtFile : (Set<DataTrackFile>)dataTrack.getDataTrackFiles()) {
 
       Analysis a = dtFile.getAnalysisFile().getAnalysis();
@@ -141,7 +134,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
         } else if( x.getHybridization() != null) {
           request = x.getHybridization().getLabeledSampleChannel1().getRequest();
         }
-        
+
         // request will be null if AnalysisExperimentItem contains rows with only idSample present
         if (request != null) {
         	requestMap.put(request.getIdRequest(), request);
@@ -163,7 +156,7 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       }
     }
 
-    // Append the parent topics (and the contents of the topic) XML 
+    // Append the parent topics (and the contents of the topic) XML
     Element relatedTopicNode = new Element("relatedTopics");
     relatedTopicNode.setAttribute("label", "Related Topics");
     node.addContent(relatedTopicNode);
