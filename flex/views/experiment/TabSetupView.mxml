@@ -1406,6 +1406,12 @@
 
 			splitWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
 			splitWindow.performSetup(true, this, getIdCoreFacility());
+			if (selectedBillingTemplate != null) {
+				splitWindow.loadBillingTemplate(new XML(selectedBillingTemplate));
+			}
+			if (labCombo.selectedItem != null && billingAccountCombo.selectedItem != null) {
+				splitWindow.loadBillingTemplateFromLabAndBillingAccount(new XML(labCombo.selectedItem), new XML(billingAccountCombo.selectedItem));
+			}
 			mx.managers.PopUpManager.centerPopUp(splitWindow);
 			splitWindow.setFocus();
 			splitWindow.addEventListener("billingTemplateWindowSave", refreshTemplateItems);
