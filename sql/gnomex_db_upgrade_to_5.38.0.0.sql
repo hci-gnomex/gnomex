@@ -11,7 +11,7 @@ CREATE TABLE PipelineProtocol (
   description LONGTEXT NULL,
   idCoreFacility INT(10) NOT NULL,
   protocol VARCHAR(50) NOT NULL,
-  isDefault VARCHAR(1) NOT NULL DEFAULT ('N'),
+  isDefault VARCHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (idPipelineProtocol),
   CONSTRAINT FK_PipelineProtocol_CoreFacility FOREIGN KEY FK_PipelineProtocol_CoreFacility (idCoreFacility)
     REFERENCES gnomex.CoreFacility (idCoreFacility)

@@ -1170,7 +1170,7 @@ CREATE TABLE gnomex.FlowCellChannel (
   CONSTRAINT FK_FlowCellChannel_SequenceLane FOREIGN KEY FK_FlowCellChannel_SequenceLane (idSequenceLane)
     REFERENCES gnomex.SequenceLane (idSequenceLane)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
   CONSTRAINT FK_FlowCellChannel_PipelineProtocol FOREIGN KEY FK_FlowCellChannel_PipelineProtocol (idPipelineProtocol)
     REFERENCES gnomex.PipelineProtocol (idPipelineProtocol)
     ON DELETE NO ACTION
@@ -1670,7 +1670,7 @@ CREATE TABLE gnomex.PipelineProtocol (
   description LONGTEXT NULL,
   idCoreFacility INT(10) NOT NULL,
   protocol VARCHAR(50) NOT NULL,
-  isDefault VARCHAR(1) NOT NULL DEFAULT ('N'),
+  isDefault VARCHAR(1) NOT NULL DEFAULT 'N',
   PRIMARY KEY (idPipelineProtocol),
   CONSTRAINT FK_PipelineProtocol_CoreFacility FOREIGN KEY FK_PipelineProtocol_CoreFacility (idCoreFacility)
     REFERENCES gnomex.CoreFacility (idCoreFacility)
