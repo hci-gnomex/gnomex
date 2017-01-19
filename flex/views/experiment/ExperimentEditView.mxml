@@ -4941,6 +4941,9 @@
                 }
             }
 
+            // Disable properties view when adding sequence lanes
+            this.theTab.getTabAt(theTab.getChildIndex(propertiesView)).visible = false;
+            this.theTab.getTabAt(theTab.getChildIndex(propertiesView)).includeInLayout = false;
 
             if (currentState == "SolexaBaseAmendState") {
                 sampleSetupView.enabled = isComplete;
@@ -5006,15 +5009,6 @@
 
             if (theTab.contains(this.annotationView)) {
                 this.propertyEntries.refresh();
-            }
-
-            this.requestProperties.refresh();
-            if (this.requestProperties.length < 1) {
-                this.theTab.getTabAt(theTab.getChildIndex(propertiesView)).visible = false;
-                this.theTab.getTabAt(theTab.getChildIndex(propertiesView)).includeInLayout = false;
-            } else {
-                this.theTab.getTabAt(theTab.getChildIndex(propertiesView)).visible = true;
-                this.theTab.getTabAt(theTab.getChildIndex(propertiesView)).includeInLayout = true;
             }
         }
 
