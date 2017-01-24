@@ -221,7 +221,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 			String errorMessage = (String) request.getAttribute("errorDetails");
 //			String errorMessage = "*** This should be the traceback ***";
 
-			sendErrorReport(HibernateSession.currentSession(),"Tim.Maness@hci.utah.edu", "DoNotReply@hci.utah.edu", serverName, errorMessage, requestDump);
+			sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", serverName, errorMessage, requestDump);
 
 
 			HibernateSession.rollback();
@@ -394,7 +394,7 @@ private void sendRedirect(HttpServletResponse response, String url) {
 
 				MailUtilHelper helper = new MailUtilHelper(softwareTestEmail, null, null, fromAddress,
 						"GNomEx Runtime Error [Server: " + localMachine.getHostName() + "]", errorMessageString, null,
-						false, DictionaryHelper.getInstance(sess), serverName, true, "Tim.Maness@hci.utah.edu");
+						false, DictionaryHelper.getInstance(sess), serverName, true, softwareTestEmail);
 				MailUtil.validateAndSendEmail(helper);
 
 			}
