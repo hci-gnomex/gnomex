@@ -264,7 +264,7 @@ private void appendProductCount(Element labNode, List productQuantities) {
 }
 
 	private void appendPossibleCollaborators(Element labNode, Lab theLab) throws Exception {
-		// Show all the members, collaborators, and mgr under this lab
+		// Show all the members and collaborators
 		// if the user can submit requests
 		Element possibleCollaboratorsNode = new Element("possibleCollaborators");
 		labNode.addContent(possibleCollaboratorsNode);
@@ -278,10 +278,6 @@ private void appendProductCount(Element labNode, List productQuantities) {
 			AppUser u = (AppUser) i2.next();
 			appUsers.put(u.getDisplayName(), u);
 		}
-		for (Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
-			AppUser u = (AppUser) i2.next();
-			appUsers.put(u.getDisplayName(), u);
-		}
 		for (Iterator i2 = appUsers.keySet().iterator(); i2.hasNext();) {
 			String key = (String) i2.next();
 			AppUser user = (AppUser) appUsers.get(key);
@@ -292,17 +288,13 @@ private void appendProductCount(Element labNode, List productQuantities) {
 	}
 
 	private void appendMembersCollaborators(Element labNode, Lab theLab) throws Exception {
-		// Show all the collaborators, and mgr under this lab
+		// Show all the collaborators
 		// if the user can submit requests
 		Element membersCollaboratorsNode = new Element("membersCollaborators");
 		labNode.addContent(membersCollaboratorsNode);
 
 		TreeMap appUsers = new TreeMap();
 		for (Iterator i2 = theLab.getCollaborators().iterator(); i2.hasNext();) {
-			AppUser u = (AppUser) i2.next();
-			appUsers.put(u.getDisplayName(), u);
-		}
-		for (Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
 			AppUser u = (AppUser) i2.next();
 			appUsers.put(u.getDisplayName(), u);
 		}
