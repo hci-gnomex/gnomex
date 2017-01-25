@@ -32,8 +32,7 @@
 				params.idBillingAccount= labNode.@idBillingAccount;
 				params.idCoreFacility= idCoreFacility;
 				params.emailAddress = this.emailText.text;
-				params.includeBillingAccountContact = this.includeBillingAccountContact.selected ? "Y" : "N";
-				
+
 				sendBillingInvoiceEmail.send(params);
 			}
 			
@@ -79,7 +78,6 @@
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="emailVBox">
 			<mx:Label text="Email Address(es)"/>
 			<mx:TextArea id="emailText" width="100%" height="60" fontSize="11" keyUp="checkEmailValidity(event)"/>
-			<mx:CheckBox id="includeBillingAccountContact" selected="true" label="If the billing account belongs to a different lab, include that lab's billing contact automatically?" fontSize="9" />
 			<mx:Label text="*Please separate multiple email addresses with a comma" fontSize="9"/>
 		</mx:VBox>
 	</mx:HBox>
