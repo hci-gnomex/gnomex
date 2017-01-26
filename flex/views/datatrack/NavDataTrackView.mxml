@@ -1884,8 +1884,16 @@
 						 paddingRight="2" paddingLeft="2">
 					<mx:VBox verticalGap="0">
 						<mx:HBox horizontalGap="2">
-							<mx:ComboBox labelField="@binomialName" id="organismCombo" change="filteredGenomeBuildList.refresh();refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170"
-								dataProvider="{parentApplication.das2OrganismList}"/>
+							<renderers:FilterComboBox
+									id="organismCombo"
+									dataProvider="{parentApplication.das2OrganismList}"
+									prompt="Organism..."
+									labelField="@binomialName"
+									close="{refreshDataTracks()}"
+									styleName="menuLabelSmall"
+									width="170"
+									change="filteredGenomeBuildList.refresh();refreshDataTracks()"
+							/>
 							<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."/>
 							<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.labList}"
 										 visible="{currentState == 'AdminState'}"
