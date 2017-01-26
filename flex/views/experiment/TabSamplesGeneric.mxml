@@ -68,10 +68,6 @@
 				return this.addOrganismContainer;
 			}
 			
-			override protected function getAddAllAnnotations():Boolean {
-				return false;
-			}
-									
 			private function deleteTheSample():void {
 				var idx:int = samplesGrid.selectedIndex;
 				deleteSample();

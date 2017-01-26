@@ -107,10 +107,6 @@
 				return nextPlate;
 			}
 			
-			override protected function getAddAllAnnotations():Boolean {
-				return false;
-			}
-
 			override public function insertSample():Boolean {
 				var emptyNode:XML = null;
 				var isValid:Boolean = true;

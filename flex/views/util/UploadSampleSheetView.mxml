@@ -660,7 +660,7 @@
 			}
 			
 			public static function getFieldList(tabSamplesView:TabSamplesBase, specifiedFieldList:Dictionary, 
-												sampleSheetColumnList:XMLListCollection, tabAnnotationView:TabAnnotationView, sampleSheetDownload:Boolean = false):XMLListCollection {
+												sampleSheetColumnList:XMLListCollection, tabAnnotationView:TabAnnotationView):XMLListCollection {
 				
 				var samplesViewState:String = tabSamplesView.currentState;
 				
@@ -686,30 +686,13 @@
 					var addColumn:Boolean = false;
 					// Note we download non-editable columns so that normal user downloads same columns as admin.
 					if ((samplesViewState != 'CapSeqState' && samplesViewState != 'IScanState') && 
-						((specifiedFieldList == null && col.visible && (col.editable || sampleSheetDownload) && col.dataField != null) 
+						((specifiedFieldList == null && col.visible && (col.editable) && col.dataField != null)
 							|| (specifiedFieldList != null && col.dataField != null && specifiedFieldList.hasOwnProperty(col.dataField))
 							|| specifiedFieldList == null && col.visible && !col.editable && col.dataField != null && (fieldType == 'URL' || fieldType == 'MOPTION' || fieldType == 'CHECK'))){
 						addColumn = true;
 					}
 					if ( (samplesViewState == 'CapSeqState' || samplesViewState == 'IScanState') && (col.visible && col.editable && col.dataField != null) ){
 						
-						addColumn = true;
-					}
-					
-					// Add all annotations when downloading sample sheet.
-					if (isAnnotation && sampleSheetDownload && tabAnnotationView != null) {
-						var idString:String = col.dataField.substr(6);	// remove @ANNOT
-						// Make sure annotation is ok for current request category, etc.
-						for each (var x:XML in tabAnnotationView.parentDocument.propertyEntries) {
-							if (x.@idProperty == idString) {
-								addColumn = true;
-								break;
-							}
-						} 
-					}
-					
-					// Add sample number when downloading sample sheet.
-					if (sampleSheetDownload && col.visible && col.dataField == '@number') {
 						addColumn = true;
 					}
 					
