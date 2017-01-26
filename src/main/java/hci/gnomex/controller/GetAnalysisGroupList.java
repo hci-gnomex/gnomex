@@ -65,7 +65,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
   }
 
   public Command execute() throws RollBackCommandException {
-
+    System.out.println("I am in AnalysisGroupList mode");
     Document doc = new Document(new Element(listKind));
     rootNode = doc.getRootElement();
     List results = null;
