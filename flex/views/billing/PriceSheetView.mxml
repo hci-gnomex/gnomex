@@ -45,7 +45,7 @@
 
 	    	params.requestCategoriesXMLString = "<requestCategories>" + categoryList.toXMLString() + "</requestCategories>";
 
-			savePriceSheet.send(params);		
+			savePriceSheet.send(params);
 		}	
 		
 		private function onSavePriceSheet(event:ResultEvent):void {
@@ -53,14 +53,16 @@
 				parentApplication.navBillingView.refreshAndSelectPricing("PriceSheet", savePriceSheet.lastResult.@idPriceSheet);  
 				PopUpManager.removePopUp(this);
 			} else {
-				Alert.show("An error occurred while saving the price sheet.");
+				Alert.show(savePriceSheet.lastResult.ERROR.@message, "Error");
 			}			
 		}			
 		private function addRequestCategory():void {
 			var newCategory:XML = new XML("<RequestCategory " +
 			  "codeRequestCategory='' " +
 			  "/>");
+
 			categoryList.addItem(newCategory);
+			categoryGrid.dataProvider.reload();
 		}
 		
 		private function removeRequestCategory():void {
@@ -68,8 +70,7 @@
 				categoryList.removeItemAt(categoryList.getItemIndex(categoryGrid.selectedItem));
 			}
 		}
-		
-		
+
 	]]>
 </mx:Script>
 <mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
@@ -95,7 +96,7 @@
     	<mx:HBox width="100%">
     		<mx:DataGrid id="categoryGrid" dataProvider="{categoryList}" width="100%" height="106"  editable="true">
     			<mx:columns>
-    				<mx:DataGridColumn id="categoryCol" headerText="Experiment Platform" 
+    				<mx:DataGridColumn id="categoryCol" headerText="Experiment Platform"
     					dataField="@codeRequestCategory"
 					    editorDataField="value"
 		                editable="true"  
@@ -105,7 +106,7 @@
 					</mx:DataGridColumn>					    
     			</mx:columns>
     		</mx:DataGrid>
-    	
+
     	</mx:HBox>
     </mx:VBox>
 </mx:VBox>

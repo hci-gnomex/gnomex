@@ -1,9 +1,8 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.*;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.PriceSheet;
-import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -11,9 +10,7 @@ import hci.gnomex.utility.PriceSheetCategoryParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -40,8 +37,8 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
 
   private PriceSheet                 priceSheetScreen;
   private boolean                   isNewPriceSheet = false;
-  
-  
+  private Integer                    idCoreFacility;
+
   public void validate() {
   }
   
@@ -53,8 +50,7 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
     if (priceSheetScreen.getIdPriceSheet() == null || priceSheetScreen.getIdPriceSheet().intValue() == 0) {
       isNewPriceSheet = true;
     }
-    
-    
+
     if (request.getParameter("requestCategoriesXMLString") != null && !request.getParameter("requestCategoriesXMLString").equals("")) {
       requestCategoriesXMLString = request.getParameter("requestCategoriesXMLString");
     }
@@ -100,15 +96,29 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
         for(Iterator i = requestCategoryParser.getRequestCategoryMap().keySet().iterator(); i.hasNext();) {
           String codeRequestCategory = (String)i.next();
           RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+          idCoreFacility = requestCategory.getIdCoreFacility();
+          Map priceRequestCategories = getAllRequestCategories(sess);
           requestCategories.add(requestCategory);
+
+          // Check if any of the request categories are already set for this core facility
+          for (Object requestCategoryObject:requestCategories) {
+            RequestCategory reqCategory = (RequestCategory) requestCategoryObject;
+            if (priceRequestCategories.containsKey(requestCategory.getCodeRequestCategory())) {
+              CoreFacility facility = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
+              this.addInvalidField("Invalid Request Category", "Request category " + reqCategory.getRequestCategory().toString() + " already set on price sheet "+priceRequestCategories.get(requestCategory.getCodeRequestCategory())+" in "+facility.getFacilityName());
+              setResponsePage(this.ERROR_JSP);
+              return this;
+            }
+          }
         }
-        priceSheet.setRequestCategories(requestCategories);
- 
-        sess.flush();
-        
-        this.xmlResult = "<SUCCESS idPriceSheet=\"" + priceSheet.getIdPriceSheet() + "\"/>";
-      
-        setResponsePage(this.SUCCESS_JSP);
+
+      priceSheet.setRequestCategories(requestCategories);
+
+      sess.flush();
+
+      this.xmlResult = "<SUCCESS idPriceSheet=\"" + priceSheet.getIdPriceSheet() + "\"/>";
+
+      setResponsePage(this.SUCCESS_JSP);
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to save price sheet.");
         setResponsePage(this.ERROR_JSP);
@@ -129,13 +139,46 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
     
     return this;
   }
-  
+
+  /**
+   *
+   * @param sess
+   * @return priceRequestCategories All of the request categories for this core facility
+   */
+    private Map<String, String> getAllRequestCategories (Session sess) {
+    Map<String, String> priceRequestCategories = new HashMap<> ();
+
+    StringBuffer buf = new StringBuffer();
+
+    buf.append("SELECT distinct p from PriceSheet p ");
+    buf.append("JOIN p.requestCategories rc ");
+    buf.append("WHERE ");
+    if (this.idCoreFacility > 0) {
+      buf.append("(rc.idCoreFacility = ").append(this.idCoreFacility).append(")");
+    } else {
+      this.getSecAdvisor().appendCoreFacilityCriteria(buf, "rc");
+    }
+    buf.append(" ");
+    buf.append("order by p.name");
+    List priceSheets = sess.createQuery(buf.toString()).list();
+    for (Object obj:priceSheets) {
+      PriceSheet sheet = (PriceSheet) obj;
+      Set requestCategories = sheet.getRequestCategories();
+      for (Object reqObject:requestCategories) {
+        RequestCategory requestCategory = (RequestCategory) reqObject;
+        String stringRequestCategory = requestCategory.getCodeRequestCategory();
+        priceRequestCategories.put(stringRequestCategory, sheet.getName());
+      }
+    }
+    return priceRequestCategories;
+
+  }
+
   private void initializePriceSheet(PriceSheet priceSheet) {
     priceSheet.setName(priceSheetScreen.getName());
     priceSheet.setDescription(priceSheetScreen.getDescription());
     priceSheet.setIsActive(priceSheetScreen.getIsActive());
     
   }
-  
 
 }
