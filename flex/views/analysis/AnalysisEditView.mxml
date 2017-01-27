@@ -240,7 +240,7 @@
 				
 				expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 				analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
-				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol)
+				analysisProtocolCombo.selectedItem = parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol);
 				organismCombo.selectedItem         = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);
 				filteredGenomeBuildList.refresh();
 				visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
@@ -411,18 +411,44 @@
 				samples.removeAll();
 			}
 
-			private function removeExperimentItem():void {
-				dirty.setDirty();
-				if (hybsGrid.selectedItem != null) {
-					hybs.removeItemAt(hybsGrid.selectedIndex);				
-				} else if (lanesGrid.selectedItem != null) {
-					lanes.removeItemAt(lanesGrid.selectedIndex);								
-				} else if (samplesGrid.selectedItem != null) {
-					samples.removeItemAt(samplesGrid.selectedIndex);
+			private function removeExperimentItems():void {
+				var items:Array = getActiveGrid().selectedItems;
+				if (items.length > 0) {
+					dirty.setDirty();
+					var list:XMLListCollection = getActiveList();
+					for each (var item:Object in items) {
+						list.removeItemAt(list.getItemIndex(item));
+					}
 				}
 			}
 
-			private function onGetExperimentPickList(event:ResultEvent): void {
+		private function getActiveList():XMLListCollection {
+			if (experimentItemStack.selectedChild == hybsView) {
+				return hybs;
+			}
+			if (experimentItemStack.selectedChild == lanesView) {
+				return lanes;
+			}
+			if (experimentItemStack.selectedChild == samplesView) {
+				return samples;
+			}
+			return null;
+		}
+
+		private function getActiveGrid():DataGrid {
+			if (experimentItemStack.selectedChild == hybsView) {
+				return hybsGrid;
+			}
+			if (experimentItemStack.selectedChild == lanesView) {
+				return lanesGrid;
+			}
+			if (experimentItemStack.selectedChild == samplesView) {
+				return samplesGrid;
+			}
+			return null;
+		}
+
+		private function onGetExperimentPickList(event:ResultEvent): void {
 				getExperimentPickList.showBusyCursor = false;
 				callLater(expandAllNodes);
 			}
@@ -1454,8 +1480,8 @@
 								<mx:LinkButton icon="@Embed(source='../../assets/delete.png')"  
 											   label="Remove" textDecoration="underline"
 											   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-											   enabled="{hybsGrid.selectedItem != null || lanesGrid.selectedItem != null}" 
-											   click="removeExperimentItem()"/>
+											   enabled="true"
+											   click="removeExperimentItems()"/>
 								<mx:LinkButton label="Clear all" toolTip="Clear all experiments" id="experimentClearButton"
 											   click="promptToRemoveAllExperimentItems()" 
 											   icon="@Embed(source='../../assets/folder_delete.png')" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png') " textDecoration="underline"/>
@@ -1464,9 +1490,10 @@
 						<mx:ViewStack width="100%" height="100%" id="experimentItemStack" >
 							
 							
-							<mx:Canvas label="Microarray Hybridizations" width="100%" height="100%" id="hybsView">
+							<mx:Canvas label="{'Microarray Hybridizations (' + hybs.length + ')'}" width="100%" height="100%" id="hybsView">
 								
 								<mx:DataGrid width="100%" height="100%" id="hybsGrid"  dataProvider="{hybs}"
+											 allowMultipleSelection="true"
 											 dragEnabled="true"
 											 dragEnter="onDragEnter(event)"
 											 dragOver="onDragOver(event)"
@@ -1487,9 +1514,10 @@
 								</mx:DataGrid>
 								
 							</mx:Canvas>
-							<mx:Canvas label="Illumina Sequencing" width="100%" height="100%" id="lanesView">
+							<mx:Canvas label="{'Illumina Sequencing (' + lanes.length + ')'}" width="100%" height="100%" id="lanesView">
 								<mx:DataGrid width="100%" height="100%" dataProvider="{lanes}" id="lanesGrid"
-											 dragEnabled="true"  
+											 allowMultipleSelection="true"
+											 dragEnabled="true"
 											 dragEnter="onDragEnter(event)"
 											 dragOver="onDragOver(event)"
 											 dragDrop="onDragDropExperimentItem(event)"
@@ -1512,9 +1540,10 @@
 									</mx:columns>
 								</mx:DataGrid>
 							</mx:Canvas>
-							<mx:Canvas label="Other" width="100%" height="100%" id="samplesView">
+							<mx:Canvas label="{'Other (' + samples.length + ')'}" width="100%" height="100%" id="samplesView">
 								<mx:DataGrid id="samplesGrid" dataProvider="{samples}"
 											 width="100%" height="100%"
+											 allowMultipleSelection="true"
 											 doubleClickEnabled="true" editable="false"
 											 doubleClick="{showExperimentForSelectedSample()}"
 											 dragEnabled="true"  
