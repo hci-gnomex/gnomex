@@ -51,10 +51,12 @@ public class DeletePrice extends GNomExCommand implements Serializable {
       Price price = (Price)sess.load(Price.class, idPrice);
 
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
-
+        if(Price.hasBillingItems(sess,idPrice)){
+          this.addInvalidField("idPrice","Cannot delete, billing item(s) are  attached to this price.");
+        }
         //
         // Initialize the price criteria.  We don't want to orphan them unintentionally.
-        //
+        // Initalize will explicitly cause the set of PriceCriterias to load, which is lazy.
         Hibernate.initialize(price.getPriceCriterias());
 
         if (this.isValid()) {
