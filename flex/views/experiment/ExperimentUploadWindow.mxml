@@ -445,7 +445,11 @@
         private function onOrganizeExperimentUploadFiles(event:ResultEvent):void {
             if (organizeExperimentUploadFiles.lastResult.name() != "SUCCESS") {
                 mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
-            } else {
+            } else if (organizeExperimentUploadFiles.lastResult.hasOwnProperty("@warning")) {
+                Alert.show(organizeExperimentUploadFiles.lastResult.@warning, "Warning");
+            }
+
+            if (organizeExperimentUploadFiles.lastResult.name() == "SUCCESS") {
                 if (theTab.selectedIndex == 2) {
                     getLinkedSampleFiles.send();
                 }

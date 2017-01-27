@@ -164,9 +164,6 @@ public class UploadDownloadHelper {
           getFileNames(theBaseDir, fullBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + Constants.FILE_SEPARATOR + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
         } else {
           boolean include = true;
-          if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE") || f1.getName().startsWith("._")) {
-            include = false;
-          } 
           if (include) {
             
             

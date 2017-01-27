@@ -4745,7 +4745,7 @@
 						
 						<mx:Spacer width="100%"/>
 						<mx:HBox  horizontalGap="4" paddingTop="0" verticalAlign="top">
-							<mx:LinkButton label="Get Help"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000" toolTip="Submit feedback to GNomEx support"/>
+							<mx:LinkButton label="Report Problem"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000" toolTip="Submit feedback to GNomEx support"/>
 							<mx:MenuBar  id="topMenuBar"  styleName="topMenuBar"   dataProvider="{topMenu}" 
 										 itemClick="{onTopMenuSelect(event)}"  
 										 click="{onTopMenuClick(event)}"

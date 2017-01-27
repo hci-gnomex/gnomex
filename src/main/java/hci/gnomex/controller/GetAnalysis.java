@@ -61,7 +61,6 @@ private String showUploads = "N";
 private String serverName;
 private String baseDir;
 
-// private String baseDirDataTrack;
 
 public void validate() {
 }
@@ -85,7 +84,6 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 }
 
 public Command execute() throws RollBackCommandException {
-	System.out.println("I'm in Analysis");
 	long startTime = System.currentTimeMillis();
 	String reqNumber = "";
 
@@ -309,9 +307,6 @@ public static void appendDataTrackNodes(SecurityAdvisor secAdvisor, Session sess
 
 /**
  * Adds custom properties to the xml document.
- *
- * @param aNode
- *            root element of document to append properties to
  * @param dh
  *            Dictionary helper to find properties
  * @param analysis

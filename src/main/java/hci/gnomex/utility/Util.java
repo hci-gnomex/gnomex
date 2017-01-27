@@ -282,12 +282,20 @@ public class Util {
 		e.printStackTrace(new PrintWriter(errors));
 		theInfo = theInfo + errors.toString() + "\n";
 
-//		StackTraceElement[] trace = e.getStackTrace();
-//		for (StackTraceElement traceElement : trace)
-//			theInfo = theInfo + "\tat " + traceElement + "\n";
-
 		LOG.error (whathappend, e);
 
 		return theInfo;
+	}
+
+	public static String addProblemFile (String status, String filename, int [] numlines) {
+		if (numlines[0] == 0) {
+			status = "Warning: Unable to move some files:\n";
+			numlines[0]++;
+		}
+		if (numlines[0] <= 5) {
+			status += filename + "\n";
+			numlines[0]++;
+		}
+		return status;
 	}
 }

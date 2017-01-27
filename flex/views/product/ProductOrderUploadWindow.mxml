@@ -381,9 +381,11 @@
 			private function onOrganizeProductOrderUploadFiles(event:ResultEvent): void {
 				if (organizeProductOrderUploadFiles.lastResult.name() != "SUCCESS") {
 					mx.controls.Alert.show(organizeProductOrderUploadFiles.lastResult..ACTMESSAGE.@TEXT);
-				} else {
-					refreshFiles();
-				} 	 
+				} else if (organizeProductOrderUploadFiles.lastResult.hasOwnProperty("@warning")) {
+					Alert.show(organizeProductOrderUploadFiles.lastResult.@warning, "Warning");
+				}
+
+				refreshFiles();
 			}
 			private function getFilesGridRowNumber(item:Object,col:int):String
 			{

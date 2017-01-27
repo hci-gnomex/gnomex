@@ -18,6 +18,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
@@ -93,6 +94,9 @@
 				if (organizeExperimentUploadFiles.lastResult.name() != "SUCCESS") {
 					mx.controls.Alert.show(organizeExperimentUploadFiles.lastResult..ACTMESSAGE.@TEXT);
 					dispatchEvent(new Event("refreshUploadFiles", true));
+				} else if (organizeExperimentUploadFiles.lastResult.hasOwnProperty("@warning")) {
+					dispatchEvent(new Event("refreshUploadFiles", true));
+					Alert.show(organizeExperimentUploadFiles.lastResult.@warning, "Warning");
 				}
 				else{
 					dispatchEvent(new Event("refreshUploadFiles", true));

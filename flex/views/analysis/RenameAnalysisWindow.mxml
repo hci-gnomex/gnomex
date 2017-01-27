@@ -18,6 +18,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
@@ -82,12 +83,11 @@
 			private function onOrganizeAnalysisUploadFiles(event:ResultEvent):void{
 				if (organizeAnalysisUploadFiles.lastResult.name() != "SUCCESS") {
 					mx.controls.Alert.show(organizeAnalysisUploadFiles.lastResult..ACTMESSAGE.@TEXT);
+				} else if (organizeAnalysisUploadFiles.lastResult.hasOwnProperty("@warning")) {
+				Alert.show(organizeAnalysisUploadFiles.lastResult.@warning, "Warning");
 				}
-				else{
 					parentView.refreshFiles();
 					PopUpManager.removePopUp(this);
-				}
-				
 			}
 			
 			

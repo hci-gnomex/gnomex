@@ -97,6 +97,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
     public Command execute() throws RollBackCommandException {
 
+        String status = null;
+        int[] nlines = {0};
         Session sess = null;
         ArrayList tryLater = null;
         if (filesXMLString != null) {
@@ -305,18 +307,15 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             if (!success) {
                                 if (destFile.exists()) {
                                     if (sourceFile.exists()) {
-                                        if (!sourceFile.delete()) {
                                             if (sourceFile.isDirectory()) {
                                                 // If can't delete directory then try again after everything has been moved
                                                 tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                                             } else {
-                                                throw new Exception("Unable to move file " + fileName + " to "
-                                                        + targetDirName);
+                                                status = Util.addProblemFile(status,fileName,nlines);
                                             }
-                                        }
                                     }
                                 } else {
-                                    throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
+                                    status = Util.addProblemFile(status,fileName,nlines);
                                 }
                             }
                         }
@@ -397,7 +396,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             if (deleteFile.exists()) {
                                 // Try to delete but don't throw error if unsuccessful.
                                 // Just leave it to user to sort out the problem.
+                                // Directory probably contains files we couldn't move (because they're already there)
                                 deleteFile.delete();
+
                             }
                         }
                     }
@@ -424,7 +425,15 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                     deleteEmptyUploadStagingDirs(baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR);
 
                     XMLOutputter out = new org.jdom.output.XMLOutputter();
-                    this.xmlResult = "<SUCCESS/>";
+                    this.xmlResult = "<SUCCESS";
+                    if (status != null) {
+                        this.xmlResult += " warning= \"" + status;
+                        this.xmlResult += "\"/>";
+                    } else {
+                        this.xmlResult += "/>";
+                    }
+//                    System.out.println ("[OAULF] this.xmlResult: " + this.xmlResult);
+
                     setResponsePage(this.SUCCESS_JSP);
 
                 } else {
@@ -435,13 +444,10 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
             } catch (Exception e) {
                 this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in OrganizeAnalysisUploadFiles ", e);
 
-                // Note: we don't throw a new RollBackCommandException here because we can't reverse any file system changes that have been made
-                // That's also why we have the finally clause...
-            } finally {
-                try {
-                    HibernateSession.closeSession();
-                } catch (SQLException e) {
-                }
+                throw new RollBackCommandException(e.getMessage());
+
+                // Note: we throw a new RollBackCommandException here even though we can't reverse any file system changes that have been made
+                // because we'd like to get the trace back info...
             }
 
         } else {

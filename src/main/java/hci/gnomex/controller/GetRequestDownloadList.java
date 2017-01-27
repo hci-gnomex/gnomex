@@ -653,17 +653,6 @@ private void addRootFileNodes(String baseDir, Element requestNode, String reques
 			String fileName = directoryName + Constants.FILE_SEPARATOR + fileList[x];
 			File f1 = new File(fileName);
 
-			// bypass temp files
-			if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE")
-					|| f1.getName().startsWith("._")) {
-				continue;
-			}
-
-			// bypass directories and soft links.
-			// if (f1.isDirectory()) { // || Util.isSymlink(f1)) {
-			// continue;
-			// }
-
 			if (includeUploadStagingDir.equals("N") && f1.getName().equals(Constants.UPLOAD_STAGING_DIR)) {
 				continue;
 			}

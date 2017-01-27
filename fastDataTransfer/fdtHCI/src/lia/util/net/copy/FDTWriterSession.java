@@ -114,6 +114,14 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
             }
 
             try {
+
+                // 01/26/2017 tim do the postprocessing here so the reader isn't notified of writer completion until after postprocessing
+                try {
+                    doPostProcessing();
+                } catch (Throwable t1) {
+                    logger.log(Level.WARNING, "[ FDTWriterSession ] [ finalCleanup  Got exception in postProcessing", t1);
+                }
+
                 controlChannel.sendCtrlMessage(
                         new CtrlMsg(CtrlMsg.END_SESSION, (downNotif == null) ? null : downNotif.toString()));
             } catch (Throwable t1) {
@@ -135,6 +143,14 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
             if (isFiner) {
                 logger.log(Level.FINER, "\n\n [ FDTWriterSession ] [ finalCleanup ] STARTED \n\n ");
             }
+
+//            // 01/26/2017 tim do the postprocessing here so the reader isn't notified of writer completion until after postprocessing
+//            try {
+//                doPostProcessing();
+//            } catch (Throwable t1) {
+//                logger.log(Level.WARNING, "[ FDTWriterSession ] [ finalCleanup  Got exception in postProcessing", t1);
+//            }
+
 
             try {
                 notifySessionFinished();
@@ -230,11 +246,11 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
                 }
             }
 
-            try {
-                doPostProcessing();
-            } catch (Throwable t1) {
-                logger.log(Level.WARNING, "[ FDTWriterSession ] [ finalCleanup  Got exception in postProcessing", t1);
-            }
+//            try {
+//                doPostProcessing();
+//            } catch (Throwable t1) {
+//                logger.log(Level.WARNING, "[ FDTWriterSession ] [ finalCleanup  Got exception in postProcessing", t1);
+//            }
 
             try {
                 if (transportProvider != null) {

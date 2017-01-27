@@ -146,8 +146,6 @@ private long getFileNames(String requestNumber, String directoryName, Map fileDe
           include = false;
         } else if (fileName.toUpperCase().endsWith(".DS_Store")) {
           include = false;
-        } else if (fileName.toUpperCase().endsWith("THUMBS.DB")) {
-          include = false;
         }
         if (include) {
           long fileSize = f1.length();

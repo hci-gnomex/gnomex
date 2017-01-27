@@ -474,9 +474,6 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 							subDirName != null ? subDirName + Constants.FILE_SEPARATOR + f1.getName() : f1.getName(), baseDir, flattenSubDirs);
 				} else {
 					boolean include = true;
-					if (fileName.toLowerCase().endsWith("thumbs.db")) {
-						include = false;
-					}
 					if (include) {
 						FileDescriptor fileDescriptor = new FileDescriptor(productOrderNumber, displayName, f1, baseDir);
 						fileDescriptor.setQualifiedFilePath(subDirName != null ? subDirName : "");

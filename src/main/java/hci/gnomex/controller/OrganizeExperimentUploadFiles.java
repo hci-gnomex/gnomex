@@ -158,6 +158,9 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 public Command execute() throws RollBackCommandException {
 
+	String status = null;
+	int[] nlines = {0};
+
 	Session sess = null;
 	ArrayList tryLater = null;
 	if (filesXMLString != null) {
@@ -335,24 +338,21 @@ public Command execute() throws RollBackCommandException {
 						} else {
 							if (destFile.exists()) {
 								if (sourceFile.exists()) {
-									if (!sourceFile.delete()) {
 										if (sourceFile.isDirectory()) {
 											// If can't delete directory then try again after
 											// everything has been moved
 											tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 										} else {
-											throw new Exception("Unable to move file " + fileName + " to "
-													+ targetDirName);
+											status = Util.addProblemFile(status,fileName,nlines);
 										}
-									}
 								}
 							} else {
-								// throw new Exception("Unable to move file " + fileName +
-								// " to " + targetDirName);
+								status = Util.addProblemFile(status,fileName,nlines);
 							}
 						}
 
-					}
+					} // end of for
+
 					if (oldFileToDelete != null && oldFileToDelete.exists() && oldFileToDelete.list().length == 0) {
 						try {
 							oldFileToDelete.delete();
@@ -679,7 +679,15 @@ public Command execute() throws RollBackCommandException {
 				sess.flush();
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
-				this.xmlResult = "<SUCCESS/>";
+				this.xmlResult = "<SUCCESS";
+				if (status != null) {
+					this.xmlResult += " warning= \"" + status;
+					this.xmlResult += "\"/>";
+				} else {
+					this.xmlResult += "/>";
+				}
+//				System.out.println ("[OEULF] this.xmlResult: " + this.xmlResult);
+
 				setResponsePage(this.SUCCESS_JSP);
 
 			} else {
@@ -688,10 +696,9 @@ public Command execute() throws RollBackCommandException {
 			}
 
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in OrganizeExperimentUploadFiles ", e);
 
 			throw new RollBackCommandException(e.getMessage());
-
 		}
 	} else {
 		this.xmlResult = "<SUCCESS/>";
