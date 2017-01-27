@@ -481,14 +481,8 @@ public class TabSamplesBase extends Canvas
 
     protected function getSampleSheetFieldList():XMLListCollection {
         var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
-        var addAllAnnotations:Boolean = getAddAllAnnotations();
-        return UploadSampleSheetView.getFieldList(this, fieldList, null, parentDocument.getAnnotationView(), addAllAnnotations);
+        return UploadSampleSheetView.getFieldList(this, fieldList, null, parentDocument.getAnnotationView());
     }
-
-    protected function getAddAllAnnotations():Boolean {
-        return true;
-    }
-
 
     public function downloadSampleSheet():void{
         var fieldList:XMLListCollection = getSampleSheetFieldList();

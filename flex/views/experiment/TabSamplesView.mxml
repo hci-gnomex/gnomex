@@ -137,14 +137,6 @@
 			return fieldList;
 		}
 
-		override protected function getAddAllAnnotations():Boolean {
-			var addAllAnnotations:Boolean = true;
-			if (parentDocument.isIScanState()) {
-				addAllAnnotations = false;
-			}
-			return addAllAnnotations;
-		}
-
 		override public function insertSample():Boolean {
 			var emptyNode:XML = null;
 			var isValid:Boolean = true;
