@@ -5,9 +5,11 @@ import hci.dictionary.model.DictionaryEntry;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 
 public class Price extends DictionaryEntry implements Serializable {
@@ -159,4 +161,21 @@ public class Price extends DictionaryEntry implements Serializable {
      return unitPrice;
    }
  }
+
+ public static boolean hasBillingItems(Session sess, Integer idPrice ){
+
+   boolean billingItem = false;
+
+   String queryStr = "SELECT bi FROM BillingItem as bi WHERE bi.idPrice = :idPrice";
+   Query query = sess.createQuery(queryStr)
+           .setParameter("idPrice",idPrice);
+   List billingItemList  =  query.list();
+
+
+   if(billingItemList.size() > 0){
+     billingItem = true;
+   }
+
+   return billingItem ;
+  }
 }
