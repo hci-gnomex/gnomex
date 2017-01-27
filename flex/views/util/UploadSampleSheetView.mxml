@@ -695,7 +695,12 @@
 						
 						addColumn = true;
 					}
-					
+
+					// Add sample ID
+					if (col.visible && col.dataField == '@number') {
+						addColumn = true;
+					}
+
 					if (addColumn || isAnnotation) {
 						var selectedSSColumn:String = "0";
 						// If the sample sheet column header exactly matches the sample view column
