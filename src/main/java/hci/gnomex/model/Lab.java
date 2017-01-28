@@ -4,11 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import hci.hibernate5utils.HibernateDetailObject;
 
@@ -631,6 +627,27 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       }
 
       return analyses;
+  }
+
+  public static Set<AppUser> getHistoricalOwnersAndSubmitters(Session sess, Integer idLab) {
+    Set<AppUser> combined = new HashSet<>();
+    combined.addAll(getExperimentOwners(sess, idLab));
+    combined.addAll(getExperimentSubmitters(sess, idLab));
+    return combined;
+  }
+
+  public static Set<AppUser> getExperimentOwners(Session sess, Integer idLab) {
+    String queryStr = "SELECT DISTINCT reqOwner FROM Request AS req LEFT JOIN req.appUser as reqOwner WHERE req.idLab = :idLab";
+    Query query = sess.createQuery(queryStr)
+            .setParameter("idLab",idLab);
+    return new HashSet(query.list());
+  }
+
+  public static Set<AppUser> getExperimentSubmitters(Session sess, Integer idLab) {
+    String queryStr = "SELECT DISTINCT reqSubmitter FROM Request AS req LEFT JOIN req.submitter as reqSubmitter WHERE req.idLab = :idLab";
+    Query query = sess.createQuery(queryStr)
+            .setParameter("idLab",idLab);
+    return new HashSet(query.list());
   }
 
     public static boolean hasTopics(Session sess, Integer idLab) {

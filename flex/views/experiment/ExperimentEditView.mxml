@@ -5235,7 +5235,7 @@
             billingAccounts.refresh();
 
             if (parentApplication.hasPermission('canWriteAnyObject')) {
-                this.appUserCombo.selectedIndex = 0;
+                this.appUserCombo.text = "";
             } else {
                 for each(var u:Object in appUsers) {
                     if (u.@idAppUser == parentApplication.getIdAppUser()) {
@@ -6094,7 +6094,7 @@
 
     <mx:XMLListCollection id="projects"/>
 
-    <mx:XMLListCollection id="appUsers" source="{getLabForAddingServices.lastResult..Lab.submitters.AppUser}"/>
+    <mx:XMLListCollection id="appUsers" source="{getLabForAddingServices.lastResult..Lab.historicalOwnersAndSubmitters.AppUser}"/>
 
     <mx:XMLListCollection id="filteredLabList" filterFunction="filterLabList"
                           source="{parentApplication.submitRequestLabList.source}"/>
