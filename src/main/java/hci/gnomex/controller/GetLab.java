@@ -150,6 +150,7 @@ public Command execute() throws RollBackCommandException {
 			this.appendPossibleCollaborators(labNode, theLab);
 			this.appendMembersCollaborators(labNode, theLab);
 			this.appendSubmitters(labNode, theLab);
+			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
 			this.appendBillingAccounts(new ArrayList(theLab.getBillingAccounts()), "billingAccounts", labNode, theLab);
 			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
 			this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
@@ -205,6 +206,7 @@ public Command execute() throws RollBackCommandException {
 				this.appendMembersCollaborators(labNode, theLab);
 			}
 			this.appendSubmitters(labNode, theLab);
+			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
 			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
 			List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
 					GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
@@ -346,6 +348,17 @@ private void appendSubmitters(Element labNode, Lab theLab) throws Exception {
 		}
 	}
 
+}
+
+private void appendHistoricalOwnersAndSubmitters(Element labNode, Lab theLab, Session sess) throws Exception {
+	Element historicalNode = new Element("historicalOwnersAndSubmitters");
+	labNode.addContent(historicalNode);
+	TreeSet<AppUser> ownersAndSubmitters = new TreeSet<>(new AppUserNameComparator());
+	ownersAndSubmitters.addAll(Lab.getHistoricalOwnersAndSubmitters(sess, theLab.getIdLab()));
+	for (AppUser appUser : ownersAndSubmitters) {
+		blockAppUserContent(appUser);
+		historicalNode.addContent(appUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+	}
 }
 
 private void appendBillingAccounts(List accounts, String nodeName, Element labNode, Lab theLab) throws Exception {
