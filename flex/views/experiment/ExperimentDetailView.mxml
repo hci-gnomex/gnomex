@@ -241,7 +241,7 @@
 			}
 
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.selectedExperiment.@codeRequestCategory);
-			this.currentState = '';
+			currentState = '';		// this.
 			if (this.selectedExperiment.@codeRequestCategory == "QC") {
 				if (this.selectedExperiment.@isExternal != 'Y') {
 					currentState = 'QCState';
@@ -288,7 +288,7 @@
 			} else if (requestCategory.@type == 'CHERRYPICK') {
 				currentState = 'CherryPickState';
 			} else if (requestCategory.@type == 'ISCAN') {
-				this.currentState = "IScanState";
+				currentState = "IScanState";
 				if (parentDocument.parentDocument.experimentEditView.sampleSetupView != null) {
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IScanState';
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.updateIScanPlateList(this.selectedExperiment.iScanPlateList.Plate);
@@ -298,7 +298,7 @@
 					parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
 				}
 			} else if (requestCategory.@type == 'SEQUENOM') {
-				this.currentState = "SequenomState";
+				currentState = "SequenomState";
 				if (parentDocument.parentDocument.experimentEditView.sampleSetupView != null) {
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'SequenomState';
 				}
@@ -307,28 +307,28 @@
 					this.bisulfideConversionBox.includeInLayout = requestCategory != null && requestCategory.@codeRequestCategory == 'SEQEPI';
 				}
 			} else if (requestCategory.@type == 'CLINSEQ') {
-				this.currentState = "ClinicalSeqState";
+				currentState = "ClinicalSeqState";
 				if (parentDocument.parentDocument.experimentEditView.sampleSetupView != null) {
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'ClinicalSequenomState';
 				}
 				parentDocument.parentDocument.experimentEditView.samplesView.currentState = 'ClinicalSequenomState';
 			} else if (requestCategory.@type == 'ISOLATION') {
-				this.currentState = "IsolationState";
+				currentState = "IsolationState";
 				if (parentDocument.parentDocument.experimentEditView.sampleSetupView != null) {
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';
 				}
 			} else if ((this.selectedExperiment.@codeRequestCategory.toString()).substr(0, 6) == 'IONTOR') {
-				this.currentState = "IonTorrentState";
+				currentState = "IonTorrentState";
 				if (parentDocument.parentDocument.experimentEditView.sampleSetupView != null) {
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';
 				}
 			} else if (requestCategory.@type == 'NANOSTRING') {
-				this.currentState = "NanoStringState";
+				currentState = "NanoStringState";
 				if (parentDocument.parentDocument.experimentEditView.sampleSetupView != null) {
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'NanoStringState';
 				}
 			} else if (requestCategory.@type == 'GENERIC') {
-				this.currentState = "GenericState";
+				currentState = "GenericState";
 				if (parentDocument.parentDocument.experimentEditView.sampleSetupView != null) {
 					parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';
 				}
@@ -338,23 +338,24 @@
 				analysisButton.enabled = this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem");
 			}
 
-			if (this.selectedExperiment.@isExternal == 'Y') {
-				if (lanesConfirmContainer != null && theTab.contains(lanesConfirmContainer)) {
-					//theTab.setChildIndex(lanesConfirmContainer, 2);
-					//lanesConfirmContainer.enabled = false;
-					/*
-					 var index:int = theTab.getChildIndex(lanesConfirmContainer);
-					 if (index > 0) {
-					 var tabButton:Button = theTab.getTabAt(index);
-					 if(tabButton != null) {
-					 lanesConfirmContainer.tabIndex = theTab.numChildren+1;
-					 //tabButton.visible = false;
-					 }
-					 }
-					 */
-
-				}
-			}
+//			if (this.selectedExperiment.@isExternal == 'Y') {
+//				if (lanesConfirmContainer != null && theTab.contains(lanesConfirmContainer)) {
+//					//theTab.setChildIndex(lanesConfirmContainer, 2);
+//					//lanesConfirmContainer.enabled = false;
+//					/*
+//					 var index:int = theTab.getChildIndex(lanesConfirmContainer);
+//					 if (index > 0) {
+//					 var tabButton:Button = theTab.getTabAt(index);
+//					 if(tabButton != null) {
+//					 lanesConfirmContainer.tabIndex = theTab.numChildren+1;
+//					 //tabButton.visible = false;
+//					 }
+//					 }
+//					 */
+//
+//				}
+//
+//			}
 
 			if (this.linkToTopicBar != null) {
 				this.linkToTopicBar.refreshForDisplay();
