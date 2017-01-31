@@ -407,6 +407,8 @@
 
 		private var cursorID:Number = 0;
 
+		public var searchIDPresent:Boolean = false;
+
 		public var uploadSampleSheetURL:String = null;
 
 
@@ -1349,6 +1351,7 @@
 		private function lookupExperiment():void {
 			var number:String = requestNumber.text;
 			number = number.toUpperCase();
+			searchIDPresent = true;
 			if (number.indexOf("DT") == 0) {
 				this.showDataTrackForNumber(number);
 			} else if (number.indexOf("A") == 0) {
