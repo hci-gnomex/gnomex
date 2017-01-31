@@ -45,12 +45,6 @@ public class CheckTopicPermission extends GNomExCommand implements Serializable 
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-
-     /* String queryStr = "SELECT t FROM Topic as t WHERE t.idTopic = :idTopic";
-      Query query = sess.createQuery(queryStr)
-              .setParameter("idTopic",idTopic);
-      List topics  =  query.list();*/
-
       if (idTopic != null) {
         Topic topic = sess.get(Topic.class, idTopic);
 
