@@ -472,6 +472,7 @@
 		    						for each(var l:Object in  parentApplication.labList) {
 		    							if (l.@idLab == request.@idLab) {
 		    								this.browseLabCombo.selectedItem = l;
+											getLab.send();
 		    								break;	
 		    							}
 		    						}
@@ -1364,20 +1365,7 @@
 			var lab:Object = getLab.lastResult..Lab.(@idLab == browseLabCombo.selectedItem.@idLab);
 			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 
-			appUsers = new XMLListCollection(lab.members.AppUser);
-			for each (var mgr:Object in lab.managers.AppUser) {
-				var found:Boolean = false;
-				for each(var usr:Object in appUsers){
-					if(usr.@idAppUser == mgr.@idAppUser){
-						found = true;
-						break;
-					}
-				}
-				if(!found){
-					appUsers.addItem(mgr);
-				}
-			}
-//new			appUsers = new XMLListCollection(lab.historicalOwnersAndSubmitters.AppUser);
+			appUsers = new XMLListCollection(lab.historicalOwnersAndSubmitters.AppUser);
 			appUsers.addItemAt(emptyNode, 0);
 			
 			appUserSort = new Sort();

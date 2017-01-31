@@ -223,15 +223,7 @@
 					theTab.removeChild(billingTab);
 				}
 			}
-			//		if (this.protocolsBox.visible) {
-			//			if (!this.headerBox.contains(this.protocolsBox)) {
-			//				this.headerBox.addChild(this.protocolsBox);
-			//			}
-			//		} else {
-			//			if (this.headerBox.contains(this.protocolsBox)) {
-			//				this.headerBox.removeChild(this.protocolsBox);
-			//			}
-			//		}
+
 			if (selectedExperiment.@projectDescription == '') {
 				this.projectDescVBox.visible = false;
 				this.projectDescVBox.includeInLayout = false;
@@ -338,24 +330,6 @@
 				analysisButton.enabled = this.selectedExperiment.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem");
 			}
 
-//			if (this.selectedExperiment.@isExternal == 'Y') {
-//				if (lanesConfirmContainer != null && theTab.contains(lanesConfirmContainer)) {
-//					//theTab.setChildIndex(lanesConfirmContainer, 2);
-//					//lanesConfirmContainer.enabled = false;
-//					/*
-//					 var index:int = theTab.getChildIndex(lanesConfirmContainer);
-//					 if (index > 0) {
-//					 var tabButton:Button = theTab.getTabAt(index);
-//					 if(tabButton != null) {
-//					 lanesConfirmContainer.tabIndex = theTab.numChildren+1;
-//					 //tabButton.visible = false;
-//					 }
-//					 }
-//					 */
-//
-//				}
-//
-//			}
 
 			if (this.linkToTopicBar != null) {
 				this.linkToTopicBar.refreshForDisplay();
@@ -375,8 +349,6 @@
 				downloadExpandedFilesButtonView.visible = false;
 				downloadExpandedFilesButtonView.includeInLayout = false;
 			}
-
-			//			this.theTab.selectedIndex = 0;
 
 			// Need to refresh download list here; otherwise last selected experiment's
 			// files shown rather than current selection.
@@ -1566,13 +1538,9 @@
 
 					samplesGridConfirm.columns = newColumns;
 					samplesGridConfirm.validateProperties();
-//					needToValidateNow = true;
 				}
 			}
 
-//			if (needToValidateNow) {
-//				samplesGridConfirm.validateNow();
-//			}
 		}
 
 		private function showProtocol(idProtocol:Object, protocolClassName:String):void {

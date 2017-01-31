@@ -5235,8 +5235,8 @@
             billingAccounts.refresh();
 
             if (parentApplication.hasPermission('canWriteAnyObject')) {
-//new                this.appUserCombo.text = "";
-                this.appUserCombo.selectedIndex = 0;
+                this.appUserCombo.text = "";
+//old                this.appUserCombo.selectedIndex = 0;
             } else {
                 for each(var u:Object in appUsers) {
                     if (u.@idAppUser == parentApplication.getIdAppUser()) {
