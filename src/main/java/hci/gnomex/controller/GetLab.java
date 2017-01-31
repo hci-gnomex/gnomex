@@ -150,7 +150,7 @@ public Command execute() throws RollBackCommandException {
 			this.appendPossibleCollaborators(labNode, theLab);
 			this.appendMembersCollaborators(labNode, theLab);
 			this.appendSubmitters(labNode, theLab);
-//new			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
+			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
 			this.appendBillingAccounts(new ArrayList(theLab.getBillingAccounts()), "billingAccounts", labNode, theLab);
 			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
 			this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
@@ -206,7 +206,7 @@ public Command execute() throws RollBackCommandException {
 				this.appendMembersCollaborators(labNode, theLab);
 			}
 			this.appendSubmitters(labNode, theLab);
-//			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
+			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
 			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
 			List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
 					GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
