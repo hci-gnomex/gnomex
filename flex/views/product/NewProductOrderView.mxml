@@ -522,7 +522,19 @@
 
             <mx:Spacer height="5%" />
 
-            <mx:VBox width="100%" id="templateItemsRepeaterBox" visible="false" includeInLayout="false">
+            <mx:VBox width="100%" id="templateItemsRepeaterBox" >
+                <mx:Label text="Selected billing accounts"/>
+                <mx:Repeater id="templateItemsRepeater" dataProvider="{templateItemList}" >
+                    <mx:VBox width="100%" verticalGap="0">
+                        <mx:Text id="templateItem"
+                                 text="{buildSelectedBillingAccountsString()}"/>
+
+                    </mx:VBox>
+                </mx:Repeater>
+            </mx:VBox>
+
+
+            <mx:VBox width="100%" id="selectedBillingAccounts" visible="false" includeInLayout="false">
                 <mx:HBox>
                     <mx:Label text="Selected billing accounts"/>
                     <mx:Spacer width="20" />
@@ -534,13 +546,6 @@
                         <mx:click>cancelSplitBilling()</mx:click>
                     </mx:LinkButton>
                 </mx:HBox>
-                <mx:Repeater id="templateItemsRepeater" dataProvider="{templateItemList}" >
-                    <mx:VBox width="100%" verticalGap="0">
-                        <mx:Text id="templateItem"
-                                 text="{buildSelectedBillingAccountsString()}"/>
-
-                    </mx:VBox>
-                </mx:Repeater>
             </mx:VBox>
 
             <mx:Spacer height="5%" />
