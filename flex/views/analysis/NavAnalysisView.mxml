@@ -538,8 +538,7 @@
 				if ((browseTree.selectedItems.length < 1 && parentApplication.isGuestMode() && parentApplication.searchIDPresent)) {
 					selectedIdAnalysis =  null;
 					var parms:Object = new Object();
-					var selectedAnalysisNumberXML:XML = new XML("<a>" + selectedAnalysisNumber + "</a>");
-					parms.analysisNumber = selectedAnalysisNumberXML;
+					parms.analysisNumber = selectedAnalysisNumber;
 					getAnalysis.send(parms);
 					parentApplication.searchIDPresent = false;
 				}
