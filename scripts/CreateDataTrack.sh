@@ -25,4 +25,3 @@ export PATH
 echo $PATH
 
 java -Xmx2G hci.gnomex.daemon.CreateDataTracks $*
-
