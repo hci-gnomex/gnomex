@@ -96,6 +96,8 @@
 		useProxy="false">
 		<mx:request>
 			<idLab>{analysis.@idLab}</idLab>
+			<includeBillingAccounts>{"N"}</includeBillingAccounts>
+			<includeProductCounts>{"N"}</includeProductCounts>
 		</mx:request>
 	</mx:HTTPService>
 	

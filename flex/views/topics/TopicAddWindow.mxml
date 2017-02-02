@@ -186,6 +186,11 @@
 		idLab = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 		if(idLab.length > 0) {
 			params.idLab = idLab;
+			params.includeBillingAccounts = "N";
+			params.includeProductCounts = "N";
+			params.includeSubmitters = "N";
+			params.includeMoreCollaboratorInfo = "N";
+			params.includeHistoricalOwnersAndSubmitters = "N";
 			getLab.send(params);
 		}
 	}		

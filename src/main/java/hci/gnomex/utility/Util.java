@@ -298,4 +298,12 @@ public class Util {
 		}
 		return status;
 	}
+
+	public static boolean isParameterTrue(String requestParameter) {
+		return requestParameter.equalsIgnoreCase("Y") || requestParameter.equalsIgnoreCase("true");
+	}
+
+	public static boolean isParameterFalse(String requestParameter) {
+		return requestParameter.equalsIgnoreCase("N") || requestParameter.equalsIgnoreCase("false");
+	}
 }
