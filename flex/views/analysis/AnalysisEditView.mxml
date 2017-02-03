@@ -183,6 +183,7 @@
         // pasted correctly.
         private var pastedDescription:String = "";
         private var descriptionChangeIsPaste:Boolean = false;
+        private var simpleLockForTab = false;
 
         private function onCloseWindow():void {
             if (dirty.isDirty()) {
@@ -1298,6 +1299,13 @@
         private function onTabPressed(event:KeyboardEvent):void {
             switch (event.keyCode) {
                 case Keyboard.TAB :
+                    // super-simple lock on character insertion (the focus movements interact somewhat oddly otherwise)
+                    if( this.simpleLockForTab ) {
+                        focusManager.moveFocus(FocusRequestDirection.BACKWARD);
+                        break;
+                    }
+                    simpleLockForTab = true;
+
                     var indexBegin:int = event.currentTarget.textArea.selectionBeginIndex;
                     var indexEnd:int = event.currentTarget.textArea.selectionEndIndex;
 
@@ -1308,6 +1316,8 @@
                     var indexNext:int = event.currentTarget.textArea.selectionBeginIndex + range.text.length;
                     event.currentTarget.textArea.setSelection(indexNext, indexNext);
                     focusManager.moveFocus(FocusRequestDirection.BACKWARD);
+
+                    this.simpleLockForTab = false;
                     break;
             }
         }
@@ -1332,8 +1342,10 @@
         private function onDescriptionTextInput(event:TextEvent):void {
             this.descriptionChangeIsPaste = false;
 
-            // The only change to
-            if (event.text.length > 1) {
+            // So it turns out that typing typically does fire a TextEvent.TextInput event, but not the TAB key.
+            // This means that the ONLY changes we pick out here are paste events that (should) contain TABs.
+            // It will also pick up the pasting of a singular TAB character.
+            if(event.text.indexOf("\t") >= 0) {
                 onDescriptionPaste(event);
                 this.descriptionChangeIsPaste = true;
             }
