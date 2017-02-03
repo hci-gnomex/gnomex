@@ -19,13 +19,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory;
-import org.hibernate.hql.spi.QueryTranslator;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -161,15 +156,6 @@ public class DataTrackQuery implements Serializable {
 	  Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
 	  query = sess.createQuery(queryBuf.toString());
 
-		EntityManagerFactory entityManagerFactory = sess.getEntityManagerFactory();
-		EntityManager manager = entityManagerFactory.createEntityManager();
-		String hqlQueryString = query.getQueryString();
-		ASTQueryTranslatorFactory queryTranslatorFactory = new ASTQueryTranslatorFactory();
-		SessionImplementor hibernateSession = manager.unwrap(SessionImplementor.class);
-		QueryTranslator queryTranslator = queryTranslatorFactory.createQueryTranslator("", hqlQueryString, java.util.Collections.EMPTY_MAP, hibernateSession.getFactory(), null);
-		queryTranslator.compile(java.util.Collections.EMPTY_MAP, false);
-		String sqlQueryString = queryTranslator.getSQLString();
-
 //	  if (maxDataTrackCount != null && maxDataTrackCount > -1) {
 //		  query.setFirstResult(0);
 //		  query.setMaxResults(maxDataTrackCount);
@@ -182,16 +168,8 @@ public class DataTrackQuery implements Serializable {
 
     query = sess.createQuery(queryBuf.toString());
 
-		entityManagerFactory = sess.getEntityManagerFactory();
-		manager = entityManagerFactory.createEntityManager();
-		hqlQueryString = query.getQueryString();
-		queryTranslatorFactory = new ASTQueryTranslatorFactory();
-		hibernateSession = manager.unwrap(SessionImplementor.class);
-		queryTranslator = queryTranslatorFactory.createQueryTranslator("", hqlQueryString, java.util.Collections.EMPTY_MAP, hibernateSession.getFactory(), null);
-		queryTranslator.compile(java.util.Collections.EMPTY_MAP, false);
-		sqlQueryString = queryTranslator.getSQLString();
 
-		List<Object[]> folderCountRows = query.list();
+	List<Object[]> folderCountRows = query.list();
 
 	  // Now run query to get the genome build segments
 	  queryBuf = this.getSegmentQuery();
