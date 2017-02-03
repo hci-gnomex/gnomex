@@ -5,6 +5,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.Sample;
 import hci.gnomex.security.SecurityAdvisor;
@@ -25,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -196,7 +198,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
         value = getAssayValue(sample, propertyName);
       }
       if (value == null) {
-        value = getPropertyValue(sample, gridLabel);
+        value = getPropertyValue(sample, gridLabel, sess);
       }
       if (value == null) {
         value = getValueByReflection(sample, propertyName);
@@ -267,18 +269,19 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     }
   }
   
-  private String getPropertyValue(Sample sample, String name) {
-    String retVal = null;
-    if (sample.getPropertyEntries() != null) {
-      for(PropertyEntry pe : (Set<PropertyEntry>)sample.getPropertyEntries()) {
-        if (pe.getProperty().getName().equals(name)) {
-          retVal = pe.getValue();
-          break;
+  private String getPropertyValue(Sample sample, String name, Session sess) {
+    Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(String.valueOf(sample.getIdSample()));
+    if (sampleAnnotations != null) {
+      for(Object key : sampleAnnotations.keySet()) {
+        Integer idProperty = (Integer) key;
+        Property property = sess.get(Property.class, idProperty);
+        if (property != null && name.equals(property.getName())) {
+          return (String) sampleAnnotations.get(key);
         }
       }
     }
     
-    return retVal;
+    return null;
   }
   
   private String getValueByReflection(Sample sample, String column) {
