@@ -4,7 +4,7 @@
          xmlns:util="views.util.*"
          xmlns:analysis="views.analysis.*"
          xmlns:renderers="views.renderers.*"
-         showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
+         showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" xmlns:util2="hci.flex.util.*">
 
     <mx:HTTPService
             id="getExperimentPickList"
@@ -179,12 +179,6 @@
 
         private var membersCollaborators:XMLListCollection;
 
-        // Variables used for overriding the paste feature of the component to allow '\t' and other characters to be
-        // pasted correctly.
-        private var pastedDescription:String = "";
-        private var descriptionChangeIsPaste:Boolean = false;
-        private var simpleLockForTab = false;
-
         private function onCloseWindow():void {
             if (dirty.isDirty()) {
                 promptToCloseOnDirty();
@@ -285,9 +279,6 @@
                                                   onOrganismRefreshed);
             parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,
                                                onOrganismRefreshed);
-
-            this.description.textArea.removeEventListener(TextEvent.TEXT_INPUT, onDescriptionTextInput);
-            this.description.textArea.addEventListener(TextEvent.TEXT_INPUT, onDescriptionTextInput);
         }
 
         private function onOrganismRefreshed(event:Event):void {
@@ -1288,117 +1279,6 @@
             linkToExpWindow.idAnalysis = parentDocument.selectedIdAnalysis;
             PopUpManager.centerPopUp(linkToExpWindow);
         }
-
-        /**
-         * This function is intended to allow the use of the TAB key to insert "\t" characters into the project
-         * description. Unfortunately, the RichTextEditor component does not want to allow these characters, so we need
-         * to improvise.
-         *
-         * @param event an event signalling that a key was pressed. If it is the TAB key, we do stuff, otherwise, nothing.
-         */
-        private function onTabPressed(event:KeyboardEvent):void {
-            switch (event.keyCode) {
-                case Keyboard.TAB :
-                    // super-simple lock on character insertion (the focus movements interact somewhat oddly otherwise)
-                    if( this.simpleLockForTab ) {
-                        focusManager.moveFocus(FocusRequestDirection.BACKWARD);
-                        break;
-                    }
-                    simpleLockForTab = true;
-
-                    var indexBegin:int = event.currentTarget.textArea.selectionBeginIndex;
-                    var indexEnd:int = event.currentTarget.textArea.selectionEndIndex;
-
-                    var range:TextRange = new TextRange(event.currentTarget.textArea
-                                                        as UIComponent, false, indexBegin, indexEnd);
-                    range.text = "\t";
-
-                    var indexNext:int = event.currentTarget.textArea.selectionBeginIndex + range.text.length;
-                    event.currentTarget.textArea.setSelection(indexNext, indexNext);
-                    focusManager.moveFocus(FocusRequestDirection.BACKWARD);
-
-                    this.simpleLockForTab = false;
-                    break;
-            }
-        }
-
-        /**
-         * This function is supposed to listen for any paste events on the description.textArea. If one is detected,
-         * then it should call our replacement for the paste operation.
-         *
-         * This detection may be version-dependent.
-         *
-         * This is intended to take effect in a specific order, but requires event-driven timing.
-         * First, on a paste command, a textInput event fires, we add the correctly-formatted text and save the result.
-         * Second, outside of our influence, the textArea pastes the text in its (possibly incorrect) way
-         * Finally, this triggers a change event, at which point we overwrite the data with our change from step 1.
-         *
-         * @param event an event signalling a potential copy action has been taken.
-         *
-         * @version flex_sdk_3.6
-         * @author John Hofer
-         * @since 02/03/2017
-         */
-        private function onDescriptionTextInput(event:TextEvent):void {
-            this.descriptionChangeIsPaste = false;
-
-            // So it turns out that typing typically does fire a TextEvent.TextInput event, but not the TAB key.
-            // This means that the ONLY changes we pick out here are paste events that (should) contain TABs.
-            // It will also pick up the pasting of a singular TAB character.
-            if(event.text.indexOf("\t") >= 0) {
-                onDescriptionPaste(event);
-                this.descriptionChangeIsPaste = true;
-            }
-        }
-
-        /**
-         * This function is designed to duplicate the effect of a copy operation on this component's RichTextArea's
-         * textArea, but to have it actually keep characters like "\t".
-         *
-         * This is intended to take effect in a specific order, but requires event-driven timing.
-         * First, on a paste command, a textInput event fires, we add the correctly-formatted text and save the result.
-         * Second, outside of our influence, the textArea pastes the text in its (possibly incorrect) way
-         * Finally, this triggers a change event, at which point we overwrite the data with our change from step 1.
-         *
-         * @param event an event signalling a potential copy action has been taken.
-         *
-         * @author John Hofer
-         * @since 02/03/2017
-         */
-        private function onDescriptionPaste(event:TextEvent):void {
-            var indexBegin:int = event.currentTarget.selectionBeginIndex;
-            var indexEnd:int = event.currentTarget.selectionEndIndex;
-
-            var range:TextRange = new TextRange(event.currentTarget as UIComponent, false, indexBegin, indexEnd);
-            range.text = event.text;
-
-            var indexNext:int = indexBegin + range.text.length;
-            event.currentTarget.setSelection(indexNext, indexNext);
-
-            this.pastedDescription = this.description.textArea.text;
-        }
-
-        /**
-         * This function is built to add in the correctly-formatted data into the description, as the paste command for
-         * RichTextEditors oddly excludes certain symbols (such as '\t' characters from JIRA GNOM-2154).
-         *
-         * This is intended to take effect in a specific order, but requires event-driven timing.
-         * First, on a paste command, a textInput event fires, we add the correctly-formatted text and save the result.
-         * Second, outside of our influence, the textArea pastes the text in its (possibly incorrect) way
-         * Finally, this triggers a change event, at which point we overwrite the data with our change from step 1.
-         *
-         * @param event an event signalling a potential copy action has been taken.
-         *
-         * @author John Hofer
-         * @since 02/03/2017
-         */
-        private function onChange(event:Event):void {
-            // TextInput events always cause change events to trigger, so if there is a paste action, we act.
-            if (this.descriptionChangeIsPaste) {
-                this.description.textArea.text = this.pastedDescription;
-                this.descriptionChangeIsPaste = false;
-            }
-        }
         ]]>
 	</mx:Script>
 
@@ -1595,18 +1475,17 @@
 
         <mx:VBox label="Description" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="10"
                  width="100%" height="100%">
-            <mx:RichTextEditor borderStyle="none" headerHeight="0"
-                               id="description" width="100%"
-                               keyDown="onTabPressed(event);"
-                               htmlText="{analysis.@description}"
-                               showControlBar="true"
-                               change="onChange(event); dirty.setDirty();"
-                               creationComplete="removeRichTextButtons();"
-                               paddingLeft="0" paddingRight="0" paddingTop="0"
-                               roundedBottomCorners="false" paddingBottom="0"
-                               borderThicknessRight="0" borderThicknessLeft="0"
-                               borderThicknessBottom="0" borderThickness="0"
-                               borderThicknessTop="0" height="100%" minHeight="50"/>
+            <util2:HCIRichTextEditor borderStyle="none" headerHeight="0"
+                                      id="description" width="100%"
+                                      htmlText="{analysis.@description}"
+                                      showControlBar="true"
+                                      change="dirty.setDirty();"
+                                      creationComplete="removeRichTextButtons();"
+                                      paddingLeft="0" paddingRight="0" paddingTop="0"
+                                      roundedBottomCorners="false" paddingBottom="0"
+                                      borderThicknessRight="0" borderThicknessLeft="0"
+                                      borderThicknessBottom="0" borderThickness="0"
+                                      borderThicknessTop="0" height="100%" minHeight="50"/>
         </mx:VBox>
 
 
