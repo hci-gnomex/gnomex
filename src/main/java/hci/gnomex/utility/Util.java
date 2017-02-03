@@ -299,11 +299,34 @@ public class Util {
 		return status;
 	}
 
-	public static boolean isParameterTrue(String requestParameter) {
-		return requestParameter.equalsIgnoreCase("Y") || requestParameter.equalsIgnoreCase("true");
+	public static boolean isTrueString(String value) {
+		return value != null && (value.equalsIgnoreCase("Y") || value.equalsIgnoreCase("true"));
 	}
 
-	public static boolean isParameterFalse(String requestParameter) {
-		return requestParameter.equalsIgnoreCase("N") || requestParameter.equalsIgnoreCase("false");
+	public static boolean isFalseString(String value) {
+		return value != null && (value.equalsIgnoreCase("N") || value.equalsIgnoreCase("false"));
+	}
+
+	public static boolean isParameterTrue(HttpServletRequest request, String name) {
+		return isTrueString(request.getParameter(name));
+	}
+
+	public static boolean isParameterFalse(HttpServletRequest request, String name) {
+		return isFalseString(request.getParameter(name));
+	}
+
+	public static Boolean getParameterBoolean(HttpServletRequest request, String name) {
+		return getParameterBoolean(request, name, null);
+	}
+
+	public static Boolean getParameterBoolean(HttpServletRequest request, String name, Boolean defaultValue) {
+		String value = request.getParameter(name);
+		if (isTrueString(value)) {
+			return true;
+		}
+		if (isFalseString(value)) {
+			return false;
+		}
+		return defaultValue;
 	}
 }

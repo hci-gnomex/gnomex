@@ -71,38 +71,14 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 	timestamp = request.getParameter("timestamp");
 
-	String includeBillingAccountsParameter = request.getParameter("includeBillingAccounts");
-	if (includeBillingAccountsParameter != null && Util.isParameterFalse(includeBillingAccountsParameter)) {
-		includeBillingAccounts = false;
-	}
-	String includeProductCountsParameter = request.getParameter("includeProductCounts");
-	if (includeProductCountsParameter != null && Util.isParameterFalse(includeProductCountsParameter)) {
-		includeProductCounts = false;
-	}
-	String includeProjectsParameter = request.getParameter("includeProjects");
-	if (includeProjectsParameter != null && Util.isParameterFalse(includeProjectsParameter)) {
-		includeProjects = false;
-	}
-	String includeCoreFacilitiesParameter = request.getParameter("includeCoreFacilities");
-	if (includeCoreFacilitiesParameter != null && Util.isParameterFalse(includeCoreFacilitiesParameter)) {
-		includeCoreFacilities = false;
-	}
-	String includeHistoricalOwnersAndSubmittersParameter = request.getParameter("includeHistoricalOwnersAndSubmitters");
-	if (includeHistoricalOwnersAndSubmittersParameter != null && Util.isParameterFalse(includeHistoricalOwnersAndSubmittersParameter)) {
-		includeHistoricalOwnersAndSubmitters = false;
-	}
-	String includeInstitutionsParameter = request.getParameter("includeInstitutions");
-	if (includeInstitutionsParameter != null && Util.isParameterFalse(includeInstitutionsParameter)) {
-		includeInstitutions = false;
-	}
-	String includeSubmittersParameter = request.getParameter("includeSubmitters");
-	if (includeSubmittersParameter != null && Util.isParameterFalse(includeSubmittersParameter)) {
-		includeSubmitters = false;
-	}
-	String includeMoreCollaboratorInfoParameter = request.getParameter("includeMoreCollaboratorInfo");
-	if (includeMoreCollaboratorInfoParameter != null && Util.isParameterFalse(includeMoreCollaboratorInfoParameter)) {
-		includeMoreCollaboratorInfo = false;
-	}
+	includeBillingAccounts = Util.getParameterBoolean(request, "includeBillingAccounts", true);
+	includeProductCounts = Util.getParameterBoolean(request, "includeProductCounts", true);
+	includeProjects = Util.getParameterBoolean(request, "includeProjects", true);
+	includeCoreFacilities = Util.getParameterBoolean(request, "includeCoreFacilities", true);
+	includeHistoricalOwnersAndSubmitters = Util.getParameterBoolean(request, "includeHistoricalOwnersAndSubmitters", true);
+	includeInstitutions = Util.getParameterBoolean(request, "includeInstitutions", true);
+	includeSubmitters = Util.getParameterBoolean(request, "includeSubmitters", true);
+	includeMoreCollaboratorInfo = Util.getParameterBoolean(request, "includeMoreCollaboratorInfo", true);
 
 }
 
