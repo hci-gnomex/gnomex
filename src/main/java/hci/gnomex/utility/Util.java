@@ -299,6 +299,15 @@ public class Util {
 		return status;
 	}
 
+
+	public static boolean isParameterTrue(String requestParameter) {
+		return requestParameter.equalsIgnoreCase("Y") || requestParameter.equalsIgnoreCase("true");
+	}
+
+	public static boolean isParameterFalse(String requestParameter) {
+		return requestParameter.equalsIgnoreCase("N") || requestParameter.equalsIgnoreCase("false");
+	}
+
 	public static void sendErrorReport(org.hibernate.Session sess, String softwareTestEmail, String fromAddress, String userName, String errorMessage, StringBuilder requestDump) {
 		boolean sendMail = true;
 		try {

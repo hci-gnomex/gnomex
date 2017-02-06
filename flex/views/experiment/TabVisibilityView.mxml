@@ -22,6 +22,8 @@
     useProxy="false">
     <mx:request>
     	<idLab>{idLab}</idLab>
+		<includeBillingAccounts>{"N"}</includeBillingAccounts>
+		<includeProductCounts>{"N"}</includeProductCounts>
     </mx:request>
     	
    </mx:HTTPService>
