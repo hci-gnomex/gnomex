@@ -95,7 +95,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 			Set<BillingAccount> allAuthorizedBillingAccounts = retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), idAppUser, null, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyActiveLabs, includeOnlyUnexpiredAccounts, includeOnlyStartedAccounts);
 
-			Map<Integer, Set<BillingAccount>> billingAccountsByLab = organizeAccountsByLab(allAuthorizedBillingAccounts);
+			Map<Lab, Set<BillingAccount>> billingAccountsByLab = organizeAccountsByLab(allAuthorizedBillingAccounts);
 
 			Document doc = generateXMLDocument(billingAccountsByLab, sess);
 
@@ -128,41 +128,30 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
                 List<Integer> allIdCoreFacilities = (List<Integer>) sess.createQuery(" SELECT DISTINCT cf.idCoreFacility FROM CoreFacility as cf ").list();
                 myCoreFacilities.addAll(allIdCoreFacilities);
             } else {
-                for (Iterator iter = secAdvisor.getCoreFacilitiesIManage().iterator(); iter.hasNext();) {
-                    CoreFacility coreFacility = (CoreFacility) iter.next();
-                    myCoreFacilities.add(coreFacility.getIdCoreFacility());
-                }
+				myCoreFacilities.addAll(secAdvisor.getCoreFacilitiesIManage());
             }
 
             // Add all billing accounts from the appropriate cores
-            List<Integer> billingAccounts = (List<Integer>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
-            for (Iterator<Integer> iter = billingAccounts.iterator(); iter.hasNext();) {
-                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-            }
+            List<BillingAccount> billingAccounts = (List<BillingAccount>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+			allAuthorizedBillingAccounts.addAll(billingAccounts);
         }
 
         // Add all billing accounts with no specified "users" for all labs the user is a member of
-        List<Integer> billingAccountsForUsersLabs = (List<Integer>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
-        for (Iterator<Integer> iter = billingAccountsForUsersLabs.iterator(); iter.hasNext();) {
-            allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-        }
+        List<BillingAccount> billingAccountsForUsersLabs = (List<BillingAccount>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+		allAuthorizedBillingAccounts.addAll(billingAccountsForUsersLabs);
 
         // Add all billing accounts for labs the user is a manager of
-        List<Integer> billingAccountsForManagedLabs = (List<Integer>) sess.createQuery(generateQueryForManagedLabsBillingAccounts(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
-        for (Iterator<Integer> iter = billingAccountsForManagedLabs.iterator(); iter.hasNext();) {
-            allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-        }
+        List<BillingAccount> billingAccountsForManagedLabs = (List<BillingAccount>) sess.createQuery(generateQueryForManagedLabsBillingAccounts(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+		allAuthorizedBillingAccounts.addAll(billingAccountsForManagedLabs);
 
         // Add all billing accounts for which the user is listed as a "user" on
-        List<Integer> billingAccountsUserIsAuthorizedFor = (List<Integer>) sess.createQuery(generateQueryForBillingAccountsWithUsers(idAppUser, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
-        for (Iterator<Integer> iter = billingAccountsUserIsAuthorizedFor.iterator(); iter.hasNext();) {
-            allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-        }
+        List<BillingAccount> billingAccountsUserIsAuthorizedFor = (List<BillingAccount>) sess.createQuery(generateQueryForBillingAccountsWithUsers(idAppUser, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+		allAuthorizedBillingAccounts.addAll(billingAccountsUserIsAuthorizedFor);
 
         return allAuthorizedBillingAccounts;
 	}
 
-	private Document generateXMLDocument(Map<Integer, Set<BillingAccount>> billingAccountsByLab, Session sess) throws XMLReflectException {
+	private Document generateXMLDocument(Map<Lab, Set<BillingAccount>> billingAccountsByLab, Session sess) throws XMLReflectException {
 		Element root = new Element("AuthorizedBillingAccounts");
 		root.setAttribute("idAppUser", idAppUser.toString());
 		root.setAttribute("hasAuthorizedAccounts", billingAccountsByLab.isEmpty() ? "N" : "Y");
@@ -172,9 +161,8 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		boolean hasAccountWithinCore = false;
 		boolean hasAccountsWithinCore = false;
 
-		for (Integer idLab : billingAccountsByLab.keySet()) {
-			Lab lab = (Lab) sess.load(Lab.class, idLab);
-			Set<BillingAccount> accounts = billingAccountsByLab.get(idLab);
+		for (Lab lab : billingAccountsByLab.keySet()) {
+			Set<BillingAccount> accounts = billingAccountsByLab.get(lab);
 
 			Element labNode = new Element("Lab");
 			labNode.setAttribute("name", lab.getFormattedLabName(false));
@@ -203,22 +191,22 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		return doc;
 	}
 
-	private Map<Integer, Set<BillingAccount>> organizeAccountsByLab(Set<BillingAccount> allAccounts) {
-		HashMap<Integer, Set<BillingAccount>> labToAccountsMap = new HashMap<Integer, Set<BillingAccount>>();
+	private Map<Lab, Set<BillingAccount>> organizeAccountsByLab(Set<BillingAccount> allAccounts) {
+		HashMap<Lab, Set<BillingAccount>> labToAccountsMap = new HashMap<Lab, Set<BillingAccount>>();
 
 		for (BillingAccount account : allAccounts) {
-			Integer idLab = account.getIdLab();
+			Lab lab = account.getLab();
 
-			if (idLab == null) {
+			if (lab == null) {
 				continue;
 			}
 
-			if (labToAccountsMap.containsKey(idLab)) {
-				labToAccountsMap.get(idLab).add(account);
+			if (labToAccountsMap.containsKey(lab)) {
+				labToAccountsMap.get(lab).add(account);
 			} else {
 				Set<BillingAccount> accountsForThisLab = new HashSet<BillingAccount>();
 				accountsForThisLab.add(account);
-				labToAccountsMap.put(idLab, accountsForThisLab);
+				labToAccountsMap.put(lab, accountsForThisLab);
 			}
 		}
 
@@ -237,7 +225,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 		// Body
 		queryBuff.append(" FROM BillingAccount AS ba ");
-		queryBuff.append(" JOIN ba.lab AS l ");
+		queryBuff.append(" JOIN FETCH ba.lab AS l ");
 		queryBuff.append(" JOIN l.members AS m ");
 		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 
@@ -264,7 +252,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 		// Body
 		queryBuff.append(" FROM BillingAccount AS ba ");
-		queryBuff.append(" JOIN ba.lab AS l ");
+		queryBuff.append(" JOIN FETCH ba.lab AS l ");
 		queryBuff.append(" JOIN l.managers AS m ");
 		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 
@@ -290,7 +278,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 		// Body
 		queryBuff.append(" FROM BillingAccount AS ba ");
-		queryBuff.append(" JOIN ba.lab AS l ");
+		queryBuff.append(" JOIN FETCH ba.lab AS l ");
 		queryBuff.append(" JOIN ba.users AS u ");
 		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 
@@ -302,11 +290,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	}
 
 	private static StringBuffer queryForRequiredBillingAccountColumns() {
-		return new StringBuffer(" SELECT DISTINCT ba.idBillingAccount ");
-	}
-
-	private static BillingAccount parseBillingAccountQueryRow(Integer idBillingAccount, Session sess) {
-		return (BillingAccount) sess.load(BillingAccount.class, idBillingAccount);
+		return new StringBuffer(" SELECT DISTINCT ba ");
 	}
 
 	private static StringBuffer queryForCommonBillingAccountCriteria(boolean ignoreIdCoreFacility, boolean addWhere, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
@@ -373,7 +357,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 		// Body
 		queryBuff.append(" FROM BillingAccount AS ba ");
-		queryBuff.append(" JOIN ba.lab AS l ");
+		queryBuff.append(" JOIN FETCH ba.lab AS l ");
 		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 
 		// Criteria
