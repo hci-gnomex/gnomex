@@ -2066,7 +2066,7 @@
 					
 					
 					
-					<mx:AdvancedDataGridColumn id="concentrationCol" headerText="{concHeader}" width="65" visible="true" labelFunction="getSampleConcentrationFormatted"/>
+					<mx:AdvancedDataGridColumn id="concentrationCol" headerText="{concHeader}" width="65" visible="true" labelFunction="getSampleConcentrationFormatted" dataField="@concentration" />
 					<mx:AdvancedDataGridColumn id="sampleVolumeCol" headerText="Vol. (uL)" width="80"
 											   labelFunction="getSampleVolumeFormatted"
 											   visible="true" dataField="@sampleVolume"/>
