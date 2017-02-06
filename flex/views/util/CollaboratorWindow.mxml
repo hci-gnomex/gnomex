@@ -7,6 +7,7 @@
 		id="getLab" 
 		url="GetLab.gx"
 		destination="getLab"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetLab(event)"
@@ -23,6 +24,7 @@
 	<mx:HTTPService  
 		id="saveAnalysis" 
 		url="SaveAnalysis.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onSaveAnalysis(event)"
@@ -35,6 +37,7 @@
 		id="saveExistingRequest" 
 		url="SaveRequest.gx"
 		destination="saveExistingRequest"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onSaveExistingRequest(event)"

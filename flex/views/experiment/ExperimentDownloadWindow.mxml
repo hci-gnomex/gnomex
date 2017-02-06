@@ -12,6 +12,7 @@
 			id="getRequestDownloadList"
 			url="GetRequestDownloadList.gx"
 			destination="getRequestDownloadList"
+			concurrency="multiple"
 			resultFormat="e4x"
 			showBusyCursor="true"
 			result="onGetRequestDownloadList(event)"

@@ -861,7 +861,7 @@ public boolean canRead(DetailObject object) throws UnknownPermissionException {
 			Topic t = (Topic) object;
 
 			// Request has public visibility
-			if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
+			if (t != null && t.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
 				canRead = true;
 			}
 		}

@@ -7,6 +7,7 @@
 	<mx:HTTPService 
 		id="getNewsItem" 
 		url="GetNewsItem.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		destination="getNewsItem"
 		showBusyCursor="true"
@@ -20,6 +21,7 @@
 	<mx:HTTPService
 		id="deleteNewsItem" 
 		url="DeleteNewsItem.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		destination="deleteNewsItem"
 		showBusyCursor="true"

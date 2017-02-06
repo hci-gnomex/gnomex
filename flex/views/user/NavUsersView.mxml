@@ -70,6 +70,7 @@
     <mx:HTTPService 
     id="getLab" 
     url="GetLab.gx"
+	concurrency="multiple"
     destination="getLab"
     showBusyCursor="true"
     resultFormat="e4x"
@@ -85,6 +86,7 @@
     <mx:HTTPService 
     id="deleteLab" 
     url="DeleteLab.gx"
+	concurrency="multiple"
     destination="deleteLab"
     showBusyCursor="true"
     resultFormat="e4x"
@@ -99,6 +101,7 @@
    <mx:HTTPService 
     id="generateUserAccountEmail" 
     url="GenerateUserAccountEmail.gx"
+	concurrency="multiple"
     showBusyCursor="true"
     resultFormat="e4x"
     result="onGenerateUserAccountEmail(event)"

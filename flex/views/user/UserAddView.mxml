@@ -5,6 +5,7 @@
     url="SaveAppUser.gx"
     showBusyCursor="true"
     resultFormat="e4x"
+	concurrency="multiple"
     result="onSaveAppUser(event)"
     fault="parentApplication.onFailHttpRequest('Unable to save user', event)"
     useProxy="false">
@@ -24,6 +25,7 @@
     destination="getAppUser"
     showBusyCursor="true"
     resultFormat="e4x"
+	concurrency="multiple"
     result="onGetAppUser(event)"
     fault="parentApplication.onFailHttpRequest('Unable to get user', event)"
     useProxy="false">    

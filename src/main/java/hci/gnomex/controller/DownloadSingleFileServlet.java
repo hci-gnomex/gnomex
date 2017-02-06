@@ -52,6 +52,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
   private String						  experimentDir = null;
   private StringBuilder                   htmlText = new StringBuilder(1024000);
   
+  private String username = "";
 
   public void init() {
 
@@ -72,6 +73,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
     experimentDir = null;
     
     serverName = req.getServerName();
+      username = req.getUserPrincipal().getName();
 
       // Restrict commands to local host if request is not secure
       if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -323,7 +325,13 @@ public class DownloadSingleFileServlet extends HttpServlet {
         System.out.println( "DownloadSingleFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
-        LOG.error("DownloadSingleFileServlet: An exception occurred ", e);
+        String errorMessage = Util.GNLOG(LOG,"Error in DownloadSingleFileServlet ", e);
+        StringBuilder requestDump = Util.printRequest(req);
+        String serverName = req.getServerName();
+
+        Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
+
       HibernateSession.rollback();
       response.setContentType("text/html");
       response.getOutputStream().println(

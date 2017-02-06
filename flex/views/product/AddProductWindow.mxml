@@ -8,6 +8,7 @@
 		url="GetCoreFacilityLabList.gx"
 		showBusyCursor="false"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onGetCoreFacilityLabList(event)"
 		fault="parentApplication.onFailHttpRequest('Unable to get lab list', event)"
 		destination="getCoreFacilityLabList"

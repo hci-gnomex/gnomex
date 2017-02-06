@@ -8,6 +8,7 @@
 	<mx:HTTPService 
 		id="getProductLedgerList" 
 		url="GetProductLedgerList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetProductLedgerList(event)"
 		showBusyCursor="true"

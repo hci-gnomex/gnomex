@@ -9,6 +9,7 @@
 	<mx:HTTPService  
 		id="getProtocol" 
 		url="GetProtocol.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetProtocol(event)"

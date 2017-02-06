@@ -219,9 +219,9 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 			commandInstance.setRequestState(request);
 
 			String errorMessage = (String) request.getAttribute("errorDetails");
-//			String errorMessage = "*** This should be the traceback ***";
+			String username = commandInstance.getUsername();
 
-			sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", serverName, errorMessage, requestDump);
+			Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
 
 
 			HibernateSession.rollback();
@@ -378,30 +378,6 @@ private void sendRedirect(HttpServletResponse response, String url) {
 	}
 }
 
-	private void sendErrorReport(org.hibernate.Session sess, String softwareTestEmail, String fromAddress, String serverName, String errorMessage, StringBuilder requestDump) {
-		boolean sendMail = true;
-		try {
-			java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
-			if (sendMail) {
-
-				String errorMessageString = "";
-				if (errorMessage != null) {
-					errorMessageString = errorMessage + "\n" + requestDump.toString() + "\n";
-				}
-				else {
-					errorMessageString = "No traceback available" + "\n" + requestDump.toString() + "\n";
-				}
-
-				MailUtilHelper helper = new MailUtilHelper(softwareTestEmail, null, null, fromAddress,
-						"GNomEx Runtime Error [Server: " + localMachine.getHostName() + "]", errorMessageString, null,
-						false, DictionaryHelper.getInstance(sess), serverName, true, softwareTestEmail);
-				MailUtil.validateAndSendEmail(helper);
-
-			}
-		} catch (Exception e) {
-			System.err.println("GNomExFrontController unable to email error report.   " + e.toString());
-		}
-	}
 /**
  * Clean up resources
  */

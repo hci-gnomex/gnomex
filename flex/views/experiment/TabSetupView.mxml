@@ -198,6 +198,7 @@
 		url="GetLab.gx"
 		destination="getLab"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onGetLab(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
@@ -213,6 +214,7 @@
 		url="GetProject.gx"
 		destination="getProject"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onGetNewProject(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get new project', event)"
@@ -229,6 +231,7 @@
 		url="GetProject.gx"
 		destination="getProject"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onGetProject(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get project', event)"
@@ -241,6 +244,7 @@
 		url="GetProject.gx"
 		destination="getProjectForEdit"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onGetProjectForEdit(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get project to edit', event)"
@@ -253,6 +257,7 @@
 		url="GetProjectRequestList.gx"
 		destination="getProjectRequestList"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onGetProjectRequestList(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
@@ -272,6 +277,7 @@
 		url="GetAuthorizedBillingAccounts.gx"
 		destination="getAuthorizedBillingAccounts"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="false"
 		result="onGetAuthorizedBillingAccounts(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get authorized billing accounts', event)"
@@ -289,6 +295,8 @@
 		import mx.controls.richTextEditorClasses.ToolBar;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
+		import mx.rpc.AsyncToken;
+		import mx.rpc.AsyncToken;
 		import mx.rpc.events.ResultEvent;
 		import mx.utils.StringUtil;
 
@@ -459,7 +467,8 @@
 		public function selectDefaultLab():void {
 			if (labCombo.dataProvider.length == 1) {
 				labCombo.selectedIndex = 0;
-				getLab.send();
+				trace ("[TabSetupView] (1) refrehLab call getLab.send");
+				var token:AsyncToken = getLab.send();
 			} else {
 				labCombo.selectedIndex = -1;
 				billingAccountCombo.selectedIndex = -1;
@@ -651,7 +660,8 @@
 					idAppUser = null;
 				}
 				this.enabled = false;
-				getLab.send();
+				trace ("[TabSetupView] (2) refrehLab call getLab.send");
+				var token:AsyncToken = getLab.send();
 			} else {
 				lab = null;
 			}

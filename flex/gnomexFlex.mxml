@@ -34,6 +34,7 @@
 		id="logoutService"	    
 		url="logout.jsp"
 		resultFormat="text"
+		concurrency="multiple"
 		result="loggedOut()"
 		showBusyCursor="true"
 		method="POST"
@@ -44,6 +45,7 @@
 	<mx:HTTPService 
 		id="createSecurityAdvisor"
 		url="CreateSecurityAdvisor.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onCreateSecurityAdvisor(event)"
 		fault="onFailCreateSecurityAdvisor(event)"
@@ -57,6 +59,7 @@
 	<mx:HTTPService 
 		id="getSecurityAdvisorForGuest" 
 		url="CreateSecurityAdvisorForGuest.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetSecurityAdvisorForGuest(event)"
 		fault="onFailHttpRequest('Failed to create security advisor for guest', event)"
@@ -70,6 +73,7 @@
 	<mx:HTTPService 
 		id="getExperimentDesignList" 
 		url="GetExperimentDesignList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		destination="getExperimentDesignList"
@@ -83,6 +87,7 @@
 	<mx:HTTPService 
 		id="getExperimentFactorList" 
 		url="GetExperimentFactorList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onGetExperimentFactorList(event)"
@@ -96,6 +101,7 @@
 	<mx:HTTPService 
 		id="getPropertyList" 
 		url="GetPropertyList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		destination="getPropertyList"
@@ -109,6 +115,7 @@
 	<mx:HTTPService 
 		id="getGenomeIndexList" 
 		url="GetGenomeIndexList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		destination="getGenomeIndexList"
@@ -122,6 +129,7 @@
 	<mx:HTTPService 
 		id="getOrganismList" 
 		url="GetOrganismList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		destination="getOrganismList"
@@ -135,6 +143,7 @@
 	<mx:HTTPService 
 		id="getProductList" 
 		url="GetProductList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		destination="getProductList"
@@ -148,6 +157,7 @@
 	<mx:HTTPService 
 		id="getAppUserList" 
 		url="GetAppUserList.gx"
+		concurrency="multiple"
 		showBusyCursor="false"
 		resultFormat="e4x"
 		result="onGetAppUserList(event)"
@@ -160,6 +170,7 @@
 		id="getLabList" 
 		url="GetLabList.gx"
 		showBusyCursor="false"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetLabList(event)"
 		fault="onFailHttpRequest('Failed to get lab list', event)"
@@ -174,6 +185,7 @@
 	<mx:HTTPService 
 		id="getProjectList" 
 		url="GetProjectList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetProjectList(event)"
 		destination="getProjectList"
@@ -187,6 +199,7 @@
 	<mx:HTTPService 
 		id="getSessionTimeout" 
 		url="GetSessionTimeout.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetSessionTimeout(event)"
 		destination="getSessionTimeout"
@@ -212,6 +225,7 @@
 		id="checkDataTrackPermission" 
 		url="CheckDataTrackPermission.gx"
 		destination="checkDataTrackPermission"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onCheckDataTrackPermission(event)"
@@ -224,6 +238,7 @@
 		id="checkTopicPermission" 
 		url="CheckTopicPermission.gx"
 		destination="checkTopicPermission"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onCheckTopicPermission(event)"
@@ -235,6 +250,7 @@
 	<mx:HTTPService
 		id="getProtocolList"
 		url="GetProtocolList.gx"
+		concurrency="multiple"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		useProxy="false"
@@ -250,6 +266,7 @@
 	<mx:HTTPService  
 		id="getSampleSheetUploadURL" 
 		url="UploadSampleSheetURLServlet.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true" 
 		result="onGetSampleSheetUploadURL(event)" 
@@ -262,6 +279,7 @@
 	<mx:HTTPService 
 		id="getAccountFieldsConfiguration" 
 		url="GetAccountFieldsConfiguration.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		destination="getAccountFieldsConfiguration"
@@ -276,6 +294,7 @@
 		id="getFAQ" 
 		url="GetFAQ.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		destination="getFAQ"
 		showBusyCursor="true"
 		result="onGetFAQInterface(event)"

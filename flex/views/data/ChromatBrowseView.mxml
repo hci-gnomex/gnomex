@@ -9,6 +9,7 @@
 	
 	<mx:HTTPService id="getChromatogramList"
 					url="GetChromatogramList.gx"
+					concurrency="multiple"
 					resultFormat="e4x"
 					showBusyCursor="true"
 					result="onGetChromatogramList(event)"
@@ -19,6 +20,7 @@
 	
 	<mx:HTTPService id="saveChromatogramList"
 					url="SaveChromatogramList.gx"
+					concurrency="multiple"
 					resultFormat="e4x"
 					showBusyCursor="true"
 					result="onSaveChromatogramList(event)"
@@ -41,6 +43,7 @@
 		id="cacheFileDownloadList" 
 		url="CacheFileDownloadList.gx"
 		destination="cacheFileDownloadList"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onCacheFileDownloadList(event)"
@@ -53,6 +56,7 @@
 		id="cacheFDTFileDownloadList" 
 		url="CacheFileDownloadList.gx"
 		destination="cacheFileDownloadList"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onCacheFDTFileDownloadList(event)"

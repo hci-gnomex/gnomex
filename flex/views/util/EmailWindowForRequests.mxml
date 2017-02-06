@@ -10,6 +10,7 @@
     id="sendRequestsEmail" 
     url="EmailServlet.gx"
     resultFormat="e4x"
+	concurrency="multiple"
     showBusyCursor="true"
     result="onSendRequestsEmail(event)"
     fault="parentApplication.onFailHttpRequest('Unable to send Email', event)"

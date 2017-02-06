@@ -10,6 +10,7 @@
 	<mx:HTTPService  
 		id="saveBillingAccountFieldsConfiguration" 
 		url="SaveBillingAccountFieldsConfiguration.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onSaveBillingAccountFieldsConfiguration(event)"

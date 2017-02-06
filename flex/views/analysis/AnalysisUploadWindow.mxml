@@ -11,6 +11,7 @@
 	<mx:HTTPService  
 		id="getAnalysisUploadURL" 
 		url="UploadAnalysisURLServlet.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true" 
 		result="onGetAnalysisUploadURL(event)" 
@@ -22,6 +23,7 @@
 	<mx:HTTPService  
 		id="fdtUploadStart" 
 		url="FastDataTransferUploadStart.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true" 
 		result="onFdtUploadStart(event)" 
@@ -34,7 +36,8 @@
 		id="getAnalysis" 
 		url="GetAnalysis.gx"
 		resultFormat="e4x"
-		showBusyCursor="true" 
+		showBusyCursor="true"
+		concurrency="multiple"
 		result="onGetAnalysis(event)" 
 		fault="parentApplication.onFailHttpRequest('Failed to get Analysis', event)"
 		method="POST"
@@ -44,6 +47,7 @@
 	<mx:HTTPService  
 		id="getAnalysisDownloadList" 
 		url="GetAnalysisDownloadList.gx"
+		concurrency="multiple"
 		destination="getAnalysisDownloadList"
 		resultFormat="e4x"
 		showBusyCursor="true"
@@ -56,6 +60,7 @@
 	<mx:HTTPService  
 		id="organizeAnalysisUploadFiles" 
 		url="OrganizeAnalysisUploadFiles.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onOrganizeAnalysisUploadFiles(event)"

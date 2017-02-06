@@ -4,10 +4,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.FileDescriptor;
-import hci.gnomex.utility.ServletUtil;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,6 +44,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     private boolean                         needToPreprocess = false;
     private String						  analysisDir = null;
     private StringBuilder                   htmlText = new StringBuilder(1024000);
+    private String                          username = "";
 
 
     public void init() {
@@ -116,6 +114,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         SecurityAdvisor secAdvisor = null;
         try {
 
+            username = req.getUserPrincipal().getName();
 
             // Get security advisor
             secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -278,7 +277,13 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
                 System.out.println( "DownloadAnalyisSingleFileServlet: You must have a SecurityAdvisor in order to run this command.");
             }
         } catch (Exception e) {
-            LOG.error("Error in DownloadAnalysisSingleFileServlet ", e);
+//            LOG.error("Error in DownloadAnalysisSingleFileServlet ", e);
+            String errorMessage = Util.GNLOG(LOG,"Error in DownloadAnalysisSingleFileServlet ", e);
+            StringBuilder requestDump = Util.printRequest(req);
+            String serverName = req.getServerName();
+
+            Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
             HibernateSession.rollback();
             response.setContentType("text/html");
             response.getOutputStream().println(
@@ -294,7 +299,6 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
             try {
                 secAdvisor.closeHibernateSession();
             } catch (Exception e) {
-                LOG.error("Error in DownloadAnalysisSingleFileServlet ", e);
             }
 
             if (in != null) {

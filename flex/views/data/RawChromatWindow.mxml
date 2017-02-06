@@ -12,6 +12,7 @@
 	<mx:HTTPService  
 		id="getChromatogram" 
 		url="GetChromatogram.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetChromatogram(event)"

@@ -8,6 +8,7 @@
 	<mx:HTTPService 
 		id="getFAQ" 
 		url="GetFAQ.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		destination="getFAQ"
 		showBusyCursor="true"
@@ -22,6 +23,7 @@
 	<mx:HTTPService
 		id="deleteFAQ" 
 		url="DeleteFAQ.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		destination="deleteFAQ"
 		showBusyCursor="true"
@@ -33,6 +35,7 @@
 	<mx:HTTPService 
 		id="saveFAQ"	 
 		destination="saveFAQ"
+		concurrency="multiple"
 		url="SaveFAQ.gx"
 		resultFormat="e4x"
 		result="onSaveFAQ(event)"

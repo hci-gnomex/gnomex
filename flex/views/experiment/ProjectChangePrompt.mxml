@@ -11,7 +11,8 @@
 	<mx:HTTPService             
 		id="getLab" 
 		url="GetLab.gx" 
-		destination="getLab" 
+		destination="getLab"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetLab(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get lab', event)"

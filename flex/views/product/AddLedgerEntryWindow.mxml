@@ -6,6 +6,7 @@
 		id="saveProductLedgerEntry" 
 		url="SaveProductLedgerEntry.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onSaveProductLedgerEntry(event)"
 		showBusyCursor="true"
 		fault="parentApplication.onFailHttpRequest('Unable to save ledger entry', event)"

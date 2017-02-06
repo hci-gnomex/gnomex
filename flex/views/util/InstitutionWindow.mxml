@@ -10,6 +10,7 @@
 		id="saveInstitution"
 		url="SaveInstitution.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onSaveInstitution(event)"
 		showBusyCursor="false"
 		fault="parentApplication.onFailHttpRequest('Failed to save Institution', event)"

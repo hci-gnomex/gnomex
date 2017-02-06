@@ -6,6 +6,7 @@
 	<mx:HTTPService  
 		id="organizeAnalysisUploadFiles" 
 		url="OrganizeAnalysisUploadFiles.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onOrganizeAnalysisUploadFiles(event)"

@@ -87,6 +87,7 @@
 <mx:HTTPService 
 	id="submitWorkAuthForm" 
 	url="SubmitWorkAuthForm.gx"
+	concurrency="multiple"
 	resultFormat="e4x" 
 	showBusyCursor="true"
 	result="onSubmitWorkAuthForm(event)"
@@ -98,6 +99,7 @@
 <mx:HTTPService 
 	id="getLab" 
 	url="GetLab.gx"
+	concurrency="multiple"
 	destination="getLab"
 	showBusyCursor="true"
 	resultFormat="e4x"

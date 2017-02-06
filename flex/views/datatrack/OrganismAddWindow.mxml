@@ -13,6 +13,7 @@
     <mx:HTTPService             
       id="addOrganism" 
       url="SaveOrganism.gx"
+	  concurrency="multiple"
       resultFormat="e4x"
 	  showBusyCursor="true"
       result="onAddOrganism(event)"

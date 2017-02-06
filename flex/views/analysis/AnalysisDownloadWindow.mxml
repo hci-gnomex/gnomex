@@ -12,6 +12,7 @@
 		id="getAnalysisDownloadList" 
 		url="GetAnalysisDownloadList.gx"
 		destination="getAnalysisDownloadList"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetAnalysisDownloadList(event)"

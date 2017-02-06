@@ -10,6 +10,7 @@
 		id="saveCoreFacility" 
 		url="SaveCoreFacility.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="false"
 		result="onSaveCoreFacility(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save core facility', event)"

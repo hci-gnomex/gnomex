@@ -23,6 +23,7 @@
     <mx:HTTPService             
       id="saveDataTrack" 
       url="SaveDataTrack.gx"
+	  concurrency="multiple"
       resultFormat="e4x"
       result="onSaveDataTrack(event)"
       fault="parentApplication.onFailHttpRequest('Failed to add data track', event)"
@@ -40,6 +41,7 @@
     <mx:HTTPService  
       id="getUploadURL" 
       url="UploadDataTrackURLServlet.gx"
+	  concurrency="multiple"
       resultFormat="e4x"
       showBusyCursor="true" 
       result="onGetUploadURL(event)" 

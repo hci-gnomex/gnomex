@@ -4,6 +4,7 @@
 	<mx:HTTPService  
 		id="convertIllumina" 
 		url="ConvertIllumina.gx"
+		concurrency="multiple"
 		destination="convertIllumina"
 		resultFormat="e4x"
 		showBusyCursor="true"

@@ -10,6 +10,7 @@
 		id="getProductOrderLineItemList" 
 		url="GetProductOrderLineItemList.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onGetProductOrderLineItemList(event)"
 		showBusyCursor="true"
 		fault="parentApplication.onFailHttpRequest('Unable to get order list', event)"

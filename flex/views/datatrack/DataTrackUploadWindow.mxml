@@ -13,6 +13,7 @@
 <mx:HTTPService  
 	id="getUploadURL" 
 	url="UploadDataTrackURLServlet.gx"
+	concurrency="multiple"
 	resultFormat="e4x"
 	showBusyCursor="true" 
 	result="onGetUploadURL(event)" 
@@ -24,6 +25,7 @@
 <mx:HTTPService  
 	id="fdtUploadStart" 
 	url="FastDataTransferUploadStart.gx"
+	concurrency="multiple"
 	resultFormat="e4x"
 	showBusyCursor="true" 
 	result="onFdtUploadStart(event)" 

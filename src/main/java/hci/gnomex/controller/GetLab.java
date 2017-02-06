@@ -108,6 +108,9 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 public Command execute() throws RollBackCommandException {
 
+	long startTime = System.currentTimeMillis();
+	String labNumber = "";
+
 	try {
 
 		Document doc = new Document(new Element("OpenLabList"));
@@ -126,6 +129,7 @@ public Command execute() throws RollBackCommandException {
 		Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername(), "GetLab");
 
 		Lab theLab = (Lab) sess.get(Lab.class, lab.getIdLab());
+		labNumber = "" + theLab.getIdLab();
 
 		// workaround until NullPointer exception is dealt with
 		InternalAccountFieldsConfiguration.getConfiguration(sess);
@@ -338,6 +342,10 @@ public Command execute() throws RollBackCommandException {
 	} else {
 		setResponsePage(this.ERROR_JSP);
 	}
+
+	String dinfo = " GetLab (" + this.getUsername() + " - " + labNumber + "), ";
+	Util.showTime(startTime, dinfo);
+
 
 	return this;
 }

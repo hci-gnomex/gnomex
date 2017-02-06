@@ -9,6 +9,7 @@
 		id="saveNewsItem"	 
 		destination="saveNewsItem"
 		url="SaveNewsItem.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onSaveNewsItem(event)"
 		fault="parentApplication.onFailHttpRequest('Save Newsitem Failed', event)"

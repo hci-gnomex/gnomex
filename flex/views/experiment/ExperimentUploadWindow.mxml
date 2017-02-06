@@ -10,6 +10,7 @@
 	<mx:HTTPService  
 		id="getExperimentUploadURL" 
 		url="UploadExperimentURLServlet.gx"
+        concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true" 
 		result="onGetExperimentUploadURL(event)" 
@@ -22,6 +23,7 @@
 	<mx:HTTPService  
 		id="fdtUploadStart" 
 		url="FastDataTransferUploadStart.gx"
+        concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true" 
 		result="onFdtUploadStart(event)" 
@@ -36,7 +38,8 @@
 		id="getRequest" 
 		url="GetRequest.gx"
 		resultFormat="e4x"
-		showBusyCursor="true" 
+		showBusyCursor="true"
+        concurrency="multiple"
 		result="onGetRequest(event)" 
 		fault="parentApplication.onFailHttpRequest('Failed to get experiment', event)"
 		method="POST"
@@ -47,6 +50,7 @@
 		id="getRequestDownloadList" 
 		url="GetRequestDownloadList.gx"
 		destination="getRequestDownloadList"
+        concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetRequestDownloadList(event)"
@@ -58,6 +62,7 @@
 	<mx:HTTPService  
 		id="organizeExperimentUploadFiles" 
 		url="OrganizeExperimentUploadFiles.gx"
+        concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onOrganizeExperimentUploadFiles(event)"
@@ -69,6 +74,7 @@
 	<mx:HTTPService  
 		id="getLinkedSampleFiles" 
 		url="GetLinkedSampleFiles.gx"
+        concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetLinkedSampleFiles(event)"

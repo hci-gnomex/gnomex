@@ -6,6 +6,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.ServletUtil;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.Util;
 import org.hibernate.Session;
 
 import javax.servlet.ServletException;
@@ -22,6 +23,7 @@ public class DownloadFastaFileServlet extends HttpServlet {
 
     private Chromatogram                   chromatogram;
     private Integer                        idChromatogram;
+    private String                          username = "";
 
     public void init() {
     }
@@ -103,7 +105,12 @@ public class DownloadFastaFileServlet extends HttpServlet {
                 System.out.println( "DownloadFastaFileServlet: You must have a SecurityAdvisor in order to run this command.");
             }
         } catch (Exception e) {
-            LOG.error("Error in DownloadFastaFileServlet", e);
+            String errorMessage = Util.GNLOG(LOG,"Error in DownloadFastaFileServlet ", e);
+            StringBuilder requestDump = Util.printRequest(req);
+            String serverName = req.getServerName();
+
+            Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
             HibernateSession.rollback();
             response.setContentType("text/html");
             response.getOutputStream().println(
