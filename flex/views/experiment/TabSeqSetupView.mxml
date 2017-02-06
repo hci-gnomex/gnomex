@@ -13,6 +13,7 @@
 	<mx:HTTPService  
 		id="getLibPrepApplicationPriceList" 
 		url="GetLibPrepApplicationPriceList.gx"
+		concurrency="multiple"
 		destination="getLibPrepApplicationPriceList" 
 		resultFormat="e4x"
 		showBusyCursor="true"

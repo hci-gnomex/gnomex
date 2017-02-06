@@ -64,7 +64,7 @@ public class ActiveDirectory {
      *
      * @param username a {@link java.lang.String} object - username to establish a LDAP connection
      * @param password a {@link java.lang.String} object - password to establish a LDAP connection
-     * @param domainController a {@link java.lang.String} object - domain controller name for LDAP connection
+     * @param {@link java.lang.String} object - domain controller name for LDAP connection
      */
     public ActiveDirectory(String username,
                            String password,

@@ -9,6 +9,7 @@
 		url="SavePriceCategory.gx"
 		destination="savePriceCategory" 
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onSavePriceCategory(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save price category', event)"
 		method="POST"

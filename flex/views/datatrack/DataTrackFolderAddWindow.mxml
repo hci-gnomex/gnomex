@@ -11,6 +11,7 @@
     <mx:HTTPService             
       id="saveDataTrackFolder" 
       url="SaveDataTrackFolder.gx"
+	  concurrency="multiple"
       resultFormat="e4x"
 	  showBusyCursor="true"
       result="onSaveDataTrackFolder(event)"

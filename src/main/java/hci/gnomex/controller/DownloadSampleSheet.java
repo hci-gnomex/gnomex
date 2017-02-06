@@ -137,7 +137,6 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-        LOG.error("An exception has occurred in DownloadSampleSheet ", e);
       }
     }
     

@@ -9,7 +9,8 @@
 	<mx:HTTPService                 
 		id="getLab" 
 		url="GetLab.gx"
-		destination="getLab" 
+		destination="getLab"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetLab(event)" 
 		fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
@@ -24,6 +25,7 @@
 	<mx:HTTPService 
 		id="getPricingList" 
 		url="GetPricingList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onGetPricingList(event)"
 		showBusyCursor="true"
@@ -41,6 +43,7 @@
 	<mx:HTTPService                
 		id="getPrice" 
 		url="GetPrice.gx"
+		concurrency="multiple"
 		destination="getPrice" 
 		resultFormat="e4x"
 		result="onGetPrice(event)" 
@@ -52,6 +55,7 @@
 	<mx:HTTPService                
 		id="deletePrice" 
 		url="DeletePrice.gx"
+		concurrency="multiple"
 		destination="deletePrice" 
 		resultFormat="e4x"
 		result="onDeletePrice(event)" 
@@ -63,6 +67,7 @@
 	<mx:HTTPService                
 		id="getPriceSheet" 
 		url="GetPriceSheet.gx"
+		concurrency="multiple"
 		destination="getPriceSheet" 
 		resultFormat="e4x"
 		result="onGetPriceSheet(event)" 
@@ -74,6 +79,7 @@
 	<mx:HTTPService                
 		id="deletePriceSheet" 
 		url="DeletePriceSheet.gx"
+		concurrency="multiple"
 		destination="deletePriceSheet" 
 		resultFormat="e4x"
 		result="onDeletePriceSheet(event)" 
@@ -85,6 +91,7 @@
 	<mx:HTTPService                
 		id="getPriceCategory" 
 		url="GetPriceCategory.gx"
+		concurrency="multiple"
 		destination="getPriceCategory" 
 		resultFormat="e4x"
 		result="onGetPriceCategory(event)" 
@@ -96,6 +103,7 @@
 	<mx:HTTPService                
 		id="deletePriceCategory" 
 		url="DeletePriceCategory.gx"
+		concurrency="multiple"
 		destination="deletePriceCategory" 
 		resultFormat="e4x"
 		result="onDeletePriceCategory(event)" 
@@ -107,6 +115,7 @@
 	<mx:HTTPService 
 		id="getBillingRequestList" 
 		url="GetBillingRequestList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetBillingRequestList(event)"
@@ -125,6 +134,7 @@
 	<mx:HTTPService 
 		id="getBillingItemList" 
 		url="GetBillingItemList.gx"
+		concurrency="multiple"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		result="onGetBillingItemList(event)"
@@ -145,6 +155,7 @@
 	<mx:HTTPService 
 		id="getBillingInvoiceList" 
 		url="GetBillingInvoiceList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetBillingInvoiceList(event)"
@@ -164,6 +175,7 @@
     <mx:HTTPService 
     id="createBillingItems" 
     url="CreateBillingItems.gx"
+	concurrency="multiple"
     showBusyCursor="true"
     resultFormat="e4x"
     result="onCreateBillingItems(event)"
@@ -175,6 +187,7 @@
     <mx:HTTPService 
     id="saveBillingItemList" 
     url="SaveBillingItemList.gx"
+	concurrency="multiple"
     resultFormat="e4x"
     destination="saveBillingItemList"
     showBusyCursor="true"
@@ -187,6 +200,7 @@
     <mx:HTTPService 
     id="movePriceCategory" 
     url="MovePriceCategory.gx"
+	concurrency="multiple"
     resultFormat="e4x"
     destination="movePriceCategory"
     showBusyCursor="true"

@@ -14,6 +14,7 @@
     id="getProjectRequestList" 
     url="GetProjectRequestList.gx"
     destination="getProjectRequestList"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetProjectRequestList(event)"
@@ -28,6 +29,7 @@
     id="getRequest" 
     url="GetRequest.gx"
     destination="getRequest"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="false"
     result="onGetRequest(event)"
@@ -40,6 +42,7 @@
     id="getRequestFromNav" 
     url="GetRequest.gx"
     destination="getRequest"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="false"
     result="onGetRequestFromNav(event)"
@@ -54,6 +57,7 @@
     destination="getRequestForDownload"
     resultFormat="e4x"
     showBusyCursor="true"
+	concurrency="multiple"
     result="onGetRequestForDownload(event)"
  	fault="parentApplication.onFailHttpRequest('Failed to get request for download', event)"
     method="POST"
@@ -64,6 +68,7 @@
     id="deleteRequest" 
     url="DeleteRequest.gx"
     destination="deleteRequest"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onDeleteRequest(event)"
@@ -77,6 +82,7 @@
 		id="submitRequest" 
 		url="ChangeRequestStatus.gx"
 		destination="submitRequest"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onSubmitRequest(event)"
@@ -89,6 +95,7 @@
 		id="archiveRequest" 
 		url="ArchiveRequest.gx"
 		destination="archiveRequest"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onArchiveRequest(event)"
@@ -101,6 +108,7 @@
     id="getProject" 
     url="GetProject.gx"
     destination="getProject"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetProject(event)"
@@ -117,6 +125,7 @@
 		id="getProjectForLookup" 
 		url="GetProject.gx"
 		destination="getProject"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetProjectForLookup(event)"
@@ -133,6 +142,7 @@
     id="saveRequestProject" 
     url="SaveRequestProject.gx"
     destination="saveRequestProject"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveRequestProject(event)"
@@ -144,7 +154,8 @@
    <mx:HTTPService  
     id="getLab" 
     url="GetLab.gx" 
-    destination="getLab" 
+    destination="getLab"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetLab(event)"
@@ -159,7 +170,8 @@
 	<mx:HTTPService  
 		id="getAppUserList" 
 		url="GetAppUserList.gx" 
-		destination="getAppUserList" 
+		destination="getAppUserList"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetAppUserList(event)"
@@ -183,6 +195,7 @@
 			import mx.events.DragEvent;
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
+			import mx.rpc.AsyncToken;
 			import mx.rpc.events.ResultEvent;
 			
 			import views.util.PickDateRangeView;
@@ -472,7 +485,8 @@
 		    						for each(var l:Object in  parentApplication.labList) {
 		    							if (l.@idLab == request.@idLab) {
 		    								this.browseLabCombo.selectedItem = l;
-											getLab.send();
+											trace ("[NavExperimentView] (1) refrehLab call getLab.send");
+											var token:AsyncToken = getLab.send();
 		    								break;	
 		    							}
 		    						}
@@ -1358,7 +1372,8 @@
 	    
 	    private function getMembersOfLab():void {
 			if (this.browseLabCombo.selectedItem != null && this.browseLabCombo.selectedItem.@idLab != null) {
-				getLab.send();				
+				trace ("[NavExperimentView] (2) refrehLab call getLab.send");
+				var token:AsyncToken = getLab.send();
 			}
 		}
 		private function onGetLab(event:ResultEvent):void {			

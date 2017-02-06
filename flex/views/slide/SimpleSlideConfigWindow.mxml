@@ -11,6 +11,7 @@
 		id="saveSimple"
 		url="SaveSimpleSlide.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onSaveSimple(event)"
 		showBusyCursor="true"
 		fault="parentApplication.onFailHttpRequest('Failed to save Slide', event)"

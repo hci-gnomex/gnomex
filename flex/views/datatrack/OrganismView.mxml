@@ -16,6 +16,7 @@
 	id="updateOrganism" 
 	url="SaveOrganism.gx"
 	resultFormat="e4x"
+	concurrency="multiple"
 	showBusyCursor="true"
 	result="onUpdateOrganism(event)"
 	fault="parentApplication.onFailHttpRequest('Failed to update organism', event)"

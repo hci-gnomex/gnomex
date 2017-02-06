@@ -9,6 +9,7 @@
     url="SaveExperimentPlatform.gx"
     showBusyCursor="true"
     resultFormat="e4x"
+	concurrency="multiple"
     result="onSaveExperimentPlatform(event)"
     fault="parentApplication.onFailHttpRequest('Unable to save experiment platform', event)"
     useProxy="false">

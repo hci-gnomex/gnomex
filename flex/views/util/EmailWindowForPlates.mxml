@@ -11,6 +11,7 @@
 		id="sendPlateEmail" 
 		url="EmailServlet.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onSendPlateEmail(event)"
 		fault="parentApplication.onFailHttpRequest('Unable to send Email', event)"

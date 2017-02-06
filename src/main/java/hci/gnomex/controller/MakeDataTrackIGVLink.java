@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import hci.gnomex.utility.Util;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -89,8 +90,12 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 
 		execute(res);
 	} catch (Exception ex) {
+		String errorMessage = Util.GNLOG(LOG,"MakeDataTrackIGVLink -- Unhandled exception ", ex);
+		StringBuilder requestDump = Util.printRequest(req);
+		String serverName = req.getServerName();
+		Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
 		HibernateSession.rollback();
-		LOG.error("MakeDataTrackIGVLink -- Unhandled exception", ex);
 	} finally {
 		if (sess != null) {
 			try {

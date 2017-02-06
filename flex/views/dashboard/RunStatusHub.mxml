@@ -10,6 +10,7 @@
 	<mx:HTTPService 
 		id="metrixInterface" 
 		url="MetrixServerInterface.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		destination="MetrixServerInterface"
 		showBusyCursor="true"

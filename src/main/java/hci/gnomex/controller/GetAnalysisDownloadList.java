@@ -353,7 +353,7 @@ public Command execute() throws RollBackCommandException {
 		throw new RollBackCommandException(e.getMessage());
 	}
 
-	String dinfo = "GetAnalysisDownloadList (" + this.getUsername() + " - " + reqNumber + "), ";
+	String dinfo = " GetAnalysisDownloadList (" + this.getUsername() + " - " + reqNumber + "), ";
 	Util.showTime(startTime, dinfo);
 
 	return this;

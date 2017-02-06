@@ -11,10 +11,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SealType;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.ProductException;
-import hci.gnomex.utility.ProductUtil;
-import hci.gnomex.utility.ServletUtil;
+import hci.gnomex.utility.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +37,7 @@ private static Logger LOG = Logger.getLogger(DownloadABIRunFileServlet.class);
 private Integer idInstrumentRun;
 private InstrumentRun ir;
 private String codeReactionType = ReactionType.SEQUENCING_REACTION_TYPE;
+	private String username="";
 
 public void init() {
 
@@ -83,6 +81,8 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 
 		// Get security advisor
 		secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+
+		username = req.getUserPrincipal().getName();
 
 		if (secAdvisor != null) {
 
@@ -277,7 +277,12 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 					.println("DownloadABIRunFileServlet: You must have a SecurityAdvisor in order to run this command.");
 		}
 	} catch (Exception e) {
-		LOG.error("Exception in DownloadABIRunFileServlet: ", e);
+		String errorMessage = Util.GNLOG(LOG,"Error in DownloadABIRunFileServlet ", e);
+		StringBuilder requestDump = Util.printRequest(req);
+		String serverName = req.getServerName();
+
+		Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
 		HibernateSession.rollback();
 		response.setContentType("text/html");
 		response.getOutputStream().println("<html><head><title>Error</title></head>");

@@ -9,6 +9,7 @@
 		id="saveOrganism" 
 		url="SaveOrganism.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="false"
 		result="onSaveOrganism(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save sample annotation', event)"

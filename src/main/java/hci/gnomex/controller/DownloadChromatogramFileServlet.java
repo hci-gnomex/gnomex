@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import hci.gnomex.utility.Util;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 
@@ -25,6 +26,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
     private static Logger LOG = Logger.getLogger(DownloadChromatogramFileServlet.class);
 
     private Integer     idChromatogram = null;
+    private String      username = "";
 
 
     public void init() {
@@ -57,6 +59,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
 
         try {
 
+            username = req.getUserPrincipal().getName();
 
             // Get security advisor
             secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -135,7 +138,12 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
                 System.out.println( "DownloadChromatogramFileServlet: You must have a SecurityAdvisor in order to run this command.");
             }
         } catch (Exception e) {
-            LOG.error("Error in DownloadChromatogramFileServlet", e);
+            String errorMessage = Util.GNLOG(LOG,"Error in DownloadChromatogramFileServlet ", e);
+            StringBuilder requestDump = Util.printRequest(req);
+            String serverName = req.getServerName();
+
+            Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
             HibernateSession.rollback();
             response.setContentType("text/html");
             response.getOutputStream().println(
@@ -152,7 +160,6 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
             try {
                 secAdvisor.closeHibernateSession();
             } catch (Exception e) {
-                LOG.error("Error in DownloadChromatogramFileServlet", e);
             }
 
             if (in != null) {

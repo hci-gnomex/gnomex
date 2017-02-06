@@ -5,7 +5,8 @@
 	<mx:HTTPService                
 		id="sendBillingInvoiceEmail" 
 		url="SendBillingInvoiceEmail.gx"
-		destination="sendBillingInvoiceEmail" 
+		destination="sendBillingInvoiceEmail"
+		concurrency="multiple"
 		resultFormat="e4x"
 		result="onSendBillingInvoiceEmail(event)" 
 		fault="parentApplication.onFailHttpRequest('Failed to send email', event)"

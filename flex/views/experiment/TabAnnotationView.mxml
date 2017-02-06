@@ -6,6 +6,7 @@
 	<mx:HTTPService
 			id="saveProperty"
 			url="SaveProperty.gx"
+			concurrency="multiple"
 			resultFormat="e4x"
 			showBusyCursor="true"
 			result="onSaveProperty(event)"
@@ -17,6 +18,7 @@
 	<mx:HTTPService
 			id="addPropertyAppUsers"
 			url="AddPropertyAppUsers.gx"
+			concurrency="multiple"
 			resultFormat="e4x"
 			showBusyCursor="true"
 			result="onAddPropertyAppUsers(event)"

@@ -34,7 +34,8 @@
 
 	<mx:HTTPService             
 		id="getLab" 
-		url="GetLab.gx" 
+		url="GetLab.gx"
+		concurrency="multiple"
 		destination="getLab" 
 		resultFormat="e4x"
 		result="onGetLab(event)"

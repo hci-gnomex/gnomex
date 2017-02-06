@@ -7,6 +7,7 @@
    <mx:HTTPService             
     id="savePriceSheet" 
     url="SavePriceSheet.gx"
+	concurrency="multiple"
     destination="savePriceSheet" 
     resultFormat="e4x"
     result="onSavePriceSheet(event)"

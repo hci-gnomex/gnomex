@@ -11,6 +11,7 @@
     id="sendInstrumentRunEmail" 
     url="EmailServlet.gx"
     resultFormat="e4x"
+	concurrency="multiple"
     showBusyCursor="true"
     result="onSendInstrumentRunEmail(event)"
     fault="parentApplication.onFailHttpRequest('Unable to send Email', event)"

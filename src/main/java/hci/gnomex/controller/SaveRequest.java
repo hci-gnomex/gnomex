@@ -1794,8 +1794,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 			throw e;
 		} catch (ProductException e) {
-			LOG.error("An exception has occurred in SaveRequest ", e);
-			LOG.error("Unable to create ProductLedger for request. " + e.getMessage(), e);
+			LOG.error("An exception has occurred in SaveRequest: Unable to create ProductLedger for request. " + e.getMessage(), e);
+			this.errorDetails = Util.GNLOG(LOG,"Unable to create ProductLedger for request. ", e);
 
 			throw new GNomExRollbackException(e.getMessage(), true, e.getMessage());
 		} catch (Exception e) {

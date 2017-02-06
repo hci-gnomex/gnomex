@@ -10,6 +10,7 @@
 		destination="uploadOrder"
 		showBusyCursor="true"
 		resultFormat="e4x"
+		concurrency="multiple"
 		method="POST"
 		fault="parentApplication.onFailHttpRequest('Failed to upload Purchase Order', event)"
 		useProxy="false">
@@ -19,6 +20,7 @@
 		id="getUploadPurchaseOrderURL" 
 		url="UploadPurchaseOrderURL.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true" 
 		result="onGetUploadPurchaseOrderURL(event)" 
 		fault="parentApplication.onFailHttpRequest('Failed to get purchase order upload URL', event)"
@@ -32,6 +34,7 @@
 		destination="deletePurchaseForm"
 		showBusyCursor="true"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onDeletePurchaseForm(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to delete group', event)"
 		useProxy="false">

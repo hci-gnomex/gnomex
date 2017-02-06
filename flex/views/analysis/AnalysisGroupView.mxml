@@ -6,6 +6,7 @@
     id="saveAnalysisGroup" 
     url="SaveAnalysisGroup.gx"
     destination="saveAnalysisGroup"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSaveAnalysisGroup(event)"

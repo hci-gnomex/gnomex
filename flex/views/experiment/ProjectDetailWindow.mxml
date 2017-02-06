@@ -13,6 +13,7 @@
 	<mx:HTTPService  
 		id="getNewProject" 
 		url="GetProject.gx"
+		concurrency="multiple"
 		destination="getProject"
 		resultFormat="e4x"
 		showBusyCursor="true"

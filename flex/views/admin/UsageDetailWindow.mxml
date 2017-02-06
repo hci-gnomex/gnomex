@@ -6,6 +6,7 @@
 	id="getUsageDetail" 
 	url="GetUsageDetail.gx"
 	destination="getUsageDetail"
+	concurrency="multiple"
 	resultFormat="e4x"
 	showBusyCursor="true"
 	result="onGetUsageDetail(event)"

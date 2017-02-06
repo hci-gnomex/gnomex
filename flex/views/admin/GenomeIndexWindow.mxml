@@ -9,6 +9,7 @@
 <mx:HTTPService  
 		id="saveGenomeIndex" 
 		url="SaveGenomeIndex.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onSaveGenomeIndex(event)"
@@ -20,6 +21,7 @@
 <mx:HTTPService  
 		id="deleteGenomeIndex" 
 		url="DeleteGenomeIndex.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onDeleteGenomeIndex(event)"

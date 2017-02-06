@@ -7,7 +7,8 @@
    <mx:HTTPService             
     id="savePrice" 
     url="SavePrice.gx"
-    destination="savePrice" 
+    destination="savePrice"
+	concurrency="multiple"
     resultFormat="e4x"
     result="onSavePrice(event)"
     fault="parentApplication.onFailHttpRequest('Failed to save price', event)"

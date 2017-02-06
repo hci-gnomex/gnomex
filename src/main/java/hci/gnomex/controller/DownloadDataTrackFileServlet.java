@@ -205,7 +205,6 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e) {
-				LOG.error("Unable to close sesion in DownloadDataTrackFileServlet", e);
 			}
 		}
 	}
