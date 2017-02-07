@@ -465,7 +465,7 @@
 												if(paramsFoundCnt > 0) {
 													ssColItemValue = ssColItemValue + ",";
 												}
-												ssColItemValue = ssColItemValue + optionItem.@idPropertyOption;
+												ssColItemValue = ssColItemValue + optionItem.@option;
 												paramsFoundCnt++;
 												break;
 											}
@@ -476,7 +476,7 @@
 											} else {
 												reportStatus += ", " + thisParam;
 											}
-											notFoundCnt;
+											notFoundCnt++;
 										}
 									}
 									if(paramsFoundCnt == 0) {
