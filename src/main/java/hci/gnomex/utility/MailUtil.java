@@ -2,6 +2,9 @@ package hci.gnomex.utility;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Date;
 
 import javax.activation.DataHandler;
@@ -23,8 +26,11 @@ import javax.naming.NamingException;
 
 import hci.gnomex.constants.Constants;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.apache.log4j.Logger;
 
 public class MailUtil {
+
+	private static Logger LOG = Logger.getLogger(MailUtil.class);
 	
 	public static boolean validateAndSendEmail(MailUtilHelper helper) throws AddressException, NamingException, MessagingException, IOException {
 		
@@ -71,6 +77,20 @@ public class MailUtil {
 			}
 			
 			send(helper.getSession(), to, cc, bcc, helper.getNonNullFrom(), subject, body, helper.getFile(), helper.getFormatHtml());
+
+			StringBuffer logConfirmation = new StringBuffer("Confirmation of email sent to ");
+			logConfirmation.append(to);
+			if (!cc.trim().equals("")) {
+				logConfirmation.append(", cc: ");
+				logConfirmation.append(cc);
+			}
+			if (!bcc.trim().equals("")) {
+				logConfirmation.append(", bcc: ");
+				logConfirmation.append(bcc);
+			}
+			logConfirmation.append(" on ");
+			logConfirmation.append(LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)));
+			LOG.info(logConfirmation.toString());
 			
 			return true;
 		}
