@@ -6,6 +6,7 @@
 		url="RequestLabMembership.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onRequestLabMembership(event)"
 		fault="parentApplication.onFailHttpRequest('Unable to request lab membership', event)"
 		useProxy="false">
@@ -16,6 +17,7 @@
 		url="GetAllLabs.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onGetAllLabs(event)"
 		fault="parentApplication.onFailHttpRequest('Unable to get lab list', event)"
 		useProxy="false">

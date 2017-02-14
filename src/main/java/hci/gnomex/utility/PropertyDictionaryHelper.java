@@ -33,6 +33,7 @@ public class PropertyDictionaryHelper implements Serializable {
   private static final String PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR = "fdt_file_daemon_task_dir";
   private static final String PROPERTY_FDT_JAR_LOCATION = "fdt_jar_location";
   public static final String PROPERTY_PRODUCT_ORDER_DIRECTORY = "directory_product_order";
+  public static final String PROPERTY_RUNTIME_ERROR_SERVER_LIST = "runtime_error_server_list";
 
   public PropertyDictionaryHelper() {
   }

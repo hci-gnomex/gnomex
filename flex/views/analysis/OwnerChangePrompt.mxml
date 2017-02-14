@@ -10,7 +10,8 @@
 	
 	<mx:HTTPService             
 		id="getLab" 
-		url="GetLab.gx" 
+		url="GetLab.gx"
+		concurrency="multiple"
 		destination="getLab" 
 		showBusyCursor="true"
 		resultFormat="e4x"
@@ -23,6 +24,7 @@
 	<mx:HTTPService 
 		id="saveAnalysisOwner" 
 		url="SaveAnalysisOwner.gx"
+		concurrency="multiple"
 		destination="saveAnalysisOwner"
 		showBusyCursor="true"
 		resultFormat="e4x"
@@ -59,6 +61,8 @@
 		this.idLab = idLab;
 		var params:Object = new Object();
 		params.idLab = idLab;
+		params.includeBillingAccounts = "N";
+		params.includeProductCounts = "N";
 		getLab.send(params);		
 	}	
 		

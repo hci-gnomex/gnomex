@@ -13,6 +13,7 @@
 <mx:HTTPService             
   id="importSegments" 
   url="ImportSegments.gx"
+  concurrency="multiple"
   resultFormat="e4x"
   result="onImportSegments(event)"
   fault="parentApplication.onFailHttpRequest('Failed to import segment info', event)"

@@ -5,6 +5,7 @@
 		id="getProductOrderListForLab" 
 		url="GetProductOrderListForLab.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onGetProductOrderListForLab(event)"
 		showBusyCursor="true"
 		fault="parentApplication.onFailHttpRequest('Unable to get order list', event)"

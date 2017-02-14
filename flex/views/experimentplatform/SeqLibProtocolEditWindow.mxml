@@ -9,6 +9,7 @@
 		showBusyCursor="true"
 		method="POST"
 		resultFormat="e4x"
+		concurrency="multiple"
 		useProxy="false"
 		result="onSaveProtocol(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save protocol', event)">
@@ -21,6 +22,7 @@
 		url="GetProtocol.gx"
 		showBusyCursor="true"
 		resultFormat="e4x"
+		concurrency="multiple"
 		useProxy="false"
 		method="POST"		
 		result="onGetProtocol(event)"

@@ -5,7 +5,8 @@
 
    <mx:HTTPService  
     id="saveVisibility" 
-    url="SaveVisibilityAnalysis.gx" 
+    url="SaveVisibilityAnalysis.gx"
+	concurrency="multiple"
     destination="saveVisibility"
     resultFormat="e4x"
     showBusyCursor="true"

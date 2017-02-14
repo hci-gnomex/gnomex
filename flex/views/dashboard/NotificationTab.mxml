@@ -11,6 +11,7 @@
 	<mx:HTTPService 
 		id="notificationInterface" 
 		url="GetNotification.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		destination="notificationInterface"
 		showBusyCursor="true"

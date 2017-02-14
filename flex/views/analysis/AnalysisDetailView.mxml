@@ -9,6 +9,7 @@
 	<mx:HTTPService  
 		id="saveAnalysisFiles" 
 		url="SaveAnalysisFiles.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onSaveAnalysisFiles(event)"
@@ -20,6 +21,7 @@
 	<mx:HTTPService  
 		id="saveAnalysisFilesForDDT" 
 		url="SaveAnalysisFiles.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onSaveAnalysisFilesForDDT(event)"
@@ -31,6 +33,7 @@
 	<mx:HTTPService  
 		id="createAllDataTracks" 
 		url="CreateAllDataTracks.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="false"
 		result="onCreateAllDataTracks(event)"
@@ -42,6 +45,7 @@
 	<mx:HTTPService
 			id="managePedFileSetup"
 			url="ManagePedFile.gx"
+			concurrency="multiple"
 			resultFormat="e4x"
 			result="onManagePedFileSetup(event)"
 			showBusyCursor="true"

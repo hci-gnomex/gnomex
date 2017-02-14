@@ -14,6 +14,7 @@
             id="getNewRequest"
             url="GetRequest.gx"
             destination="getRequest"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onGetNewRequest(event)"
@@ -29,6 +30,7 @@
             id="getRequestToClone"
             url="GetRequest.gx"
             destination="getRequest"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onGetRequestToClone(event)"
@@ -46,6 +48,7 @@
             url="GetRequest.gx"
             destination="getRequest"
             resultFormat="e4x"
+            concurrency="multiple"
             showBusyCursor="true"
             result="onGetRequestToAmend(event)"
             fault="parentApplication.onFailHttpRequest('Unable to get request to amend', event)"
@@ -60,6 +63,7 @@
             id="getRequest"
             url="GetRequest.gx"
             destination="getRequest"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onGetRequest(event)"
@@ -72,6 +76,7 @@
             id="saveNewRequest"
             url="SaveRequest.gx"
             destination="saveNewRequest"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onSaveNewRequest(event)"
@@ -84,6 +89,7 @@
             id="saveExistingRequest"
             url="SaveRequest.gx"
             destination="saveExistingRequest"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onSaveExistingRequest(event)"
@@ -96,6 +102,7 @@
             id="getLab"
             url="GetLab.gx"
             destination="getLab"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onGetLab(event)"
@@ -111,6 +118,7 @@
             id="getCandidateProjectRequestList"
             url="GetProjectRequestList.gx"
             destination="getCandidateProjectRequestList"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onGetCandidateProjectRequestList(event)"
@@ -123,6 +131,7 @@
 
     <mx:HTTPService
             id="getLabForAddingServices"
+            concurrency="multiple"
             url="GetLab.gx"
             destination="getLabForAddingServices"
             resultFormat="e4x"
@@ -139,6 +148,7 @@
     <mx:HTTPService
             id="getSlideProductList"
             url="GetSlideProductList.gx"
+            concurrency="multiple"
             showBusyCursor="true"
             resultFormat="e4x"
             result="onGetSlideProductList(event)"
@@ -153,6 +163,7 @@
     <mx:HTTPService
             id="getSlideDesignList"
             url="GetSlideDesignList.gx"
+            concurrency="multiple"
             showBusyCursor="true"
             resultFormat="e4x"
             result="onGetSlideDesignList(event)"
@@ -166,6 +177,7 @@
     <mx:HTTPService
             id="createBillingItems"
             url="CreateBillingItems.gx"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onCreateBillingItems(event)"
@@ -177,6 +189,7 @@
     <mx:HTTPService
             id="getMultiplexLaneList"
             url="GetMultiplexLaneList.gx"
+            concurrency="multiple"
             resultFormat="e4x"
             showBusyCursor="true"
             result="onGetMultiplexLaneList(event)"
@@ -200,6 +213,7 @@
         import mx.events.PropertyChangeEvent;
         import mx.events.ValidationResultEvent;
         import mx.managers.PopUpManager;
+        import mx.rpc.AsyncToken;
         import mx.rpc.events.FaultEvent;
         import mx.rpc.events.ResultEvent;
         import mx.utils.ObjectUtil;
@@ -2699,7 +2713,7 @@
                 var params:Object = new Object();
                 params.idLab = requestEditLabCombo.selectedItem.@idLab;
                 trace ("ExperimentEditView refrehLab call getLab.send");
-                getLab.send(params);
+                var token:AsyncToken = getLab.send(params);
             }
         }
 

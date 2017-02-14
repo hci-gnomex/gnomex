@@ -34,7 +34,8 @@
 
 	<mx:HTTPService             
 		id="getLab" 
-		url="GetLab.gx" 
+		url="GetLab.gx"
+		concurrency="multiple"
 		destination="getLab" 
 		resultFormat="e4x"
 		result="onGetLab(event)"
@@ -294,6 +295,8 @@
 		var params:Object = new Object();
 		params.idLab = idLab;
 		params.timestamp = timestamp;
+		params.includeBillingAccounts = "N";
+		params.includeProductCounts = "N";
 		getLab.send(params);
 	}
 

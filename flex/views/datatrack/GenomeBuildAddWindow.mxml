@@ -13,6 +13,7 @@
       id="addGenomeBuild" 
       url="SaveGenomeBuild.gx"
       resultFormat="e4x"
+	  concurrency="multiple"
 	  showBusyCursor="true"
       result="onAddGenomeBuild(event)"
       fault="parentApplication.onFailHttpRequest('Failed to add genome build', event)"

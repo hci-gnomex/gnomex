@@ -13,6 +13,7 @@
     id="getLab" 
     url="GetLab.gx"
     destination="getLab"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetLab(event)"
@@ -21,6 +22,8 @@
     useProxy="false">
     <mx:request>
     	<idLab>{idLab}</idLab>
+		<includeBillingAccounts>{"N"}</includeBillingAccounts>
+		<includeProductCounts>{"N"}</includeProductCounts>
     </mx:request>
     	
    </mx:HTTPService>
@@ -31,6 +34,7 @@
 
 	import mx.collections.XMLListCollection;
 	import mx.events.ListEvent;
+	import mx.rpc.AsyncToken;
 	import mx.rpc.events.ResultEvent;
 
 	import views.util.PromptXMLListCollection;
@@ -78,7 +82,8 @@
 			idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
 			idInstitution = parentDocument.visibilityView.institutionCombo.selectedItem != null ? parentDocument.visibilityView.institutionCombo.selectedItem.@idInstitution : '';
 		}
-		getLab.send();
+		trace ("[TabVisibilityView] (1) refrehLab call getLab.send");
+		var token:AsyncToken = getLab.send();
 	}
 
 	public function checkSecurity():void {

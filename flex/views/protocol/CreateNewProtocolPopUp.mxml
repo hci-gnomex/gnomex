@@ -13,6 +13,7 @@
 		showBusyCursor="true"
 		method="POST"
 		resultFormat="e4x"
+		concurrency="multiple"
 		useProxy="false"
 		result="resultHandler(event)"
     	fault="parentApplication.onFailHttpRequest('Failed to save protocol', event)">

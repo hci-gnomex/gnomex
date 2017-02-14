@@ -9,6 +9,7 @@
 	<mx:HTTPService  
 		id="getPropertyList" 
 		url="GetPropertyList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetPropertyList(event)"
@@ -24,6 +25,7 @@
 	<mx:HTTPService  
 		id="getProperty" 
 		url="GetProperty.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetProperty(event)"
@@ -46,6 +48,7 @@
 	<mx:HTTPService  
 		id="deleteProperty" 
 		url="DeleteProperty.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onDeleteProperty(event)"

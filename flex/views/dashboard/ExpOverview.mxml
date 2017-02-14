@@ -10,6 +10,7 @@
 	<mx:HTTPService 
 		id="getExperimentList" 
 		url="GetExperimentOverviewList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		destination="getExperimentOverviewList"
 		showBusyCursor="true"
@@ -32,6 +33,7 @@
 	<mx:HTTPService  
 		id="getLabList" 
 		url="GetLabList.gx"
+		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onGetLabList(event)"
@@ -43,6 +45,7 @@
 	<mx:HTTPService 
 		id="getAppUserList" 
 		url="GetAppUserList.gx"
+		concurrency="multiple"
 		showBusyCursor="true"
 		resultFormat="e4x"
 		result="resultHandler(event)"

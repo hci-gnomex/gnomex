@@ -10,6 +10,7 @@
     <mx:HTTPService
             id="managePedFileSave"
             url="ManagePedFile.gx"
+            concurrency="multiple"
             resultFormat="e4x"
             result="onManagePedFileSave(event)"
             showBusyCursor="true"
@@ -21,6 +22,7 @@
     <mx:HTTPService
             id="managePedFileSetup"
             url="ManagePedFile.gx"
+            concurrency="multiple"
             resultFormat="e4x"
             result="onManagePedFileSetup(event)"
             showBusyCursor="true"
@@ -32,6 +34,7 @@
     <mx:HTTPService
             id="makeGeneURL"
             url="MakeGeneURL.gx"
+            concurrency="multiple"
             resultFormat="e4x"
             result="onMakeGeneURL(event)"
             showBusyCursor="true"

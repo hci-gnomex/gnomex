@@ -9,6 +9,7 @@
     url="SaveGroupMembership.gx"
     destination="saveGroup" 
     resultFormat="e4x"
+	concurrency="multiple"
     showBusyCursor="true"
     result="onSaveGroupMembership(event)"
  	fault="parentApplication.onFailHttpRequest('Failed to save group membership', event)"

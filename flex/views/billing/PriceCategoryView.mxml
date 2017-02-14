@@ -10,6 +10,7 @@
    <mx:HTTPService             
     id="savePriceCategory" 
     url="SavePriceCategory.gx"
+	concurrency="multiple"
     destination="savePriceCategory" 
     resultFormat="e4x"
     result="onSavePriceCategory(event)"

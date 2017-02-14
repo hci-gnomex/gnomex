@@ -183,7 +183,7 @@ public class Util {
 
 		Date d = new Date(System.currentTimeMillis());
 
-		System.out.println(d.toString() + info + numsec + " seconds elapsed time.");
+		System.out.println(d.toString() + info + numsec + " seconds elapsed time. Start: " + start + " End: " + endTime);
 
 	}
 
@@ -298,4 +298,66 @@ public class Util {
 		}
 		return status;
 	}
+
+
+	public static boolean isParameterTrue(String requestParameter) {
+		return requestParameter.equalsIgnoreCase("Y") || requestParameter.equalsIgnoreCase("true");
+	}
+
+	public static boolean isParameterFalse(String requestParameter) {
+		return requestParameter.equalsIgnoreCase("N") || requestParameter.equalsIgnoreCase("false");
+	}
+
+	public static void sendErrorReport(org.hibernate.Session sess, String softwareTestEmail, String fromAddress, String userName, String errorMessage, StringBuilder requestDump) {
+		boolean sendMail = true;
+		try {
+			java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+			if (sendMail) {
+
+				String errorMessageString = "User: " + userName + "\n";
+				if (errorMessage != null) {
+					errorMessageString = errorMessageString + errorMessage + "\n" + requestDump.toString() + "\n";
+				}
+				else {
+					errorMessageString = errorMessageString + "No traceback available" + "\n" + requestDump.toString() + "\n";
+				}
+
+				// if it wasn't really a trace back then just leave
+				if (errorMessageString.equals("")) {
+					return;
+				}
+
+				// figure out where to send the email
+				String machinelist = PropertyDictionaryHelper.getInstance(sess).getDirectory(null, null,
+						PropertyDictionaryHelper.PROPERTY_RUNTIME_ERROR_SERVER_LIST);
+				if (machinelist != null) {
+					machinelist = machinelist.toLowerCase();
+				}
+
+				String toaddress = softwareTestEmail;
+				String serverName1 = localMachine.getHostName();
+				if (serverName1 != null && !serverName1.equals("") && machinelist != null) {
+
+					// map server to email address
+					int ipos = machinelist.indexOf (serverName1.toLowerCase());
+					if (ipos != -1) {
+						int nextpos = ipos + serverName1.length();
+						if (nextpos < machinelist.length()) {
+							int jpos = machinelist.indexOf(",", nextpos);
+							toaddress = machinelist.substring (nextpos,jpos);
+						}
+					}
+				}
+
+				MailUtilHelper helper = new MailUtilHelper(toaddress, null, null, fromAddress,
+						"GNomEx Runtime Error [Server: " + localMachine.getHostName() + "]", errorMessageString, null,
+						false, DictionaryHelper.getInstance(sess), serverName1, false, toaddress);
+				MailUtil.validateAndSendEmail(helper);
+
+			}
+		} catch (Exception e) {
+			System.err.println("GNomExFrontController unable to email error report.   " + e.toString());
+		}
+	}
+
 }

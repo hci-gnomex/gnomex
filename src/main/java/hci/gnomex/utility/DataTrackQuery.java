@@ -155,6 +155,7 @@ public class DataTrackQuery implements Serializable {
 	  queryBuf = this.getDataTrackQuery(secAdvisor);
 	  Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
 	  query = sess.createQuery(queryBuf.toString());
+
 //	  if (maxDataTrackCount != null && maxDataTrackCount > -1) {
 //		  query.setFirstResult(0);
 //		  query.setMaxResults(maxDataTrackCount);
@@ -166,12 +167,14 @@ public class DataTrackQuery implements Serializable {
     Logger.getLogger(this.getClass().getName()).fine("Folder count query: " + queryBuf.toString());
 
     query = sess.createQuery(queryBuf.toString());
-    List<Object[]> folderCountRows = query.list();
+
+
+	List<Object[]> folderCountRows = query.list();
 
 	  // Now run query to get the genome build segments
 	  queryBuf = this.getSegmentQuery();
 	  query = sess.createQuery(queryBuf.toString());
-	  List<Segment> segmentRows = query.list();
+		List<Segment> segmentRows = query.list();
 
 	  String message = "";
 	  if (maxDataTrackCount != null && maxDataTrackCount > -1 && dataTrackRows.size() == maxDataTrackCount) {
@@ -308,10 +311,10 @@ public class DataTrackQuery implements Serializable {
 		queryBuf.append(" LEFT JOIN  folder.parentFolder as parentFolder ");
 		queryBuf.append(" LEFT JOIN  folder.dataTracks as dataTrack ");
 
-		if(this.idLab != null){
-	    queryBuf.append(" JOIN       dataTrack.lab as lab ");
-	    queryBuf.append(" LEFT JOIN  dataTrack.collaborators as collab ");
+		if(this.idLab != null) {
+			queryBuf.append(" JOIN       dataTrack.lab as lab ");
 		}
+	    queryBuf.append(" LEFT JOIN  dataTrack.collaborators as collab ");
 
 		addWhere = true;
 
@@ -320,14 +323,9 @@ public class DataTrackQuery implements Serializable {
 		  filterByExcludeUsage();
 		}
 
-
-		if (secAdvisor != null && this.idLab != null) {
-		  addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false, false);
-		} else if(secAdvisor != null && this.idLab == null){
-		  addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", null, addWhere, false, false, false);
+		if (secAdvisor != null) {
+			addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false, false);
 		}
-
-
 		// If this is a server reload, get dataTracks not yet loaded
 		if (this.isServerRefreshMode.equals("Y")) {
 			this.AND();

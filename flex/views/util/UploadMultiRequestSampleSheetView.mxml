@@ -14,6 +14,7 @@
 		id="saveMultiRequestSampleSheet" 
 		url="SaveMultiRequestSampleSheet.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onSaveMultiRequestSampleSheet(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save sample sheet', event)"

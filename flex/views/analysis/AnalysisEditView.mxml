@@ -1,105 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox width="100%" height="100%" styleName="panelBox"
-         xmlns:mx="http://www.adobe.com/2006/mxml"
-         xmlns:util="views.util.*"
-         xmlns:analysis="views.analysis.*"
-         xmlns:renderers="views.renderers.*"
-         showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
-
-    <mx:HTTPService
-            id="getExperimentPickList"
-            url="GetExperimentPickList.gx"
-            resultFormat="e4x"
-            showBusyCursor="false"
-            result="onGetExperimentPickList(event)"
-            fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
-            method="POST"
-            useProxy="false">
-        <mx:request>
-            <idLab>{analysis.@idLab}</idLab>
-            <showSamples>N</showSamples>
-            <showCategory>N</showCategory>
-            <showMyLabsAlways>N</showMyLabsAlways>
-            <searchPublicProjects>N</searchPublicProjects>
-        </mx:request>
-    </mx:HTTPService>
-
-    <mx:HTTPService
-            id="saveAnalysis"
-            url="SaveAnalysis.gx"
-            resultFormat="e4x"
-            showBusyCursor="false"
-            result="onSaveAnalysis(event)"
-            fault="parentApplication.onFailHttpRequest('Failed to save analysis', event)"
-            method="POST"
-            useProxy="false">
-    </mx:HTTPService>
-
-
-    <mx:HTTPService
-            id="saveAnalysisFiles"
-            url="SaveAnalysisFiles.gx"
-            resultFormat="e4x"
-            showBusyCursor="false"
-            result="onSaveAnalysisFiles(event)"
-            fault="parentApplication.onFailHttpRequest('Failed to save analysis files', event)"
-            method="POST"
-            useProxy="false">
-    </mx:HTTPService>
-
-    <mx:HTTPService
-            id="getAnalysis"
-            url="GetAnalysis.gx"
-            destination="getAnalysis"
-            resultFormat="e4x"
-            showBusyCursor="true"
-            result="onGetAnalysis(event)"
-            fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
-            method="POST"
-            useProxy="false">
-    </mx:HTTPService>
-
-    <mx:HTTPService
-            id="getAnalysisAfterUpload"
-            url="GetAnalysis.gx"
-            destination="getAnalysis"
-            resultFormat="e4x"
-            showBusyCursor="true"
-            result="onGetAnalysisAfterUpload(event)"
-            fault="parentApplication.onFailHttpRequest('Failed to get analysis after upload', event)"
-            method="POST"
-            useProxy="false">
-    </mx:HTTPService>
-
-    <mx:HTTPService
-            id="getRequest"
-            url="GetRequest.gx"
-            destination="getRequest"
-            resultFormat="e4x"
-            showBusyCursor="true"
-            result="onGetRequest(event)"
-            fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
-            method="POST"
-            useProxy="false">
-    </mx:HTTPService>
-
-
-    <mx:HTTPService
-            id="getLab"
-            url="GetLab.gx"
-            destination="getLab"
-            resultFormat="e4x"
-            showBusyCursor="true"
-            result="onGetLab(event)"
-            fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
-            method="POST"
-            useProxy="false">
-        <mx:request>
-            <idLab>{analysis.@idLab}</idLab>
-        </mx:request>
-    </mx:HTTPService>
-
-    <mx:Script>
+<mx:VBox  width="100%" height="100%" styleName="panelBox"
+		  xmlns:mx="http://www.adobe.com/2006/mxml"     
+		  xmlns:util="views.util.*" 
+		  xmlns:analysis="views.analysis.*"
+		  xmlns:renderers="views.renderers.*"
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
+	
+	<mx:HTTPService  
+		id="getExperimentPickList" 
+		url="GetExperimentPickList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetExperimentPickList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get project request list', event)"
+		method="POST" 
+		useProxy="false">
+		<mx:request>
+			<idLab>{analysis.@idLab}</idLab> 
+			<showSamples>N</showSamples>
+			<showCategory>N</showCategory>
+			<showMyLabsAlways>N</showMyLabsAlways>
+			<searchPublicProjects>N</searchPublicProjects>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="saveAnalysis" 
+		url="SaveAnalysis.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="saveAnalysisFiles" 
+		url="SaveAnalysisFiles.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAnalysisFiles(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis files', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getAnalysis" 
+		url="GetAnalysis.gx"
+		destination="getAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getAnalysisAfterUpload" 
+		url="GetAnalysis.gx"
+		destination="getAnalysis"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAnalysisAfterUpload(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get analysis after upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getRequest" 
+		url="GetRequest.gx"
+		destination="getRequest"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+		
+	<mx:HTTPService  
+		id="getLab" 
+		url="GetLab.gx"
+		concurrency="multiple"
+		destination="getLab"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<idLab>{analysis.@idLab}</idLab>
+			<includeBillingAccounts>{"N"}</includeBillingAccounts>
+			<includeProductCounts>{"N"}</includeProductCounts>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:Script>
 		<![CDATA[
         import hci.flex.controls.CheckBox;
         import hci.flex.controls.DropdownLabel;

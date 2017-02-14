@@ -9,6 +9,7 @@
 	<mx:HTTPService  
 		id="getQCChipTypePriceList" 
 		url="GetQCChipTypePriceList.gx"
+		concurrency="multiple"
 		destination="getQCChipTypePriceList" 
 		resultFormat="e4x"
 		showBusyCursor="true"

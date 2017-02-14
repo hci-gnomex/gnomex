@@ -13,6 +13,7 @@
 		url="GetProductOrderDownloadList.gx"
 		destination="getProductOrderDownloadList"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onGetProductOrderDownloadList(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to get product order download list', event)"

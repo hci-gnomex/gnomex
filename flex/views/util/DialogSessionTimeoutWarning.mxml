@@ -188,6 +188,7 @@
 		resultFormat="text"
 		result="loggedOut()"
 		showBusyCursor="true"
+		concurrency="multiple"
 		method="POST"
 		useProxy="false" >  
 	</mx:HTTPService> 

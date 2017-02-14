@@ -4,6 +4,7 @@
 	<mx:HTTPService  
 		id="getHiSeqRunTypePriceList" 
 		url="GetHiSeqRunTypePriceList.gx"
+		concurrency="multiple"
 		destination="getHiSeqRunTypePriceList" 
 		resultFormat="e4x"
 		showBusyCursor="true"

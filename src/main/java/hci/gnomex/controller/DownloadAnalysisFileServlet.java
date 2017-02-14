@@ -36,6 +36,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
   private ArchiveHelper archiveHelper = new ArchiveHelper();
 
   private String serverName = "";
+  private String username = "";
   
 
   
@@ -47,6 +48,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
       throws ServletException, IOException {
     
     serverName = req.getServerName();
+    username = req.getUserPrincipal().getName();
 
     // Restrict commands to local host if request is not secure
     if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -230,9 +232,14 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
         LOG.warn("DownloadAnalyisFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+      String errorMessage = Util.GNLOG(LOG,"Error in DownloadAnalyisFileServlet ", e);
+      StringBuilder requestDump = Util.printRequest(req);
+      String serverName = req.getServerName();
+
+      Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
       HibernateSession.rollback();
       response.setStatus(999);
-      LOG.error("DownloadAnalyisFileServlet: An exception occurred " + e.toString(), e);
 
     } finally {
       try {
@@ -240,7 +247,6 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
           secAdvisor.closeHibernateSession();        
         }
       }catch(Exception e) {
-        LOG.error("Error DownloadAnalyisFileServlet", e);
       }
       // clear out session variable
       req.getSession().setAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);

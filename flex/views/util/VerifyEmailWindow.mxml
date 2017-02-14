@@ -10,6 +10,7 @@
 		id="updateAppUserEmail"
 		url="UpdateAppUserEmail.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		result="onUpdateAppUserEmail(event)"
 		showBusyCursor="false"
 		fault="parentApplication.onFailHttpRequest('Failed to save AppUser', event)"

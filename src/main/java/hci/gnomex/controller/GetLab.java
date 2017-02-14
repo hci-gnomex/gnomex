@@ -40,6 +40,15 @@ private Lab lab;
 private Boolean isForWorkAuth = false;
 private String timestamp;
 
+private boolean includeBillingAccounts = true;
+private boolean includeProductCounts = true;
+private boolean includeProjects = true;
+private boolean includeCoreFacilities = true;
+private boolean includeHistoricalOwnersAndSubmitters = true;
+private boolean includeInstitutions = true;
+private boolean includeSubmitters = true;
+private boolean includeMoreCollaboratorInfo = true;
+
 public void validate() {
 }
 
@@ -62,9 +71,45 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 	timestamp = request.getParameter("timestamp");
 
+	String includeBillingAccountsParameter = request.getParameter("includeBillingAccounts");
+	if (includeBillingAccountsParameter != null && Util.isParameterFalse(includeBillingAccountsParameter)) {
+		includeBillingAccounts = false;
+	}
+	String includeProductCountsParameter = request.getParameter("includeProductCounts");
+	if (includeProductCountsParameter != null && Util.isParameterFalse(includeProductCountsParameter)) {
+		includeProductCounts = false;
+	}
+	String includeProjectsParameter = request.getParameter("includeProjects");
+	if (includeProjectsParameter != null && Util.isParameterFalse(includeProjectsParameter)) {
+		includeProjects = false;
+	}
+	String includeCoreFacilitiesParameter = request.getParameter("includeCoreFacilities");
+	if (includeCoreFacilitiesParameter != null && Util.isParameterFalse(includeCoreFacilitiesParameter)) {
+		includeCoreFacilities = false;
+	}
+	String includeHistoricalOwnersAndSubmittersParameter = request.getParameter("includeHistoricalOwnersAndSubmitters");
+	if (includeHistoricalOwnersAndSubmittersParameter != null && Util.isParameterFalse(includeHistoricalOwnersAndSubmittersParameter)) {
+		includeHistoricalOwnersAndSubmitters = false;
+	}
+	String includeInstitutionsParameter = request.getParameter("includeInstitutions");
+	if (includeInstitutionsParameter != null && Util.isParameterFalse(includeInstitutionsParameter)) {
+		includeInstitutions = false;
+	}
+	String includeSubmittersParameter = request.getParameter("includeSubmitters");
+	if (includeSubmittersParameter != null && Util.isParameterFalse(includeSubmittersParameter)) {
+		includeSubmitters = false;
+	}
+	String includeMoreCollaboratorInfoParameter = request.getParameter("includeMoreCollaboratorInfo");
+	if (includeMoreCollaboratorInfoParameter != null && Util.isParameterFalse(includeMoreCollaboratorInfoParameter)) {
+		includeMoreCollaboratorInfo = false;
+	}
+
 }
 
 public Command execute() throws RollBackCommandException {
+
+	long startTime = System.currentTimeMillis();
+	String labNumber = "";
 
 	try {
 
@@ -72,10 +117,19 @@ public Command execute() throws RollBackCommandException {
 		if (StringUtils.isNotEmpty(timestamp)) {
 			doc.getRootElement().setAttribute("timestamp", timestamp);
 		}
+		doc.getRootElement().setAttribute("includeBillingAccounts", includeBillingAccounts ? "Y" : "N");
+		doc.getRootElement().setAttribute("includeProductCounts", includeProductCounts ? "Y" : "N");
+		doc.getRootElement().setAttribute("includeProjects", includeProjects ? "Y" : "N");
+		doc.getRootElement().setAttribute("includeCoreFacilities", includeCoreFacilities ? "Y" : "N");
+		doc.getRootElement().setAttribute("includeHistoricalOwnersAndSubmitters", includeHistoricalOwnersAndSubmitters ? "Y" : "N");
+		doc.getRootElement().setAttribute("includeInstitutions", includeInstitutions ? "Y" : "N");
+		doc.getRootElement().setAttribute("includeSubmitters", includeSubmitters ? "Y" : "N");
+		doc.getRootElement().setAttribute("includeMoreCollaboratorInfo", includeMoreCollaboratorInfo ? "Y" : "N");
 
 		Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername(), "GetLab");
 
 		Lab theLab = (Lab) sess.get(Lab.class, lab.getIdLab());
+		labNumber = "" + theLab.getIdLab();
 
 		// workaround until NullPointer exception is dealt with
 		InternalAccountFieldsConfiguration.getConfiguration(sess);
@@ -83,16 +137,16 @@ public Command execute() throws RollBackCommandException {
 		// We want the billing accounts to show up if the user is authorized to submit
 		// requests for this lab
 
-		if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
-				|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+		if (includeBillingAccounts && (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
+				|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS))) {
 			if (theLab.getBillingAccounts() != null) {
 				Hibernate.initialize(theLab.getBillingAccounts());
 			}
 		}
 
 		// We want the list of institutions to show up for the lab
-		if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
-				|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+		if (includeInstitutions && (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
+				|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS))) {
 			Hibernate.initialize(theLab.getInstitutions());
 		}
 
@@ -101,13 +155,22 @@ public Command execute() throws RollBackCommandException {
 		theLab.excludeMethodFromXML("getCanManage");
 		theLab.excludeMethodFromXML("getHasPublicData");
 
-		Hibernate.initialize(theLab.getProjects());
-		Hibernate.initialize(theLab.getCoreFacilities());
+		if (includeProjects) {
+			Hibernate.initialize(theLab.getProjects());
+		}
+		if (includeCoreFacilities) {
+			Hibernate.initialize(theLab.getCoreFacilities());
+		} else {
+			theLab.excludeMethodFromXML("getCoreFacilities");
+		}
 
-		// Get product qty counts and append to lab node below
-		StringBuffer buf1 = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = "
-				+ lab.getIdLab() + " group by pl.idProduct");
-		List productQuantity = sess.createQuery(buf1.toString()).list();
+		List productQuantity = null;
+		if (includeProductCounts) {
+			// Get product qty counts and append to lab node below
+			StringBuffer buf1 = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = "
+					+ lab.getIdLab() + " group by pl.idProduct");
+			productQuantity = sess.createQuery(buf1.toString()).list();
+		}
 
 		if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)
 				|| this.getSecAdvisor().canUpdate(theLab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP)
@@ -116,7 +179,11 @@ public Command execute() throws RollBackCommandException {
 			Hibernate.initialize(theLab.getMembers());
 			Hibernate.initialize(theLab.getCollaborators());
 			Hibernate.initialize(theLab.getManagers());
-			Hibernate.initialize(theLab.getInstitutions());
+			if (includeInstitutions) {
+				Hibernate.initialize(theLab.getInstitutions());
+			} else {
+				theLab.excludeMethodFromXML("getInstitutions");
+			}
 
 			blockAppUserContent(theLab.getMembers());
 			blockAppUserContent(theLab.getCollaborators());
@@ -145,24 +212,38 @@ public Command execute() throws RollBackCommandException {
 			theLab.excludeMethodFromXML("getPOBillingAccounts"); // Added explicitly below
 			theLab.excludeMethodFromXML("getCreditCardBillingAccounts"); // Added explicitly below
 			theLab.excludeMethodFromXML("getBillingAccounts"); // Added explicitly below
+			if (!includeProjects) {
+				theLab.excludeMethodFromXML("getProjects");
+			}
 			Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
-			this.appendPossibleCollaborators(labNode, theLab);
-			this.appendMembersCollaborators(labNode, theLab);
-			this.appendSubmitters(labNode, theLab);
-			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
-			this.appendBillingAccounts(new ArrayList(theLab.getBillingAccounts()), "billingAccounts", labNode, theLab);
-			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
-			this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
-			this.appendBillingAccounts(theLab.getPOBillingAccounts(), "pOBillingAccounts", labNode, theLab);
-			this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode,
-					theLab);
-			List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
-					GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
-							.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
-							true));
-			this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
-			this.appendProductCount(labNode, productQuantity);
+			if (includeMoreCollaboratorInfo) {
+				this.appendPossibleCollaborators(labNode, theLab);
+				this.appendMembersCollaborators(labNode, theLab);
+			}
+			if (includeSubmitters) {
+				this.appendSubmitters(labNode, theLab);
+			}
+			if (includeHistoricalOwnersAndSubmitters) {
+				this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
+			}
+
+			if (includeBillingAccounts) {
+				this.appendBillingAccounts(new ArrayList(theLab.getBillingAccounts()), "billingAccounts", labNode, theLab);
+				this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
+				this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
+				this.appendBillingAccounts(theLab.getPOBillingAccounts(), "pOBillingAccounts", labNode, theLab);
+				this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode,
+						theLab);
+				List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
+						GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
+										.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
+								true));
+				this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
+			}
+			if (includeProductCounts) {
+				this.appendProductCount(labNode, productQuantity);
+			}
 
 			doc.getRootElement().addContent(labNode);
 
@@ -178,8 +259,15 @@ public Command execute() throws RollBackCommandException {
 				Hibernate.initialize(theLab.getManagers());
 				blockAppUserContent(theLab.getMembers());
 				blockAppUserContent(theLab.getManagers());
+				if (!includeProjects) {
+					theLab.excludeMethodFromXML("getProjects");
+				}
 			} else {
 				theLab.excludeMethodFromXML("getProjects");
+			}
+
+			if (!includeInstitutions) {
+				theLab.excludeMethodFromXML("getInstitutions");
 			}
 
 			theLab.excludeMethodFromXML("getApprovedBillingAccounts");
@@ -202,18 +290,30 @@ public Command execute() throws RollBackCommandException {
 			Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 			if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
 					|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
-				this.appendPossibleCollaborators(labNode, theLab);
-				this.appendMembersCollaborators(labNode, theLab);
+				if (includeMoreCollaboratorInfo) {
+					this.appendPossibleCollaborators(labNode, theLab);
+					this.appendMembersCollaborators(labNode, theLab);
+				}
 			}
-			this.appendSubmitters(labNode, theLab);
-			this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
-			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
-			List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
-					GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
-							.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
-							true));
-			this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
-			this.appendProductCount(labNode, productQuantity);
+			if (includeSubmitters) {
+				this.appendSubmitters(labNode, theLab);
+			}
+			if (includeHistoricalOwnersAndSubmitters) {
+				this.appendHistoricalOwnersAndSubmitters(labNode, theLab, sess);
+			}
+
+			if (includeBillingAccounts) {
+				this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
+				List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
+						GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
+										.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
+								true));
+				this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
+			}
+			if (includeProductCounts) {
+				this.appendProductCount(labNode, productQuantity);
+			}
+
 			doc.getRootElement().addContent(labNode);
 
 		} else if (isForWorkAuth) {
@@ -242,6 +342,10 @@ public Command execute() throws RollBackCommandException {
 	} else {
 		setResponsePage(this.ERROR_JSP);
 	}
+
+	String dinfo = " GetLab (" + this.getUsername() + " - " + labNumber + "), ";
+	Util.showTime(startTime, dinfo);
+
 
 	return this;
 }

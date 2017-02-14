@@ -7,6 +7,7 @@
 		id="organizeProductOrderUploadFiles" 
 		url="OrganizeProductOrderUploadFiles.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onOrganizeProductOrderUploadFiles(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to organize product order upload files', event)"

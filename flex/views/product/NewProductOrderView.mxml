@@ -19,6 +19,7 @@
     <mx:HTTPService
             id="getLab"
             url="GetLab.gx"
+            concurrency="multiple"
             destination="getLab"
             resultFormat="e4x"
             showBusyCursor="true"
@@ -524,8 +525,6 @@
 
             <mx:VBox width="100%" id="templateItemsRepeaterBox" visible="false" includeInLayout="false">
                 <mx:HBox>
-                    <mx:Label text="Selected billing accounts"/>
-                    <mx:Spacer width="20" />
                     <mx:LinkButton label="Change split billing" styleName="formLinkButton" id="splitBillingLink2" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0">
                         <mx:click>showSplitBillingWindow()</mx:click>
                     </mx:LinkButton>
@@ -534,6 +533,9 @@
                         <mx:click>cancelSplitBilling()</mx:click>
                     </mx:LinkButton>
                 </mx:HBox>
+                <mx:VBox width="100%">
+                    <mx:Label text="Selected billing accounts"/>
+                </mx:VBox>
                 <mx:Repeater id="templateItemsRepeater" dataProvider="{templateItemList}" >
                     <mx:VBox width="100%" verticalGap="0">
                         <mx:Text id="templateItem"

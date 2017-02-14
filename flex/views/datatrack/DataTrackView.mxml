@@ -95,7 +95,8 @@
 	
 <mx:HTTPService             
 	id="getLab" 
-	url="GetLab.gx" 
+	url="GetLab.gx"
+	concurrency="multiple"
 	destination="getLab" 
 	resultFormat="e4x"
 	result="onGetLab(event)"
@@ -227,6 +228,8 @@
 			if(labCombo.selectedItem != null) {
 				var params:Object = new Object();
 				params.idLab = labCombo.selectedItem.@idLab;
+				params.includeBillingAccounts = "N";
+				params.includeProductCounts = "N";
 				getLab.send(params);				
 			}
 			
@@ -871,6 +874,8 @@
 		if(idLab.length > 0) {
 			currentOwnerId = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
 			params.idLab = idLab;
+			params.includeBillingAccounts = "N";
+			params.includeProductCounts = "N";
 			getLab.send(params);
 		}
 	}

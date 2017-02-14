@@ -12,6 +12,7 @@
 		id="emailTopicOwner" 
 		url="EmailTopicOwner.gx"
 		resultFormat="e4x"
+		concurrency="multiple"
 		showBusyCursor="true"
 		result="onEmailTopicOwner(event)"
 		fault="this.faultHandlerSendBroadcastEmail('', event)"

@@ -38,6 +38,7 @@ public class DownloadFileServlet extends HttpServlet {
   private ArchiveHelper archiveHelper = new ArchiveHelper();
 
   private String serverName = "";
+  private String username = "";
 
 
 
@@ -49,6 +50,8 @@ public class DownloadFileServlet extends HttpServlet {
           throws ServletException, IOException {
 
     serverName = req.getServerName();
+
+    username = req.getUserPrincipal().getName();
 
     // Restrict commands to local host if request is not secure
     if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -240,9 +243,14 @@ public class DownloadFileServlet extends HttpServlet {
         LOG.warn( "DownloadFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+      String errorMessage = Util.GNLOG(LOG,"Error in DownloadFileServlet ", e);
+      StringBuilder requestDump = Util.printRequest(req);
+      String serverName = req.getServerName();
+
+      Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+
       HibernateSession.rollback();
       response.setStatus(999);
-      LOG.error( "DownloadFileServlet: An exception occurred " + e.toString(), e);
 
     } finally {
 
@@ -250,7 +258,6 @@ public class DownloadFileServlet extends HttpServlet {
         try {
           secAdvisor.closeHibernateSession();
         } catch(Exception e){
-          LOG.error("Error DownloadFileServlet", e);
         }
       }
       // clear out session variable

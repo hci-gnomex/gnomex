@@ -6,6 +6,7 @@
     id="getRequestProgressList" 
     url="GetRequestProgressList.gx"
     destination="getRequestProgressList"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetRequestProgressList(event)"
@@ -18,6 +19,7 @@
     id="getRequestProgressSolexaList" 
     url="GetRequestProgressSolexaList.gx"
     destination="getRequestProgressSolexaList"
+	concurrency="multiple"
     resultFormat="e4x"
     showBusyCursor="true"
     result="onGetRequestProgressSolexaList(event)"
@@ -29,6 +31,7 @@
   <mx:HTTPService  
 	id="getRequestProgressDNASeqList" 
 	url="GetRequestProgressDNASeqList.gx"
+	concurrency="multiple"
 	destination="getRequestProgressDBASeqList"
 	resultFormat="e4x"
 	showBusyCursor="true"
