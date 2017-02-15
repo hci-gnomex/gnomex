@@ -816,20 +816,6 @@ public class DictionaryHelper implements Serializable {
     return null;
   }
 
-  public Property getPropertyByNameAndRequestCategory(String name, String requestCategory) {
-    for (Property p : propertyList) {
-      System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& "+name+" propname "+p.getName());
-
-      if (p.getName().equals(name))
-        System.out.println("************************************* "+name+" matches");
-      if (p.getName().equals(name) && p.getAppliesToRequestCategory() .equals(requestCategory)) {
-        return p;
-      }
-    }
-
-    return null;
-  }
-
   public Property getPropertyObject(Integer idProperty) {
     return propertyMap.get(idProperty);
   }
