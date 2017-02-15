@@ -84,6 +84,7 @@ public class DictionaryHelper implements Serializable {
 
   public static synchronized DictionaryHelper reload(Session sess) {
     theInstance = new DictionaryHelper();
+    WorkflowPropertyHelper.reload(sess);
     PropertyDictionaryHelper.reload(sess);
     theInstance.loadDictionaries(sess);
     theInstance.loadManagedDictionaries();
@@ -96,6 +97,7 @@ public class DictionaryHelper implements Serializable {
    */
   public static synchronized DictionaryHelper reloadLimited(Session sess) {
     theInstance = new DictionaryHelper();
+    WorkflowPropertyHelper.reload(sess);
     PropertyDictionaryHelper.reload(sess);
     theInstance.loadDictionaries(sess);
     return theInstance;
@@ -807,6 +809,20 @@ public class DictionaryHelper implements Serializable {
   public Property getPropertyByNameAndCore(String name, Integer idCoreFacility) {
     for (Property p : propertyList) {
       if (p.getName().equals(name) && p.getIdCoreFacility().equals(idCoreFacility)) {
+        return p;
+      }
+    }
+
+    return null;
+  }
+
+  public Property getPropertyByNameAndRequestCategory(String name, String requestCategory) {
+    for (Property p : propertyList) {
+      System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& "+name+" propname "+p.getName());
+
+      if (p.getName().equals(name))
+        System.out.println("************************************* "+name+" matches");
+      if (p.getName().equals(name) && p.getAppliesToRequestCategory() .equals(requestCategory)) {
         return p;
       }
     }

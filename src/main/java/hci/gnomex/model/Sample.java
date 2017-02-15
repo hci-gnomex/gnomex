@@ -5,6 +5,7 @@ package hci.gnomex.model;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.utility.Workflow;
 import hci.hibernate5utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
@@ -766,7 +767,8 @@ public class Sample extends HibernateDetailObject {
 
     String step = "1";
     if (RequestCategory.isIlluminaRequestCategory(getRequest().getCodeRequestCategory())) {
-      int lastStep = this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y") ? 7 : 5;
+
+      int lastStep = this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y") ? Workflow.getIlluminaPrepWorkflow().size() : Workflow.getIlluminaNoPrepWorkflow().size();
       TreeMap<String, String> laneStatusMap = getLaneWorkflowStep(lastStep);
       TreeMap<String, String> workItemStatusMap = getWorkItemStep(lastStep);
       if (this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y")) {
@@ -807,7 +809,7 @@ public class Sample extends HibernateDetailObject {
 
       }
     } else if (RequestCategory.isMicroarrayRequestCategory(request.getCodeRequestCategory())) {
-      int lastStep = 5;
+      int lastStep = Workflow.getMicroArrayWorkflow().size();
       TreeMap<String, String> hybStatusMap = getHybWorkflowStep(5);
       if (hybStatusMap.size() > 0) {
         step = hybStatusMap.lastKey();

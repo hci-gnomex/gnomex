@@ -2,7 +2,8 @@ package hci.gnomex.controller;
 
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.utility.*;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
@@ -10,30 +11,19 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.utility.Workflow;
 import org.hibernate.Hibernate;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
@@ -1017,7 +1007,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           // Append workflow progress info
           if (!newRequest) {
-            appendWorkflowStatusNodes(request, requestNode);
+            appendWorkflowStatusNodes(request, requestNode, sess);
           }
 
           // Append valid submitters from other cores.
@@ -1088,48 +1078,53 @@ public class GetRequest extends GNomExCommand implements Serializable {
   }
 
   @SuppressWarnings("unchecked")
-  private static void appendWorkflowStatusNodes(Request request, Element requestNode) throws Exception {
+  private static void appendWorkflowStatusNodes(Request request, Element requestNode, Session sess) throws Exception {
     if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
       return;
     }
     Element statusNode = new Element("workflowStatus");
     requestNode.addContent(statusNode);
+    List workflow = null;
     if (RequestCategory.isIlluminaRequestCategory(request.getCodeRequestCategory())) {
       if (request.isLibPrepByCore()) {
-        appendStepNode(statusNode, "Submitted");
-        appendStepNode(statusNode, "Sample QC");
-        appendStepNode(statusNode, "Library Prep");
-        appendStepNode(statusNode, "Library Prep QC");
-        appendStepNode(statusNode, "Ready to Sequence");
-        appendStepNode(statusNode, "Sequence in Progress");
-        appendStepNode(statusNode, "Data Available");
-        statusNode.setAttribute("numberOfSteps", "7");
+        workflow = Workflow.getIlluminaPrepWorkflow(request.getCodeRequestCategory(), sess);
+        Iterator i = workflow.iterator();
+        while (i.hasNext()) {
+          appendStepNode(statusNode, i.next().toString());
+        }
+        statusNode.setAttribute("numberOfSteps", Integer.toString(workflow.size()) );
+
       } else {
-        appendStepNode(statusNode, "Submitted");
-        appendStepNode(statusNode, "Library Prep QC");
-        appendStepNode(statusNode, "Ready to Sequence");
-        appendStepNode(statusNode, "Sequence in Progress");
-        appendStepNode(statusNode, "Data Available");
-        statusNode.setAttribute("numberOfSteps", "5");
+        workflow = Workflow.getIlluminaNoPrepWorkflow(request.getCodeRequestCategory(), sess);
+        Iterator i = workflow.iterator();
+        while (i.hasNext()) {
+          appendStepNode(statusNode, i.next().toString());
+        }
+        statusNode.setAttribute("numberOfSteps", Integer.toString(workflow.size()) );
       }
     } else if (RequestCategory.isMicroarrayRequestCategory(request.getCodeRequestCategory())) {
-      appendStepNode(statusNode, "Submitted");
-      appendStepNode(statusNode, "Sample QC");
-      appendStepNode(statusNode, "Labeling");
-      appendStepNode(statusNode, "Hybridization");
-      appendStepNode(statusNode, "Extraction");
-      statusNode.setAttribute("numberOfSteps", "5");
+      workflow = Workflow.getMicroArrayWorkflow(request.getCodeRequestCategory(), sess);
+      Iterator i = workflow.iterator();
+      while (i.hasNext()) {
+        appendStepNode(statusNode, i.next().toString());
+      }
+      statusNode.setAttribute("numberOfSteps", Integer.toString(workflow.size()) );
     } else if (request.getRequestCategory().getType().equals(RequestCategoryType.TYPE_QC)) {
-      appendStepNode(statusNode, "Submitted");
-      appendStepNode(statusNode, "Sample QC");
-      statusNode.setAttribute("numberOfSteps", "2");
+      workflow = Workflow.getQualityControlWorkflow(request.getCodeRequestCategory(), sess);
+      Iterator i = workflow.iterator();
+      while (i.hasNext()) {
+        appendStepNode(statusNode, i.next().toString());
+      }
+      statusNode.setAttribute("numberOfSteps", Integer.toString(workflow.size()) );
+
     } else {
       return;
     }
 
     TreeMap<String, Integer> workflowStepHash = new TreeMap<String, Integer>();
+    String stepNumber="0";
     for (Sample sample : (Set<Sample>) request.getSamples()) {
-      String stepNumber = sample.getWorkflowStep();
+      stepNumber = sample.getWorkflowStep();
       Integer count = workflowStepHash.get(stepNumber);
       if (count == null) {
         count = new Integer(1);
@@ -1149,6 +1144,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
         String tokens[] = workflowStep.split(",");
         workflowStep = tokens[0];
       }
+      stepNode.setAttribute("stepName", workflow.get(new Integer(workflowStep).intValue()-1).toString());
+      stepNode.setAttribute("numSamples", count.toString());
       stepNode.setAttribute("stepNumber", workflowStep);
       stepNode.setAttribute("title", count.toString() + (count.intValue() > 1 ? " Samples" : " Sample") + (partial ? " (partial progress)" : ""));
       stepNode.setAttribute("partial", partial ? "Y" : "N");

@@ -2396,6 +2396,16 @@
         <property name="isActive" column="isActive" type="string"/>
     </class>
 
+    <!-- hci.gnomex.model.WorkflowProperty -->
+    <class name="hci.gnomex.model.WorkflowProperty" table="WorkflowProperty">
+        <id name="idWorkflowProperty" column="idWorkflowProperty" type="integer">
+            <generator class="native"/>
+        </id>
+        <property name="workflowPropertyName" column="workflowPropertyName" type="string"/>
+        <property name="workflowPropertyValue" column="workflowPropertyValue" type="string"/>
+        <property name="codeRequestCategory" column="codeRequestCategory" type="string"/>
+    </class>
+
     <!-- hci.gnomex.model.Visibility -->
     <class name="hci.gnomex.model.Visibility" table="Visibility">
         <id name="codeVisibility" column="codeVisibility" type="string">
