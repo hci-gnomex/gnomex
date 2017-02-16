@@ -1398,8 +1398,70 @@
         private function onChange(event:Event):void {
             // TextInput events always cause change events to trigger, so if there is a paste action, we act.
             if (this.descriptionChangeIsPaste) {
-                this.description.textArea.text = this.pastedDescription;
+//                this.description.textArea.text = this.pastedDescription;
+                copyWithTabs();
                 this.descriptionChangeIsPaste = false;
+            }
+        }
+
+        /**
+         * This function is responsible for adding in the missing tab characters to copy results.
+         * It is dependent on the pasted description being set up correctly.
+         *
+         * @author John Hofer u0556399
+         * @since 02/15/2017
+         */
+        private function copyWithTabs():void {
+            // This function uses a variation on the merge sub-task of the classic mergesort.
+            var currentDescription:String = this.description.textArea.text;
+            var newDescription:String = "";
+
+            var i:int = 0;
+            var j:int = 0;
+
+            var errorHasOccurred:Boolean = false;
+
+            while (i < currentDescription.length || j < this.pastedDescription.length) {
+                // The case in which the current description's characters have already been added, but there are
+                // additional characters in the originally-pasted description.
+                if (i >= currentDescription.length) {
+                    if (this.pastedDescription.charAt(j) == '\t') {
+                        // Then we need to insert the tab.
+                        newDescription += this.pastedDescription.charAt(j);
+                        j++;
+                    } else {
+                        j++;
+                    }
+                }
+                // The case in which the copied description has run out of characters, but there are additional
+                // characters in the text box. This would only occur if the text box was generating characters in
+                // from special characters. This should not occur.
+                else if (j >= pastedDescription.length) {
+                    errorHasOccurred = true;
+                    Alert.show("Error copying data. Please contact GNomEx support to resolve the issue", "Error");
+                    break;
+                }
+                // The case where both strings still have contents to process.
+                else {
+                    if (currentDescription.charAt(i) == this.pastedDescription.charAt(j)) {
+                        newDescription += currentDescription.charAt(i);
+                        i++;
+                        j++;
+                    } else {
+                        if (this.pastedDescription.charAt(j) == '\t') {
+                            // Then we need to insert the tab.
+                            newDescription += this.pastedDescription.charAt(j);
+                            j++;
+                        } else {
+                            // Otherwise, we can skip whatever special character was stripped out for security purposes.
+                            j++;
+                        }
+                    }
+                }
+            }
+
+            if (!errorHasOccurred) {
+                this.description.textArea.text = newDescription;
             }
         }
         ]]>
