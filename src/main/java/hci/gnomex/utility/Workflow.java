@@ -57,14 +57,7 @@ public class Workflow {
     }
 
     public static List<WorkflowSteps> getIlluminaPrepWorkflow(String codeRequestCategory, Session sess) {
-        List list =  new ArrayList<WorkflowSteps>();
-        list.add(WorkflowSteps.SUBMITTED);
-        list.add(WorkflowSteps.SAMPLEQC);
-        list.add(WorkflowSteps.LIBRARYPREP);
-        list.add(WorkflowSteps.LIBRARYPREPQC);
-        list.add(WorkflowSteps.READYTOSEQUENCE);
-        list.add(WorkflowSteps.SEQUENCEINPROGRESS);
-        list.add(WorkflowSteps.DATAAVAILABLE);
+        List list =  getIlluminaPrepWorkflow();
         getPropertyDescription(list, codeRequestCategory, sess);
         return list;
     }
@@ -84,13 +77,7 @@ public class Workflow {
 
     }
     public static List<WorkflowSteps> getIlluminaNoPrepWorkflow(String codeRequestCategory, Session sess) {
-        List list =  new ArrayList<WorkflowSteps>();
-
-        list.add(WorkflowSteps.SUBMITTED);
-        list.add(WorkflowSteps.LIBRARYPREPQC);
-        list.add(WorkflowSteps.READYTOSEQUENCE);
-        list.add(WorkflowSteps.SEQUENCEINPROGRESS);
-        list.add(WorkflowSteps.DATAAVAILABLE);
+        List list =  getIlluminaNoPrepWorkflow();
         getPropertyDescription(list, codeRequestCategory, sess);
         return list;
     }
@@ -108,13 +95,8 @@ public class Workflow {
     }
     public static List<WorkflowSteps> getMicroArrayWorkflow(String codeRequestCategory, Session sess) {
 
-        List list =  new ArrayList<WorkflowSteps>();
+        List list =  getMicroArrayWorkflow();
 
-        list.add(WorkflowSteps.SUBMITTED);
-        list.add(WorkflowSteps.SAMPLEQC);
-        list.add(WorkflowSteps.LABELING);
-        list.add(WorkflowSteps.HYBRIDIZATION);
-        list.add(WorkflowSteps.EXTRACTION);
         getPropertyDescription(list, codeRequestCategory, sess);
         return list;
     }
@@ -134,10 +116,7 @@ public class Workflow {
 
     public static List<WorkflowSteps> getQualityControlWorkflow(String codeRequestCategory, Session sess) {
 
-        List list =  new ArrayList<WorkflowSteps>();
-
-        list.add(WorkflowSteps.SUBMITTED);
-        list.add(WorkflowSteps.SAMPLEQC);
+        List list =  getQualityControlWorkflow();
         getPropertyDescription(list, codeRequestCategory, sess);
         return list;
     }
