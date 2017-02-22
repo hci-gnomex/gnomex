@@ -1,12 +1,9 @@
 package hci.gnomex.utility;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 public class Util {
@@ -91,45 +88,6 @@ public class Util {
 		return keys;
 	}
 
-	/*
-	 * Indicates if file is a link file on unix.
-	 */
-	public static boolean isSymlink(File file) {
-		try {
-			if (file == null) {
-				return false;
-			}
-			File canon;
-			if (file.getParent() == null) {
-				canon = file;
-			} else {
-				File canonDir = file.getParentFile().getCanonicalFile();
-				canon = new File(canonDir, file.getName());
-			}
-
-			return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
-		} catch (IOException ex) {
-			return false;
-		}
-	}
-
-	public static boolean renameTo (File sourceFile, File destFile) {
-		boolean success = false;
-		try {
-			Path sourcePath = sourceFile.toPath();
-			Path targetPath = destFile.toPath();
-			Files.move(sourcePath,targetPath);
-			success = true;
-		}
-		catch (Exception rex) {
-			System.out.println ("[Util.renameTo] move error: " + rex.toString());
-			success = false;
-		}
-
-		return success;
-	}
-
-
 	public static String addURLParameter(String url, String parameter) {
 		if (parameter.startsWith("&") || parameter.startsWith("?")) {
 			parameter = parameter.substring(1);
@@ -143,36 +101,112 @@ public class Util {
 		return url;
 	}
 
-	public static String listIntToString(List<Integer> list) {
-		if (list == null || list.size() == 0)
-			return "";
-
-		boolean firstTime = true;
-		String stringList = "";
-		for (Integer id : list) {
-			if (!firstTime)
-				stringList += ",";
-			else
-				firstTime = false;
-			stringList += id;
-		}
-		return stringList;
+	/**
+	 * Converts a list of objects to a comma-delimited string
+	 * @param list the list of objects to be converted
+	 * @return a String listing the provided objects
+	 */
+	public static String listToString(List list) {
+		return listToString(list, null, null, null, 0);
 	}
 
-	public static String listStrToString(List<String> list) {
-		if (list == null || list.size() == 0)
-			return "";
+	/**
+	 * Converts a list of objects to a comma-delimited string
+	 * @param list the list of objects to be converted
+	 * @param maxItems the maximum number of items to display (additional items are ignored)
+	 * @return a String listing the provided objects
+	 */
+	public static String listToString(List list, int maxItems) {
+		return listToString(list, null, null, null, maxItems);
+	}
 
-		boolean firstTime = true;
-		String stringList = "";
-		for (String str : list) {
-			if (!firstTime)
-				stringList += ",";
-			else
-				firstTime = false;
-			stringList += "'" + str + "'";
+	/**
+	 * Converts a list of objects to a delimited string
+	 * @param list the list of objects to be converted
+	 * @param delimiter the String to use as a delimiter instead of the default comma
+	 * @return a String listing the provided objects
+	 */
+	public static String listToString(List list, String delimiter) {
+		return listToString(list, delimiter, null, null, 0);
+	}
+
+	/**
+	 * Converts a list of objects to a delimited string
+	 * @param list the list of objects to be converted
+	 * @param delimiter the String to use as a delimiter instead of the default comma
+	 * @param maxItems the maximum number of items to display (additional items are ignored)
+	 * @return a String listing the provided objects
+	 */
+	public static String listToString(List list, String delimiter, int maxItems) {
+		return listToString(list, delimiter, null, null, maxItems);
+	}
+
+	/**
+	 * Converts a list of objects to a comma-delimited string
+	 * @param list the list of objects to be converted
+	 * @param prefix the String to insert before each item (i.e. an opening quote or brace)
+	 * @param postfix the String to insert after each item (i.e. a closing quote or brace)
+	 * @return a String listing the provided objects
+	 */
+	public static String listToString(List list, String prefix, String postfix) {
+		return listToString(list, null, prefix, postfix, 0);
+	}
+
+	/**
+	 * Converts a list of objects to a comma-delimited string
+	 * @param list the list of objects to be converted
+	 * @param prefix the String to insert before each item (i.e. an opening quote or brace)
+	 * @param postfix the String to insert after each item (i.e. a closing quote or brace)
+	 * @param maxItems the maximum number of items to display (additional items are ignored)
+	 * @return a String listing the provided objects
+	 */
+	public static String listToString(List list, String prefix, String postfix, int maxItems) {
+		return listToString(list, null, prefix, postfix, maxItems);
+	}
+
+	/**
+	 * Converts a list of objects to a delimited string
+	 * @param list the list of objects to be converted
+	 * @param delimiter the String to use as a delimiter instead of the default comma
+	 * @param prefix the String to insert before each item (i.e. an opening quote or brace)
+	 * @param postfix the String to insert after each item (i.e. a closing quote or brace)
+	 * @return a String listing the provided objects
+	 */
+	public static String listToString(List list, String delimiter, String prefix, String postfix) {
+		return listToString(list, delimiter, prefix, postfix, 0);
+	}
+
+	/**
+	 * Converts a list of objects to a delimited string
+	 * @param list the list of objects to be converted
+	 * @param delimiter the String to use as a delimiter instead of the default comma
+	 * @param prefix the String to insert before each item (i.e. an opening quote or brace)
+	 * @param postfix the String to insert after each item (i.e. a closing quote or brace)
+	 * @param maxItems the maximum number of items to display (additional items are ignored)
+     * @return a String listing the provided objects
+     */
+	public static String listToString(List list, String delimiter, String prefix, String postfix, int maxItems) {
+		if (delimiter == null) {
+			delimiter = ",";
 		}
-		return stringList;
+		if (prefix == null) {
+			prefix = "";
+		}
+		if (postfix == null) {
+			postfix = "";
+		}
+		int numItems = list.size();
+		if (maxItems > 0 && maxItems < list.size()) {
+			numItems = maxItems;
+		}
+		String output = "";
+		for (int i=0; i<numItems; i++) {
+			if (!output.isEmpty()) {
+				output += delimiter;
+			}
+			output += prefix + list.get(i) + postfix;
+		}
+		return output;
 	}
 
 	public static void showTime(long start, String info) {
@@ -286,19 +320,6 @@ public class Util {
 
 		return theInfo;
 	}
-
-	public static String addProblemFile (String status, String filename, int [] numlines) {
-		if (numlines[0] == 0) {
-			status = "Warning: Unable to move some files:\n";
-			numlines[0]++;
-		}
-		if (numlines[0] <= 5) {
-			status += filename + "\n";
-			numlines[0]++;
-		}
-		return status;
-	}
-
 
 	public static boolean isParameterTrue(String requestParameter) {
 		return requestParameter.equalsIgnoreCase("Y") || requestParameter.equalsIgnoreCase("true");

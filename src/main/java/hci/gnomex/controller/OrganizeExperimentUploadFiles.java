@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.utility.*;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ExperimentFile;
@@ -8,9 +9,6 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleExperimentFile;
 import hci.gnomex.model.TransferLog;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FileDescriptorUploadParser;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -158,11 +156,8 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 public Command execute() throws RollBackCommandException {
 
-	String status = null;
-	int[] nlines = {0};
-
+	List<String> problemFiles = new ArrayList<String>();
 	Session sess = null;
-	ArrayList tryLater = null;
 	if (filesXMLString != null) {
 		try {
 			sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
@@ -199,7 +194,7 @@ public Command execute() throws RollBackCommandException {
 					String newFileName = (String) parser.getFilesToRenameMap().get(file);
 					File f1 = new File(file);
 					File f2 = new File(newFileName);
-					boolean success = Util.renameTo(f1,f2);
+					boolean success = FileUtil.renameTo(f1,f2);
 					if (success) {
 						for (Iterator k = parser.getFileNameMap().keySet().iterator(); k.hasNext();) {
 							String directory = (String) k.next();
@@ -256,8 +251,6 @@ public Command execute() throws RollBackCommandException {
 				}
 
 				// Move files to designated folder
-				tryLater = new ArrayList();
-				File oldFileToDelete = null;
 				for (Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
 					String directoryName = (String) i.next();
 					List fileNames = (List) parser.getFileNameMap().get(directoryName);
@@ -299,20 +292,16 @@ public Command execute() throws RollBackCommandException {
 						String td = targetDir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
 						String sd = sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
 						sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
-						oldFileToDelete = new File(sd);
 
 						if (td.equals(sd)) {
 							continue;
 						}
 						File destFile = new File(targetDir, sourceFile.getName());
-						boolean success = Util.renameTo(sourceFile,destFile);
 
-						// If we have renamed a file that is registered in the database
-						// under the ExperimentFile table, then update the ExperimentFile
-						// name
-						// so that we don't do an unnecessary delete in the register files
-						// servlet.
-						if (success) {
+						if (FileUtil.renameTo(sourceFile,destFile)) {
+							// If we have renamed a file that is registered in the database
+							// under the ExperimentFile table, then update the ExperimentFile name
+							// so that we don't do an unnecessary delete in the register files servlet.
 							String currentExpFileName = fileName.substring(fileName.indexOf(baseRequestNumber))
 									.replace("\\", Constants.FILE_SEPARATOR); // REMOVE
 															// REPLACE
@@ -336,33 +325,10 @@ public Command execute() throws RollBackCommandException {
 								sess.save(ef);
 							}
 						} else {
-							if (destFile.exists()) {
-								if (sourceFile.exists()) {
-										if (sourceFile.isDirectory()) {
-											// If can't delete directory then try again after
-											// everything has been moved
-											tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
-										} else {
-											status = Util.addProblemFile(status,fileName,nlines);
-										}
-								}
-							} else {
-								status = Util.addProblemFile(status,fileName,nlines);
-							}
+							problemFiles.add(fileName);
 						}
 
 					} // end of for
-
-					if (oldFileToDelete != null && oldFileToDelete.exists() && oldFileToDelete.list().length == 0) {
-						try {
-							oldFileToDelete.delete();
-						} catch (Exception e) {
-							LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + ": ");
-
-						}
-					} else {
-						LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + ": directory is not empty");
-					}
 
 				}
 
@@ -447,19 +413,14 @@ public Command execute() throws RollBackCommandException {
 					sess.flush();
 				}
 
-				if (tryLater != null) {
-					for (Iterator i = tryLater.iterator(); i.hasNext();) {
-						String fileName = (String) i.next();
-						File deleteFile = new File(fileName);
-						if (deleteFile.exists()) {
-							// Try to delete but don't throw error if unsuccessful.
-							// Just leave it to user to sort out the problem.
-							deleteFile.delete();
-						}
-					}
-				}
-
 				sess.flush();
+
+				// TODO Address inconsistency with OrganizeAnalysisUploadFiles and OrganizeProductOrderUploadFiles
+				//  Here baseDir is [PROPERTY_EXPERIMENT_DIRECTORY][year]/[baseRequestNumber]
+				// There baseDir is [PROPERTY_EXPERIMENT_DIRECTORY][year]
+
+				String stagingDirectory = baseDir + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
+				FileUtil.pruneEmptyDirectories(stagingDirectory);
 
 				if (directoryFilesToUnlink.size() > 0) {
 					for (Iterator i = directoryFilesToUnlink.iterator(); i.hasNext();) {
@@ -678,15 +639,12 @@ public Command execute() throws RollBackCommandException {
 				}
 				sess.flush();
 
-				XMLOutputter out = new org.jdom.output.XMLOutputter();
 				this.xmlResult = "<SUCCESS";
-				if (status != null) {
-					this.xmlResult += " warning= \"" + status;
-					this.xmlResult += "\"/>";
-				} else {
-					this.xmlResult += "/>";
+				if (problemFiles.size() > 0) {
+					String problemFileWarning = "Warning: Unable to move some files:\n" + Util.listToString(problemFiles, "\n", 5);
+					this.xmlResult += " warning=" + '"' + problemFileWarning + '"';
 				}
-//				System.out.println ("[OEULF] this.xmlResult: " + this.xmlResult);
+				this.xmlResult += "/>";
 
 				setResponsePage(this.SUCCESS_JSP);
 
