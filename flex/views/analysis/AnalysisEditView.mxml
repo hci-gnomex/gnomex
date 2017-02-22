@@ -206,7 +206,8 @@
 					   "Warning",
 					   (Alert.YES | Alert.NO), this,
 					   onPromptToSaveAndClose,
-					   parentApplication.iconWarning);
+					   parentApplication.iconWarning
+            );
 		}
 
 		private function onPromptToSaveAndClose(event:CloseEvent):void {
@@ -253,15 +254,15 @@
 				isGuest = false;
 			}
 
-			expLabCombo.selectedItem = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
+			expLabCombo.selectedItem =
+                    parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
 			analysisTypeCombo.selectedItem =
-					parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType',
-																 analysis.@idAnalysisType);
+					parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);
 			analysisProtocolCombo.selectedItem =
-					parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id
-																					 == analysis.@idAnalysisProtocol);
+					parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol);
 			organismCombo.selectedItem =
 					parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);
+
 			filteredGenomeBuildList.refresh();
 			visibilityRadioGroup.selectedValue = analysis.@codeVisibility;
 			//privacyExpirationPicker.text = analysis.@privacyExpirationDate;
@@ -284,15 +285,15 @@
 			var params:Object = new Object();
 			params.idAnalysis = analysis.@idAnalysis;
 			params.includeUploadStagingDir = 'N';
+
 			if (parentApplication.needToLoadAnalysis(params)) {
 				filesView.getAnalysisDownloadList.send(params);
 			}
+
 			filesView.browseParameters = params;
 
-			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
-												  onOrganismRefreshed);
-			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,
-											   onOrganismRefreshed);
+			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);
+			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED, onOrganismRefreshed);
 
 			this.description.textArea.removeEventListener(TextEvent.TEXT_INPUT, onDescriptionTextInput);
 			this.description.textArea.addEventListener(TextEvent.TEXT_INPUT, onDescriptionTextInput);
@@ -306,16 +307,17 @@
 			var params:Object = new Object();
 			params.idAnalysis = analysis.@idAnalysis;
 			params.includeUploadStagingDir = 'N';
+
 			if (parentApplication.needToLoadAnalysis(params)) {
 				filesView.getAnalysisDownloadList.send(params);
 			}
-			filesView.browseParameters = params;
 
+			filesView.browseParameters = params;
 		}
 
 		public function initializeDataProviders():void {
 			analysisTypeCombo.dataProvider =
-					parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
+                    parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
 		}
 
 		private function nextTab():void {
@@ -332,91 +334,112 @@
 			dirty.setDirty();
 			var node:XML;
 			if (item.@type == "SequenceLane") {
-				node = new XML("<SequenceLane " +
-							   " number ='" + item.@itemNumber + "'" +
-							   " createDate ='" + item.@createDate + "'" +
-							   " idRequest ='" + item.@idRequest + "'" +
-							   " idOrganism ='" + item.@idOrganism + "'" +
-							   " idSample ='" + item.@idSample + "'" +
-							   " idSequenceLane ='" + item.@idSequenceLane + "'" +
-							   " idNumberSequencingCycles ='" + item.@idNumberSequencingCycles + "'" +
-							   " idSeqRunType ='" + item.@idSeqRunType + "'" +
-							   " idNumberSequencingCyclesAllowed = '" + item.@idNumberSequencingCyclesAllowed + "'" +
-							   " sampleNumber ='" + item.@sampleNumber1 + "'" +
-							   " flowCellNumber ='" + item.@flowCellNumber + "'" +
-							   " flowCellChannelNumber ='" + item.@flowCellChannelNumber + "'" +
-							   " idGenomeBuildAlignTo ='" + item.@idGenomeBuildAlignTo + "'" +
-							   "/>");
+				node = new XML(
+                        "<SequenceLane " +
+                        " number ='" + item.@itemNumber + "'" +
+                        " createDate ='" + item.@createDate + "'" +
+                        " idRequest ='" + item.@idRequest + "'" +
+                        " idOrganism ='" + item.@idOrganism + "'" +
+                        " idSample ='" + item.@idSample + "'" +
+                        " idSequenceLane ='" + item.@idSequenceLane + "'" +
+                        " idNumberSequencingCycles ='" + item.@idNumberSequencingCycles + "'" +
+                        " idSeqRunType ='" + item.@idSeqRunType + "'" +
+                        " idNumberSequencingCyclesAllowed = '" + item.@idNumberSequencingCyclesAllowed + "'" +
+                        " sampleNumber ='" + item.@sampleNumber1 + "'" +
+                        " flowCellNumber ='" + item.@flowCellNumber + "'" +
+                        " flowCellChannelNumber ='" + item.@flowCellChannelNumber + "'" +
+                        " idGenomeBuildAlignTo ='" + item.@idGenomeBuildAlignTo + "'" +
+                        "/>"
+                );
+
 				// Sample names and other text may have special characters.  Assign this
 				// way to avoid malformed XML error.
 				node.@label = item.@label;
 				node.@sampleName = item.@sampleName1;
 				node.@analysisInstructions = item.@analysisInstructions;
-				var found:Boolean = false;
+
+                var found:Boolean = false;
 				for each(var lane:Object in lanes) {
 					if (lane.@number == item.@itemNumber) {
 						found = true;
 						break;
 					}
 				}
-				if (!found) {
+
+                if (!found) {
 					lanes.addItem(node);
 				}
+
 				this.experimentItemStack.selectedChild = lanesView;
 			} else if (item.@type == "Hybridization") {
-				node = new XML("<Hybridization " +
-							   " number ='" + item.@itemNumber + "'" +
-							   " idRequest ='" + item.@idRequest + "'" +
-							   " idHybridization ='" + item.@idHybridization + "'" +
-							   " sampleNumber1 ='" + item.@sampleNumber1 + "'" +
-							   " sampleNumber2 ='" + item.@sampleNumber2 + "'" +
-							   " slideDesign ='" + item.@slideDesign + "'" +
-							   " slideDesignName ='" + item.@slideDesignName + "'" +
-							   " idSlideDesign ='" + item.@idSlideDesign + "'" +
-							   "/>");
-				// Sample names may have special characters.  Assign this
+				node = new XML(
+                        "<Hybridization " +
+                        " number ='" + item.@itemNumber + "'" +
+                        " idRequest ='" + item.@idRequest + "'" +
+                        " idHybridization ='" + item.@idHybridization + "'" +
+                        " sampleNumber1 ='" + item.@sampleNumber1 + "'" +
+                        " sampleNumber2 ='" + item.@sampleNumber2 + "'" +
+                        " slideDesign ='" + item.@slideDesign + "'" +
+                        " slideDesignName ='" + item.@slideDesignName + "'" +
+                        " idSlideDesign ='" + item.@idSlideDesign + "'" +
+                        "/>"
+                );
+
+                // Sample names may have special characters.  Assign this
 				// way to avoid malformed XML error.
 				node.@label = item.@label;
 				node.@sampleName1 = item.@sampleName1;
 				node.@sampleName2 = item.@sampleName2;
-				for each(var hyb:Object in hybs) {
+
+                for each(var hyb:Object in hybs) {
 					if (hyb.@number == item.@itemNumber) {
 						found = true;
 						break;
 					}
 				}
-				if (!found) {
+
+                if (!found) {
 					hybs.addItem(node);
 				}
-				this.experimentItemStack.selectedChild = hybsView;
+
+                this.experimentItemStack.selectedChild = hybsView;
 			} else if (item.@type == "Sample") {
-				node = new XML("<Sample " +
-							   " number ='" + item.@itemNumber + "'" +
-							   " idRequest ='" + item.@idRequest + "'" +
-							   " idSample ='" + item.@idSample + "'" +
-							   " />");
-				// May have special characters
+				node = new XML(
+                        "<Sample " +
+                        " number ='" + item.@itemNumber + "'" +
+                        " idRequest ='" + item.@idRequest + "'" +
+                        " idSample ='" + item.@idSample + "'" +
+                        " />"
+                );
+
+                // May have special characters
 				node.@name = item.@name;
 				node.@experimentName = item.@experimentName;
-				for each (var sample:Object in samples) {
+
+                for each (var sample:Object in samples) {
 					if (sample.@number == item.@itemNumber) {
 						found = true;
 						break;
 					}
 				}
-				if (!found) {
+
+                if (!found) {
 					samples.addItem(node);
 				}
-				this.experimentItemStack.selectedChild = samplesView;
+
+                this.experimentItemStack.selectedChild = samplesView;
 			}
 		}
 
 		private function promptToRemoveAllExperimentItems():void {
-			Alert.show("Remove all links to experiment items?",
-					   "Confirm",
-					   (Alert.YES | Alert.NO), this,
-					   onPromptToRemoveAllExperimentItems,
-					   parentApplication.iconWarning);
+			Alert.show(
+                    "Remove all links to experiment items?",
+                    "Confirm",
+                    (Alert.YES | Alert.NO),
+                    this,
+                    onPromptToRemoveAllExperimentItems,
+                    parentApplication.iconWarning
+            );
 		}
 
 		private function onPromptToRemoveAllExperimentItems(event:CloseEvent):void {
@@ -434,9 +457,11 @@
 
 		private function removeExperimentItems():void {
 			var items:Array = getActiveGrid().selectedItems;
-			if (items.length > 0) {
+
+            if (items.length > 0) {
 				dirty.setDirty();
 				var list:XMLListCollection = getActiveList();
+
 				for each (var item:Object in items) {
 					list.removeItemAt(list.getItemIndex(item));
 				}
@@ -579,11 +604,11 @@
 			params.genomeBuildsXMLString = "<genomeBuilds>" + genomeBuilds.toXMLString() + "</genomeBuilds>";
 
 			params.codeVisibility =
-					this.visibilityRadioGroup.selectedValue != null ? this.visibilityRadioGroup.selectedValue : "";
+                    (this.visibilityRadioGroup.selectedValue != null ? this.visibilityRadioGroup.selectedValue : "");
 			if (params.codeVisibility == 'INST') {
 				params.idInstitution =
-						this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@idInstitution
-								: "";
+                        (this.institutionCombo.selectedItem != null ?
+                                this.institutionCombo.selectedItem.@idInstitution : "");
 			}
 			params.privacyExpirationDate = this.privacyExpirationPicker.text;
 			params.hybsXMLString = "<hybs>" + hybs.toXMLString() + "</hybs>";
@@ -651,8 +676,7 @@
 		private function onGetAnalysisAfterUpload(event:ResultEvent):void {
 			analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).files;
 			analysis.ExpandedAnalysisFileList =
-					getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis
-																 == analysis.@idAnalysis).ExpandedAnalysisFileList;
+					getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).ExpandedAnalysisFileList;
 			files.source = analysis..FileDescriptor;
 			if (uploadWindow != null) {
 				uploadWindow.refreshFiles();
@@ -814,9 +838,12 @@
 		//
 		private function editOrganism():void {
 			var configWindow:OrganismsWindow = OrganismsWindow(
-					PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+					PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true)
+            );
+
 			PopUpManager.centerPopUp(configWindow);
-			if (organismCombo.selectedItem != null) {
+
+            if (organismCombo.selectedItem != null) {
 				configWindow.selectOrganism(organismCombo.selectedItem.@idOrganism);
 			}
 		}
@@ -827,12 +854,21 @@
 		private function editAnalysisType():void {
 			dictionaryEditor =
 					DictionaryEditor(PopUpManager.createPopUp(parentApplication.theBody, DictionaryEditor, true));
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,
-											  onDictionaryAnalysisTypeInitialized);
-			dictionaryEditor.addEventListener(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED,
-											  onDictionaryAnalysisTypeSelected);
-			parentApplication.dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED,
-																 onDictionaryAnalysisTypeRefreshed);
+
+            dictionaryEditor.addEventListener(
+                    DictionaryEvent.DICTIONARY_WINDOW_INITIALIZED,
+                    onDictionaryAnalysisTypeInitialized
+            );
+            dictionaryEditor.addEventListener(
+                    DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED,
+                    onDictionaryAnalysisTypeSelected
+            );
+
+			parentApplication.dictionaryManager.addEventListener(
+                    DictionaryEvent.DICTIONARY_LOADED,
+                    onDictionaryAnalysisTypeRefreshed
+            );
+
 			PopUpManager.centerPopUp(dictionaryEditor);
 		}
 
@@ -843,9 +879,10 @@
 		private function onDictionaryAnalysisTypeRefreshed(event:Event):void {
 			analysisTypeCombo.dataProvider =
 					parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');
-			analysisTypeCombo.selectedItem =
-					parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType',
-																 analysis.@idAnalysisType);
+			analysisTypeCombo.selectedItem = parentApplication.dictionaryManager.getEntry(
+                    'hci.gnomex.model.AnalysisType',
+                    analysis.@idAnalysisType
+            );
 		}
 
 		private function onDictionaryAnalysisTypeSelected(event:Event):void {
@@ -875,8 +912,7 @@
 		public function onAnalysisProtocolsRefreshed(event:Event):void {
 			parentApplication.removeEventListener(AnalysisProtocolsEvent.DATA_REFRESHED, onAnalysisProtocolsRefreshed);
 			analysisProtocolCombo.selectedItem =
-					parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id
-																					 == analysis.@idAnalysisProtocol);
+					parentApplication.getProtocolList.lastResult.Protocols.Protocol.(@id == analysis.@idAnalysisProtocol);
 		}
 
 		private function showViewWindow():void {
@@ -910,18 +946,20 @@
 
 		private function addCollaborator():void {
 			dirty.setDirty();
-			var node:XML = new XML("<AnalysisCollaborator" +
-								   " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-								   " displayName='" + collaboratorCombo.selectedItem.@displayNameXMLSafe + "'" +
-								   " canUploadData='N' " +
-								   " canUpdate='N' " +
-								   "/>");
+			var node:XML = new XML(
+                    "<AnalysisCollaborator" +
+                    " idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
+                    " displayName='" + collaboratorCombo.selectedItem.@displayNameXMLSafe + "'" +
+                    " canUploadData='N' " +
+                    " canUpdate='N' " +
+                    "/>"
+            );
+
 			this.collaborators.addItem(node);
 			this.collaboratorCombo.dataProvider.removeItemAt(collaboratorCombo.selectedIndex);
 			// Remove from dropdowns
 			removeFromCollaborators(possibleCollaboratorsInDropdown, node);
 			removeFromCollaborators(membersCollaboratorsInDropdown, node);
-
 		}
 
 		/**
@@ -1003,10 +1041,13 @@
 
 		private function addGenomeBuild():void {
 			dirty.setDirty();
-			var node:XML = new XML("<GenomeBuild " +
-								   " idGenomeBuild='" + genomeBuildCombo.selectedItem.@idGenomeBuild + "'" +
-								   " display='" + genomeBuildCombo.selectedItem.@display + "'" +
-								   "/>");
+			var node:XML = new XML(
+                    "<GenomeBuild " +
+                    " idGenomeBuild='" + genomeBuildCombo.selectedItem.@idGenomeBuild + "'" +
+                    " display='" + genomeBuildCombo.selectedItem.@display + "'" +
+                    "/>"
+            );
+
 			this.genomeBuilds.addItem(node);
 		}
 
@@ -1040,26 +1081,26 @@
 
 		private function onGetLab(event:ResultEvent):void {
 			if (getLab.lastResult.name() == "OpenLabList") {
-				var emptyNode:XML = new XML("<AppUser " +
-											" idAppUser=''" +
-											" displayName=''" +
-											"/>");
-				possibleCollaborators =
-						new XMLListCollection(getLab.lastResult..Lab.(@idLab
-																	  == analysis.@idLab).possibleCollaborators.AppUser.(@isActive
-																														 == 'Y'));
-				membersCollaborators =
-						new XMLListCollection(getLab.lastResult..Lab.(@idLab
-																	  == analysis.@idLab).membersCollaborators.AppUser.(@isActive
-																														== 'Y'));
-				possibleCollaboratorsInDropdown =
-						new XMLListCollection(getLab.lastResult..Lab.(@idLab
-																	  == analysis.@idLab).possibleCollaborators.AppUser.(@isActive
-																														 == 'Y'));
-				membersCollaboratorsInDropdown =
-						new XMLListCollection(getLab.lastResult..Lab.(@idLab
-																	  == analysis.@idLab).membersCollaborators.AppUser.(@isActive
-																														== 'Y'));
+				var emptyNode:XML = new XML(
+                        "<AppUser " +
+                        " idAppUser=''" +
+                        " displayName=''" +
+                        "/>"
+                );
+
+				possibleCollaborators = new XMLListCollection(
+                        getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y')
+                );
+				membersCollaborators = new XMLListCollection(
+                        getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y')
+                );
+				possibleCollaboratorsInDropdown = new XMLListCollection(
+                        getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y')
+                );
+				membersCollaboratorsInDropdown = new XMLListCollection(
+                        getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y')
+                );
+
 				removeOwner(possibleCollaborators, analysis.@idAppUser);
 				removeOwner(membersCollaborators, analysis.@idAppUser);
 				removeOwner(possibleCollaboratorsInDropdown, analysis.@idAppUser);
@@ -1068,10 +1109,14 @@
 				syncCollaborators(membersCollaboratorsInDropdown);
 				possibleCollaboratorsInDropdown.addItemAt(emptyNode, 0);
 				membersCollaboratorsInDropdown.addItemAt(emptyNode, 0);
-				possibleInstitutions =
-						new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab
-																											 == analysis.@idLab).institutions.Institution.(@isActive
-																																						   == 'Y')));
+
+                possibleInstitutions = new PromptXMLListCollection(
+                        emptyNode,
+                        new XMLListCollection(
+                                getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')
+                        )
+                );
+
 				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 				if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
 					for each(var inst:Object in possibleInstitutions) {
@@ -1128,8 +1173,11 @@
 				if (!currentOwnerPartOfCurrentLab && analysis.hasOwnProperty("@idAppUser") && analysis.@idAppUser
 																							  != null
 					&& analysis.@idAppUser != '') {
-					var ownerNode:XML = new XML("<AppUser idAppUser='" + analysis.@idAppUser + "' displayName='"
-												+ analysis.@ownerName + "' />");
+					var ownerNode:XML = new XML(
+                            "<AppUser idAppUser='" + analysis.@idAppUser
+                            + "' displayName='" + analysis.@ownerName + "' />"
+                    );
+
 					appUsersForLab.addItem(ownerNode);
 					appUsersForLab.refresh();
 					ownerCombo.selectedItem = ownerNode;
@@ -1139,8 +1187,10 @@
 				}
 				if (!currentOwnerPartOfCurrentLab) {
 					var changePrompt:OwnerChangePrompt = OwnerChangePrompt(
-							PopUpManager.createPopUp(parentApplication.mainArea, OwnerChangePrompt, true));
-					PopUpManager.centerPopUp(changePrompt);
+							PopUpManager.createPopUp(parentApplication.mainArea, OwnerChangePrompt, true)
+                    );
+
+                    PopUpManager.centerPopUp(changePrompt);
 					changePrompt.init(this, analysis.@idAnalysis, analysis.@idLab);
 					//Alert.show("There is either no owner or the owner of this analysis is not a member its current lab group. Please select an owner from the dropdown on the Info tab and save.", "Owner Not Assigned");
 				}
@@ -1157,13 +1207,11 @@
 		 */
 		public function checkIfVisibilityRadioGroupEnabled():void {
 			if (getLab.lastResult != null) {
-
 				if (visibilityRadioGroup.selectedValue == 'OWNER') {
 					currentCollaborators = this.possibleCollaboratorsInDropdown;
 					collaboratorVBox.visible = true;
 					collaboratorVBox.includeInLayout = true;
-				}
-				else if (visibilityRadioGroup.selectedValue == 'MEM') {
+				} else if (visibilityRadioGroup.selectedValue == 'MEM') {
 					currentCollaborators = this.membersCollaboratorsInDropdown;
 					collaboratorVBox.visible = true;
 					collaboratorVBox.includeInLayout = true;
@@ -1452,7 +1500,11 @@
 				else if (j >= this.pastedText.length) {
 //					errorHasOccurred = true;
 //					Alert.show("Error copying data. Please contact GNomEx support to resolve the issue", "Error");
-					newDescription += currentDescription.slice(currentDescription.length - numCharsFollowing, currentDescription.length);
+					newDescription += currentDescription.slice(
+                            currentDescription.length - numCharsFollowing,
+                            currentDescription.length
+                    );
+                    
 					break;
 				}
 				// The case where both strings still have contents to process.
