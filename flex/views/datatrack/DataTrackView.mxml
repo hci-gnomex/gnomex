@@ -119,59 +119,62 @@
 	import mx.controls.Alert;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
+
 	import views.util.WebLinksView;
-	
+
 	import views.admin.PropertyWindow;
 	import views.datatrack.FolderInfoWindow;
 	import views.util.GNomExStringUtil;
+
 	import mx.events.CloseEvent;
 	import mx.utils.StringUtil;
-	
+
 	import views.util.CheckBoxRequiredIndicator;
 	import views.util.TextInputRequiredIndicator;
+
 	import mx.collections.Sort;
-	
-	private const DOWNLOAD_FILES_URL:String       = "DownloadDataTrackFileServlet.gx"; 
-	private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-datatracks";  
-	
+
+	private const DOWNLOAD_FILES_URL:String = "DownloadDataTrackFileServlet.gx";
+	private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-datatracks";
+
 	import views.experiment.DownloadProgressView;
 
 	private static var alertButtonWidthDefault:Number = Alert.buttonWidth;
-	
-	private static const  KB:Number = Math.pow(2, 10);
-	private static const  MB:Number = Math.pow(2, 20);
-	private static const  GB:Number = Math.pow(2, 30);
-	private static const   ZIP_MAX_SIZE:Number = (1 * GB);
-	
+
+	private static const KB:Number = Math.pow(2, 10);
+	private static const MB:Number = Math.pow(2, 20);
+	private static const GB:Number = Math.pow(2, 30);
+	private static const ZIP_MAX_SIZE:Number = (1 * GB);
+
 	private var downloadKeys:String = new String();
 	private var estimatedDownloadSize:Number = new Number();
 	private var uncompressedDownloadSize:Number = new Number();
-	
+
 	[Bindable]
 	private var appUsersForLab:XMLListCollection;
 	private var appUserSort:Sort;
-	
+
 	public var propertiesToSave:XMLListCollection;
-	
+
 	private var idLab:String;
 	private var currentOwnerId:String;
-	
+
 	private function onGetDataTrack(event:ResultEvent):void {
-		if (getDataTrack.lastResult.name() == "DataTrack") {		
-			if(parentApplication.isTopicsSupported) {
+		if (getDataTrack.lastResult.name() == "DataTrack") {
+			if (parentApplication.isTopicsSupported) {
 				var topics:XMLList = getDataTrack.lastResult.topics.Topic;
-				
+
 				// If we don't have any related objects or topics, hide the tab.
-				if(relatedObjects.length == 0 && relatedTopics.length == 0) {
+				if (relatedObjects.length == 0 && relatedTopics.length == 0) {
 					if (theTab.contains(this.relatedObjectsTab)) {
 						theTab.removeChild(relatedObjectsTab);
-					}					
-				} else {	
+					}
+				} else {
 					if (!theTab.contains(this.relatedObjectsTab)) {
 						theTab.addChild(relatedObjectsTab);
-					}					
-				}				
-			}			
+					}
+				}
+			}
 			if (this.parentDocument.currentState == "AdminState") {
 				this.dataTrackOwnerStack.selectedIndex = 0;
 				this.dataTrackLabStack.selectedIndex = 0;
@@ -179,7 +182,7 @@
 				this.dataTrackOwnerStack.selectedIndex = 1;
 				this.dataTrackLabStack.selectedIndex = getDataTrack.lastResult.@canWrite == 'Y' ? 0 : 1;
 			}
-			
+
 			this.visibilityRadioGroup.selectedValue = getDataTrack.lastResult.@codeVisibility;
 			this.instituteCombo.enabled = this.possibleInstitutions.length > 1 && !parentApplication.isGuestMode();
 			if (getDataTrack.lastResult.@idInstitution != null && getDataTrack.lastResult.@idInstitution != '') {
@@ -188,27 +191,27 @@
 						instituteCombo.selectedItem = institute;
 						break;
 					}
-				} 
-			} else {		
+				}
+			} else {
 				var hasDefault:Boolean = false;
-				if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
+				if (radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
 					for each(var inst:Object in possibleInstitutions) {
 						if (inst.@isDefault == 'Y') {
-							this.instituteCombo.selectedItem =  inst;
+							this.instituteCombo.selectedItem = inst;
 							hasDefault = true;
 							break;
 						}
-					}	
-				} else if(radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled){
+					}
+				} else if (radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled) {
 					// Default to Member if institution selected but not enabled
-					this.visibilityRadioGroup.selectedValue = 'MEM';					
-				}					
-				if(!hasDefault) {
+					this.visibilityRadioGroup.selectedValue = 'MEM';
+				}
+				if (!hasDefault) {
 					this.instituteCombo.selectedIndex = 0;
-				}						
-			}			
-			
-			
+				}
+			}
+
+
 			labCombo.selectedItem = null;
 			for each(var l:XML in parentApplication.submitRequestLabList) {
 				if (l.@idLab == getDataTrack.lastResult.@idLab.toString()) {
@@ -216,43 +219,43 @@
 					break;
 				}
 			}
-			
-			idLab =  getDataTrack.lastResult.@idLab;
-			currentOwnerId = getDataTrack.lastResult.@idAppUser; 
-				
+
+			idLab = getDataTrack.lastResult.@idLab;
+			currentOwnerId = getDataTrack.lastResult.@idAppUser;
+
 			if (parentDocument.currentState == "AdminState") {
 				ownerCombo.selectedItem = parentApplication.getAppUserList.lastResult.AppUser.(@idAppUser == getDataTrack.lastResult.@idAppUser);
 			}
 			this.dirtyDataTrack.resetDirty();
-			
-			if(labCombo.selectedItem != null) {
+
+			if (labCombo.selectedItem != null) {
 				var params:Object = new Object();
 				params.idLab = labCombo.selectedItem.@idLab;
 				params.includeBillingAccounts = "N";
 				params.includeProductCounts = "N";
-				getLab.send(params);				
+				getLab.send(params);
 			}
-			
+
 		} else {
 			Alert.show(getDataTrack.lastResult..ACTMESSAGE.@TEXT);
-		}		
+		}
 	}
-	
-	private function onGetLab(event:ResultEvent):void {			
+
+	private function onGetLab(event:ResultEvent):void {
 		if (getLab.lastResult.name() == "OpenLabList") {
 			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
 			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
-			appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
+			appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive == 'Y'));
 			for each (var mgr:Object in lab.managers.AppUser) {
 				if (!appUsersForLab.contains(mgr)) {
-					if(mgr.@isActive=='Y') {
+					if (mgr.@isActive == 'Y') {
 						appUsersForLab.addItem(mgr);
 					}
-					
+
 				}
 			}
 			appUsersForLab.addItemAt(emptyNode, 0);
-			
+
 			appUserSort = new Sort();
 			appUserSort.compareFunction = GNomExStringUtil.sortAppUsers;
 			appUsersForLab.sort = appUserSort;
@@ -267,30 +270,52 @@
 					break;
 				}
 			}
+			if (getDataTrack.lastResult.@codeVisibility == "MEM") {
+				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.membersCollaborators.AppUser.(@isActive == 'Y'));
+			}
+			else if (getDataTrack.lastResult.@codeVisibility == "PUBLIC")
+				possibleCollaborators = new XMLListCollection();
+			else {
+				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
+			}
+			removeOwnerFromCollaborators();
 //			if(currentOwnerNotFound) {						
 //				Alert.show("There is either no owner or the owner of this data track is not a member its current lab group. Please select an owner from the dropdown on the Visibility tab and save.", "Owner Not Assigned");				
 //			}
-			
+
 		}
 	}
-	
-	
+
+	private function removeOwnerFromCollaborators():void {
+		var ctr:int = 0;
+		var o:Object = ownerCombo.selectedItem;
+		if (o != null) {
+			for each (var p:XML in possibleCollaborators) {
+				if (p.@idAppUser == o.@idAppUser) {
+					possibleCollaborators.removeItemAt(ctr);
+					break;
+				}
+				ctr++;
+			}
+		}
+	}
+
 	private function checkTopicsVisibility():void {
-		if(!parentApplication.isTopicsSupported) {
+		if (!parentApplication.isTopicsSupported) {
 			if (theTab.contains(this.relatedObjectsTab)) {
 				theTab.removeChild(relatedObjectsTab);
-			}				
-		}	
-	}	
-	
+			}
+		}
+	}
+
 	private function onUpdateDataTrack(event:ResultEvent):void {
 		if (saveDataTrack.lastResult.name() == "SUCCESS") {
 			this.dirtyDataTrack.resetDirty();
 			parentDocument.treeItemToSelect = parentDocument.browseTree.selectedItem;
-			parentDocument.refreshDataTracks();			
+			parentDocument.refreshDataTracks();
 		} else {
 			Alert.show(saveDataTrack.lastResult..ACTMESSAGE.@TEXT);
-		}	
+		}
 	}
 
 	private function removeRichTextButtons():void {
@@ -298,52 +323,52 @@
 		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontFamilyCombo);
 		this.descriptionRichText.toolbar.removeChild(descriptionRichText.fontSizeCombo);
 	}
-	
+
 	public function save():void {
-		
-		if(!requiredAnnotationsEntered()) {
-			return;		
-		}		
-		
+
+		if (!requiredAnnotationsEntered()) {
+			return;
+		}
+
 		var params:Object = new Object();
-		params.idDataTrack            = parentDocument.browseTree.selectedItem.@idDataTrack;
-		params.name                   = this.dataTrackName.text;
-		params.description            = GNomExStringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
-		params.summary                = this.dataTrackSummary.text;
-		params.codeVisibility         = this.visibilityRadioGroup.selectedValue != null ? visibilityRadioGroup.selectedValue : "";
+		params.idDataTrack = parentDocument.browseTree.selectedItem.@idDataTrack;
+		params.name = this.dataTrackName.text;
+		params.description = GNomExStringUtil.cleanRichTextHTML(this.descriptionRichText.htmlText);
+		params.summary = this.dataTrackSummary.text;
+		params.codeVisibility = this.visibilityRadioGroup.selectedValue != null ? visibilityRadioGroup.selectedValue : "";
 		if (params.codeVisibility == 'INST') {
 			params.idInstitution = this.instituteCombo.selectedItem != null ? this.instituteCombo.selectedItem.@idInstitution : "";
-		} 
-		params.idLab                  = this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
-		if (parentDocument.currentState == "AdminState") {
-			params.idAppUser              = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser: "";
-		} else {
-			params.idAppUser              = this.getDataTrack.lastResult.@idAppUser;
 		}
-		
-		params.collaboratorsXML  = "<collaborators>"    + collaborators.toXMLString() +  "</collaborators>";
-		
-		params.filesToRemoveXML  = "<filesToRemove>" + dataTrackFilesToRemove.toXMLString() + "</filesToRemove>";
-		
+		params.idLab = this.labCombo.selectedItem != null ? this.labCombo.selectedItem.@idLab : "";
+		if (parentDocument.currentState == "AdminState") {
+			params.idAppUser = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
+		} else {
+			params.idAppUser = this.getDataTrack.lastResult.@idAppUser;
+		}
+
+		params.collaboratorsXML = "<collaborators>" + collaborators.toXMLString() + "</collaborators>";
+
+		params.filesToRemoveXML = "<filesToRemove>" + dataTrackFilesToRemove.toXMLString() + "</filesToRemove>";
+
 		this.initializePropertiesFromComponents();
 		params.propertiesXML = "<dataTrackProperties>" + propertiesToSave.toXMLString() + "</dataTrackProperties>";
-		
+
 		saveDataTrack.send(params);
 	}
-	
-	
+
+
 	private function onSaveDataTrack(event:ResultEvent):void {
 		if (saveDataTrack.lastResult.name() == "SUCCESS") {
 			this.dirtyDataTrack.resetDirty();
-			if(parentDocument is NavDataTrackView) {
+			if (parentDocument is NavDataTrackView) {
 				parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
-				parentDocument.refreshDataTracks();					
-			} 
+				parentDocument.refreshDataTracks();
+			}
 		} else {
 			Alert.show(saveDataTrack.lastResult..ACTMESSAGE.@TEXT);
-		} 
+		}
 	}
-	
+
 	private function removeDataTrackFile():void {
 		this.dirtyDataTrack.setDirty();
 		for each(var item:Object in dataTrackFileGrid.selectedItems) {
@@ -353,26 +378,25 @@
 	}
 
 
-	
 	/**
 	 *
 	 *  ANNOTATION PROPERTY FUNCTIONS
-	 *  
+	 *
 	 */
-	
+
 	public function requiredAnnotationsEntered():Boolean {
 		var optionSelected:Boolean;
 		for (var i:int = 0; i < dataTrackProperties.length; i++) {
 			var property:XML = XML(dataTrackProperties.getItemAt(i));
 			if (propertyValueViewStack[i].selectedIndex == 0) {
 				// url
-				if(property.@isRequired == 'Y' && (this.urlText[0][0].text == "" || this.urlText[0][0].text == "Enter URL here...")) {
+				if (property.@isRequired == 'Y' && (this.urlText[0][0].text == "" || this.urlText[0][0].text == "Enter URL here...")) {
 					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
 					return false;
-				}						
+				}
 			} else if (propertyValueViewStack[i].selectedIndex == 1) {
 				// text
-				if(property.@isRequired == 'Y' && propertyText[i].text == "") {
+				if (property.@isRequired == 'Y' && propertyText[i].text == "") {
 					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
 					return false;
 				}
@@ -381,11 +405,11 @@
 				optionSelected = false;
 				for each (var option:XML in  property..PropertyOption) {
 					if (propertyCombo[i].selectedItem != null &&
-						option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption && option.@name != '') {
+							option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption && option.@name != '') {
 						optionSelected = true;
 					}
 				}
-				if(property.@isRequired == 'Y' && !optionSelected) {
+				if (property.@isRequired == 'Y' && !optionSelected) {
 					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
 					return false;
 				}
@@ -393,7 +417,7 @@
 				// check box can only be checked or unchecked, so nothing req'd here
 			} else if (propertyValueViewStack[i].selectedIndex == 4) {
 				// multi-select
-				optionSelected = false;		
+				optionSelected = false;
 				var idx:int = 0;
 				for each (var opt:XML in  property..PropertyOption) {
 					if (multiselectCheck[i][idx].selected) {
@@ -401,60 +425,60 @@
 					}
 					idx++;
 				}
-				if(property.@isRequired == 'Y' && !optionSelected) {
+				if (property.@isRequired == 'Y' && !optionSelected) {
 					Alert.show('Please enter a value for the "' + property.@name + '" annotation.', 'Missing Required Annotation');
 					return false;
-				}						
+				}
 			}
 		}
 		return true;
-	}	
-	
-	
+	}
+
+
 	private function onCreatePropertyLabel(dataTrackProperty:XML, index:int):void {
 		if (dataTrackProperty.@codePropertyType == 'TEXT') {
 			propertyValueViewStack[index].selectedIndex = 1;
 			propertyText[index].text = dataTrackProperty.@value;
-			propertyText[index].isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
+			propertyText[index].isRequired = dataTrackProperty.@isRequired == 'Y' ? true : false;
 		} else if (dataTrackProperty.@codePropertyType == 'URL') {
 			propertyValueViewStack[index].selectedIndex = 0;
-			if(urlText != null && urlText[index].length > 0) {
+			if (urlText != null && urlText[index].length > 0) {
 				// Req'd flag only needed for first item
-				urlText[index][0].isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
+				urlText[index][0].isRequired = dataTrackProperty.@isRequired == 'Y' ? true : false;
 				urlText[index][0].SetBackgroundColor();
-			}				
-		} else  if (dataTrackProperty.@codePropertyType == 'OPTION') {
+			}
+		} else if (dataTrackProperty.@codePropertyType == 'OPTION') {
 			propertyValueViewStack[index].selectedIndex = 2;
-			propertyCombo[index].dataProvider =  dataTrackProperty..PropertyOption;
-			propertyCombo[index].isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
+			propertyCombo[index].dataProvider = dataTrackProperty..PropertyOption;
+			propertyCombo[index].isRequired = dataTrackProperty.@isRequired == 'Y' ? true : false;
 			for each(var theOption:XML in dataTrackProperty..PropertyOption) {
-				if (theOption.@selected == 'Y') { 
-					propertyCombo[index].selectedItem =  theOption;
-					break;   			
+				if (theOption.@selected == 'Y') {
+					propertyCombo[index].selectedItem = theOption;
+					break;
 				}
 			}
-		} else  if (dataTrackProperty.@codePropertyType == 'MOPTION') { 
-			propertyValueViewStack[index].selectedIndex = 4; 
+		} else if (dataTrackProperty.@codePropertyType == 'MOPTION') {
+			propertyValueViewStack[index].selectedIndex = 4;
 			var propertyOptions:XMLListCollection = new XMLListCollection(dataTrackProperty.PropertyOption);
-			if(propertyOptions.length < 1) {
+			if (propertyOptions.length < 1) {
 				// Nothing to do if there are no options
 				return;
 			}
 			var cbLen:int = multiselectCheck[index].length;
 			var cbCount:int = 0;
 			for each (var cbx:CheckBoxRequiredIndicator in multiselectCheck[index]) {
-				cbx.isRequired = dataTrackProperty.@isRequired== 'Y' ? true : false;
+				cbx.isRequired = dataTrackProperty.@isRequired == 'Y' ? true : false;
 				cbCount++;
-				if(cbCount == cbLen) {
+				if (cbCount == cbLen) {
 					cbx.setBackgroundColor();
 				}
-			}			
+			}
 		} else if (dataTrackProperty.@codePropertyType == 'CHECK') {
 			propertyValueViewStack[index].selectedIndex = 3;
 			propertyCheck[index].selected = dataTrackProperty.@value == 'Y' ? true : false;
 		}
 	}
-	
+
 	public function initializePropertiesFromComponents():void {
 		propertiesToSave = new XMLListCollection();
 		for (var i:int = 0; i < dataTrackProperties.length; i++) {
@@ -465,39 +489,39 @@
 				var urlItemDefined:Boolean = false;
 				for each (var propertyValue:XML in  property..PropertyEntryValue) {
 					var url:String = '';
-					if(i < urlText.length && urlText[i] != null && urlIdx < this.urlText[i].length) {
+					if (i < urlText.length && urlText[i] != null && urlIdx < this.urlText[i].length) {
 						url = this.urlText[i][urlIdx].text;
 					}
 					var alias:String = '';
-					if(i < aliasText.length && aliasText[i] != null && urlIdx < this.aliasText[i].length) {
+					if (i < aliasText.length && aliasText[i] != null && urlIdx < this.aliasText[i].length) {
 						alias = this.aliasText[i][urlIdx].text;
-					}							
-					
+					}
+
 					if (url == 'Enter URL here...' || url == '') {
 						continue;
 					}
-					
+
 					var pv:String = url;
 					if (alias != null && alias != 'Enter alias here...' && StringUtil.trim(alias) != "") {
 						pv += ',' + alias;
 					}
 					propertyValue.@value = pv;
 					property.@value = pv;
-					
-					if(pv.length > 0) {
+
+					if (pv.length > 0) {
 						urlItemDefined = true;
 					}
 					urlIdx++;
 				}
-				if(urlItemDefined) {
+				if (urlItemDefined) {
 					propertiesToSave.addItem(property);
 				}
-				
+
 			} else if (propertyValueViewStack[i].selectedIndex == 1) {
 				// text
 				var textVal:String = propertyText[i].text;
 				property.@value = textVal;
-				if(textVal.length > 0) {
+				if (textVal.length > 0) {
 					propertiesToSave.addItem(property);
 				}
 			} else if (propertyValueViewStack[i].selectedIndex == 2) {
@@ -506,17 +530,17 @@
 				var comboItemSelected:Boolean = false;
 				for each (var option:XML in  property..PropertyOption) {
 					if (propertyCombo[i].selectedItem != null &&
-						option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption) {
+							option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption) {
 						option.@selected = 'Y';
 						var optName:String = option.@name;
-						if(optName != null && optName.length > 0 && optName != " ") {
+						if (optName != null && optName.length > 0 && optName != " ") {
 							comboItemSelected = true;
 						}
 					} else {
 						option.@selected = 'N';
 					}
 				}
-				if(comboItemSelected) {
+				if (comboItemSelected) {
 					propertiesToSave.addItem(property);
 				}
 			} else if (propertyValueViewStack[i].selectedIndex == 3) {
@@ -525,7 +549,7 @@
 				propertiesToSave.addItem(property);
 			} else if (propertyValueViewStack[i].selectedIndex == 4) {
 				// multi-select
-				property.@value = "";		
+				property.@value = "";
 				var idx:int = 0;
 				var multiItemSelected:Boolean = false;
 				for each (var opt:XML in  property..PropertyOption) {
@@ -541,36 +565,36 @@
 					}
 					idx++;
 				}
-				if(multiItemSelected) {
+				if (multiItemSelected) {
 					propertiesToSave.addItem(property);
 				}
 			}
 		}
 	}
-	
+
 	private function onPropertyURLClick(event:TextEvent):void {
 		var url:URLRequest = new URLRequest(event.target.text);
-		navigateToURL( url, '_blank' );
+		navigateToURL(url, '_blank');
 	}
-	
+
 	private function removeProperty(dataTrackProperty:XML):void {
 		this.initializePropertiesFromComponents();
 		dataTrackProperties.removeItemAt(dataTrackProperties.getItemIndex(dataTrackProperty));
 	}
-	
-	
+
+
 	private function selectURLText(indices:Array):void {
 		if (urlText[indices[0]][indices[1]].text == 'Enter URL here...') {
 			urlText[indices[0]][indices[1]].selectionBeginIndex = 0;
 			urlText[indices[0]][indices[1]].selectionEndIndex = urlText[indices[0]][indices[1]].text.length;
-		} 
+		}
 	}
 
 	private function selectAliasText(indices:Array):void {
 		if (aliasText[indices[0]][indices[1]].text == 'Enter alias here...') {
 			aliasText[indices[0]][indices[1]].selectionBeginIndex = 0;
 			aliasText[indices[0]][indices[1]].selectionEndIndex = aliasText[indices[0]][indices[1]].text.length;
-		} 
+		}
 	}
 
 	private function onChangeURLText(indices:Array):void {
@@ -579,7 +603,7 @@
 		values.getItemAt(indices[1]).@value = newText;
 		dirtyDataTrack.setDirty();
 	}
-	
+
 	private function showURLLink(indices:Array):void {
 		if (urlText[indices[0]][indices[1]].text == 'Enter URL here...') {
 			return;
@@ -588,7 +612,7 @@
 		if (urlLink[indices[0]][indices[1]].label == null || urlLink[indices[0]][indices[1]].label == 'Enter URL here...' || urlLink[indices[0]][indices[1]].label == '') {
 			isNew = true;
 		}
-		
+
 		var newUrlText:String = urlText[indices[0]][indices[1]].text;
 		var newUrlAlias:String = aliasText[indices[0]][indices[1]].text;
 		var newUrlDisplay:String = "";
@@ -597,21 +621,21 @@
 		} else {
 			newUrlDisplay = newUrlText;
 		}
-		
+
 		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
 		values.getItemAt(indices[1]).@urlDisplay = newUrlDisplay;
 		values.getItemAt(indices[1]).@url = newUrlText;
-		values.getItemAt(indices[1]).@urlAlias= newUrlAlias;		
-		
+		values.getItemAt(indices[1]).@urlAlias = newUrlAlias;
+
 		urlLink[indices[0]][indices[1]].label = newUrlDisplay;
-		
+
 		urlStack[indices[0]][indices[1]].selectedIndex = 0;
-		
+
 		if (isNew) {
 			addURL(indices);
 		}
-		
-		
+
+
 	}
 
 	private function navigateToURLLink(indices:Array):void {
@@ -624,45 +648,45 @@
 			urlString = "http://" + urlString;
 		}
 		var url:URLRequest = new URLRequest(urlString);
-		navigateToURL( url, '_blank' );
+		navigateToURL(url, '_blank');
 	}
-	
+
 	private function showURLEdit(indices:Array):void {
 		urlStack[indices[0]][indices[1]].selectedIndex = 1;
 	}
-	
+
 	private function tabToURLText(indices:Array):void {
 		urlText[indices[0]][indices[1]].setFocus();
 	}
-	
+
 
 	private function removeURL(indices:Array):void {
 		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
-		
+
 		var property:XML = XML(XMLListCollection(propertyRepeater.dataProvider).getItemAt(indices[0]));
 		delete property.PropertyEntryValue[indices[1]];
-		
+
 		values.removeItemAt(indices[1]);
-		
+
 		this.initializePropertiesFromComponents();
-		
+
 		propertyMainBox.removeAllChildren();
 		propertyRepeater.initializeRepeater(propertyMainBox, true);
 		this.dirtyDataTrack.setDirty();
 	}
-	
+
 	private function addURL(indices:Array):void {
 		var values:XMLListCollection = XMLListCollection(urlRepeater[indices[0]].dataProvider);
-		
+
 		var property:XML = XML(XMLListCollection(propertyRepeater.dataProvider).getItemAt(indices[0]));
 		property.appendChild(new XMLList("<PropertyEntryValue idPropertyEntryValue='' urlAlias='Enter alias here...' url='Enter URL here...'/>"));
 		values = new XMLListCollection(property.PropertyEntryValue);
-		
+
 		this.initializePropertiesFromComponents();
 		propertyMainBox.removeAllChildren();
 		propertyRepeater.initializeRepeater(propertyMainBox, true);
 	}
-	
+
 	private function showPropertyConfigWindow():void {
 		var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
 		PopUpManager.centerPopUp(configWindow);
@@ -670,16 +694,16 @@
 		configWindow.showAnalysisAnnotations.selected = false;
 		configWindow.showDataTrackAnnotations.selected = true;
 		configWindow.onPropertyRefreshed(null);
-		
+
 	}
-	
+
 	private function showCollaboratorWindow():void {
 		var collaboratorWindow:CollaboratorWindow = CollaboratorWindow(PopUpManager.createPopUp(parentApplication.theBody, CollaboratorWindow, true));
 		PopUpManager.centerPopUp(collaboratorWindow);
-		collaboratorWindow.init("Collaborators for Data Track " + getDataTrack.lastResult.@number, 
-			collaborators, 
-			possibleCollaborators);
-		
+		collaboratorWindow.init("Collaborators for Data Track " + getDataTrack.lastResult.@number,
+				collaborators,
+				possibleCollaborators);
+
 	}
 
 	private function showUploadWindow(viewStackIndex:int):void {
@@ -693,18 +717,18 @@
 		uploadWindow.init();
 		uploadWindow.mainStack.selectedIndex = viewStackIndex;
 	}
-	
+
 	private function showFolderInfoWindow():void {
 		var infoWindow:FolderInfoWindow = FolderInfoWindow(PopUpManager.createPopUp(parentApplication.theBody, FolderInfoWindow, true));
 		PopUpManager.centerPopUp(infoWindow);
 		infoWindow.init(XML(this.getDataTrack.lastResult));
-		
+
 	}
 
 	/*******************************************
-	 * 
+	 *
 	 * Download Functions
-	 * 
+	 *
 	 */
 	public function promptToDownloadSelectedItems():void {
 		var itemsToDownload:Array = new Array();
@@ -716,11 +740,11 @@
 			} else {
 				getChildDataTracks(item, dataTracks);
 			}
-			
+
 			for each (var dataTrack:Object in dataTracks) {
 				// Get rid of duplicates
 				var keep:Boolean = true;
-				
+
 				for each(var di:Object in itemsToDownload) {
 					if (di.@idDataTrack == dataTrack.@idDataTrack) {
 						keep = false;
@@ -730,12 +754,12 @@
 				if (keep) {
 					itemsToDownload.push(dataTrack);
 					var idDataTrackFolder:Object = "-99";
-					
-					if(dataTrack.hasOwnProperty("@idDataTrackFolder") && dataTrack.@idDataTrackFolder != "") {
+
+					if (dataTrack.hasOwnProperty("@idDataTrackFolder") && dataTrack.@idDataTrackFolder != "") {
 						idDataTrackFolder = dataTrack.@idDataTrackFolder;
 					}
 					//var idDataTrackFolder:Object = dataTrack.@idDataTrackFolder != "" ? dataTrack.@idDataTrackFolder : "-99";
-					downloadKeys += dataTrack.@idDataTrack + "," + idDataTrackFolder + ":";         						
+					downloadKeys += dataTrack.@idDataTrack + "," + idDataTrackFolder + ":";
 				}
 			}
 		}
@@ -747,8 +771,8 @@
 		params.keys = downloadKeys;
 		this.getDownloadEstimatedSize.send(params);
 	}
-	
-	
+
+
 	private function onGetDownloadEstimatedSize(event:ResultEvent):void {
 		if (getDownloadEstimatedSize.lastResult.@size == 0) {
 			Alert.show("No data files exist for selected item(s).", "");
@@ -758,71 +782,71 @@
 			if (parentApplication.isFDTSupported) {
 				promptForDownloadMethod();
 			} else {
-				Alert.show( "Ready to download approximately " + getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
-					"",
-					(Alert.YES | Alert.NO), this, 
-					downloadFiles); 
+				Alert.show("Ready to download approximately " + getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
+						"",
+						(Alert.YES | Alert.NO), this,
+						downloadFiles);
 			}
 		}
 	}
-	
+
 	private function promptForDownloadMethod():void {
 		var downloadSizeRange:String = getFileSizeText(estimatedDownloadSize);
 		if (downloadSizeRange != getFileSizeText(uncompressedDownloadSize)) {
 			downloadSizeRange += " - " + getFileSizeText(uncompressedDownloadSize);
 		}
 		var recommended:String = "(FDT download is recommended for downloads > 300 MB.)";
-		
-		Alert.buttonWidth = 120; 
+
+		Alert.buttonWidth = 120;
 		Alert.yesLabel = "Normal download";
 		Alert.noLabel = "FDT download";
-		Alert.show( "Ready to download approximately " + downloadSizeRange + ".\n" +
-			"Which download mechanism do you want to use?\n\n" + recommended,
-			"Choose download method",
-			(Alert.YES | Alert.NO | Alert.CANCEL), this, 
-			onPromptForDownloadMethod);
-		
+		Alert.show("Ready to download approximately " + downloadSizeRange + ".\n" +
+				"Which download mechanism do you want to use?\n\n" + recommended,
+				"Choose download method",
+				(Alert.YES | Alert.NO | Alert.CANCEL), this,
+				onPromptForDownloadMethod);
+
 	}
-	
+
 	private function onPromptForDownloadMethod(event:CloseEvent):void {
 		Alert.yesLabel = "Yes";
 		Alert.noLabel = "No";
 		Alert.buttonWidth = alertButtonWidthDefault;
-		if (event.detail==Alert.YES) {
+		if (event.detail == Alert.YES) {
 			// If normal download, prompt about size first.
-			Alert.show( "Ready to download approximately " + getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
-				"",
-				(Alert.YES | Alert.NO), this, 
-				downloadFiles);					
-		} else  if (event.detail == Alert.NO){
+			Alert.show("Ready to download approximately " + getFileSizeText(estimatedDownloadSize) + " of data.  Proceed?",
+					"",
+					(Alert.YES | Alert.NO), this,
+					downloadFiles);
+		} else if (event.detail == Alert.NO) {
 			// If this is an FDT download, make the request to download the 
 			// FDT webstart application
-			var url:URLRequest = new URLRequest('FastDataTransferDownloadDataTrackServlet.gx');	
+			var url:URLRequest = new URLRequest('FastDataTransferDownloadDataTrackServlet.gx');
 			url.contentType = "text/plain";
 			url.method = URLRequestMethod.GET;
-			navigateToURL(url, '_self');	
-		} 
+			navigateToURL(url, '_self');
+		}
 	}
-	
-	
+
+
 	public static function getFileSizeText(theFileSize:Number):String {
 		var size:Number = 0;
 		var sizeTxt:String = "";
-		if (theFileSize > GB ) {
+		if (theFileSize > GB) {
 			// Round gigabyte to the one decimal place
 			size = Math.round((theFileSize / GB) * 10) / 10;
 			if (size == 0) {
 				size = 1;
-			} 
+			}
 			sizeTxt = size + " GB";
-		}  else if (theFileSize > MB ) {
+		} else if (theFileSize > MB) {
 			// Round megabyte to neareast whole number
 			size = Math.round(theFileSize / MB);
 			if (size == 0) {
 				size = 1;
 			}
 			sizeTxt = size + " MB";
-		} else if (theFileSize > KB ) {
+		} else if (theFileSize > KB) {
 			// Round kb to the nearest 100th place
 			size = Math.round((theFileSize / KB));
 			if (size == 0) {
@@ -839,39 +863,39 @@
 		}
 		return sizeTxt;
 	}
-	
-	
+
+
 	private function downloadFiles(event:CloseEvent):void {
-		if (event.detail==Alert.YES) {
+		if (event.detail == Alert.YES) {
 			var parms:URLVariables = new URLVariables();
 			parms.mode = "zip";
-			
-			var progressWindow:DownloadProgressView = new DownloadProgressView();	        
-			progressWindow.init(this, 
-				this.DOWNLOAD_FILES_URL, 
-				parms, 
-				this.downloadButton, 
-				estimatedDownloadSize, 
-				this.SUGGESTED_LOCAL_FILENAME);
+
+			var progressWindow:DownloadProgressView = new DownloadProgressView();
+			progressWindow.init(this,
+					this.DOWNLOAD_FILES_URL,
+					parms,
+					this.downloadButton,
+					estimatedDownloadSize,
+					this.SUGGESTED_LOCAL_FILENAME);
 		}
-		
-	} 
-	
+
+	}
+
 	private function getChildDataTracks(item:Object, children:Array):void {
 		for each(var child:Object in item.children()) {
 			if (child.name() == "DataTrack") {
-				children.push(child);											
+				children.push(child);
 			} else {
 				this.getChildDataTracks(child, children);
 			}
 		}
 	}
-	
-	private function labSelected():void {		
+
+	private function labSelected():void {
 		dirtyDataTrack.setDirty();
 		var params:Object = new Object();
 		idLab = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
-		if(idLab.length > 0) {
+		if (idLab.length > 0) {
 			currentOwnerId = ownerCombo.selectedItem != null ? ownerCombo.selectedItem.@idAppUser : "";
 			params.idLab = idLab;
 			params.includeBillingAccounts = "N";
@@ -879,26 +903,28 @@
 			getLab.send(params);
 		}
 	}
-	
+
 	public function showLinks():void {
 		var webLinksView:WebLinksView = new WebLinksView();
 		var topicNumber:String = "?dataTrackNumber=" + getDataTrack.lastResult.@number;
-		
+
 		PopUpManager.addPopUp(webLinksView, this, true);
 		PopUpManager.centerPopUp(webLinksView);
 		webLinksView.setTitleMessage("Data Track " + getDataTrack.lastResult.@number);
 		webLinksView.setUserLink(topicNumber);
 	}
-	
+
 	private function onDoubleClickRelatedObjects():void {
 		var selectedItem:Object = this.relatedObjectsTree.selectedItem;
 		showRelatedObject(selectedItem);
 	}
+
 	private function onDoubleClickRelatedTopic():void {
 		var selectedItem:Object = this.relatedTopicsTree.selectedItem;
 		showRelatedObject(selectedItem);
-		
+
 	}
+
 	private function showRelatedObject(selectedItem:Object):void {
 		if (selectedItem.name() == "Experiments") {
 			parentApplication.showExperimentsForNumber(selectedItem.@number);
@@ -908,13 +934,32 @@
 			parentApplication.showDataTrackForNumber(selectedItem.@number);
 		} else if (selectedItem.name() == "Topic") {
 			parentApplication.showTopicForNumber(selectedItem.@idTopic);
-		} else if (selectedItem.name() == "Request" ) {
+		} else if (selectedItem.name() == "Request") {
 			parentApplication.showExperimentById(selectedItem.@idRequest);
-		}				
+		}
 	}
 
-	
-]]>
+	private function onVisChange(event:Event):void {
+		if (event.target.selectedValue == "MEM") {
+			possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.membersCollaborators.AppUser.(@isActive == 'Y'));
+		}
+		else if (event.target.selectedValue == "PUBLIC")
+			possibleCollaborators = new XMLListCollection();
+		else
+			possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
+		removeOwnerFromCollaborators();
+	}
+
+	private function isEmptyStringVisible():Boolean {
+		var isVisible:Boolean = false;
+		if (getDataTrack.lastResult != null) {
+			isVisible = getDataTrack.lastResult.@canWrite == 'Y' &&
+					possibleCollaborators.length == 0 &&
+					getDataTrack.lastResult.@codeVisibility != "PUBLIC";
+		}
+		return isVisible;
+	}
+	]]>
 </mx:Script>
 
 	<mx:TabNavigator id="theTab" width="100%" height="100%" tabWidth="130"  styleName="panelBody">
@@ -1076,12 +1121,12 @@
 		<mx:VBox width="100%" height="100%" label="Visibility" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
 			<mx:HBox width="100%" horizontalGap="0" id="hbox1" enabled="{!parentApplication.isGuestMode()}">
 				<mx:Text id="labelApplication" text="Select the level of visibility:&#xd;" styleName="formLabel"/>
-				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+				<mx:RadioButtonGroup id = "radioGroupSeqApp">
 				</mx:RadioButtonGroup>
 			</mx:HBox>
 			<mx:HBox paddingLeft="20" horizontalGap="10" width="100%">
 				<mx:VBox verticalGap="0">
-					<mx:RadioButtonGroup id="visibilityRadioGroup"/>
+					<mx:RadioButtonGroup id="visibilityRadioGroup" change="{onVisChange(event)}"/>
 					<mx:HBox horizontalGap="4" verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackOwner}"/>
 						<mx:RadioButton value="OWNER" groupName="visibilityRadioGroup" enabled="{!parentApplication.isGuestMode()}"  click="{dirtyDataTrack.setDirty();}" label="Owner       (the owner and the group manager)"/>								  
@@ -1128,8 +1173,8 @@
 						includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}"
 						leading="0" horizontalGap="0" paddingLeft="1" paddingTop="0"/>
 					<mx:Text text="(Collaborator list is empty.  Users must be designated as collaborator for the lab first.)"  
-							 visible="{getDataTrack.lastResult.@canWrite == 'Y' &amp;&amp; possibleCollaborators.length == 0}"
-							 includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y' &amp;&amp; possibleCollaborators.length == 0}"/>
+							 visible="{isEmptyStringVisible()}"
+							 includeInLayout="{isEmptyStringVisible()}"/>
 				</mx:HBox>
 			</mx:VBox>	
 			<mx:VBox verticalGap="4" width="100%">
