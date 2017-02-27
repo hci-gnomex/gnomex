@@ -217,13 +217,14 @@
 			}
 			
 			private function onGetLab(event:ResultEvent):void {
-				if (analysisOrExpObject.@codeVisibility == "MEM")
-					possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.membersCollaborators.AppUser.(@isActive == 'Y'));
-				else if (analysisOrExpObject.@codeVisibility == "PUBLIC")
-					possibleCollaborators = new XMLListCollection();
-				else
-					possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
 				if (getLab.lastResult.name() == "OpenLabList") {
+					if (analysisOrExpObject.@codeVisibility == "MEM")
+						possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.membersCollaborators.AppUser.(@isActive == 'Y'));
+					else if (analysisOrExpObject.@codeVisibility == "PUBLIC")
+						possibleCollaborators = new XMLListCollection();
+					else
+						possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
+
 					users = new XMLListCollection();
 					var user:XML = null;
 					for each(var u:XML in possibleCollaborators) {
