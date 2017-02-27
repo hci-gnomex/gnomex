@@ -277,7 +277,7 @@
 					errorDict["fragSizeFrom"] = "\"QC Frag Size (From)\" column only accepts numerical characters.\n";
 				}
 				if(invalidNumber(libSize.length() > 0 ? libSize.@meanLibSizeActual : "")){
-					errorDict["librarySize"] = "\"QC Frag Size (From)\" column only accepts numerical characters.\n";
+					errorDict["librarySize"] = "\"Actual Ave. lib. Size\" column only accepts numerical characters.\n";
 				}
 
 					//required
