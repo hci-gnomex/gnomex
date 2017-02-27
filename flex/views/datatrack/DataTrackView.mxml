@@ -270,15 +270,10 @@
 					break;
 				}
 			}
-			if (getDataTrack.lastResult.@codeVisibility == "MEM") {
-				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.membersCollaborators.AppUser.(@isActive == 'Y'));
-			}
-			else if (getDataTrack.lastResult.@codeVisibility == "PUBLIC")
-				possibleCollaborators = new XMLListCollection();
-			else {
-				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
-			}
+
+            updateCollaborators(getDataTrack.lastResult.@codeVisibility);
 			removeOwnerFromCollaborators();
+
 //			if(currentOwnerNotFound) {						
 //				Alert.show("There is either no owner or the owner of this data track is not a member its current lab group. Please select an owner from the dropdown on the Visibility tab and save.", "Owner Not Assigned");				
 //			}
@@ -939,16 +934,16 @@
 		}
 	}
 
-	private function onVisChange(event:Event):void {
-		if (event.target.selectedValue == "MEM") {
-			possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.membersCollaborators.AppUser.(@isActive == 'Y'));
-		}
-		else if (event.target.selectedValue == "PUBLIC")
-			possibleCollaborators = new XMLListCollection();
-		else
-			possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
-		removeOwnerFromCollaborators();
-	}
+    private function updateCollaborators(vis:String):void {
+        if (vis == "MEM") {
+            possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.membersCollaborators.AppUser.(@isActive == 'Y'));
+        }
+        else if (vis == "PUBLIC")
+            possibleCollaborators = new XMLListCollection();
+        else
+            possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
+        removeOwnerFromCollaborators();
+    }
 
 	private function isEmptyStringVisible():Boolean {
 		var isVisible:Boolean = false;
@@ -1126,7 +1121,7 @@
 			</mx:HBox>
 			<mx:HBox paddingLeft="20" horizontalGap="10" width="100%">
 				<mx:VBox verticalGap="0">
-					<mx:RadioButtonGroup id="visibilityRadioGroup" change="{onVisChange(event)}"/>
+					<mx:RadioButtonGroup id="visibilityRadioGroup" change="{updateCollaborators(event.target.selectedValue)}"/>
 					<mx:HBox horizontalGap="4" verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackOwner}"/>
 						<mx:RadioButton value="OWNER" groupName="visibilityRadioGroup" enabled="{!parentApplication.isGuestMode()}"  click="{dirtyDataTrack.setDirty();}" label="Owner       (the owner and the group manager)"/>								  
