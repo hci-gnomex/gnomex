@@ -40,7 +40,7 @@ public class TabSamplesBase extends Canvas
     protected var downloadRequest:URLRequest;
     protected var downloadFileRef:FileReference;
 
-    public var sampleConcentrationFormatter:NumberFormatter;
+    public var sampleConcentrationFormatter: NumberFormatter;
     public var sampleVolumeFormatter:NumberFormatter;
 
     public var filteredSampleTypeList:XMLListCollection;
@@ -454,6 +454,41 @@ public class TabSamplesBase extends Canvas
 
     protected function getNextPlate():int {
         return 0;
+    }
+    public function invalidNumber(value:String):Boolean{
+        if(isNaN(parseInt(value))){
+            if(value != ''){
+                return true;
+            }
+        }
+        return false;
+    }
+    public function validateSample():String{
+
+        var errorDict:Dictionary = new Dictionary();
+        var error:String = "";
+
+        for (var row:String in parentDocument.samples )
+        {
+
+            var sampleName:String = parentDocument.samples[row].(@name == "");
+            var qcConc:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualCalcConcentration") && @qualCalcConcentration != '');
+
+            // section for validating num text fields
+
+            if(invalidNumber(qcConc.length() > 0 ? qcConc.@qualCalcConcentration  : "")){
+                errorDict["qcConc"] = "\"QC Conc.\" column only accepts numerical characters\n";
+            }
+            // section for validating required text
+            if(sampleName != ""){
+                errorDict[sampleName] = "Please provide a name for all of your samples. \n";
+            }
+
+        }
+        for(var key:String in errorDict){
+            error +=errorDict[key];
+        }
+        return error;
     }
 
     public function uploadSampleSheet():void {

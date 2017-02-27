@@ -412,8 +412,11 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" formatter="{sampleConcentrationFormatter}"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@concentration')}"
+                                           editorDataField="value"
+                                           dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -459,7 +462,8 @@
 										   width="80" 
 										   dataField="@qualCalcConcentration" 
 										   id="qualCalcConcCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qualCalcConcentration')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -477,7 +481,8 @@
 										   width="80" 
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('qual260_230Col')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -495,7 +500,7 @@
 										   width="70" 
 										   dataField="@qualRINNumber" 
 										   id="qualRINCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
