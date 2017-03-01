@@ -61,7 +61,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		this.setSimpleName(file.getName());
 
 		try {
-			if (Util.isSymlink(file)) {
+			if (FileUtil.isSymlink(file)) {
 				this.setFileName(file.getPath().replace("\\", Constants.FILE_SEPARATOR));
 			} else {
 				this.setFileName(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));

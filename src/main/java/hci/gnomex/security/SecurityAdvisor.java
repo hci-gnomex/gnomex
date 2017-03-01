@@ -1074,7 +1074,7 @@ public StringBuffer buildSampleQuery(List<String> ccNumbers) {
 	buf = buf
 			.append("inner join PersonResearch..Person person4_ on bstxpatien3_.idPerson=person4_.idPerson left outer join BST..Disburse disburses5_ on bstxsample0_.id=disburses5_.idSample left outer join BST..Registration registrati6_ on bstxsample0_.id=registrati6_.idSample ");
 	buf = buf.append("where bstxsample0_.ccNumber in (");
-	buf = buf.append(Util.listStrToString(ccNumbers));
+	buf = buf.append(Util.listToString(ccNumbers, "'", "'"));
 	buf = buf.append(");");
 
 	return buf;
