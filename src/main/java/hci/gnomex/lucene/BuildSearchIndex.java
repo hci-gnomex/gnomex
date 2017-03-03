@@ -134,7 +134,8 @@ public class BuildSearchIndex extends DetailObject {
     }
     catch( Exception e )
     {
-      System.out.println( e.toString() );
+      System.out.println( e.toString() + " :\n");
+      e.printStackTrace();
 
     }
     
@@ -1901,8 +1902,8 @@ public class BuildSearchIndex extends DetailObject {
 
 
     Map nonIndexedFieldMap = new HashMap();
-    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSISGROUP, idAnalysisGroup.toString());
-    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, agIdLab.toString());
+    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSISGROUP, "" + idAnalysisGroup);
+    nonIndexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, "" + agIdLab);
     nonIndexedFieldMap.put(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP, agLabName);
     nonIndexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_NUMBER, number);
     nonIndexedFieldMap.put(AnalysisIndexHelper.OWNER_FIRST_NAME, ownerFirstName);
@@ -1979,7 +1980,7 @@ public class BuildSearchIndex extends DetailObject {
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_INSTITUTION, idInstitution != null ? idInstitution.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     globalIndexedFieldMap.put(GlobalIndexHelper.ID_APPUSER, idAppUser != null ? idAppUser.toString() : "");
-    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB_FOLDER, agIdLab.toString());
+    globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB_FOLDER, "" + agIdLab);
     globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, buf.toString());
 
     Document globalDoc = new Document();
