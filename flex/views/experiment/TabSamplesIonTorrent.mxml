@@ -31,10 +31,8 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
-			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
-			import views.util.SampleQCValidator;
 			
 			private var saveInstructionToolTipText:String;
 						
@@ -182,21 +180,6 @@
 					
 				} else if (parentDocument.isEditState()) {
 					isComplete = true;
-					
-				}
-				
-				// Make sure that sample concentration is valid
-				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-				if (cw != "") {
-					parentDocument.userWarningsSamples += cw;
-					isComplete = false;
-				}
-				
-				// Make sure that sample QC is valid
-				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-				if (qcWarning != "") {
-					parentDocument.userWarningsSamples += qcWarning;
-					isComplete = false;
 				}
 
 				if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
@@ -482,7 +465,7 @@
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
-                                           itemRenderer="{views.renderers.NumberTextRenderer.create('qual260_230Col')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo230nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>

@@ -37,8 +37,6 @@
 		import views.renderers.MultiselectRenderer;
 		import views.renderers.NumberTextRenderer;
 		import views.renderers.TextInputSeqPrepByCore;
-		import views.util.SampleConcentrationValidator;
-		import views.util.SampleQCValidator;
 		import views.util.UploadSampleSheetInstructionsView;
 		import views.util.UploadSampleSheetView;
 
@@ -264,20 +262,25 @@
 				var fragSizeFrom:XMLList = parentDocument.samples[row].(@qualFragmentSizeFrom != '');
 				var libSize:XMLList = parentDocument.samples[row].(@meanLibSizeActual != '');
 
-				if(invalidNumber(multiplex.length() > 0 ? multiplex.@multiplexGroupNumber  : "")){
-					errorDict["multiplex"] = "\"Multiplex\" column only accepts numerical characters.\n";
+				if(validate.validateInteger(multiplex.length() > 0 ? multiplex.@multiplexGroupNumber : "")){
+					errorDict["multiplex"] = "\"Multiplex\" column only accepts integers.\n";
 				}
-				if(invalidNumber(volume.length() > 0 ? volume.@sampleVolume  : "")){
-					errorDict["volume"] = "\"Vol.\" column only accepts numerical characters.\n";
+				var msgVol:String = validate.validateDecimal(volume.length() > 0 ? volume.@sampleVolume  : '', VOLUME_MAX);
+				if(msgVol){
+					errorDict["volume"] = msgVol + " in \"Vol.\" column.\n";
 				}
-				if(invalidNumber(fragSizeTo.length() > 0 ? fragSizeTo.@qualFragmentSizeTo  : "")){
-					errorDict["fragSizeTo"] = "\"QC Frag Size (To)\" column only accepts numerical characters.\n";
+				var msgFragTo:String = validate.validateInteger(fragSizeTo.length() > 0 ? fragSizeTo.@qualFragmentSizeTo   : "");
+				if(msgFragTo){
+					errorDict["fragSizeTo"] = msgFragTo + " in\"QC Frag Size (To)\" column.\n";
 				}
-				if(invalidNumber(fragSizeFrom.length() > 0 ? fragSizeFrom.@qualFragmentSizeFrom  : "")){
-					errorDict["fragSizeFrom"] = "\"QC Frag Size (From)\" column only accepts numerical characters.\n";
+
+				var msgFragFrom:String = validate.validateInteger(fragSizeFrom.length() > 0 ? fragSizeFrom.@qualFragmentSizeFrom   : "");
+				if(msgFragFrom){
+					errorDict["fragSizeFrom"] = msgFragFrom + " in \"QC Frag Size (From)\" column.\n";
 				}
-				if(invalidNumber(libSize.length() > 0 ? libSize.@meanLibSizeActual : "")){
-					errorDict["librarySize"] = "\"Actual Ave. lib. Size\" column only accepts numerical characters.\n";
+				var msgLib:String = validate.validateInteger(libSize.length() > 0 ? libSize.@meanLibSizeActual  : "");
+				if(msgLib){
+					errorDict["librarySize"] = msgLib + " in \"Actual Ave. lib. Size\" column.\n";
 				}
 
 					//required
@@ -479,20 +482,6 @@
 				isComplete = true;
 			} else if (parentDocument.isEditState()) {
 				isComplete = true;
-			}
-
-			// Make sure that sample concentration is valid
-			var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-			if (cw != "") {
-				parentDocument.userWarningsSamples += cw;
-				isComplete = false;
-			}
-
-			// Make sure that sample QC is valid
-			var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-			if (qcWarning != "") {
-				parentDocument.userWarningsSamples += qcWarning;
-				isComplete = false;
 			}
 
 			// Make sure lane #'s are grouped
@@ -1133,11 +1122,12 @@
 				</mx:HBox>
 				<mx:Text styleName="labelSmall" text="Optional Annotation"/>
 			</mx:HBox>
-			
 		</mx:HBox>
+
 		
 		<util:AdvancedDataGridWithCustomRowColors width="100%" height="100%" id="samplesGrid"
-												  editable="true" itemEditEnd="validateData(event)"
+                                                  itemEditEnd="validateData(event)"
+												  editable="true"
 												  itemFocusOut="checkSamplesCompleteness()"  
 												  dragDrop="onDragDropSample(event)"
 												  addRowEnabled="true"
@@ -1529,7 +1519,7 @@
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
-                                           itemRenderer="{views.renderers.NumberTextRenderer.create('qual260_230Col')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo230nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>

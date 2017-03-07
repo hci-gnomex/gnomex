@@ -37,8 +37,6 @@
 		import views.util.AdvancedDataGridColumnWithType;
 		import views.util.AnnotationAdvancedDataGridColumn;
 		import views.util.CopySampleSheetColumnView;
-		import views.util.SampleConcentrationValidator;
-		import views.util.SampleQCValidator;
 		import views.util.UploadSampleSheetInstructionsView;
 		import views.util.UploadSampleSheetView;
 
@@ -147,12 +145,19 @@
 				var fragSizeTo:XMLList = parentDocument.samples[row].(@qualFragmentSizeTo != '');
 				var fragSizeFrom:XMLList = parentDocument.samples[row].(@qualFragmentSizeFrom != '');
 
-				if(invalidNumber(fragSizeTo.length() > 0 ? fragSizeTo.@qualFragmentSizeTo  : "")){
-					errorDict["fragSizeTo"] = "\"QC Frag Size (To)\" column only accepts numerical characters.\n";
+				var msgFragTo:String = validate.validateInteger(fragSizeTo.length() > 0 ? fragSizeTo.@qualFragmentSizeTo   : "");
+				if(msgFragTo){
+					errorDict["fragSizeTo"] = msgFragTo + " in\"QC Frag Size (To)\" column.\n";
 				}
-				if(invalidNumber(fragSizeFrom.length() > 0 ? fragSizeFrom.@qualFragmentSizeFrom  : "")){
-					errorDict["fragSizeFrom"] = "\"QC Frag Size (From)\" column only accepts numerical characters.\n";
+
+				var msgFragFrom:String = validate.validateInteger(fragSizeFrom.length() > 0 ? fragSizeFrom.@qualFragmentSizeFrom   : "");
+				if(msgFragFrom){
+					errorDict["fragSizeFrom"] = msgFragFrom + " in \"QC Frag Size (From)\" column.\n";
 				}
+
+
+
+
 			}
 
 			for(var key:String in errorDict){
@@ -844,19 +849,6 @@
 				isComplete = true;
 			}
 
-			// Make sure that sample concentration is valid
-			var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-			if (cw != "") {
-				parentDocument.userWarningsSamples += cw;
-				isComplete = false;
-			}
-
-			// Make sure that sample QC is valid
-			var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-			if (qcWarning != "") {
-				parentDocument.userWarningsSamples += qcWarning;
-				isComplete = false;
-			}
 
 			// Make sure sample names are ok
 			if (parentDocument.isSequencingState()) {
@@ -1748,7 +1740,7 @@
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
-                                           itemRenderer="{views.renderers.NumberTextRenderer.create('qual260_230Col')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo230nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>

@@ -46,10 +46,8 @@
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
 			import views.util.DictionaryHelper;
-			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
-			import views.util.SampleQCValidator;
 			
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
@@ -213,8 +211,9 @@
 				for (var row:String in parentDocument.samples) {
 					var libSize:XMLList = parentDocument.samples[row].(@meanLibSizeActual != '');
 
-					if(invalidNumber(libSize.length() > 0 ? libSize.@meanLibSizeActual : "")){
-						errorDict["librarySize"] = "\"Actual Ave. lib. Size\" column only accepts numerical characters.\n";
+					var msgLib:String = validate.validateInteger(libSize.length() > 0 ? libSize.@meanLibSizeActual  : "");
+					if(msgLib){
+						errorDict["librarySize"] = msgLib  + " in \"Actual Ave. lib. Size\" column.\n";
 					}
 
 				}
@@ -387,20 +386,6 @@
 							parentDocument.lanes.refresh();
 						}
 					}
-				}
-				
-				// Make sure that sample concentration is valid
-				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-				if (cw != "") {
-					parentDocument.userWarningsSamples += cw;
-					isComplete = false;
-				}
-				
-				// Make sure that sample QC is valid
-				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-				if (qcWarning != "") {
-					parentDocument.userWarningsSamples += qcWarning;
-					isComplete = false;
 				}
 
 				if (!parentDocument.isEditState()) {
@@ -1093,7 +1078,7 @@
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
-                                           itemRenderer="{views.renderers.NumberTextRenderer.create('qual260_230Col')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo230nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>

@@ -4,7 +4,7 @@ package hci.flex.renderers
 	import mx.core.IFactory;
 	
 	public class RendererFactory {
-		public static var DEFAULT_ERROR_BACKGROUND:uint = 0xFF9999;
+		public static var DEFAULT_ERROR_BACKGROUND:uint = 0xFFCCCC;
 		public static var DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND:uint = 0xFFFFB9;
 		public static var DEFAULT_MISSING_REQUIRED_FIELD_BORDER:uint = 0xffff00;
 		public static var DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS:uint = 0;

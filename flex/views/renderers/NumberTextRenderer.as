@@ -4,17 +4,27 @@
 package views.renderers {
 
 import flash.display.Graphics;
+import flash.events.MouseEvent;
+import flash.geom.Point;
+
+import mx.controls.dataGridClasses.DataGridListData;
+import mx.core.IUIComponent;
+
+import mx.controls.ToolTip;
+import mx.managers.ToolTipManager;
+
+
 
 import hci.flex.renderers.RendererFactory;
 
 import mx.controls.AdvancedDataGrid;
-import mx.controls.DataGrid;
-import mx.controls.listClasses.IDropInListItemRenderer;
-import mx.events.FlexEvent;
+
+
+import mx.core.IFactory;
 
 import views.util.AdvancedDataGridWithCustomRowColors;
 
-import mx.core.IFactory;
+import views.util.SampleNumberValidator;
 
 
 public class NumberTextRenderer extends mx.controls.Label {
@@ -25,8 +35,43 @@ public class NumberTextRenderer extends mx.controls.Label {
     public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS;
     public var highlightedColor:uint = RendererFactory.DEFAULT_HIGHLIGHT_COLOR;
     public var errorBackground:uint = RendererFactory.DEFAULT_ERROR_BACKGROUND;
+    protected var applicableToolTip:ToolTip;
+    public var validate:SampleNumberValidator;
+
+
+
 
     public function NumberTextRenderer() {
+        addEventListener(MouseEvent.ROLL_OUT,destroyToolTip);
+        addEventListener(MouseEvent.ROLL_OVER,createToolTip);
+        validate = new SampleNumberValidator();
+
+
+    }
+    private function createToolTip(event:MouseEvent):void{
+            var toolTipMessage:String = validateNumber();
+            if(toolTipMessage!= null) {
+                var stagePoint:Point = event.target.localToGlobal(new Point(0, -25));
+                applicableToolTip = ToolTipManager.createToolTip(
+                                toolTipMessage,
+                                stagePoint.x,
+                                stagePoint.y,
+                                null,
+                                IUIComponent(event.currentTarget)
+                        ) as ToolTip;
+                applicableToolTip.visible = true;
+                applicableToolTip.enabled = true;
+            }
+
+
+    }
+    private function destroyToolTip(event:MouseEvent):void{
+            if(applicableToolTip != null){
+                ToolTipManager.destroyToolTip(applicableToolTip);
+                ToolTipManager.currentToolTip = null;
+                applicableToolTip = null;
+                 // will throw exception
+            }
     }
 
 
@@ -37,20 +82,28 @@ public class NumberTextRenderer extends mx.controls.Label {
 
     }
 
-    public function isAlpha():Boolean{
+    public function validateNumber():String{
 
         if (listData.owner is AdvancedDataGrid) {
-            if (_dataField == "@concentration" || _dataField == "@sampleVolume" || _dataField == "@meanLibSizeActual"
-                    || _dataField == "@qualCalcConcentration" || _dataField == "@qualFragmentSizeTo"
-                    || _dataField == "@qualFragmentSizeFrom" || _dataField == "@qual260_230Col"
-                    || _dataField == "@qual260nmTo280nmRatio" ) {
-                if (data[_dataField] != '' && isNaN(parseInt(data[_dataField]))) {
-                    return true
-                }
+
+            if(_dataField == "@meanLibSizeActual"
+                    || _dataField == "@qualFragmentSizeFrom"
+                    ||_dataField == "@qualFragmentSizeTo" ){
+               return validate.validateInteger(data[_dataField]);
+
+            }
+            else if(_dataField == "@qual260nmTo230nmRatio" || _dataField == "@qual260nmTo280nmRatio" ) {
+               return validate.validateDecimal(data[_dataField],parentDocument.QC_260_RATIO_MAX);
+            }
+            else if(_dataField == "@qualCalcConcentration" || _dataField == "@sampleVolume"){
+                return validate.validateDecimal(data[_dataField],parentDocument.QC_CONCENTRATION_MAX);
+            }
+            else if(_dataField == "@concentration"){
+                return validate.validateDecimal(data[_dataField],parentDocument.CONCENTRATION_MAX);
             }
         }
 
-        return false;
+        return null;
     }
 
 
@@ -71,7 +124,7 @@ public class NumberTextRenderer extends mx.controls.Label {
             return;
         }
 
-        if(isAlpha()) {
+        if(validateNumber() != null) {
 
             g.beginFill(errorBackground);
             g.lineStyle(missingRequiredFieldBorderThickness, errorBackground);
