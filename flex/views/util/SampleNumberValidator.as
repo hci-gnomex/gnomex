@@ -34,9 +34,21 @@ package views.util
 
 		}
 
+
+		public function hasCommas(item:String):String{
+			if(item.search(',') != -1){
+				return "Commas are not allowed";
+			}
+			return null;
+		}
+
 		public function validateDecimal(item:String,maxSize:Number):String {
 			decimalValidator.maxValue = maxSize;
 
+            var commaMessage = hasCommas(item);
+			if(commaMessage != null){
+				return commaMessage;
+			}
 			var vr:ValidationResultEvent = decimalValidator.validate(item);
 				//vr.message
 			if (vr.type == ValidationResultEvent.INVALID) {
@@ -46,7 +58,10 @@ package views.util
 			return null;
 		}
         public function validateInteger(item:String):String{
-
+            var commaMessage = hasCommas(item);
+            if(commaMessage != null){
+                return commaMessage;
+            }
             var vr: ValidationResultEvent = integerValidator.validate(item);
             if(vr.type == ValidationResultEvent.INVALID){
                 return vr.message;

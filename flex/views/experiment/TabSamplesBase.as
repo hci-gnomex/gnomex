@@ -129,6 +129,7 @@ public class TabSamplesBase extends Canvas
             if (!isNaN(concentrationPrecision)) {
                 sampleConcentrationFormatter.precision = concentrationPrecision;
                 sampleConcentrationFormatter.rounding = NumberBaseRoundType.NEAREST;
+                sampleConcentrationFormatter.useThousandsSeparator = false;
             }
         }
     }
@@ -138,6 +139,7 @@ public class TabSamplesBase extends Canvas
         var concentrationPrecision:Number = 2;
         sampleVolumeFormatter.precision = concentrationPrecision;
         sampleVolumeFormatter.rounding = NumberBaseRoundType.NEAREST;
+        sampleVolumeFormatter.useThousandsSeparator = false;
     }
 
     import mx.collections.XMLListCollection;
