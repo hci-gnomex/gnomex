@@ -238,7 +238,7 @@ public Command execute() throws RollBackCommandException {
 				List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
 						GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
 										.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
-								true));
+								true, true));
 				this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
 			}
 			if (includeProductCounts) {
@@ -307,7 +307,7 @@ public Command execute() throws RollBackCommandException {
 				List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
 						GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
 										.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
-								true));
+								true, true));
 				this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
 			}
 			if (includeProductCounts) {
