@@ -328,7 +328,7 @@ CREATE TABLE gnomex.BillingAccount (
   isCreditCard CHAR(1) NULL,
   zipCode VARCHAR(20) NULL,
   isApproved CHAR(1) NULL,
-  activeAccount CHAR(1) NOT NULL DEFAULT 'Y',
+  activeAccount CHAR(1),
   approvedDate DATETIME NULL,
   createDate DATETIME NULL,
   submitterEmail VARCHAR(200) NULL,
