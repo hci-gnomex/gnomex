@@ -632,8 +632,6 @@
 			if (currentState == "SolexaState") {
 				this.laneBarcodeCol.visible = showSampleBarcode;
 				this.laneBarcodeColB.visible = showSampleBarcode;
-				this.laneCustomBarcodeCol.visible = showSampleCustomBarcode;
-				this.laneCustomBarcodeColB.visible = showSampleCustomBarcode;
 			}
 
 			this.samplesGridConfirm.validateNow();
@@ -2516,27 +2514,7 @@
 									</mx:Component>
 								</mx:headerRenderer>
 							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn id="laneCustomBarcodeCol" headerText="Barcode" width="65" visible="true"  dataField="@sampleBarcodeSequence">
-								<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-											<mx:Label text="Custom"/>
-											<mx:Label text="Barcode"/>
-										</mx:VBox>
-									</mx:Component>
-								</mx:headerRenderer>
-							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn id="laneCustomBarcodeColB" headerText="Barcode B" width="65" visible="true"  dataField="@sampleBarcodeSequenceB">
-								<mx:headerRenderer>
-									<mx:Component>
-										<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-											<mx:Label text="Custom"/>
-											<mx:Label text="Barcode B"/>
-										</mx:VBox>
-									</mx:Component>
-								</mx:headerRenderer>
-							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn width="235" id="numberOfSequencingCyclesCol" headerText="Sequencing Protocol"   editable="false" dataField="@idNumberSequencingCyclesAllowed" 						             						             
+							<mx:AdvancedDataGridColumn width="235" id="numberOfSequencingCyclesCol" headerText="Sequencing Protocol"   editable="false" dataField="@idNumberSequencingCyclesAllowed"
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
 							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="235" dataField="@workflowStatus"/>
 							<mx:AdvancedDataGridColumn  width="85" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
