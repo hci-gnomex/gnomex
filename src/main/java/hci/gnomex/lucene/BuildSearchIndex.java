@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
@@ -168,7 +169,11 @@ public class BuildSearchIndex extends DetailObject {
     cacheDictionary("hci.gnomex.model.AnalysisType", "AnalysisType");
     cacheDictionary("hci.gnomex.model.AnalysisProtocol", "AnalysisProtocol");
 
-    globalIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_GLOBAL_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    globalIndexWriter = new IndexWriter(
+            propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_GLOBAL_INDEX_DIRECTORY, serverName),
+            new WhitespaceAnalyzer(),
+            true
+    );
   }
 
   private void cacheDictionary(String className, String objectName) {
@@ -191,7 +196,11 @@ public class BuildSearchIndex extends DetailObject {
 
   private void buildExperimentIndex() throws Exception{
 
-    IndexWriter experimentIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_EXPERIMENT_INDEX_DIRECTORY, serverName), new StandardAnalyzer(), true);
+    IndexWriter experimentIndexWriter = new IndexWriter(
+            propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_EXPERIMENT_INDEX_DIRECTORY, serverName),
+            new WhitespaceAnalyzer(),
+            true
+    );
 
     // Get basic project/request data
     getProjectRequestData(sess);
@@ -229,7 +238,11 @@ public class BuildSearchIndex extends DetailObject {
 
   private void buildProtocolIndex() throws Exception{
 
-    IndexWriter protocolIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_PROTOCOL_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    IndexWriter protocolIndexWriter   = new IndexWriter(
+            propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_PROTOCOL_INDEX_DIRECTORY, serverName),
+            new WhitespaceAnalyzer(),
+            true
+    );
 
     // Get basic protocol data
     getProtocolData(sess);
@@ -254,7 +267,11 @@ public class BuildSearchIndex extends DetailObject {
 
   private void buildAnalysisIndex() throws Exception{
 
-    IndexWriter analysisIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_ANALYSIS_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    IndexWriter analysisIndexWriter = new IndexWriter(
+            propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_ANALYSIS_INDEX_DIRECTORY, serverName),
+            new WhitespaceAnalyzer(),
+            true
+    );
 
     // Get analysis data
     getAnalysisData(sess);
@@ -286,7 +303,11 @@ public class BuildSearchIndex extends DetailObject {
 
   private void buildDataTrackIndex() throws Exception{
 
-    IndexWriter datatrackIndexWriter   = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_DATATRACK_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    IndexWriter datatrackIndexWriter = new IndexWriter(
+            propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_DATATRACK_INDEX_DIRECTORY, serverName),
+            new WhitespaceAnalyzer(),
+            true
+    );
 
     // Get the data track folder paths
     getDataTrackFolderPaths(sess);
@@ -320,7 +341,11 @@ public class BuildSearchIndex extends DetailObject {
 
   private void buildTopicIndex() throws Exception{
 
-    IndexWriter topicIndexWriter = new IndexWriter(propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_TOPIC_INDEX_DIRECTORY, serverName),   new StandardAnalyzer(), true);
+    IndexWriter topicIndexWriter = new IndexWriter(
+            propertyHelper.getQualifiedProperty(PropertyDictionary.LUCENE_TOPIC_INDEX_DIRECTORY, serverName),
+            new WhitespaceAnalyzer(),
+            true
+    );
 
     // Get data track data
     getTopicData(sess);

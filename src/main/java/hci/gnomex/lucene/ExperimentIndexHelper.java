@@ -70,7 +70,7 @@ public class ExperimentIndexHelper extends IndexHelper {
       String value = (String)nonIndexedFieldMap.get(fieldName);
 
       if (value != null) {
-        addNonIndexedField(doc, fieldName, value);        
+        addNonIndexedField(doc, fieldName, value.toLowerCase());
       }
     }
 
@@ -82,7 +82,7 @@ public class ExperimentIndexHelper extends IndexHelper {
       String value = (String)indexedFieldMap.get(fieldName);
 
       if (value != null) {
-        addIndexedField(doc, fieldName, value);        
+        addIndexedField(doc, fieldName, value.toLowerCase());
       }
     }
 
@@ -90,19 +90,19 @@ public class ExperimentIndexHelper extends IndexHelper {
 
   private static void addIndexedField(Document doc, String name, String value) {
     if (value != null && !value.trim().equals("")) {
-      doc.add( new Field(name, value, Field.Store.YES, Field.Index.TOKENIZED));          
+      doc.add( new Field(name, value.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
     }
   }
 
   private static void addIndexedField(Document doc, String name, Integer value) {
     if (value != null) {
-      doc.add( new Field(name, value.toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));          
+      doc.add( new Field(name, value.toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));
     }
   }
 
   private static void addNonIndexedField(Document doc, String name, String value) {
     if (value != null && !value.trim().equals("")) {
-      doc.add( new Field(name, value, Field.Store.YES, Field.Index.NO));          
+      doc.add( new Field(name, value.toLowerCase(), Field.Store.YES, Field.Index.NO));
     }
   }
 
