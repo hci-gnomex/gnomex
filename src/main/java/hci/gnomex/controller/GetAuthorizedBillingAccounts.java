@@ -40,6 +40,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	private Boolean					includeOnlyActiveLabs = true;
 	private Boolean					includeOnlyUnexpiredAccounts = true;
 	private Boolean					includeOnlyStartedAccounts = true;
+	private Boolean					includeOnlyAccountsActive = true;
 
 	@Override
 	public void validate() {
@@ -76,6 +77,10 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			includeOnlyStartedAccounts = new Boolean(request.getParameter("includeOnlyStartedAccounts").trim());
 		}
 
+		if (request.getParameter("includeOnlyAccountsActive") != null && !request.getParameter("includeOnlyAccountsActive").trim().equals("")) {
+			includeOnlyAccountsActive = new Boolean(request.getParameter("includeOnlyAccountsActive").trim());
+		}
+
 		if (this.isValid()) {
 			setResponsePage(this.SUCCESS_JSP);
 		} else {
@@ -93,7 +98,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 				idAppUser = this.getSecAdvisor().getAppUser().getIdAppUser();
 			}
 
-			Set<BillingAccount> allAuthorizedBillingAccounts = retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), idAppUser, null, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyActiveLabs, includeOnlyUnexpiredAccounts, includeOnlyStartedAccounts);
+			Set<BillingAccount> allAuthorizedBillingAccounts = retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), idAppUser, null, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyActiveLabs, includeOnlyUnexpiredAccounts, includeOnlyStartedAccounts, includeOnlyAccountsActive);
 
 			Map<Lab, Set<BillingAccount>> billingAccountsByLab = organizeAccountsByLab(allAuthorizedBillingAccounts);
 
@@ -116,7 +121,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-    public static Set<BillingAccount> retrieveAuthorizedBillingAccounts(Session sess, SecurityAdvisor secAdvisor, Integer idAppUser, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyActiveLabs, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyStartedAccounts) {
+    public static Set<BillingAccount> retrieveAuthorizedBillingAccounts(Session sess, SecurityAdvisor secAdvisor, Integer idAppUser, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyActiveLabs, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyAccountsActive) {
 	    Set<BillingAccount> allAuthorizedBillingAccounts = new HashSet<BillingAccount>();
 
 	    // Admin / Super Admin
@@ -132,20 +137,20 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
             }
 
             // Add all billing accounts from the appropriate cores
-            List<BillingAccount> billingAccounts = (List<BillingAccount>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+            List<BillingAccount> billingAccounts = (List<BillingAccount>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive).toString()).list();
 			allAuthorizedBillingAccounts.addAll(billingAccounts);
         }
 
         // Add all billing accounts with no specified "users" for all labs the user is a member of
-        List<BillingAccount> billingAccountsForUsersLabs = (List<BillingAccount>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+        List<BillingAccount> billingAccountsForUsersLabs = (List<BillingAccount>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive).toString()).list();
 		allAuthorizedBillingAccounts.addAll(billingAccountsForUsersLabs);
 
         // Add all billing accounts for labs the user is a manager of
-        List<BillingAccount> billingAccountsForManagedLabs = (List<BillingAccount>) sess.createQuery(generateQueryForManagedLabsBillingAccounts(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+        List<BillingAccount> billingAccountsForManagedLabs = (List<BillingAccount>) sess.createQuery(generateQueryForManagedLabsBillingAccounts(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive).toString()).list();
 		allAuthorizedBillingAccounts.addAll(billingAccountsForManagedLabs);
 
         // Add all billing accounts for which the user is listed as a "user" on
-        List<BillingAccount> billingAccountsUserIsAuthorizedFor = (List<BillingAccount>) sess.createQuery(generateQueryForBillingAccountsWithUsers(idAppUser, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+        List<BillingAccount> billingAccountsUserIsAuthorizedFor = (List<BillingAccount>) sess.createQuery(generateQueryForBillingAccountsWithUsers(idAppUser, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive).toString()).list();
 		allAuthorizedBillingAccounts.addAll(billingAccountsUserIsAuthorizedFor);
 
         return allAuthorizedBillingAccounts;
@@ -217,7 +222,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	 * Returns the query for selecting all billing accounts with no specified users for all
 	 * labs the selected user is a member of.
 	 */
-	private static StringBuffer generateQueryForLabBillingAccountsWithNoUsers(Integer idAppUser, boolean includeOnlyActiveLabs, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
+	private static StringBuffer generateQueryForLabBillingAccountsWithNoUsers(Integer idAppUser, boolean includeOnlyActiveLabs, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyAccountsActive) {
 		StringBuffer queryBuff = new StringBuffer();
 
 		// Desired columns
@@ -231,7 +236,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 		// Criteria
 		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
-		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
+		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive));
 		if (includeOnlyActiveLabs) {
 			queryBuff.append(" AND l.isActive = \'Y\' ");
 		}
@@ -244,7 +249,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	 * Returns the query for selecting all billing accounts for all
 	 * labs the selected user is a manager of.
 	 */
-	private static StringBuffer generateQueryForManagedLabsBillingAccounts(Integer idAppUser, boolean includeOnlyActiveLabs, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
+	private static StringBuffer generateQueryForManagedLabsBillingAccounts(Integer idAppUser, boolean includeOnlyActiveLabs, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyAccountsActive) {
 		StringBuffer queryBuff = new StringBuffer();
 
 		// Desired columns
@@ -258,7 +263,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 		// Criteria
 		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
-		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
+		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive));
 		if (includeOnlyActiveLabs) {
 			queryBuff.append(" AND l.isActive = \'Y\' ");
 		}
@@ -270,7 +275,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	 * Returns the query for selecting all billing accounts the selected user is authorized
 	 * as a "user" on.
 	 */
-	private static StringBuffer generateQueryForBillingAccountsWithUsers(Integer idAppUser, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
+	private static StringBuffer generateQueryForBillingAccountsWithUsers(Integer idAppUser, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyAccountsActive) {
 		StringBuffer queryBuff = new StringBuffer();
 
 		// Desired columns
@@ -284,7 +289,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
 		// Criteria
 		queryBuff.append(" WHERE u.idAppUser = " + idAppUser.toString() + " ");
-		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
+		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive));
 
 		return queryBuff;
 	}
@@ -293,7 +298,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		return new StringBuffer(" SELECT DISTINCT ba ");
 	}
 
-	private static StringBuffer queryForCommonBillingAccountCriteria(boolean ignoreIdCoreFacility, boolean addWhere, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
+	private static StringBuffer queryForCommonBillingAccountCriteria(boolean ignoreIdCoreFacility, boolean addWhere, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyAccountsActive) {
 		StringBuffer queryBuff = new StringBuffer();
 		boolean useWhere = addWhere;
 
@@ -312,6 +317,11 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			queryBuff.append(" ba.isApproved = \'Y\' ");
 		}
 
+		if (includeOnlyAccountsActive) {
+			useWhere = addWhereOrAnd(queryBuff, useWhere);
+			queryBuff.append(" ba.activeAccount = \'Y\' ");
+		}
+
 		String today = new Date(System.currentTimeMillis()).toString();
 
 		if (includeOnlyStartedAccounts) {
@@ -328,7 +338,6 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		    useWhere = addWhereOrAnd(queryBuff, useWhere);
             queryBuff.append(" (ba.expirationDate IS NULL OR ba.expirationDate > \'" + oneYearAgo + "\') ");
 		}
-
 		return queryBuff;
 	}
 
@@ -349,7 +358,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		return new StringBuffer(" SELECT DISTINCT ba.idBillingAccount FROM BillingAccount AS ba JOIN ba.users AS u ");
 	}
 
-	private static StringBuffer generateQueryForAllBillingAccounts(Set<Integer> idCoreFacilities, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
+	private static StringBuffer generateQueryForAllBillingAccounts(Set<Integer> idCoreFacilities, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyAccountsActive) {
 		StringBuffer queryBuff = new StringBuffer();
 
 		// Desired columns
@@ -375,7 +384,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 
         queryBuff.append(" WHERE ba.idCoreFacility IN " + coreFacilitiesBuff.toString() + " AND ba.idCoreFacility = cf.idCoreFacility ");
 
-		queryBuff.append(queryForCommonBillingAccountCriteria(true, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
+		queryBuff.append(queryForCommonBillingAccountCriteria(true, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts, includeOnlyAccountsActive));
 
 		return queryBuff;
 	}
