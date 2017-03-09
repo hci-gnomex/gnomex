@@ -5642,6 +5642,10 @@
                 return false;
             }
 
+            if (item.@accountActive == 'N') {
+                return false;
+            }
+
             var idAppUser:Object = parentApplication.getIdAppUser();
             if (idAppUser != null && idAppUser.toString() != '' && item.@acctUsers != '') {
                 var ids:Array = item.@acctUsers.toString().split(",");
@@ -6053,7 +6057,7 @@
                 return true;
             }
 
-            if (item.@isActive == 'N' || item.@isApproved == 'N') {
+            if (item.@isActive == 'N' || item.@isApproved == 'N' || item.@activeAccount == 'N') {
                 return false;
             }
 
