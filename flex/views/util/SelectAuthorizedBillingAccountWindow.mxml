@@ -150,6 +150,10 @@
 					if (item.@isApproved == 'N') {
 						return false;
 					}
+
+					if (item.@accountActive) {
+						return false;
+					}
 					
 					if (idCoreFacility == null || idCoreFacility == '') {
 						return false;
