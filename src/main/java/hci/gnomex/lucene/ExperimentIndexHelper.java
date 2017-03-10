@@ -58,6 +58,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       PROJECT_ANNOTATIONS = "projectAnnotations";
   public static final String       ID_PROJECT_CORE_FACILITY = "idProjectCoreFacility";
   public static final String       TEXT = "text";
+  public static final String       REQUEST_DESCRIPTION = "requestDescription";
 
 
   public static void build(Document doc, Map nonIndexedFieldMap, Map indexedFieldMap) {

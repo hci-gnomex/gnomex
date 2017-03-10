@@ -1912,11 +1912,8 @@ public class SearchIndex extends GNomExCommand implements Serializable {
   }
   
   /**
-   * Until a better solution is found with dealing with searches containing apostrophes,
-   * this method truncates any word in the search with an apostrophe so that at least
-   * part of the word is used in the search. For example, the String "foo bar's" will be
-   * replaced with "foo bar" so that "bar" still contributes to the search. Returns the
-   * modified search.
+   * Escape special characters for the Lucene search utility.
+   * Currently, only works with single quotes/apostrophes.
    */
   public static String escapeSearchText(String search) {
 	  if (search == null) {
@@ -1924,34 +1921,19 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 	  }
 	  if (!search.contains("'")) {
 	      return search;
-      }
+	  }
 
 	  StringBuilder escapedTextBuilder = new StringBuilder();
 
 	  for (char token : search.toCharArray()) {
 	    if(token == '\'') {
 	        escapedTextBuilder.append("\\'");     // Lucene 2.9
-          //escapedTextBuilder.append("''");     // later versions of Lucene
+          //escapedTextBuilder.append("''");      // later versions of Lucene
         } else {
             escapedTextBuilder.append(token);
         }
       }
 
       return escapedTextBuilder.toString();
-//
-//	  String newSearch = search;
-//	  if (search.indexOf("\u0027".charAt(0)) != -1) {
-//		  newSearch = "";
-//		  String[] searchElements = search.split(" ");
-//		  for (int i = 0; i < searchElements.length; i++) {
-//			  String currentString = searchElements[i];
-//			  int indexOfApostrophe = currentString.indexOf("\u0027".charAt(0));
-//			  if (indexOfApostrophe != -1) {
-//				  currentString = currentString.substring(0, indexOfApostrophe);
-//			  }
-//			  newSearch += (i == searchElements.length - 1) ? currentString : currentString + " ";
-//		  }
-//	  }
-//	  return newSearch;
   }
 }

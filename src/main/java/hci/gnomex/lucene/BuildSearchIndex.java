@@ -15,9 +15,11 @@ import hci.gnomex.utility.BatchDataSource;
 //import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +36,9 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.rtf.RTFEditorKit;
 
 
 /**
@@ -60,7 +65,7 @@ public class BuildSearchIndex extends DetailObject {
 
   private String serverName;
 
-  private Map projectRequestMap;
+  private Map<String, List> projectRequestMap;
   private Map projectAnnotationMap;
   private Map analysisGroupMap;
   private Map sampleAnnotationMap;
@@ -221,17 +226,29 @@ public class BuildSearchIndex extends DetailObject {
     // Write Experiment Lucene Index.
     // (A document for each request)
     //
-    for(Iterator i = projectRequestMap.keySet().iterator(); i.hasNext();) {
-      String key = (String)i.next();
+    for(String key : projectRequestMap.keySet()) {
+      String[] keyTokens = key.split(KEY_DELIM);
 
-      Object[] keyTokens = key.split(KEY_DELIM);
-      Integer idProject = new Integer((String)keyTokens[0]);
-      Integer idRequest = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
-      List rows = (List)projectRequestMap.get(key);
+      Integer idProject = new Integer(keyTokens[0]);
+      Integer idRequest = (keyTokens.length == 2 && keyTokens[1] != null) ? new Integer(keyTokens[1]) : null;
 
-
-      addExperimentDocument(experimentIndexWriter, idProject, idRequest, rows);
+      addExperimentDocument(experimentIndexWriter, idProject, idRequest, projectRequestMap.get(key));
     }
+//    //
+//    // Write Experiment Lucene Index.
+//    // (A document for each request)
+//    //
+//    for(Iterator i = projectRequestMap.keySet().iterator(); i.hasNext();) {
+//      String key = (String)i.next();
+//
+//      Object[] keyTokens = key.split(KEY_DELIM);
+//      Integer idProject = new Integer((String)keyTokens[0]);
+//      Integer idRequest = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
+//      List rows = (List)projectRequestMap.get(key);
+//
+//
+//      addExperimentDocument(experimentIndexWriter, idProject, idRequest, rows);
+//    }
     experimentIndexWriter.optimize();
     experimentIndexWriter.close();
   }
@@ -418,7 +435,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idCoreFacility, ");
     buf.append("       req.idSubmitter, ");
     buf.append("       reqSubmitter.firstName, ");
-    buf.append("       reqSubmitter.lastName ");
+    buf.append("       reqSubmitter.lastName, ");
+    buf.append("       req.description ");
 
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -438,7 +456,7 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("ORDER BY proj.idProject, req.idRequest ");
 
     List results = sess.createQuery(buf.toString()).list();
-    projectRequestMap = new HashMap();
+    projectRequestMap = new HashMap<>();
     for(Iterator i = results.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
 
@@ -501,7 +519,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idCoreFacility, ");
     buf.append("       req.idSubmitter, ");
     buf.append("       reqSubmitter.firstName, ");
-    buf.append("       reqSubmitter.lastName ");
+    buf.append("       reqSubmitter.lastName, ");
+    buf.append("       req.description ");
 
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -579,7 +598,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idCoreFacility, ");
     buf.append("       req.idSubmitter, ");
     buf.append("       reqSubmitter.firstName, ");
-    buf.append("       reqSubmitter.lastName ");
+    buf.append("       reqSubmitter.lastName, ");
+    buf.append("       req.description ");
 
 
     buf.append("FROM        Project as proj ");
@@ -662,7 +682,8 @@ public class BuildSearchIndex extends DetailObject {
     buf.append("       req.idCoreFacility, ");
     buf.append("       req.idSubmitter, ");
     buf.append("       '', ");
-    buf.append("       '' ");
+    buf.append("       '', ");
+    buf.append("       req.description ");
 
     buf.append("FROM        Project as proj ");
     buf.append("LEFT JOIN   proj.requests as req ");
@@ -1265,6 +1286,7 @@ public class BuildSearchIndex extends DetailObject {
     Integer      idSubmitter = null;
     String       submitterFirstName = null;
     String       submitterLastName = null;
+    String       requestDescription = null;
 
     for(Iterator i1 = rows.iterator(); i1.hasNext();) {
       Object[] row = (Object[])i1.next();
@@ -1358,6 +1380,29 @@ public class BuildSearchIndex extends DetailObject {
       idSubmitter              = (Integer)row[41];
       submitterFirstName       = (String)row[42];
       submitterLastName        = (String)row[43];
+      requestDescription       = (String)row[44];
+
+      // There is a problem; the request description is stored in various formats, including RTF format, unlike
+      // basically everything else.
+      // We want to strip out everything but the text from the description, and use a standard set of escaped characters.
+      if(requestDescription != null) {
+        HTMLEditorKit rtfParser = new HTMLEditorKit();
+        javax.swing.text.Document rtfRequestDescription = rtfParser.createDefaultDocument();
+
+        try {
+          String orig = requestDescription;
+          rtfParser.read(new ByteArrayInputStream(requestDescription.getBytes()), rtfRequestDescription, 0);
+          String temp = rtfRequestDescription.getText(0, rtfRequestDescription.getLength());
+
+          if (temp != null && !temp.equals("")) {
+            requestDescription = temp;
+          }
+        } catch (Exception e) {
+          System.out.println("Warning : unable to read request description for request id : " + idRequest);
+        }
+
+        requestDescription = requestDescription.replaceAll("&apos;", "'");
+      }
 
       // Don't index rows with no labs.
       if (idLabProject == null &&  (idLabRequest == null || idLabRequest.equals(-99))) {
@@ -1616,6 +1661,8 @@ public class BuildSearchIndex extends DetailObject {
     text.append(" ");
     text.append(submitterLastName);
     text.append(" ");
+    text.append(requestDescription);
+    text.append(" ");
 
     /* RC_8.2
     text.append(requestTopics.toString());
@@ -1684,6 +1731,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.ID_SUBMITTER, idSubmitter != null ? idSubmitter.toString() : null);
     indexedFieldMap.put(ExperimentIndexHelper.SUBMITTER_FIRST_NAME, submitterFirstName != null ? submitterFirstName : null);
     indexedFieldMap.put(ExperimentIndexHelper.SUBMITTER_LAST_NAME, submitterLastName != null ? submitterLastName : null);
+    indexedFieldMap.put(ExperimentIndexHelper.REQUEST_DESCRIPTION, requestDescription != null ? requestDescription : null);
 
     // Output the annotation properties.
     for(Iterator i = sampleAnnotationsByProperty.keySet().iterator(); i.hasNext();) {

@@ -40,7 +40,7 @@ public class IndexHelper {
     }
 
   }
-  
+
   private static void addIndexedField(Document doc, String name, String value) {
     if (value != null && !value.trim().equals("")) {
       doc.add( new Field(name, value, Field.Store.YES, Field.Index.TOKENIZED));
