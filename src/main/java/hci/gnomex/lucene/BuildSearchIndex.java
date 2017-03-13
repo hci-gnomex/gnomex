@@ -8,18 +8,15 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
-//import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
-//import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.hibernate.Session;
@@ -36,9 +32,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.rtf.RTFEditorKit;
 
 
 /**
@@ -103,8 +97,8 @@ public class BuildSearchIndex extends DetailObject {
     } else {
       dataSource = new BatchDataSource();
     }
-
   }
+
   public static void main(String[] args)
   {
     BuildSearchIndex app = new BuildSearchIndex(args);
@@ -137,27 +131,21 @@ public class BuildSearchIndex extends DetailObject {
       System.out.println(new Date() + " disconnecting...");
       System.out.println();
       app.disconnect();
-    }
-    catch( Exception e )
-    {
+    } catch( Exception e ) {
       System.out.println( e.toString() + " :\n");
       e.printStackTrace();
-
     }
     
     System.exit(0);
   }
 
-
-  private void connect()
-  throws Exception
+  private void connect() throws Exception
   {
     dataSource.connect();
     sess = dataSource.getSession();
   }
 
-  private void disconnect() 
-  throws Exception {
+  private void disconnect() throws Exception {
     dataSource.close();
   }
 
@@ -234,21 +222,7 @@ public class BuildSearchIndex extends DetailObject {
 
       addExperimentDocument(experimentIndexWriter, idProject, idRequest, projectRequestMap.get(key));
     }
-//    //
-//    // Write Experiment Lucene Index.
-//    // (A document for each request)
-//    //
-//    for(Iterator i = projectRequestMap.keySet().iterator(); i.hasNext();) {
-//      String key = (String)i.next();
-//
-//      Object[] keyTokens = key.split(KEY_DELIM);
-//      Integer idProject = new Integer((String)keyTokens[0]);
-//      Integer idRequest = keyTokens.length == 2 && keyTokens[1] != null ? new Integer((String)keyTokens[1]) : null;
-//      List rows = (List)projectRequestMap.get(key);
-//
-//
-//      addExperimentDocument(experimentIndexWriter, idProject, idRequest, rows);
-//    }
+
     experimentIndexWriter.optimize();
     experimentIndexWriter.close();
   }
@@ -371,9 +345,10 @@ public class BuildSearchIndex extends DetailObject {
     // Write Topic Lucene Index.
     // (A document for each protocol)
     //
-    for( Iterator i = topicMap.keySet().iterator(); i.hasNext();) {
-      String key = (String)i.next();
+    for(Object nextKey : topicMap.keySet()) {
+      String key = (String)nextKey;
       Integer idTopic = new Integer(key);
+
       Object[] row = (Object[])topicMap.get(key);
 
       buildTopicDocument(topicIndexWriter, idTopic, row);
@@ -391,240 +366,240 @@ public class BuildSearchIndex extends DetailObject {
     //
     // Microarray experiments
     //
-    StringBuffer buf = new StringBuffer();
-    buf.append("SELECT proj.id, ");
-    buf.append("       req.id, ");
-    buf.append("       req.number, ");
-    buf.append("       proj.name, ");
-    buf.append("       proj.description, ");
-    buf.append("       hyb.notes, ");
-    buf.append("       s1.name, ");
-    buf.append("       s1.description, ");
-    buf.append("       s1.idOrganism, ");
-    buf.append("       '', ");
-    buf.append("       s2.name, ");
-    buf.append("       s2.description,  ");
-    buf.append("       s2.idOrganism,  ");
-    buf.append("       '', ");
-    buf.append("       req.idSlideProduct,  ");
-    buf.append("       slideProd.idOrganism,  ");
-    buf.append("       req.codeRequestCategory,  ");
-    buf.append("       proj.idLab,  ");
-    buf.append("       labProj.lastName,  ");
-    buf.append("       labProj.firstName,  ");
-    buf.append("       req.idLab,  ");
-    buf.append("       labReq.lastName,  ");
-    buf.append("       labReq.firstName,  ");
-    buf.append("       req.codeApplication, ");
-    buf.append("       reqOwner.firstName, ");
-    buf.append("       reqOwner.lastName, ");
-    buf.append("       '', ");
-    buf.append("       req.codeVisibility, ");
-    buf.append("       req.createDate, ");
-    buf.append("       s1.idSampleType, ");
-    buf.append("       slideProd.name, ");
-    buf.append("       req.idAppUser, ");
-    buf.append("       '', ");
-    buf.append("       s1.otherSamplePrepMethod, ");
-    buf.append("       '', ");
-    buf.append("       s2.otherSamplePrepMethod, ");
-    buf.append("       req.idInstitution, ");
-    buf.append("       req.name, ");
-    buf.append("       s1.otherOrganism, ");
-    buf.append("       s2.otherOrganism, ");
-    buf.append("       req.idCoreFacility, ");
-    buf.append("       req.idSubmitter, ");
-    buf.append("       reqSubmitter.firstName, ");
-    buf.append("       reqSubmitter.lastName, ");
-    buf.append("       req.description ");
-
-    buf.append("FROM        Project as proj ");
-    buf.append("LEFT JOIN   proj.requests as req ");
-    buf.append("LEFT JOIN   proj.lab as labProj ");
-    buf.append("LEFT JOIN   req.lab as labReq ");
-    buf.append("LEFT JOIN   req.requestCategory as reqCat ");
-    buf.append("LEFT JOIN   req.slideProduct as slideProd ");
-    buf.append("LEFT JOIN   req.appUser as reqOwner ");
-    buf.append("LEFT JOIN   req.submitter as reqSubmitter ");
-    buf.append("LEFT JOIN   req.hybridizations as hyb ");
-    buf.append("LEFT JOIN   hyb.labeledSampleChannel1 as ls1 ");
-    buf.append("LEFT JOIN   ls1.sample as s1 ");
-    buf.append("LEFT JOIN   hyb.labeledSampleChannel1 as ls2 ");
-    buf.append("LEFT JOIN   ls2.sample as s2 ");
-    buf.append("WHERE       reqCat.type = '" + RequestCategoryType.TYPE_MICROARRAY + "' ");
-    buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
-    buf.append("ORDER BY proj.idProject, req.idRequest ");
+    StringBuilder buf = new StringBuilder();
+    buf.append(" SELECT proj.id ");
+    buf.append("      , req.id ");
+    buf.append("      , req.number ");
+    buf.append("      , proj.name ");
+    buf.append("      , proj.description ");
+    buf.append("      , hyb.notes ");
+    buf.append("      , s1.name ");
+    buf.append("      , s1.description ");
+    buf.append("      , s1.idOrganism ");
+    buf.append("      , '' ");
+    buf.append("      , s2.name ");
+    buf.append("      , s2.description ");
+    buf.append("      , s2.idOrganism ");
+    buf.append("      , '' ");
+    buf.append("      , req.idSlideProduct ");
+    buf.append("      , slideProd.idOrganism ");
+    buf.append("      , req.codeRequestCategory ");
+    buf.append("      , proj.idLab ");
+    buf.append("      , labProj.lastName ");
+    buf.append("      , labProj.firstName ");
+    buf.append("      , req.idLab ");
+    buf.append("      , labReq.lastName  ");
+    buf.append("      , labReq.firstName  ");
+    buf.append("      , req.codeApplication ");
+    buf.append("      , reqOwner.firstName ");
+    buf.append("      , reqOwner.lastName ");
+    buf.append("      , '' ");
+    buf.append("      , req.codeVisibility ");
+    buf.append("      , req.createDate ");
+    buf.append("      , s1.idSampleType ");
+    buf.append("      , slideProd.name ");
+    buf.append("      , req.idAppUser ");
+    buf.append("      , '' ");
+    buf.append("      , s1.otherSamplePrepMethod ");
+    buf.append("      , '' ");
+    buf.append("      , s2.otherSamplePrepMethod ");
+    buf.append("      , req.idInstitution ");
+    buf.append("      , req.name ");
+    buf.append("      , s1.otherOrganism ");
+    buf.append("      , s2.otherOrganism ");
+    buf.append("      , req.idCoreFacility ");
+    buf.append("      , req.idSubmitter ");
+    buf.append("      , reqSubmitter.firstName ");
+    buf.append("      , reqSubmitter.lastName ");
+    buf.append("      , req.description ");
+    buf.append("   FROM Project AS proj ");
+    buf.append("   LEFT JOIN proj.requests AS req ");
+    buf.append("   LEFT JOIN proj.lab AS labProj ");
+    buf.append("   LEFT JOIN req.lab AS labReq ");
+    buf.append("   LEFT JOIN req.requestCategory AS reqCat ");
+    buf.append("   LEFT JOIN req.slideProduct AS slideProd ");
+    buf.append("   LEFT JOIN req.appUser AS reqOwner ");
+    buf.append("   LEFT JOIN req.submitter AS reqSubmitter ");
+    buf.append("   LEFT JOIN req.hybridizations AS hyb ");
+    buf.append("   LEFT JOIN hyb.labeledSampleChannel1 AS ls1 ");
+    buf.append("   LEFT JOIN ls1.sample AS s1 ");
+    buf.append("   LEFT JOIN hyb.labeledSampleChannel1 AS ls2 ");
+    buf.append("   LEFT JOIN ls2.sample AS s2 ");
+    buf.append("  WHERE reqCat.type = '" + RequestCategoryType.TYPE_MICROARRAY + "' ");
+    buf.append("    AND CASE WHEN reqCat.isClinicalResearch IS NULL THEN 'N' ELSE reqCat.isClinicalResearch end = 'N'");
+    buf.append("  ORDER BY proj.idProject, req.idRequest ");
 
     List results = sess.createQuery(buf.toString()).list();
+
     projectRequestMap = new HashMap<>();
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
+
+    for(Object nextRow : results) {
+      Object[] row = (Object[])nextRow;
 
       Integer idProject = (Integer)row[0];
       Integer idRequest = (Integer)row[1];
+
       String key = idProject + KEY_DELIM + (idRequest != null ? idRequest.toString() : "");
 
-      List rows = (List)projectRequestMap.get(key);
+      List rows = projectRequestMap.get(key);
       if (rows == null) {
         rows = new ArrayList();
         projectRequestMap.put(key, rows);
       }
       rows.add(row);
-    }    
+    }
 
     //
     // Sample quality, DNA Seq core experiments
     //
-    buf = new StringBuffer();
-    buf.append("SELECT proj.id, ");
-    buf.append("       req.id, ");
-    buf.append("       req.number, ");
-    buf.append("       proj.name, ");
-    buf.append("       proj.description, ");
-    buf.append("       '', ");
-    buf.append("       s1.name, ");
-    buf.append("       s1.description, ");
-    buf.append("       s1.idOrganism, ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       req.codeRequestCategory,  ");
-    buf.append("       proj.idLab,  ");
-    buf.append("       labProj.lastName,  ");
-    buf.append("       labProj.firstName,  ");
-    buf.append("       req.idLab,  ");
-    buf.append("       labReq.lastName,  ");
-    buf.append("       labReq.firstName,  ");
-    buf.append("       req.codeApplication, ");
-    buf.append("       reqOwner.firstName, ");
-    buf.append("       reqOwner.lastName, ");
-    buf.append("       '', ");
-    buf.append("       req.codeVisibility, ");
-    buf.append("       req.createDate, ");
-    buf.append("       s1.idSampleType, ");
-    buf.append("       '', ");
-    buf.append("       req.idAppUser, ");
-    buf.append("       '', ");
-    buf.append("       s1.otherSamplePrepMethod, ");
-    buf.append("       '', ");
-    buf.append("       '',  ");
-    buf.append("       req.idInstitution, ");
-    buf.append("       req.name, ");
-    buf.append("       '', ");
-    buf.append("       '',  ");
-    buf.append("       req.idCoreFacility, ");
-    buf.append("       req.idSubmitter, ");
-    buf.append("       reqSubmitter.firstName, ");
-    buf.append("       reqSubmitter.lastName, ");
-    buf.append("       req.description ");
-
-    buf.append("FROM        Project as proj ");
-    buf.append("LEFT JOIN   proj.requests as req ");
-    buf.append("LEFT JOIN   proj.lab as labProj ");
-    buf.append("LEFT JOIN   req.lab as labReq ");
-    buf.append("LEFT JOIN   req.requestCategory as reqCat ");
-    buf.append("LEFT JOIN   req.appUser as reqOwner ");
-    buf.append("LEFT JOIN   req.submitter as reqSubmitter ");
-    buf.append("LEFT JOIN   req.samples as s1 ");
-    buf.append("WHERE       reqCat.type in ('" + RequestCategoryType.TYPE_QC + "', '" + RequestCategoryType.TYPE_CAP_SEQ + "', '" + RequestCategoryType.TYPE_MITOCHONDRIAL_DLOOP + "', '" + RequestCategoryType.TYPE_FRAGMENT_ANALYSIS + "', '" + RequestCategoryType.TYPE_CHERRY_PICKING + "') ");
-    buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
-    buf.append("ORDER BY proj.idProject, req.idRequest ");
+    buf = new StringBuilder();
+    buf.append(" SELECT proj.id ");
+    buf.append("      , req.id ");
+    buf.append("      , req.number ");
+    buf.append("      , proj.name ");
+    buf.append("      , proj.description ");
+    buf.append("      , '' ");
+    buf.append("      , s1.name ");
+    buf.append("      , s1.description ");
+    buf.append("      , s1.idOrganism ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , req.codeRequestCategory ");
+    buf.append("      , proj.idLab ");
+    buf.append("      , labProj.lastName ");
+    buf.append("      , labProj.firstName ");
+    buf.append("      , req.idLab ");
+    buf.append("      , labReq.lastName ");
+    buf.append("      , labReq.firstName ");
+    buf.append("      , req.codeApplication ");
+    buf.append("      , reqOwner.firstName ");
+    buf.append("      , reqOwner.lastName ");
+    buf.append("      , '' ");
+    buf.append("      , req.codeVisibility ");
+    buf.append("      , req.createDate ");
+    buf.append("      , s1.idSampleType ");
+    buf.append("      , '' ");
+    buf.append("      , req.idAppUser ");
+    buf.append("      , '' ");
+    buf.append("      , s1.otherSamplePrepMethod ");
+    buf.append("      , '' ");
+    buf.append("      , ''  ");
+    buf.append("      , req.idInstitution ");
+    buf.append("      , req.name ");
+    buf.append("      , '' ");
+    buf.append("      , ''  ");
+    buf.append("      , req.idCoreFacility ");
+    buf.append("      , req.idSubmitter ");
+    buf.append("      , reqSubmitter.firstName ");
+    buf.append("      , reqSubmitter.lastName ");
+    buf.append("      , req.description ");
+    buf.append("   FROM Project AS proj ");
+    buf.append("   LEFT JOIN proj.requests AS req ");
+    buf.append("   LEFT JOIN proj.lab AS labProj ");
+    buf.append("   LEFT JOIN req.lab AS labReq ");
+    buf.append("   LEFT JOIN req.requestCategory AS reqCat ");
+    buf.append("   LEFT JOIN req.appUser AS reqOwner ");
+    buf.append("   LEFT JOIN req.submitter AS reqSubmitter ");
+    buf.append("   LEFT JOIN req.samples AS s1 ");
+    buf.append("  WHERE reqCat.type IN ('" + RequestCategoryType.TYPE_QC + "', '" + RequestCategoryType.TYPE_CAP_SEQ + "', '" + RequestCategoryType.TYPE_MITOCHONDRIAL_DLOOP + "', '" + RequestCategoryType.TYPE_FRAGMENT_ANALYSIS + "', '" + RequestCategoryType.TYPE_CHERRY_PICKING + "') ");
+    buf.append("    AND CASE WHEN reqCat.isClinicalResearch IS NULL THEN 'N' ELSE reqCat.isClinicalResearch end = 'N'");
+    buf.append("  ORDER BY proj.idProject, req.idRequest ");
 
     results = sess.createQuery(buf.toString()).list();
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
+
+    for(Object nextRow : results) {
+      Object[] row = (Object[])nextRow;
 
       Integer idProject = (Integer)row[0];
       Integer idRequest = (Integer)row[1];
       String key = idProject + KEY_DELIM + (idRequest != null ? idRequest.toString() : "");
 
-      List rows = (List)projectRequestMap.get(key);
+      List rows = projectRequestMap.get(key);
       if (rows == null) {
         rows = new ArrayList();
         projectRequestMap.put(key, rows);
       }
       rows.add(row);
-    }    
-
+    }
 
     //
     // Illumina experiments
     //
-    buf = new StringBuffer();
-    buf.append("SELECT proj.id, ");
-    buf.append("       req.id, ");
-    buf.append("       req.number, ");
-    buf.append("       proj.name, ");
-    buf.append("       proj.description, ");
-    buf.append("       '', ");
-    buf.append("       s1.name, ");
-    buf.append("       s1.description, ");
-    buf.append("       s1.idOrganism, ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '',  ");
-    buf.append("       '',  ");
-    buf.append("       '', ");
-    buf.append("       '',  ");
-    buf.append("       '',  ");
-    buf.append("       req.codeRequestCategory,  ");
-    buf.append("       proj.idLab,  ");
-    buf.append("       labProj.lastName,  ");
-    buf.append("       labProj.firstName,  ");
-    buf.append("       req.idLab,  ");
-    buf.append("       labReq.lastName,  ");
-    buf.append("       labReq.firstName,  ");
-    buf.append("       req.codeApplication, ");
-    buf.append("       reqOwner.firstName, ");
-    buf.append("       reqOwner.lastName, ");
-    buf.append("       '', ");
-    buf.append("       req.codeVisibility, ");
-    buf.append("       req.createDate, ");
-    buf.append("       s1.idSampleType, ");
-    buf.append("       '', ");
-    buf.append("       req.idAppUser, ");
-    buf.append("       '', ");
-    buf.append("       s1.otherSamplePrepMethod, ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       req.idInstitution, ");
-    buf.append("       req.name, ");
-    buf.append("       s1.otherOrganism, ");
-    buf.append("       '', ");
-    buf.append("       req.idCoreFacility, ");
-    buf.append("       req.idSubmitter, ");
-    buf.append("       reqSubmitter.firstName, ");
-    buf.append("       reqSubmitter.lastName, ");
-    buf.append("       req.description ");
-
-
-    buf.append("FROM        Project as proj ");
-    buf.append("LEFT JOIN   proj.requests as req ");
-    buf.append("LEFT JOIN   proj.lab as labProj ");
-    buf.append("LEFT JOIN   req.lab as labReq ");
-    buf.append("LEFT JOIN   req.requestCategory as reqCat ");
-    buf.append("LEFT JOIN   reqCat.categoryType as reqType ");
-    buf.append("LEFT JOIN   req.appUser as reqOwner ");
-    buf.append("LEFT JOIN   req.submitter as reqSubmitter ");
-    buf.append("LEFT JOIN   req.sequenceLanes as lane ");
-    buf.append("LEFT JOIN   lane.sample as s1 ");
-    buf.append("WHERE       reqType.isIllumina = 'Y' ");
-    buf.append("      AND case when reqCat.isClinicalResearch is null then 'N' else reqCat.isClinicalResearch end = 'N'");
-    buf.append("ORDER BY proj.idProject, req.idRequest ");
+    buf = new StringBuilder();
+    buf.append(" SELECT proj.id ");
+    buf.append("      , req.id ");
+    buf.append("      , req.number ");
+    buf.append("      , proj.name ");
+    buf.append("      , proj.description ");
+    buf.append("      , '' ");
+    buf.append("      , s1.name ");
+    buf.append("      , s1.description ");
+    buf.append("      , s1.idOrganism ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , req.codeRequestCategory ");
+    buf.append("      , proj.idLab ");
+    buf.append("      , labProj.lastName ");
+    buf.append("      , labProj.firstName ");
+    buf.append("      , req.idLab ");
+    buf.append("      , labReq.lastName ");
+    buf.append("      , labReq.firstName ");
+    buf.append("      , req.codeApplication ");
+    buf.append("      , reqOwner.firstName ");
+    buf.append("      , reqOwner.lastName ");
+    buf.append("      , '' ");
+    buf.append("      , req.codeVisibility ");
+    buf.append("      , req.createDate ");
+    buf.append("      , s1.idSampleType ");
+    buf.append("      , '' ");
+    buf.append("      , req.idAppUser ");
+    buf.append("      , '' ");
+    buf.append("      , s1.otherSamplePrepMethod ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , req.idInstitution ");
+    buf.append("      , req.name ");
+    buf.append("      , s1.otherOrganism ");
+    buf.append("      , '' ");
+    buf.append("      , req.idCoreFacility ");
+    buf.append("      , req.idSubmitter ");
+    buf.append("      , reqSubmitter.firstName ");
+    buf.append("      , reqSubmitter.lastName ");
+    buf.append("      , req.description ");
+    buf.append("   FROM Project AS proj ");
+    buf.append("   LEFT JOIN proj.requests AS req ");
+    buf.append("   LEFT JOIN proj.lab AS labProj ");
+    buf.append("   LEFT JOIN req.lab AS labReq ");
+    buf.append("   LEFT JOIN req.requestCategory AS reqCat ");
+    buf.append("   LEFT JOIN reqCat.categoryType AS reqType ");
+    buf.append("   LEFT JOIN req.appUser AS reqOwner ");
+    buf.append("   LEFT JOIN req.submitter AS reqSubmitter ");
+    buf.append("   LEFT JOIN req.sequenceLanes AS lane ");
+    buf.append("   LEFT JOIN lane.sample AS s1 ");
+    buf.append("  WHERE reqType.isIllumina = 'Y' ");
+    buf.append("    AND CASE WHEN reqCat.isClinicalResearch IS NULL THEN 'N' ELSE reqCat.isClinicalResearch end = 'N'");
+    buf.append("  ORDER BY proj.idProject, req.idRequest ");
 
     results = sess.createQuery(buf.toString()).list();
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
+
+    for(Object nextRow : results) {
+      Object[] row = (Object[])nextRow;
 
       Integer idProject = (Integer)row[0];
       Integer idRequest = (Integer)row[1];
       String key = idProject + KEY_DELIM + (idRequest != null ? idRequest.toString() : "");
 
-      List rows = (List)projectRequestMap.get(key);
+      List rows = projectRequestMap.get(key);
       if (rows == null) {
         rows = new ArrayList();
         projectRequestMap.put(key, rows);
@@ -632,68 +607,65 @@ public class BuildSearchIndex extends DetailObject {
       rows.add(row);
     } 
 
-
-
-
     //
     // "Empty" projects
     //
-    buf = new StringBuffer();
-    buf.append("SELECT proj.id, ");
-    buf.append("       req.id, ");
-    buf.append("       req.number, ");
-    buf.append("       proj.name, ");
-    buf.append("       proj.description, ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       -99, ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '',  ");
-    buf.append("       '',  ");
-    buf.append("       '', ");
-    buf.append("       '',  ");
-    buf.append("       '',  ");
-    buf.append("       '',  ");
-    buf.append("       proj.idLab,  ");
-    buf.append("       labProj.lastName,  ");
-    buf.append("       labProj.firstName,  ");
-    buf.append("       -99,  ");
-    buf.append("       '',  ");
-    buf.append("       '',  ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       -99, ");
-    buf.append("       '', ");
-    buf.append("       -99, ");
-    buf.append("       -99, ");
-    buf.append("      '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       -99, ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       req.idCoreFacility, ");
-    buf.append("       req.idSubmitter, ");
-    buf.append("       '', ");
-    buf.append("       '', ");
-    buf.append("       req.description ");
-
-    buf.append("FROM        Project as proj ");
-    buf.append("LEFT JOIN   proj.requests as req ");
-    buf.append("LEFT JOIN   proj.lab as labProj ");
-    buf.append("WHERE      req.idRequest is NULL ");
-    buf.append("ORDER BY proj.idProject");
+    buf = new StringBuilder();
+    buf.append(" SELECT proj.id ");
+    buf.append("      , req.id ");
+    buf.append("      , req.number ");
+    buf.append("      , proj.name ");
+    buf.append("      , proj.description ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , -99 ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , proj.idLab ");
+    buf.append("      , labProj.lastName ");
+    buf.append("      , labProj.firstName ");
+    buf.append("      , -99 ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , -99 ");
+    buf.append("      , '' ");
+    buf.append("      , -99 ");
+    buf.append("      , -99 ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , -99 ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , req.idCoreFacility ");
+    buf.append("      , req.idSubmitter ");
+    buf.append("      , '' ");
+    buf.append("      , '' ");
+    buf.append("      , req.description ");
+    buf.append("   FROM Project AS proj ");
+    buf.append("   LEFT JOIN proj.requests AS req ");
+    buf.append("   LEFT JOIN proj.lab AS labProj ");
+    buf.append("  WHERE req.idRequest IS NULL ");
+    buf.append("  ORDER BY proj.idProject");
 
     results = sess.createQuery(buf.toString()).list();
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
+
+    for(Object nextRow : results) {
+      Object[] row = (Object[])nextRow;
 
       Integer idProject = (Integer)row[0];
       Integer idRequest = (Integer)row[1];
@@ -709,43 +681,43 @@ public class BuildSearchIndex extends DetailObject {
   }
 
   private void getAnalysisData(Session sess) throws Exception{
-    StringBuffer buf = new StringBuffer();
-    buf.append("SELECT ag.id, ");
-    buf.append("       a.id, ");
-    buf.append("       ag.name, ");
-    buf.append("       ag.description, ");
-    buf.append("       '', ");
-    buf.append("       ag.idLab, ");
-    buf.append("       agLab.lastName, ");
-    buf.append("       agLab.firstName, ");
-    buf.append("       owner.firstName, ");
-    buf.append("       owner.lastName, ");
-    buf.append("       lab.lastName,  ");
-    buf.append("       lab.firstName,  ");
-    buf.append("       a.number, ");
-    buf.append("       a.name, ");
-    buf.append("       a.description, ");
-    buf.append("       a.idAnalysisType, ");
-    buf.append("       a.idAnalysisProtocol, ");
-    buf.append("       a.idOrganism, ");
-    buf.append("       a.idLab,  ");
-    buf.append("       a.createDate, ");
-    buf.append("       a.codeVisibility, ");
-    buf.append("       a.idAppUser,  ");
-    buf.append("       a.idInstitution ");
-
-    buf.append("FROM        AnalysisGroup as ag ");
-    buf.append("LEFT JOIN   ag.lab as agLab ");
-    buf.append("LEFT JOIN   ag.analysisItems as a ");
-    buf.append("LEFT JOIN   a.lab as lab ");
-    buf.append("LEFT JOIN   a.appUser as owner ");
-
-    buf.append("ORDER BY ag.name, a.number, a.name ");
+    StringBuilder buf = new StringBuilder();
+    buf.append(" SELECT ag.id ");
+    buf.append("      , a.id ");
+    buf.append("      , ag.name ");
+    buf.append("      , ag.description ");
+    buf.append("      , '' ");
+    buf.append("      , ag.idLab ");
+    buf.append("      , agLab.lastName ");
+    buf.append("      , agLab.firstName ");
+    buf.append("      , owner.firstName ");
+    buf.append("      , owner.lastName ");
+    buf.append("      , lab.lastName ");
+    buf.append("      , lab.firstName ");
+    buf.append("      , a.number ");
+    buf.append("      , a.name ");
+    buf.append("      , a.description ");
+    buf.append("      , a.idAnalysisType ");
+    buf.append("      , a.idAnalysisProtocol ");
+    buf.append("      , a.idOrganism ");
+    buf.append("      , a.idLab ");
+    buf.append("      , a.createDate ");
+    buf.append("      , a.codeVisibility ");
+    buf.append("      , a.idAppUser ");
+    buf.append("      , a.idInstitution ");
+    buf.append("   FROM AnalysisGroup AS ag ");
+    buf.append("   LEFT JOIN ag.lab AS agLab ");
+    buf.append("   LEFT JOIN ag.analysisItems AS a ");
+    buf.append("   LEFT JOIN a.lab AS lab ");
+    buf.append("   LEFT JOIN a.appUser AS owner ");
+    buf.append("  ORDER BY ag.name, a.number, a.name ");
 
     List results = sess.createQuery(buf.toString()).list();
+
     analysisGroupMap = new HashMap();
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
+
+    for(Object nextRow : results) {
+      Object[] row = (Object[])nextRow;
 
       Integer idAnalysisGroup = (Integer)row[0];
       Integer idAnalysis = (Integer)row[1];
@@ -755,42 +727,45 @@ public class BuildSearchIndex extends DetailObject {
     }
 
     // Get analysis file comments
-    buf = new StringBuffer();
-    buf.append("SELECT a.id, ");
-    buf.append("       af.fileName, ");
-    buf.append("       af.comments ");
-    buf.append("FROM        Analysis as a ");
-    buf.append("LEFT JOIN   a.files as af ");
+    buf = new StringBuilder();
+    buf.append(" SELECT a.id ");
+    buf.append("      , af.fileName ");
+    buf.append("      , af.comments ");
+    buf.append("   FROM Analysis AS a ");
+    buf.append("   LEFT JOIN a.files AS af ");
 
     results = sess.createQuery(buf.toString()).list();
+
     analysisFileCommentsMap = new HashMap();
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
+
+    for(Object nextRow : results) {
+      Object[] row = (Object[])nextRow;
 
       Integer idAnalysis = (Integer)row[0];
       String fileName  = (String)row[1];
       String comments = (String)row[2];
 
       StringBuffer analysisFileComments = (StringBuffer)analysisFileCommentsMap.get(idAnalysis);
+
       if (analysisFileComments == null) {
         analysisFileComments = new StringBuffer();
       }
       analysisFileComments.append(comments);
       analysisFileComments.append(" ");
 
-
       analysisFileCommentsMap.put(idAnalysis, analysisFileComments);
-    }    
-
+    }
   }
 
   private void getDataTrackFolderPaths(Session sess) throws Exception {
-    this.dataTrackFolderMap = new HashMap<Integer, DataTrackFolderPath>();
+    this.dataTrackFolderMap = new HashMap<>();
 
-    List folderList = (List)sess.createQuery("from DataTrackFolder").list();
-    for(Iterator i = folderList.iterator(); i.hasNext();) {
-      DataTrackFolder f = (DataTrackFolder)i.next();
+    List folderList = sess.createQuery("from DataTrackFolder").list();
+
+    for(Object nextFolder : folderList) {
+      DataTrackFolder f = (DataTrackFolder)nextFolder;
       DataTrackFolderPath p = new DataTrackFolderPath();
+
       p.idDataTrackFolder = f.getIdDataTrackFolder();
       p.idParentDataTrackFolder = f.getIdParentDataTrackFolder();
       p.name = f.getName();
@@ -798,6 +773,7 @@ public class BuildSearchIndex extends DetailObject {
         p.dataTrackFolderPath = f.getName();
         p.pathComplete = true;
       }
+
       dataTrackFolderMap.put(p.idDataTrackFolder, p);
     }
 
@@ -1297,8 +1273,9 @@ public class BuildSearchIndex extends DetailObject {
       projectName         = (String) row[3];
       projectDescription  = (String) row[4];
 
-      String hybNote = (String) row[5];
-      hybNotes.append(hybNote          != null ? hybNote + " " : "");
+      String hybNote      = (String) row[5];
+
+      hybNotes.append(hybNote != null ? hybNote + " " : "");
 
       //
       // sample 1
@@ -1352,10 +1329,10 @@ public class BuildSearchIndex extends DetailObject {
         }
       }
 
-      sampleNames.append       (sampleName    != null ? sampleName + " " : "");
-      sampleDescriptions.append(sampleDesc    != null ? sampleDesc + " " : "");
-      sampleOrganisms.append(organism    != null ? organism + " " : "");
-      samplePrepMethods.append(samplePrepMethod    != null ? samplePrepMethod + " " : "");
+      sampleNames.append       (sampleName        != null ? sampleName + " " : "");
+      sampleDescriptions.append(sampleDesc        != null ? sampleDesc + " " : "");
+      sampleOrganisms.append   (organism          != null ? organism + " " : "");
+      samplePrepMethods.append (samplePrepMethod  != null ? samplePrepMethod + " " : "");
 
       // more request data
       idSlideProduct           = row[14] instanceof Integer ? (Integer)row[14] : null;
@@ -1390,7 +1367,6 @@ public class BuildSearchIndex extends DetailObject {
         javax.swing.text.Document rtfRequestDescription = rtfParser.createDefaultDocument();
 
         try {
-          String orig = requestDescription;
           rtfParser.read(new ByteArrayInputStream(requestDescription.getBytes()), rtfRequestDescription, 0);
           String temp = rtfRequestDescription.getText(0, rtfRequestDescription.getLength());
 
@@ -1681,7 +1657,7 @@ public class BuildSearchIndex extends DetailObject {
       globalIdOrganism += idOrganismSlideProduct.toString();
     }
 
-    Map nonIndexedFieldMap = new HashMap();
+    Map<String, String> nonIndexedFieldMap = new HashMap<>();
     nonIndexedFieldMap.put(ExperimentIndexHelper.ID_PROJECT, idProject.toString());
     nonIndexedFieldMap.put(ExperimentIndexHelper.REQUEST_NUMBER, requestNumber);
     nonIndexedFieldMap.put(ExperimentIndexHelper.DISPLAY_NAME, requestDisplayName.toString());
@@ -1693,7 +1669,7 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(ExperimentIndexHelper.PROJECT_PUBLIC_NOTE, "");
     nonIndexedFieldMap.put(ExperimentIndexHelper.PUBLIC_NOTE, requestPublicNote);
 
-    Map indexedFieldMap = new HashMap();
+    Map<String, String> indexedFieldMap = new HashMap<>();
 
     indexedFieldMap.put(ExperimentIndexHelper.ID_REQUEST, idRequest != null ? idRequest.toString() : "unknown");      
     indexedFieldMap.put(ExperimentIndexHelper.ID_CORE_FACILITY, idCoreFacility != null ? idCoreFacility.toString() : null);
@@ -1734,9 +1710,9 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(ExperimentIndexHelper.REQUEST_DESCRIPTION, requestDescription != null ? requestDescription : null);
 
     // Output the annotation properties.
-    for(Iterator i = sampleAnnotationsByProperty.keySet().iterator(); i.hasNext();) {
-      String key = (String)i.next();
-      StringBuffer values = (StringBuffer)sampleAnnotationsByProperty.get(key);
+    for(Object nextKey : sampleAnnotationsByProperty.keySet()) {
+      String key = (String)nextKey;
+      StringBuffer values = sampleAnnotationsByProperty.get(key);
       indexedFieldMap.put(key, values.toString());
     }
     indexedFieldMap.put(ExperimentIndexHelper.TEXT, text.toString());
@@ -1745,8 +1721,9 @@ public class BuildSearchIndex extends DetailObject {
 
     experimentIndexWriter.addDocument(doc);
 
-    Map globalNonIndexedFieldMap = new HashMap();
-    Map globalIndexedFieldMap = new HashMap();
+    Map<String, String> globalNonIndexedFieldMap = new HashMap<>();
+    Map<String, String> globalIndexedFieldMap = new HashMap<>();
+
     if (requestCategory == null || requestCategory.length() == 0) {
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
       globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, projectName);
@@ -1779,7 +1756,6 @@ public class BuildSearchIndex extends DetailObject {
       globalIndexedFieldMap.put(GlobalIndexHelper.ID_LAB_FOLDER, idLabProject != null ? idLabProject.toString() : null);
       globalIndexedFieldMap.put(GlobalIndexHelper.ID_PROJECT_CORE_FACILITY, idProjectCoreFacility);
       globalIndexedFieldMap.put(GlobalIndexHelper.TEXT, text.toString());
-
     }
 
     Document globalDoc = new Document();
@@ -1795,13 +1771,14 @@ public class BuildSearchIndex extends DetailObject {
     String description = (String)row[2];
     String className   = (String)row[3];
 
-    Map nonIndexedFieldMap = new HashMap();
+    Map<String, String> nonIndexedFieldMap = new HashMap<>();
+
     nonIndexedFieldMap.put(ProtocolIndexHelper.ID_PROTOCOL, idProtocol.toString());
     nonIndexedFieldMap.put(ProtocolIndexHelper.PROTOCOL_TYPE, protocolType);
     nonIndexedFieldMap.put(ProtocolIndexHelper.CLASS_NAME, className);
 
+    Map<String, String> indexedFieldMap = new HashMap<>();
 
-    Map indexedFieldMap = new HashMap();
     indexedFieldMap.put(ProtocolIndexHelper.NAME, name);
     indexedFieldMap.put(ProtocolIndexHelper.DESCRIPTION, description);
     indexedFieldMap.put(ProtocolIndexHelper.TEXT, name + " " + description);
@@ -1810,9 +1787,9 @@ public class BuildSearchIndex extends DetailObject {
 
     protocolIndexWriter.addDocument(doc);
 
+    Map<String, String> globalNonIndexedFieldMap = new HashMap<>();
+    Map<String, String> globalIndexedFieldMap = new HashMap<>();
 
-    Map globalNonIndexedFieldMap = new HashMap();
-    Map globalIndexedFieldMap = new HashMap();
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
     globalNonIndexedFieldMap.put(GlobalIndexHelper.PROTOCOL_CLASS_NAME, className);
@@ -1833,7 +1810,6 @@ public class BuildSearchIndex extends DetailObject {
   private void buildAnalysisDocument(IndexWriter analysisIndexWriter, Integer idAnalysisGroup, Integer idAnalysis, Object[] row, StringBuffer analysisFileComments) throws IOException {
 
     Document doc = new Document();
-
 
     String agName                 = (String)row[2];
     String agDesc                 = (String)row[3];
@@ -1910,7 +1886,7 @@ public class BuildSearchIndex extends DetailObject {
 
 
     // Obtain collaborators of analysis
-    StringBuffer collaborators = new StringBuffer();
+    StringBuilder collaborators = new StringBuilder();
     if (idAnalysis != null) {
       List analysisCollaboratorRows = (List)analysisCollaboratorMap.get(idAnalysis);
       if (analysisCollaboratorRows != null) {
@@ -1973,8 +1949,7 @@ public class BuildSearchIndex extends DetailObject {
       publicNote = "(Public) ";
     }
 
-
-    Map nonIndexedFieldMap = new HashMap();
+    Map<String, String> nonIndexedFieldMap = new HashMap<>();
     nonIndexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSISGROUP, "" + idAnalysisGroup);
     nonIndexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, "" + agIdLab);
     nonIndexedFieldMap.put(AnalysisIndexHelper.LAB_NAME_ANALYSISGROUP, agLabName);
@@ -1984,8 +1959,7 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(AnalysisIndexHelper.CREATE_DATE, createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_SQL) : null);
     nonIndexedFieldMap.put(AnalysisIndexHelper.PUBLIC_NOTE, publicNote);
 
-
-    Map indexedFieldMap = new HashMap();
+    Map<String, Object> indexedFieldMap = new HashMap<>();
     indexedFieldMap.put(AnalysisIndexHelper.ID_ANALYSIS, idAnalysis != null ? idAnalysis.toString() : "unknown");
     indexedFieldMap.put(AnalysisIndexHelper.ID_LAB_ANALYSISGROUP, agIdLab);
     indexedFieldMap.put(AnalysisIndexHelper.ANALYSIS_GROUP_NAME, agName);
@@ -2004,16 +1978,13 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(AnalysisIndexHelper.COLLABORATORS, collaborators != null ? collaborators.toString() : "");
     indexedFieldMap.put(AnalysisIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(AnalysisIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
+
     // Output the annotation properties.
-    for(Iterator i = annotationsByProperty.keySet().iterator(); i.hasNext();) {
-      String key = (String)i.next();
-      StringBuffer values = (StringBuffer)annotationsByProperty.get(key);
-      indexedFieldMap.put(key, values.toString());
+    for(String key : annotationsByProperty.keySet()) {
+      indexedFieldMap.put(key, annotationsByProperty.get(key).toString());
     }
 
-
-
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append(name);
     buf.append(" ");
     buf.append(desc);
@@ -2038,9 +2009,8 @@ public class BuildSearchIndex extends DetailObject {
 
     analysisIndexWriter.addDocument(doc);
 
-
-    Map globalNonIndexedFieldMap = new HashMap();
-    Map globalIndexedFieldMap = new HashMap();
+    Map<String, Object> globalNonIndexedFieldMap = new HashMap<>();
+    Map<String, Object> globalIndexedFieldMap = new HashMap<>();
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, number);
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
 
@@ -2059,7 +2029,6 @@ public class BuildSearchIndex extends DetailObject {
     Document globalDoc = new Document();
     GlobalIndexHelper.build(globalDoc, globalNonIndexedFieldMap, globalIndexedFieldMap);
     globalIndexWriter.addDocument(globalDoc);
-
   }
 
   private void buildDataTrackDocument(IndexWriter datatrackIndexWriter, Integer idDataTrackFolder, Integer idDataTrack, Object[] row) throws IOException {
@@ -2208,7 +2177,7 @@ public class BuildSearchIndex extends DetailObject {
 
     DataTrackFolderPath path = this.dataTrackFolderMap.get(idDataTrackFolder);
 
-    Map nonIndexedFieldMap = new HashMap();
+    Map<String, Object> nonIndexedFieldMap = new HashMap<>();
     nonIndexedFieldMap.put(DataTrackIndexHelper.ID_DATATRACKFOLDER, idDataTrackFolder.toString());
     nonIndexedFieldMap.put(DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, dtfIdLab == null ? "" : dtfIdLab.toString());
     nonIndexedFieldMap.put(DataTrackIndexHelper.LAB_NAME_DATATRACKFOLDER, dtfLabName == null ? "" : dtfLabName);
@@ -2218,7 +2187,7 @@ public class BuildSearchIndex extends DetailObject {
     nonIndexedFieldMap.put(DataTrackIndexHelper.PUBLIC_NOTE, publicNote);
     nonIndexedFieldMap.put(DataTrackIndexHelper.DATA_TRACK_FOLDER_PATH, path.dataTrackFolderPath);
 
-    Map indexedFieldMap = new HashMap();
+    Map<String, Object> indexedFieldMap = new HashMap<>();
     indexedFieldMap.put(DataTrackIndexHelper.ID_DATATRACK, idDataTrack != null ? idDataTrack.toString() : "unknown");
     indexedFieldMap.put(DataTrackIndexHelper.ID_LAB_DATATRACKFOLDER, dtfIdLab);
     indexedFieldMap.put(DataTrackIndexHelper.DATATRACK_FOLDER_NAME, dtfName);
@@ -2236,15 +2205,13 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(DataTrackIndexHelper.ID_ORGANISM, idOrganism != null ? idOrganism.toString() : "");
 
     // Output the annotation properties.
-    for(Iterator i = annotationsByProperty.keySet().iterator(); i.hasNext();) {
-      String key = (String)i.next();
-      StringBuffer values = (StringBuffer)annotationsByProperty.get(key);
-      indexedFieldMap.put(key, values.toString());
+    for(String key : annotationsByProperty.keySet()) {
+      indexedFieldMap.put(key, annotationsByProperty.get(key).toString());
     }
 
 
 
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append(name);
     buf.append(" ");
     buf.append(desc);
@@ -2267,8 +2234,9 @@ public class BuildSearchIndex extends DetailObject {
 
     datatrackIndexWriter.addDocument(doc);
 
-    Map globalNonIndexedFieldMap = new HashMap();
-    Map globalIndexedFieldMap = new HashMap();
+    Map<String, Object> globalNonIndexedFieldMap = new HashMap<>();
+    Map<String, Object> globalIndexedFieldMap = new HashMap<>();
+
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, fileName);
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, name);
 
@@ -2312,12 +2280,12 @@ public class BuildSearchIndex extends DetailObject {
     //}
 
 
-    Map nonIndexedFieldMap = new HashMap();
+    Map<String, Object> nonIndexedFieldMap = new HashMap<>();
     nonIndexedFieldMap.put(TopicIndexHelper.OWNER_FIRST_NAME, ownerFirstName);
     nonIndexedFieldMap.put(TopicIndexHelper.OWNER_LAST_NAME, ownerLastName);
     nonIndexedFieldMap.put(TopicIndexHelper.CREATE_DATE, createDate != null ? this.formatDate(createDate, this.DATE_OUTPUT_SQL) : null);
 
-    Map indexedFieldMap = new HashMap();
+    Map<String, Object> indexedFieldMap = new HashMap<>();
     indexedFieldMap.put(TopicIndexHelper.ID_TOPIC, idTopic != null ? idTopic.toString() : "unknown");
     indexedFieldMap.put(TopicIndexHelper.DESCRIPTION, topicDesc);
     indexedFieldMap.put(TopicIndexHelper.TOPIC_NAME, topicName);
@@ -2327,7 +2295,7 @@ public class BuildSearchIndex extends DetailObject {
     indexedFieldMap.put(TopicIndexHelper.LAB_NAME, labName != null ? labName : "");
     indexedFieldMap.put(TopicIndexHelper.CODE_VISIBILITY, codeVisibility != null ? codeVisibility : "");
 
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append(topicName);
     buf.append(" ");
     buf.append(topicDesc);
@@ -2339,8 +2307,9 @@ public class BuildSearchIndex extends DetailObject {
 
     topicIndexWriter.addDocument(doc);
 
-    Map globalNonIndexedFieldMap = new HashMap();
-    Map globalIndexedFieldMap = new HashMap();
+    Map<String, Object> globalNonIndexedFieldMap = new HashMap<>();
+    Map<String, Object> globalIndexedFieldMap = new HashMap<>();
+
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NUMBER, "");
     globalNonIndexedFieldMap.put(GlobalIndexHelper.NAME, topicName);
 
