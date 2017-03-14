@@ -612,7 +612,21 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   }
 
   public static boolean hasAnalysis(Session sess, Integer idLab){
-      Long count = null;
+
+
+      String queryStr ="SELECT ba.expirationDate FROM BillingAccount as ba WHERE DATE_ADD(CURDATE(),INTERVAL 17 DAY) = ba.expirationDate";
+
+
+
+              /* "SELECT cf.facilityName, l.contactEmail, l.department,l.billingContactEmail" +
+              " FROM Lab as l" +
+              " JOIN l.coreFacilities as cf" +
+              " WHERE l.idLab = 1328";*/
+      Query query = sess.createQuery(queryStr);
+      List something = query.list();
+      return true;
+
+      /*Long count = null;
       Long zero = new Long(0);
       boolean analyses = false;
 
@@ -626,7 +640,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
           analyses = true;
       }
 
-      return analyses;
+      return analyses;*/
   }
 
   public static Set<AppUser> getHistoricalOwnersAndSubmitters(Session sess, Integer idLab) {
