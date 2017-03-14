@@ -59,7 +59,7 @@ public class TopicIndexHelper extends IndexHelper {
     if (value instanceof String) {
       String v = (String)value;
       if (v != null && !v.trim().equals("")) {
-        doc.add( new Field(name, v, Field.Store.YES, Field.Index.TOKENIZED));          
+        doc.add( new Field(name, v.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
       }
     } else if (value instanceof Integer) {
       Integer v = (Integer)value;
@@ -78,7 +78,7 @@ public class TopicIndexHelper extends IndexHelper {
 
   private static void addNonIndexedField(Document doc, String name, String value) {
     if (value != null && !value.trim().equals("")) {
-      doc.add( new Field(name, value, Field.Store.YES, Field.Index.NO));          
+      doc.add( new Field(name, value.toLowerCase(), Field.Store.YES, Field.Index.NO));
     }
   }
 
