@@ -1229,7 +1229,7 @@
 		private var currentProgressInterval:uint = 0;
 
 		[Bindable]
-		public var isUnivUserAuth:Boolean = false;
+		public var isUniversityUserAuthentication:Boolean = false;
 
 		[Bindable]
 		public var version:String = "";
@@ -1281,12 +1281,7 @@
 
 		private function onGetLaunchProperties(event:ResultEvent):void {
 			if (getLaunchProperties.lastResult.name() == 'LaunchProperties') {
-				var prop:String = getLaunchProperties.lastResult.Property.(@name == PROPERTY_UNIVERSITY_USER_AUTHENTICATION).@value;
-				if (prop == 'Y') {
-					this.isUnivUserAuth = true;
-				} else {
-					this.isUnivUserAuth = false;
-				}
+				this.isUniversityUserAuthentication = (getLaunchProperties.lastResult.Property.(@name == PROPERTY_UNIVERSITY_USER_AUTHENTICATION).@value == 'Y');
 				baseURL = getLaunchProperties.lastResult.Property.(@name == "base_url").@value;
 				stateStack.selectedChild = initViews;
 				if (getLaunchProperties.lastResult.Property.(@name == "site_logo").@value != "") {

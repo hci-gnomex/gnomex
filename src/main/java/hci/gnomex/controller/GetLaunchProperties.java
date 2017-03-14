@@ -11,6 +11,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -62,9 +63,7 @@ public Command execute() throws RollBackCommandException {
 
 	try {
 		Session sess = HibernateSession.currentSession(this.getUsername());
-		PropertyDictionary propUniversityUserAuth = (PropertyDictionary) sess.createQuery(
-				"from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION
-						+ "'").uniqueResult();
+		String universityUserAuthorization = (PropertyDictionaryHelper.getInstance(sess).isUniversityUserAuthentication() ? "Y" : "N");
 		String siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
 		String siteSplash = PropertyDictionaryHelper.getSiteSplash(sess, idCoreFacility);
 
@@ -79,8 +78,7 @@ public Command execute() throws RollBackCommandException {
 
 		Element node = new Element("Property");
 		node.setAttribute("name", "university_user_authentication");
-		node.setAttribute("value",
-				(propUniversityUserAuth.getPropertyValue() != null ? propUniversityUserAuth.getPropertyValue() : "N"));
+		node.setAttribute("value", universityUserAuthorization);
 		doc.getRootElement().addContent(node);
 
 		node = new Element("Property");
@@ -105,31 +103,9 @@ public Command execute() throws RollBackCommandException {
 
 		validate();
 
-	} catch (HibernateException e) {
-		LOG.error(e.getClass().toString() + ": ", e);
-		throw new RollBackCommandException();
-	} catch (NumberFormatException e) {
-		LOG.error(e.getClass().toString() + ": ", e);
-		throw new RollBackCommandException();
-	} catch (NamingException e) {
-		LOG.error(e.getClass().toString() + ": ", e);
-		throw new RollBackCommandException();
-	} catch (SQLException e) {
-		LOG.error(e.getClass().toString() + ": ", e);
-		throw new RollBackCommandException();
 	} catch (Exception e) {
 		LOG.error(e.getClass().toString() + ": ", e);
 		throw new RollBackCommandException();
-	} finally {
-		try {
-			// closeHibernateSession;
-		} catch (HibernateException e) {
-			LOG.error(e.getClass().toString() + ": ", e);
-			throw new RollBackCommandException();
-		}
-		/*
-		 * catch (SQLException e) { LOG.error(e.getClass().toString() + ": " , e); throw new RollBackCommandException(); }
-		 */
 	}
 
 	return this;
@@ -143,14 +119,7 @@ private void getCoreFacilities(Session sess, Document doc) {
 		return;
 	}
 
-	for (Iterator i = CoreFacility.getActiveCoreFacilities(sess).iterator(); i.hasNext();) {
-		DictionaryEntry de = (DictionaryEntry) i.next();
-
-		if (de == null) {
-			continue;
-		}
-
-		CoreFacility cf = (CoreFacility) de;
+	for (CoreFacility cf : CoreFacility.getActiveCoreFacilities(sess)) {
 
 		if (cf.getIsActive() != null && cf.getIsActive().equals("Y")) {
 			String facilityName = cf.getFacilityName();
@@ -164,13 +133,12 @@ private void getCoreFacilities(Session sess, Document doc) {
 			facilityNode.setAttribute("contactPhone", cf.getContactPhone() != null ? cf.getContactPhone() : "");
 			facilityNode.setAttribute("contactEmail", cf.getContactEmail() != null ? cf.getContactEmail() : "");
 			facilityNode.setAttribute("description", cf.getDescription() != null ? cf.getDescription() : "");
-			facilityNode.setAttribute("shortDescription", cf.getShortDescription() != null ? cf.getShortDescription()
-					: "");
+			facilityNode.setAttribute("shortDescription", cf.getShortDescription() != null ? cf.getShortDescription() : "");
 			facilityNode.setAttribute("contactImage", cf.getContactImage() != null ? cf.getContactImage() : "");
 			facilityNode.setAttribute("sortOrder", cf.getSortOrder() != null ? cf.getSortOrder().toString() : "");
-			facilityNode.setAttribute("labRoom", cf.getLabRoom() != null ? cf.getLabRoom().toString() : "");
-			facilityNode.setAttribute("contactRoom", cf.getContactRoom() != null ? cf.getContactRoom().toString() : "");
-			facilityNode.setAttribute("labPhone", cf.getLabPhone() != null ? cf.getLabPhone().toString() : "");
+			facilityNode.setAttribute("labRoom", cf.getLabRoom() != null ? cf.getLabRoom() : "");
+			facilityNode.setAttribute("contactRoom", cf.getContactRoom() != null ? cf.getContactRoom() : "");
+			facilityNode.setAttribute("labPhone", cf.getLabPhone() != null ? cf.getLabPhone() : "");
 		}
 	}
 }
