@@ -37,8 +37,6 @@
 		import views.util.AdvancedDataGridColumnWithType;
 		import views.util.AnnotationAdvancedDataGridColumn;
 		import views.util.CopySampleSheetColumnView;
-		import views.util.SampleConcentrationValidator;
-		import views.util.SampleQCValidator;
 		import views.util.UploadSampleSheetInstructionsView;
 		import views.util.UploadSampleSheetView;
 
@@ -135,6 +133,38 @@
 			}
 
 			return fieldList;
+		}
+
+		override public function validateSample():String{
+			var errorDict:Dictionary = new Dictionary();
+			var superError:String = super.validateSample();
+			var error:String = "";
+
+			for (var row:String in parentDocument.samples) {
+
+				var fragSizeTo:XMLList = parentDocument.samples[row].(@qualFragmentSizeTo != '');
+				var fragSizeFrom:XMLList = parentDocument.samples[row].(@qualFragmentSizeFrom != '');
+
+				var msgFragTo:String = validate.validateInteger(fragSizeTo.length() > 0 ? fragSizeTo.@qualFragmentSizeTo   : "");
+				if(msgFragTo){
+					errorDict["fragSizeTo"] = msgFragTo + " in\"QC Frag Size (To)\" column.\n";
+				}
+
+				var msgFragFrom:String = validate.validateInteger(fragSizeFrom.length() > 0 ? fragSizeFrom.@qualFragmentSizeFrom   : "");
+				if(msgFragFrom){
+					errorDict["fragSizeFrom"] = msgFragFrom + " in \"QC Frag Size (From)\" column.\n";
+				}
+
+
+
+
+			}
+
+			for(var key:String in errorDict){
+				error += errorDict[key];
+			}
+			error += superError;
+			return error;
 		}
 
 		override public function insertSample():Boolean {
@@ -819,19 +849,6 @@
 				isComplete = true;
 			}
 
-			// Make sure that sample concentration is valid
-			var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-			if (cw != "") {
-				parentDocument.userWarningsSamples += cw;
-				isComplete = false;
-			}
-
-			// Make sure that sample QC is valid
-			var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-			if (qcWarning != "") {
-				parentDocument.userWarningsSamples += qcWarning;
-				isComplete = false;
-			}
 
 			// Make sure sample names are ok
 			if (parentDocument.isSequencingState()) {
@@ -1531,8 +1548,10 @@
 					
 				</mx:AdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@concentration')}"
+										   editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -1549,7 +1568,8 @@
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="80" 
 										   dataField="@qual260nmTo280nmRatio" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo280nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1701,7 +1721,8 @@
 										   width="80" 
 										   dataField="@qualCalcConcentration" 
 										   id="qualCalcConcCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qualCalcConcentration')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1718,7 +1739,8 @@
 										   width="80" 
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo230nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1735,7 +1757,7 @@
 										   width="70" 
 										   dataField="@qualRINNumber" 
 										   id="qualRINCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1752,7 +1774,8 @@
 										   width="87" 
 										   dataField="@qualFragmentSizeFrom" 
 										   id="qualFragSizeFromCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@qualFragmentSizeFrom')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1769,7 +1792,8 @@
 										   width="87" 
 										   dataField="@qualFragmentSizeTo" 
 										   id="qualFragSizeToCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qualFragmentSizeTo')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>

@@ -33,7 +33,6 @@
 			import views.util.CopySampleSheetColumnView;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
-			import views.util.SampleQCValidator;
 			
 			private var saveInstructionToolTipText:String;
 						
@@ -149,6 +148,28 @@
 					"/>");
 				return emptyNode;
 			}
+
+			override public function validateSample():String{
+				var errorDict:Dictionary = new Dictionary();
+				var superError:String = super.validateSample();
+				var error:String = "";
+
+				for (var row:String in parentDocument.samples) {
+					var qc280:XMLList = parentDocument.samples[row].(@qual260nmTo280nmRatio != '');
+
+					var msgqc280:String = validate.validateDecimal(qc280.length() > 0 ? qc280.@qual260nmTo280nmRatio  : "",QC_260_RATIO_MAX);
+					if(msgqc280){
+						errorDict["qc280"] = msgqc280  + " in \"QC 260\\280\" column.\n";
+					}
+
+				}
+
+				for(var key:String in errorDict){
+					error += errorDict[key];
+				}
+				error += superError;
+				return error;
+			}
 			
 			override public function checkSamplesCompleteness():void {
 				parentDocument.userWarningsSamples = "";
@@ -174,13 +195,7 @@
 				} else if (parentDocument.isEditState()) {
 					isComplete = true;
 				}
-				
-				// Make sure that sample QC is valid
-				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-				if (qcWarning != "") {
-					parentDocument.userWarningsSamples += qcWarning;
-					isComplete = false;
-				}
+
 								
 				parentDocument.confirmView.enabled = isComplete;
 				parentDocument.enableNextButtons();
@@ -401,9 +416,11 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>  
 
-				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'NanoDrop Conc. (ng/ul)' : 'NanoDrop Conc.'}" id="concentrationCol" 
-										   visible="{parentApplication.isInternalExperimentSubmission}"  width="100" formatter="{sampleConcentrationFormatter}"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'NanoDrop Conc. (ng/ul)' : 'NanoDrop Conc.'}" id="concentrationCol"
+										   visible="{parentApplication.isInternalExperimentSubmission}"  width="100"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@concentration')}"
+                                           editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -421,7 +438,8 @@
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="90" 
 										   dataField="@qual260nmTo280nmRatio" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo280nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
