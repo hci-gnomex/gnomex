@@ -257,10 +257,10 @@
 			for (var row:String in parentDocument.samples) {
 
 				var multiplex:XMLList = parentDocument.samples[row].(@multiplexGroupNumber != '');
-				var volume:XMLList = parentDocument.samples[row].(@sampleVolume != '')
-				var fragSizeTo:XMLList = parentDocument.samples[row].(@qualFragmentSizeTo != '');
-				var fragSizeFrom:XMLList = parentDocument.samples[row].(@qualFragmentSizeFrom != '');
-				var libSize:XMLList = parentDocument.samples[row].(@meanLibSizeActual != '');
+				var volume:XMLList = parentDocument.samples[row].(hasOwnProperty("@sampleVolume")&& @sampleVolume != '');
+				var fragSizeTo:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeTo") && @qualFragmentSizeTo != '');
+				var fragSizeFrom:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeFrom") && @qualFragmentSizeFrom != '');
+				var libSize:XMLList = parentDocument.samples[row].(hasOwnProperty("@meanLibSizeActual") && @meanLibSizeActual != '');
 
 				if(validate.validateInteger(multiplex.length() > 0 ? multiplex.@multiplexGroupNumber : "")){
 					errorDict["multiplex"] = "\"Multiplex\" column only accepts integers.\n";

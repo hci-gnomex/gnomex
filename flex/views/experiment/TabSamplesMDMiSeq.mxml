@@ -209,7 +209,7 @@
 				var error:String = "";
 
 				for (var row:String in parentDocument.samples) {
-					var libSize:XMLList = parentDocument.samples[row].(@meanLibSizeActual != '');
+					var libSize:XMLList = parentDocument.samples[row].(hasOwnProperty("@meanLibSizeActual") && @meanLibSizeActual != '');
 
 					var msgLib:String = validate.validateInteger(libSize.length() > 0 ? libSize.@meanLibSizeActual  : "");
 					if(msgLib){

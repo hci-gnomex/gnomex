@@ -308,7 +308,7 @@
 				var error:String = "";
 
 				for (var row:String in parentDocument.samples) {
-					var qc280:XMLList = parentDocument.samples[row].(@qual260nmTo280nmRatio != '');
+					var qc280:XMLList = parentDocument.samples[row].(hasOwnProperty("@qual260nmTo280nmRatio") && @qual260nmTo280nmRatio != '');
 
 					var msgqc280:String = validate.validateDecimal(qc280.length() > 0 ? qc280.@qual260nmTo280nmRatio  : "",QC_260_RATIO_MAX);
 					if(msgqc280){

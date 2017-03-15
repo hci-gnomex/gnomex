@@ -142,8 +142,8 @@
 
 			for (var row:String in parentDocument.samples) {
 
-				var fragSizeTo:XMLList = parentDocument.samples[row].(@qualFragmentSizeTo != '');
-				var fragSizeFrom:XMLList = parentDocument.samples[row].(@qualFragmentSizeFrom != '');
+				var fragSizeTo:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeTo") && @qualFragmentSizeTo != '');
+				var fragSizeFrom:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeFrom") && @qualFragmentSizeFrom != '');
 
 				var msgFragTo:String = validate.validateInteger(fragSizeTo.length() > 0 ? fragSizeTo.@qualFragmentSizeTo   : "");
 				if(msgFragTo){
