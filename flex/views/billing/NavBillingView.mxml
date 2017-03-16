@@ -126,8 +126,8 @@
 			<idBillingPeriod>{lastSelectedBillingPeriod.@value}</idBillingPeriod>       	
 			<idLab>{labCombo.selectedItem.@idLab}</idLab>       	
 			<idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
-			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
-			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >  
 	
@@ -147,8 +147,8 @@
 			<invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
 			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
 			<idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
-			<idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>  
-			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
+			<idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >          
 	
@@ -167,8 +167,8 @@
 			<invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
 			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
 			<idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
-			<idCoreFacility>{coreFacilityCombo.selectedItem != null &amp;&amp; requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
-			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null &amp;&amp; requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >  
     
@@ -431,7 +431,9 @@
 
 		var params:Object = new Object();
 		params.idCoreFacility = this.getSelectedCoreFacilityId();
-		params.excludeNewRequests = this.getSelectedCoreFacilityId() == "2" ? "Y" : "N";
+		params.excludeNewRequests = coreFacilityCombo.selectedItem != null && parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N';
+
+
 		if (this.lastSelectedBillingPeriod == null) {
 			var currentBillingPeriod:Object = null;
 			for each(de in billingPeriods) {
