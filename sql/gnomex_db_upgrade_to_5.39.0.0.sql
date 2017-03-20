@@ -37,3 +37,18 @@ VALUES ('EXTRACTION', 'Extraction', '');
 ALTER TABLE BillingAccount
 ADD activeAccount char(1) default 'Y';
 
+INSERT INTO PropertyDictionary(propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility)
+VALUES ('exclude_new_requests', 'Y', 'Excludes requests from billing that are in the NEW category', 'N', 2);
+
+ALTER TABLE Request
+modify reagent VARCHAR(100);
+
+ALTER TABLE Request
+modify elutionBuffer VARCHAR(100);
+
+ALTER TABLE Request_Audit
+modify reagent VARCHAR(100);
+
+ALTER TABLE Request_Audit
+modify elutionBuffer VARCHAR(100);
+
