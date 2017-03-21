@@ -971,7 +971,8 @@ Test City, UT 12345',
  ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N'),
  ('min_samples_allowed_for_plate_submission', '32', 'And integer that represents the minimum number of samples that can be submitted on a plate for capillary sequencing experiments.', 'N');
 
- 
+INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly, idCoreFacility) VALUES
+ ('exclude_new_requests', 'Y', 'Excludes requests from billing that are in the NEW category', 'N', 2);
 
 INSERT INTO gnomex.ProtocolType(codeProtocolType, protocolType, isActive)
 VALUES ('IACUC', 'IACUC', 'Y'),
