@@ -281,9 +281,6 @@ public class ExpireBillingAccount {
         body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
 
 
-
-        System.out.println(accountName + " " + isCreditCard + " " +  isPO + " " + expDate);
-
         if(isCreditCard.equalsIgnoreCase("Y")){
             Integer idCardType = (Integer)row[5];
             String strCardType = cardType.get(idCardType) != null ? cardType.get(idCardType):"";
