@@ -969,7 +969,9 @@ Test City, UT 12345',
  ('gene_iobio_viewer_url','http://gene.iobio.io','','N'),
  ('notify_support_of_new_user','N','','N'),
  ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N'),
+ ('billing_account_exp_email','N','Reminder email sent to out to labs for billing accounts to expire within the month','Y'),
  ('min_samples_allowed_for_plate_submission', '32', 'And integer that represents the minimum number of samples that can be submitted on a plate for capillary sequencing experiments.', 'N');
+
 
  
 
