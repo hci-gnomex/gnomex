@@ -220,16 +220,15 @@ package views.util
 			}
 			return errorMessage;
 		}
-
         /**
-		 * This function is meant to be triggered by closing the "Unable to check session status" alert box.
-		 * It should reset the flag that will allow the popup to re-trigger.
-		 *
+         * This function is meant to be triggered by closing the "Unable to check session status" alert box.
+         * It should reset the flag that will allow the popup to re-trigger.
+         *
          * @param event Because this is added to the listener on the alert popup, it needs to have this signature,
-		 * 				even though we don't use it at all.
+         * 				even though we don't use it at all.
          */
-		public static function onFaultAlertOK(event:Event):void {
+        public static function onFaultAlertOK(event:Event):void {
             alertPopupOpen = false;
-		}
+        }
 	}
 }
