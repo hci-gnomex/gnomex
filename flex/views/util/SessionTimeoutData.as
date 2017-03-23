@@ -113,7 +113,7 @@ package views.util
 			}
 			// Alert.show("SandboxType=" + sandboxMessage + "\n" + event.fault.toString(), title );
 
-			if (!alertPopupOpen) {
+            if (!alertPopupOpen) {
                 Alert.show(
                         "SandboxType=" + sandboxMessage + "\n" + event.fault.toString(),
                         title,
