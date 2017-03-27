@@ -127,43 +127,23 @@ public class GetLabList extends GNomExCommand implements Serializable {
                 StringBuffer queryBuf = labFilter.getQueryWithInstitutionAndCore(this.getSecAdvisor());
                 List labs = sess.createQuery(queryBuf.toString()).list();
 
-                List<CoreFacility> coreFacilities = new ArrayList<CoreFacility>();
-                List<Institution> institutions = new ArrayList<Institution>();
-                Lab prevLab = null;
-                for(Iterator i = labs.iterator(); i.hasNext();) {
-                    Object[] row = (Object[])i.next();
-                    Lab lab = (Lab)row[0];
+                for(Object objLab : labs) {
+                    Lab lab = (Lab) objLab;
 
                     setPermissions(lab);
 
-                    Institution inst = (Institution)row[1];
-                    CoreFacility cf = (CoreFacility)row[2];
-                    if (!i.hasNext()) {
-                        updateLists(inst, cf, institutions, coreFacilities);
-                    }
-                    if (prevLab == null || !prevLab.getIdLab().equals(lab.getIdLab()) ) {
-                        if (prevLab != null && (this.getSecAdvisor().hasPermission(SecurityAdvisor
-                                .CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().hasPermission(SecurityAdvisor
-                                .CAN_ACCESS_ANY_OBJECT)
-                                || prevLab.getIsMyLab().equals("Y")  || prevLab.getCanManage().equals("Y")
-                                || prevLab.getCanSubmitRequests().equals("Y")
-                                || otherLabMap.containsKey(prevLab.getIdLab())
-                                || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab())
-                                ||collaboratingLabs.containsKey(prevLab.getIdLab()))) {
-                            processLab(doc, prevLab, institutions, coreFacilities);
-                        }
-                        institutions = new ArrayList<Institution>();
-                        coreFacilities = new ArrayList<CoreFacility>();
-                        prevLab = lab;
+                    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)
+                            || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)
+                            || lab.getIsMyLab().equals("Y")
+                            || lab.getCanManage().equals("Y")
+                            || lab.getCanSubmitRequests().equals("Y")
+                            || otherLabMap.containsKey(lab.getIdLab())
+                            || activeLabMap.containsKey(lab.getIdLab())
+                            || labsToSubmitOnBehalfOf.containsKey(lab.getIdLab())
+                            || collaboratingLabs.containsKey(lab.getIdLab())) {
+                        processLab(doc, lab);
                     }
 
-                    updateLists(inst, cf, institutions, coreFacilities);
-                }
-
-                if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab())
-                        || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab())
-                        || collaboratingLabs.containsKey(prevLab.getIdLab()))) {
-                    processLab(doc, prevLab, institutions, coreFacilities);
                 }
             }
 
@@ -219,23 +199,25 @@ public class GetLabList extends GNomExCommand implements Serializable {
 
     }
 
-    private void processLab(Document doc, Lab lab, List<Institution> institutions, List<CoreFacility> coreFacilities) throws XMLReflectException {
+    private void processLab(Document doc, Lab lab) throws XMLReflectException {
         addExclusions(lab);
 
         Element labNode = lab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
-        Integer defaultId = lab.getDefaultIdInstitutionForLab(institutions);
+        Integer defaultId = lab.getDefaultIdInstitutionForLab();
         labNode.setAttribute("defaultIdInstitutionForLab", defaultId == null ? "" : defaultId.toString());
         labNode.setAttribute("display", lab.getNameFirstLast());
 
         Element institutionsNode = new Element("institutions");
-        for(Institution inst:institutions) {
+        for(Object objInst : lab.getInstitutions()) {
+            Institution inst = (Institution) objInst;
             Element instNode = inst.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
             institutionsNode.addContent(instNode);
         }
         labNode.addContent(institutionsNode);
 
         Element coreFacilitiesNode = new Element("coreFacilities");
-        for(CoreFacility cf:coreFacilities) {
+        for(Object objCf : lab.getCoreFacilities()) {
+            CoreFacility cf = (CoreFacility) objCf;
             Element cfNode = cf.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
             coreFacilitiesNode.addContent(cfNode);
         }

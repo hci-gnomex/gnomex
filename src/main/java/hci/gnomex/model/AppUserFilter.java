@@ -35,14 +35,8 @@ public class AppUserFilter extends DetailObject {
 
   public void getQueryBody(StringBuffer queryBuf) {
 
-    // We need to join to labs and the core facilities if the user is an admin (not a super admin).
-    boolean joinToCoreFacility = false;
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) && secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      joinToCoreFacility = true;
-    }
-
     queryBuf.append(" FROM           AppUser as user ");
-    if (hasLabCriteria() || joinToCoreFacility) {
+    if (hasLabCriteria()) {
       queryBuf.append(" LEFT JOIN           user.labs as lab ");
       queryBuf.append(" LEFT JOIN           user.collaboratingLabs as collabLab ");
       queryBuf.append(" LEFT JOIN           user.managingLabs as managerLab ");
@@ -58,7 +52,7 @@ public class AppUserFilter extends DetailObject {
 
   private boolean hasLabCriteria() {
     // If we will add security criteria by authorized lab, join to lab
-    if (!secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
       return true;
     }
 
@@ -109,23 +103,16 @@ public class AppUserFilter extends DetailObject {
   }
 
   private void addSecurityCriteria() {
-    if (secAdvisor.hasPermission(secAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      // No criteria needed for super users
-    } else if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      // Admins can see users belong to labs that are associated with the core facilties
-      // this admin manages.
-
-      if (secAdvisor.getCoreFacilitiesIManage().isEmpty()) {
-        throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to user query.");
-      }
-
-    } else if (secAdvisor.getGroupsIManage().size() > 0 && membersOnly == false) {
+    if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      // No criteria needed for super users or admins
+      // Admins are able to see everyone to facilitate adding users to labs
+    } else if (secAdvisor.getGroupsIManage().size() > 0 && !membersOnly) {
       // Lab managers must be able to add any user to his/her lab,
       // so only criteria applied is to get active gnomex accounts
       this.addWhereOrAnd();
       queryBuf.append(" user.isActive = 'Y' ");
 
-    } else if (secAdvisor.hasPermission(secAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+    } else if (secAdvisor.hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       this.addWhereOrAnd();
       queryBuf.append(" user.isActive = 'Y' ");
 
@@ -135,37 +122,10 @@ public class AppUserFilter extends DetailObject {
 
         queryBuf.append(" ( ");
 
-        queryBuf.append(" lab.idLab in ( ");
-        for (Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
-          Lab theLab = (Lab) i.next();
-          queryBuf.append(theLab.getIdLab());
-          if (i.hasNext()) {
-            queryBuf.append(", ");
-          }
-        }
-        queryBuf.append(" )");
-
-        queryBuf.append(" OR ");
-        queryBuf.append(" collabLab.idLab in ( ");
-        for (Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
-          Lab theLab = (Lab) i.next();
-          queryBuf.append(theLab.getIdLab());
-          if (i.hasNext()) {
-            queryBuf.append(", ");
-          }
-        }
-        queryBuf.append(" )");
-
-        queryBuf.append(" OR ");
-        queryBuf.append(" managerLab.idLab in ( ");
-        for (Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
-          Lab theLab = (Lab) i.next();
-          queryBuf.append(theLab.getIdLab());
-          if (i.hasNext()) {
-            queryBuf.append(", ");
-          }
-        }
-        queryBuf.append(" )");
+        String myLabsInClause = getMyLabsInClause();
+        queryBuf.append(" lab.idLab " + myLabsInClause + " OR ");
+        queryBuf.append(" collabLab.idLab " + myLabsInClause + " OR ");
+        queryBuf.append(" managerLab.idLab " + myLabsInClause);
 
         queryBuf.append(")");
 
@@ -187,16 +147,15 @@ public class AppUserFilter extends DetailObject {
 
   }
 
-  private void appendCoreFacilityInClause() {
-    for (Iterator i = secAdvisor.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
-      CoreFacility cf = (CoreFacility) i.next();
-      queryBuf.append(cf.getIdCoreFacility());
-      if (i.hasNext()) {
-        queryBuf.append(", ");
+  private String getMyLabsInClause() {
+    String myLabs = "";
+    for (Object objLab : secAdvisor.getAllMyGroups()) {
+      if (!myLabs.isEmpty()) {
+        myLabs += ", ";
       }
+      myLabs += ((Lab) objLab).getIdLab();
     }
-    queryBuf.append(" )");
-
+    return " IN ( " + myLabs + " ) ";
   }
 
   protected boolean addWhereOrAnd() {
