@@ -34,6 +34,9 @@ VALUES ('HYBRIDIZATION', 'Hybridization', '');
 INSERT INTO WorkflowProperty(workflowPropertyName, workflowPropertyValue, codeRequestCategory)
 VALUES ('EXTRACTION', 'Extraction', '');
 
+INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly)
+VALUES ('billing_account_exp_email','N','Reminder email sent to out to labs for billing accounts to expire within the month','Y');
+
 ALTER TABLE BillingAccount
 ADD activeAccount char(1) default 'Y';
 
