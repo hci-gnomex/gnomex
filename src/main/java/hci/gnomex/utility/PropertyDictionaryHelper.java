@@ -233,6 +233,10 @@ public class PropertyDictionaryHelper implements Serializable {
     }
   }
 
+  public boolean isUniversityUserAuthentication() {
+    return this.getProperty(PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION).equals("Y");
+  }
+
   public String getFDTJarLocation(String serverName) {
     // First try to get property that is qualified by server name.
     // If that isn't found then get the property without any qualification.

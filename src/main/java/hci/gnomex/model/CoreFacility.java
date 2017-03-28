@@ -185,8 +185,7 @@ public class CoreFacility extends DictionaryEntry implements Serializable {
     this.excludeMethodFromXML("getExcludedMethodsMap");
   }
 
-  public static List getActiveCoreFacilities(Session sess) {
-    List facilities = sess.createQuery("from CoreFacility where isActive = 'Y' order by sortOrder").list();
-    return facilities;
+  public static List<CoreFacility> getActiveCoreFacilities(Session sess) {
+    return sess.createQuery("from CoreFacility where isActive = 'Y' order by sortOrder").list();
   }
 }

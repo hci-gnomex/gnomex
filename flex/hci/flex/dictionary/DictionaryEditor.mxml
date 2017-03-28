@@ -76,6 +76,8 @@
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionaryLoaded);
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_METADATA_LOADED, onDictionaryMetadataLoaded);
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_SAVED, onDictionarySaved);
+			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_ADDED, onDictionaryAdded);
+			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_DELETED, onDictionaryDeleted);
 
 			initDictionaryTree();
 
@@ -108,6 +110,14 @@
 				showDictionaryEntriesForSelectedDict();
 			}
 			callLater(this.reselectTree);
+		}
+
+		public function onDictionaryAdded(event:Event):void {
+			this.reloadDictionaries();
+		}
+
+		public function onDictionaryDeleted(event:Event):void {
+			this.reloadDictionaries();
 		}
 
 		public function onDictionaryMetadataLoaded(event:Event):void {

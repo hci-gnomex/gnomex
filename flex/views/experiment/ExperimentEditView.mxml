@@ -229,8 +229,6 @@
         import views.util.GNomExStringUtil;
         import views.util.PromptXMLListCollection;
         import views.util.RequestStatusComparator;
-        import views.util.SampleConcentrationValidator;
-        import views.util.SampleQCValidator;
 
         [Embed(source='../../assets/page.png')]
         [Bindable]
@@ -3018,28 +3016,12 @@
                 }
 
             }
-
+            var error:String = samplesView.validateSample();
+            errorMessage += error;
             if (currentState == 'SolexaEditState') {
-                for each (var samp1:Object in samples) {
-                    if (samp1.@multiplexGroupNumber == null || samp1.@multiplexGroupNumber == '' || !samp1.hasOwnProperty("@multiplexGroupNumber")) {
-                        errorMessage += "Please fill in missing multiplex group numbers.\n\n";
-                        break;
-                    }
-                }
-
                 if (!this.samplesView.areIndexTagsUnique()) {
                     warningMessage += "Two or more samples in the same multiplex group do not differ by at least 3 base pairs.\n\n";
                 }
-            }
-
-            var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(samples);
-            if (cw != "") {
-                errorMessage += cw + "\n\n";
-            }
-
-            var qcWarning:String = SampleQCValidator.instance.validateSampleQC(samples);
-            if (qcWarning != "") {
-                errorMessage += qcWarning + "\n\n";
             }
 
             // Check for duplicate sampleNames / wells

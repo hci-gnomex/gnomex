@@ -975,6 +975,7 @@ Test City, UT 12345',
 
  
 
+
 INSERT INTO gnomex.ProtocolType(codeProtocolType, protocolType, isActive)
 VALUES ('IACUC', 'IACUC', 'Y'),
   ('IRB', 'IRB', 'Y');
