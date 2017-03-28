@@ -124,7 +124,7 @@ public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] {
   public static final String[] FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS             = new String[] { ".vcf.gz", };
 
 public static final String[] FILE_EXTENSIONS_FOR_VIEW = new String[] { ".pdf", ".jpg", ".png", ".gif", ".rtf", ".txt",
-		".html", ".htm", ".csv", ".ppt", ".pptx", ".xls", ".xlsx", ".xml", ".ped" };
+		".html", ".htm", ".csv", ".ppt", ".pptx", ".xls", ".xlsx", ".xml", ".ped", ".rmd", ".md" };
 
   public static final String[] SEQUENCE_FILE_EXTENSIONS                       = new String[] { ".bnib", ".fasta", };
 
