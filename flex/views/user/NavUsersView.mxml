@@ -378,6 +378,7 @@
           
           public function callGetAppUser():void 
            {
+          	detailViews.enabled = false;
           	var call:Object = getAppUser.send();
           	call.marker = "doneGetAppUser";
           }
@@ -396,6 +397,7 @@
           
           public function callGetLab():void
           {
+          	detailViews.enabled = false;
           	var call:Object = getLab.send();
           	call.marker = "doneGetLab";
           }
@@ -518,6 +520,8 @@
 				  userDetailView.permissionGroup.selection = null;
 			  }
               userDetailView.dirty.resetDirty();
+              detailViews.selectedChild = userDetailView;
+              detailViews.enabled = true;
               
             } else if (call.marker == "doneGetAppUserList") {
               filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
@@ -553,10 +557,10 @@
             } if (call.marker == "doneGetLab") {
             	fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
 				this.groupDetailView.initializeLab();
-            	groupDetailView.dirty.resetDirty(); 
-            	
-
-            } 
+            	groupDetailView.dirty.resetDirty();
+            	detailViews.selectedChild = groupDetailView;
+            	detailViews.enabled = true;
+            }
             
 
           }
@@ -575,6 +579,17 @@
 				  this.deptSearchText.text = "";
 				  this.coreCombo.selectedItem = null;
 			  }
+		  }
+
+		  public function resetLabSearchAfterAdd(idLab:String):void {
+			  labSearchText.text = "";
+			  groupEmailSearchText.text = "";
+			  institutionCombo.selectedItem = null;
+			  isExternalCheckbox.selected = false;
+			  deptSearchText.text = "";
+			  coreCombo.selectedItem = null;
+			  itemToSelect = new XML("<Lab id='" + idLab + "'/>");
+			  refreshGroupList();
 		  }
           
           private function scrollToLab():void {
@@ -799,7 +814,7 @@
 					  <mx:VBox verticalGap="2" id="filterBox" includeInLayout="false" paddingBottom="4" visible="false">
 						  <mx:HBox  horizontalGap="0">
 							  <mx:ComboBox width="220" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
-										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()" prompt="Core Facility..."/>
+										   id="coreCombo" labelField="@display"  styleName="labelSmall" change="refreshGroupList()" prompt="Core Facility..."/>
 						  </mx:HBox>
 						  <mx:HBox width="100%" paddingTop="4" horizontalGap="0">
 							  <mx:Text text="Department" width="70"  styleName="labelSmall"/>
@@ -807,7 +822,7 @@
 						  </mx:HBox>
 						  <mx:CheckBox id="isExternalCheckbox"  styleName="labelSmall" click="refreshGroupList()" label="External" selected="false"/>
 						  <mx:HBox  horizontalGap="0">
-							  <mx:ComboBox width="220" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()" prompt="Institution..."/>
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display" change="refreshGroupList()" prompt="Institution..."/>
 						  </mx:HBox>
 					  </mx:VBox>
 						
