@@ -1210,6 +1210,7 @@
 		public var PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB:String = "request_props_on_confirm_tab";
 		public var PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT:String = "new_request_save_before_submit";
 		public var PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION:String = "min_samples_allowed_for_plate_submission";
+		public var PROPERTY_EXCLUDE_NEW_REQUESTS:String = "exclude_new_requests";
 
 		public var BAM_IOBIO_VIEWER_URL:String = "bam_iobio_viewer_url";
 		public var VCF_IOBIO_VIEWER_URL:String = "vcf_iobio_viewer_url";

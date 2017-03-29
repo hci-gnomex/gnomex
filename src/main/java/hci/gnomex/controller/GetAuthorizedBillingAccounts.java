@@ -133,7 +133,9 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
                 List<Integer> allIdCoreFacilities = (List<Integer>) sess.createQuery(" SELECT DISTINCT cf.idCoreFacility FROM CoreFacility as cf ").list();
                 myCoreFacilities.addAll(allIdCoreFacilities);
             } else {
-				myCoreFacilities.addAll(secAdvisor.getCoreFacilitiesIManage());
+				for (Object objCoreFacility : secAdvisor.getCoreFacilitiesIManage()) {
+					myCoreFacilities.add(((CoreFacility) objCoreFacility).getIdCoreFacility());
+				}
             }
 
             // Add all billing accounts from the appropriate cores

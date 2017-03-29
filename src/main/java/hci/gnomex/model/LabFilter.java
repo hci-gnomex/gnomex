@@ -3,6 +3,7 @@ package hci.gnomex.model;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -47,8 +48,8 @@ public class LabFilter extends DetailObject {
     
     queryBuf = new StringBuffer();
     
-    queryBuf.append(" SELECT distinct lab, inst, coreFacility");
-    
+    queryBuf.append(" SELECT distinct lab");
+
     getQueryBody(queryBuf);
     
     return queryBuf;
@@ -58,17 +59,11 @@ public class LabFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
     
     queryBuf.append(" FROM        Lab as lab ");
-  
-    queryBuf.append(" LEFT JOIN lab.institutions as inst ");
-
+    queryBuf.append(" LEFT JOIN FETCH lab.institutions LEFT JOIN lab.institutions as inst ");
     if (hasUserCriteria()) {
       queryBuf.append(" JOIN lab.appUsers as user ");
     }
-    
-    queryBuf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
-    
-    
-    
+    queryBuf.append(" LEFT JOIN FETCH lab.coreFacilities LEFT JOIN lab.coreFacilities as coreFacility ");
     addLabCriteria();
     addInstitutionCriteria();
     addCoreFacilityCriteria();
@@ -84,20 +79,11 @@ public class LabFilter extends DetailObject {
   
   
   private boolean hasUserCriteria() {
-    if ((userLastName != null && !userLastName.equals("")) ||
-        (userFirstName != null && !userFirstName.equals(""))) {
-      return true;
-    } else {
-      return false;
-    }
+    return (StringUtils.isNotEmpty(userFirstName) || StringUtils.isNotEmpty(userLastName));
   }
   
   private boolean hasInstitutionCriteria() {
-    if (idInstitution != null) {
-      return true;
-    } else {
-      return false;
-    }
+    return (idInstitution != null);
   }
   
 
@@ -129,27 +115,27 @@ public class LabFilter extends DetailObject {
       queryBuf.append(" (lab.isExternalPricing = 'Y' OR lab.isExternalPricingCommercial = 'Y') ");
     }
   }
-  
+
   private void addInstitutionCriteria() {
     //  Search by idInstitution
     if (idInstitution != null){
       this.addWhereOrAnd();
       queryBuf.append(" inst.idInstitution =");
       queryBuf.append(idInstitution);
-    } 
-    
+    }
+
   }
-  
+
   private void addCoreFacilityCriteria() {
     //  Search by idCoreFacility
-    if (idCoreFacility != null && !idCoreFacility.equals( "" )){
+    if (idCoreFacility != null){
       this.addWhereOrAnd();
       queryBuf.append(" coreFacility.idCoreFacility =");
       queryBuf.append(idCoreFacility);
-    } 
-    
+    }
+
   }
-  
+
   private void addUserCriteria() {
     if (userLastName != null && !userLastName.equals("")) {
       this.addWhereOrAnd();
