@@ -94,6 +94,14 @@ public class DownloadSingleFileServlet extends HttpServlet {
       fileName = req.getParameter("fileName");
       // Change all backslash to forward slash for comparison
       fileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
+
+      // If the file has a custom extension, but should be displayed as a text file, then load it as a text file.
+      for(String extension : Constants.FILE_EXTENSIONS_FOR_VIEW_CUSTOM_TEXT_FILES) {
+        if (fileName.endsWith(extension)) {
+          fileName = fileName.substring(0, fileName.length() - extension.length()) + ".txt";
+          break;
+        }
+      }
     }
     // Get the dir parameter
     if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
@@ -107,31 +115,26 @@ public class DownloadSingleFileServlet extends HttpServlet {
       LOG.error("idRequest/requestNumber and fileName required");
 
       response.setContentType("text/html");
-      response.getOutputStream().println(
-          "<html><head><title>Error</title></head>");
+      response.getOutputStream().println("<html><head><title>Error</title></head>");
       response.getOutputStream().println("<body><b>");
-      response.getOutputStream().println(
-          "Missing parameters:  idRequest and fileName required"
-              + "<br>");
+      response.getOutputStream().println("Missing parameters:  idRequest and fileName required<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
-      return;
 
+      return;
     }
 
     InputStream in = null;
     SecurityAdvisor secAdvisor = null;
     try {
-
-
       // Get security advisor
-     secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
-
         // Set the content type and content disposition based on whether we
         // want to serve the file to the browser or download it.
     	String mimeType = req.getSession().getServletContext().getMimeType(fileName); // recognized mime types are defined in Tomcat's web.xml
+
         if (view.equals("Y") && mimeType != null) {
           response.setContentType(mimeType);
           response.setHeader("Content-Disposition", "filename=" + "\"" + fileName + "\"");
@@ -143,20 +146,17 @@ public class DownloadSingleFileServlet extends HttpServlet {
         }
 
     	needToPreprocess = false;
+
         if (view.equals("Y")) {
           needToPreprocess = true;
           if (!(fileName.toLowerCase().endsWith("html") || fileName.toLowerCase().endsWith("htm"))) {
         	  needToPreprocess = false;
           }
-	  }
-
+        }
 
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
-
         baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
-
-
 
         Request experiment = null;
         if (idRequest != null) {
@@ -173,7 +173,6 @@ public class DownloadSingleFileServlet extends HttpServlet {
             experiment = (Request)rows.iterator().next();
           }
         }
-
 
         // If we can't find the experiment in the database, just bypass it.
         if (experiment == null) {
@@ -192,10 +191,12 @@ public class DownloadSingleFileServlet extends HttpServlet {
         Map requestMap = new TreeMap();
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
+
         List requestNumbers = new ArrayList<String>();
         Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear(), experiment.getCodeRequestCategory());
         StringBuffer keys = new StringBuffer();
         keys.append(experiment.getKey(""));  // add base directory
+
         for(Iterator i = folders.iterator(); i.hasNext();) {
           String folder = (String)i.next();
           if (keys.length() > 0) {
