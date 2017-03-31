@@ -48,16 +48,6 @@ import org.hibernate.query.Query;
 public class MakeDataTrackIGVLink extends HttpServlet {
 private static final long serialVersionUID = 1L;
 private static Logger LOG = Logger.getLogger(MakeDataTrackIGVLink.class);
-private String dataTrackFileServerWebContext;
-private String baseURL;
-private String baseDir;
-private String analysisBaseDir;
-private String dataTrackFileServerURL;
-private String serverName;
-private SecurityAdvisor secAdvisor;
-private Session sess;
-private String username;
-private ArrayList<String[]> linksToMake = null;
 
 public static final Pattern TO_STRIP = Pattern.compile("\\n");
 
@@ -70,8 +60,9 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-	serverName = req.getServerName();
-
+	String serverName = req.getServerName();
+	Session sess = null;
+	String username = "";
 	try {
 		sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
 
@@ -81,18 +72,17 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 		username = req.getUserPrincipal().getName();
 
 		// Get security advisor
-		secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+		SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 		if (secAdvisor == null) {
 			System.out
 					.println("MakeDataTrackIGVLink:  Warning - unable to find existing session. Creating security advisor.");
 			secAdvisor = SecurityAdvisor.create(sess, username);
 		}
 
-		execute(res);
+		execute(res, serverName, secAdvisor, sess, username);
 	} catch (Exception ex) {
 		String errorMessage = Util.GNLOG(LOG,"MakeDataTrackIGVLink -- Unhandled exception ", ex);
 		StringBuilder requestDump = Util.printRequest(req);
-		String serverName = req.getServerName();
 		Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
 
 		HibernateSession.rollback();
@@ -106,7 +96,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 	}
 }
 
-private String linkContents(String path, DataTrackFolder folder, int depth, Session sess) throws Exception {
+private String linkContents(String path, DataTrackFolder folder, int depth, Session sess, String baseDir, String baseURL, String analysisBaseDir, SecurityAdvisor secAdvisor, ArrayList<String[]> linksToMake) throws Exception {
 	// Create prefix for indentation
 	StringBuilder prefix = new StringBuilder("");
 	for (int i = 0; i < depth; i++) {
@@ -132,7 +122,7 @@ private String linkContents(String path, DataTrackFolder folder, int depth, Sess
 			File dir = new File(path);
 			dir.mkdirs();
 
-			String trackResults = makeIGVLink(sess, dt, path, prefix);
+			String trackResults = makeIGVLink(sess, dt, path, prefix, baseDir, baseURL, analysisBaseDir, linksToMake);
 			if (!trackResults.equals("")) {
 				dtr.add(trackResults);
 				// dataTrackResult.append(trackResults);
@@ -154,7 +144,7 @@ private String linkContents(String path, DataTrackFolder folder, int depth, Sess
 	ArrayList<DataTrackFolder> dtfs = new ArrayList<DataTrackFolder>(folder.getFolders());
 	StringBuilder dataFolderResult = new StringBuilder("");
 	for (DataTrackFolder dtf : dtfs) {
-		String result = linkContents(path, dtf, depth + 1, sess);
+		String result = linkContents(path, dtf, depth + 1, sess, baseDir, baseURL, analysisBaseDir, secAdvisor, linksToMake);
 		if (!result.equals("")) {
 			dataFolderResult.append(result);
 			toWrite = true;
@@ -172,19 +162,19 @@ private String linkContents(String path, DataTrackFolder folder, int depth, Sess
 
 }
 
-public void execute(HttpServletResponse res) throws RollBackCommandException {
+public void execute(HttpServletResponse res, String serverName, SecurityAdvisor secAdvisor, Session sess, String username) throws RollBackCommandException {
 	try {
-		baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+		String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
-		analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+		String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
-		dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(
+		String dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(
 				PropertyDictionary.DATATRACK_FILESERVER_URL);
-		dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(
+		String dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(
 				PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
 
 		// We have to serve files from Tomcat, so use das2 base url
-		baseURL = dataTrackFileServerURL + Constants.FILE_SEPARATOR;
+		String baseURL = dataTrackFileServerURL + Constants.FILE_SEPARATOR;
 
 		// If the user already has a directory, get the existing name and destroy everything beneath it. This way,
 		// existing path still work. This will be nice if we set up a cron job that automatically populates these directories
@@ -203,7 +193,7 @@ public void execute(HttpServletResponse res) throws RollBackCommandException {
 		String htmlPath = dataTrackFileServerURL + Constants.IGV_LINK_DIR_NAME + Constants.FILE_SEPARATOR + linkPath + Constants.FILE_SEPARATOR; // Path wia web
 
 		// Clear out links to make
-		linksToMake = new ArrayList<String[]>();
+		ArrayList<String[]> linksToMake = new ArrayList<String[]>();
 
 		/*****************************************************************
 		 * Grab the list of available genomes. Check if the user has data for the genome and if the genome is supported by IGV. If so, create a repository for
@@ -244,7 +234,7 @@ public void execute(HttpServletResponse res) throws RollBackCommandException {
 			} else {
 
 				// Create data repository
-				String result = this.linkContents(rootPath, rootFolder, 1, sess);
+				String result = this.linkContents(rootPath, rootFolder, 1, sess, baseURL, baseDir, analysisBaseDir, secAdvisor, linksToMake);
 
 				// If there was a result, create the repository file and add to registry.
 				if (!result.equals("")) {
@@ -300,7 +290,7 @@ public void execute(HttpServletResponse res) throws RollBackCommandException {
 
 		// If the user has permission for any data track, give the the repository link
 		if (permissionForAny) {
-			boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString()); // deal with embedded spaces
+			boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString(), linksToMake); // deal with embedded spaces
 
 			if (success) {
 				String preamble = new String(
@@ -371,7 +361,7 @@ private File checkIGVLinkDirectory(String baseURL, String webContextPath) throws
 	return igvLinkDir;
 }
 
-private String makeIGVLink(Session sess, DataTrack dataTrack, String directory, StringBuilder prefix) throws Exception {
+private String makeIGVLink(Session sess, DataTrack dataTrack, String directory, StringBuilder prefix, String baseDir, String baseURL, String analysisBaseDir, ArrayList<String[]> linksToMake) throws Exception {
 	StringBuilder sb = new StringBuilder("");
 	try {
 
@@ -445,7 +435,7 @@ private String makeIGVLink(Session sess, DataTrack dataTrack, String directory, 
 
 }
 
-private boolean makeSoftLinkViaUNIXCommandLine(String path) {
+private boolean makeSoftLinkViaUNIXCommandLine(String path, ArrayList<String[]> linksToMake) {
 	try {
 		File script = new File(path, "makeLinks.sh");
 		script.createNewFile();

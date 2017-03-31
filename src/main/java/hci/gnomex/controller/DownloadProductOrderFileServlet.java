@@ -27,17 +27,7 @@ import org.apache.log4j.Logger;
 
 public class DownloadProductOrderFileServlet extends HttpServlet { 
 
-
-  
   private static Logger LOG = Logger.getLogger(DownloadProductOrderFileServlet.class);
-  
-  private ProductOrderFileDescriptorParser parser = null;
-  
-  private ArchiveHelper archiveHelper = new ArchiveHelper();
-
-  private String serverName = "";
-  
-
   
   public void init() {
   
@@ -46,8 +36,7 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
     
-    serverName = req.getServerName();
-
+    ArchiveHelper archiveHelper = new ArchiveHelper();
     // Restrict commands to local host if request is not secure
     if (!ServletUtil.checkSecureRequest(req, LOG)) {
       ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
@@ -56,7 +45,7 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
     }
 
     //  Get cached file descriptor parser
-    parser = (ProductOrderFileDescriptorParser) req.getSession().getAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
+    ProductOrderFileDescriptorParser parser = (ProductOrderFileDescriptorParser) req.getSession().getAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
     if (parser == null) {
       LOG.error("Unable to get file descriptor parser from session");
       return;

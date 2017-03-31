@@ -25,16 +25,14 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
 
     private static Logger LOG = Logger.getLogger(DownloadChromatogramFileServlet.class);
 
-    private Integer     idChromatogram = null;
-    private String      username = "";
-
-
     public void init() {
 
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse response)
             throws ServletException, IOException {
+        Integer     idChromatogram = null;
+        String userName = "";
 
         // Restrict commands to local host if request is not secure
         if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -59,7 +57,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
 
         try {
 
-            username = req.getUserPrincipal().getName();
+            userName = req.getUserPrincipal().getName();
 
             // Get security advisor
             secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -142,7 +140,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
             StringBuilder requestDump = Util.printRequest(req);
             String serverName = req.getServerName();
 
-            Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
+            Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", userName, errorMessage, requestDump);
 
             HibernateSession.rollback();
             response.setContentType("text/html");

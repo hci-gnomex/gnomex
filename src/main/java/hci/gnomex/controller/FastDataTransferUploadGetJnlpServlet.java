@@ -24,7 +24,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
 
     private static Logger LOG = Logger.getLogger(FastDataTransferUploadGetJnlpServlet.class);
 
-    private String serverName = "";
+    private static String serverName = "";
 
 
     public void init() {
@@ -76,9 +76,9 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
                 secAdvisor.closeReadOnlyHibernateSession();
 
                 req.getSession().setAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
-                String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
-                String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-                String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid;
+                String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(serverName);
+                String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(serverName);
+                String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName)+uuid;
                 if (fdtJarLoc == null || fdtJarLoc.equals("")) {
                     fdtJarLoc = "http://monalisa.cern.ch/FDT/";
                 }
@@ -104,7 +104,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
 
                     out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                     out.println("<jnlp spec=\"1.0\"");
-                    String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
+                    String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(serverName);
                     out.println("codebase=\""+codebase_param+"\">");
                     out.println("<!--");
                     out.println("");

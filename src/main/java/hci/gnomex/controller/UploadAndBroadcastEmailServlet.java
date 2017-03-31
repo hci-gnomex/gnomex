@@ -36,12 +36,9 @@ import com.oreilly.servlet.multipart.Part;
 
 public class UploadAndBroadcastEmailServlet extends HttpServlet {
 
-private String subject = "GNomEx announcement";
-private String fromAddress;
-private StringBuffer body = null;
-private String format = "text";
 
-private String serverName;
+
+private static String serverName;
 
 private static final int STATUS_ERROR = 999;
 private static final Logger LOG = Logger.getLogger(UploadAndBroadcastEmailServlet.class);
@@ -57,6 +54,11 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
  */
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	try {
+		String subject = "GNomEx announcement";
+		String fromAddress = "";
+		StringBuffer body = null;
+		String format = "text";
+
 		serverName = req.getServerName();
 		Session sess = HibernateSession.currentReadOnlySession(req.getUserPrincipal().getName());
 
@@ -142,11 +144,11 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					String value = paramPart.getStringValue();
 
 					if (name.equals("format")) {
-						this.format = value;
+						format = value;
 					} else if (name.equals("subject")) {
-						this.subject = value;
+						subject = value;
 					} else if (name.equals("fromAddress")) {
-						this.fromAddress = value;
+						fromAddress = value;
 					}
 
 				} else if (part.isFile()) {
@@ -213,7 +215,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			baseURL = fullPath.substring(0, pos);
 		}
 
-		org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
+		org.dom4j.io.OutputFormat format1 = org.dom4j.io.OutputFormat.createPrettyPrint();
 		org.dom4j.io.HTMLWriter writer = null;
 		res.setContentType("text/html");
 
@@ -224,8 +226,8 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 		link.addAttribute("rel", "stylesheet");
 		link.addAttribute("type", "text/css");
 		link.addAttribute("href", baseURL + "/css/message.css");
-		Element body = root.addElement("BODY");
-		Element h3 = body.addElement("H3");
+		Element body1 = root.addElement("BODY");
+		Element h3 = body1.addElement("H3");
 		h3.addCDATA("The email has been successfully sent to " + userCount + " GNomEx users.\n\n");
 		if (invalidEmails.size() > 0) {
 			h3.addCDATA("The email was not sent to the following user(s): ");
@@ -237,9 +239,9 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 				}
 			}
 		}
-		body.addElement("BR");
-		body.addElement("BR");
-		writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);
+		body1.addElement("BR");
+		body1.addElement("BR");
+		writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format1);
 		writer.write(doc);
 		writer.flush();
 		writer.close();

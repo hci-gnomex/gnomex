@@ -21,10 +21,6 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
 // the static field for logging in Log4J
 private static Logger LOG = Logger.getLogger(UploadSampleSheetURLServlet.class);
 
-private String directoryName = "";
-
-private String fileName;
-
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
 	// Restrict commands to local host if request is not secure

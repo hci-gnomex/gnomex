@@ -21,16 +21,14 @@ public class DownloadFastaFileServlet extends HttpServlet {
 
     private static Logger LOG = Logger.getLogger(DownloadFastaFileServlet.class);
 
-    private Chromatogram                   chromatogram;
-    private Integer                        idChromatogram;
-    private String                          username = "";
-
     public void init() {
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse response)
             throws ServletException, IOException {
-
+        Chromatogram chromatogram;
+        Integer idChromatogram = null;
+        String username = "";
         // Restrict commands to local host if request is not secure
         if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",

@@ -27,19 +27,8 @@ import org.apache.log4j.Logger;
 
 public class DownloadAnalysisFileServlet extends HttpServlet { 
 
-
-  
   private static Logger LOG = Logger.getLogger(DownloadAnalysisFileServlet.class);
-  
-  private AnalysisFileDescriptorParser parser = null;
-  
-  private ArchiveHelper archiveHelper = new ArchiveHelper();
 
-  private String serverName = "";
-  private String username = "";
-  
-
-  
   public void init() {
   
   }
@@ -47,9 +36,9 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
     
-    serverName = req.getServerName();
-    username = req.getUserPrincipal().getName();
-
+    String serverName = req.getServerName();
+    String username = req.getUserPrincipal().getName();
+    ArchiveHelper archiveHelper = new ArchiveHelper();
     // Restrict commands to local host if request is not secure
     if (!ServletUtil.checkSecureRequest(req, LOG)) {
       ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
@@ -58,7 +47,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
     }
 
     //  Get cached file descriptor parser
-    parser = (AnalysisFileDescriptorParser) req.getSession().getAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
+    AnalysisFileDescriptorParser parser = (AnalysisFileDescriptorParser) req.getSession().getAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
     if (parser == null) {
       LOG.error("Unable to get file descriptor parser from session");
       return;
@@ -234,7 +223,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
     } catch (Exception e) {
       String errorMessage = Util.GNLOG(LOG,"Error in DownloadAnalyisFileServlet ", e);
       StringBuilder requestDump = Util.printRequest(req);
-      String serverName = req.getServerName();
+      serverName = req.getServerName();
 
       Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
 
