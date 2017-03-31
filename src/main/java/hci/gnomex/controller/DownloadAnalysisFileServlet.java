@@ -36,7 +36,6 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
     
-    String serverName = req.getServerName();
     String username = req.getUserPrincipal().getName();
     ArchiveHelper archiveHelper = new ArchiveHelper();
     // Restrict commands to local host if request is not secure
@@ -223,7 +222,6 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
     } catch (Exception e) {
       String errorMessage = Util.GNLOG(LOG,"Error in DownloadAnalyisFileServlet ", e);
       StringBuilder requestDump = Util.printRequest(req);
-      serverName = req.getServerName();
 
       Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
 

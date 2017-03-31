@@ -99,7 +99,6 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
         InputStream in = null;
         SecurityAdvisor secAdvisor = null;
-        String message = "";
         try {
 
             username = req.getUserPrincipal().getName();

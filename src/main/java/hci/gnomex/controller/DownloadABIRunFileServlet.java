@@ -34,8 +34,6 @@ public class DownloadABIRunFileServlet extends HttpServlet {
 
 private static Logger LOG = Logger.getLogger(DownloadABIRunFileServlet.class);
 
-private static String codeReactionType = ReactionType.SEQUENCING_REACTION_TYPE;
-
 public void init() {
 
 }
@@ -43,6 +41,7 @@ public void init() {
 protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 	InstrumentRun ir = null;
 	Integer idInstrumentRun = null;
+	String codeReactionType = ReactionType.SEQUENCING_REACTION_TYPE;
 	// Restrict commands to local host if request is not secure
 	if (!ServletUtil.checkSecureRequest(req, LOG)) {
 		ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",

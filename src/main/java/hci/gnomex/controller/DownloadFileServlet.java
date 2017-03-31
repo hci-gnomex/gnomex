@@ -32,9 +32,6 @@ public class DownloadFileServlet extends HttpServlet {
 
   private static Logger LOG = Logger.getLogger(DownloadFileServlet.class);
 
-  private FileDescriptorParser parser = null;
-
-
 
   public void init() {
 
