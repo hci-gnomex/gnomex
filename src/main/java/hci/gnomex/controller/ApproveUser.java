@@ -27,21 +27,8 @@ import org.hibernate.query.Query;
 
 public class ApproveUser extends HttpServlet {
 public static Logger LOG = Logger.getLogger(ApproveUser.class);
-// new user parameters
-private String guid = "";
-private String idAppUser = "";
-private AppUser au;
-private String message = "";
-private Boolean deleteUser = false;
-private String serverName;
+private static String serverName;
 
-// new lab parameters
-private String requestedLabFirstName = "";
-private String requestedLabName = "";
-private String department = "";
-private String labEmail = "";
-private String labPhone = "";
-private Integer requestedLabId;
 
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	serverName = req.getServerName();
@@ -49,6 +36,20 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 }
 
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	String guid = "";
+	String idAppUser = "";
+	AppUser au;
+	String message = "";
+	Boolean deleteUser = false;
+
+	// new lab parameters
+	String requestedLabFirstName = "";
+	String requestedLabName = "";
+	String department = "";
+	String labEmail = "";
+	String labPhone = "";
+	Integer requestedLabId = new Integer(-1);
+
 	try {
 		Session sess = HibernateSession.currentSession("approveUserServlet");
 		guid = (request.getParameter("guid") != null) ? request.getParameter("guid") : "";
@@ -79,6 +80,10 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 
 		if (request.getParameter("contactPhone") != null && !request.getParameter("contactPhone").equals("")) {
 			labPhone = request.getParameter("contactPhone");
+		}
+
+		if (request.getParameter("department") != null && !request.getParameter("department").equals("")) {
+			department = request.getParameter("department");
 		}
 
 		PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
@@ -133,9 +138,10 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 					theLab.setDepartment(department);
 					theLab.setContactEmail(labEmail);
 					theLab.setContactPhone(labPhone);
+					theLab.setDepartment(department);
 				}
 
-			} else if (requestedLabId != null) {
+			} else if (requestedLabId != -1) {
 				theLab = sess.load(Lab.class, requestedLabId);
 			}
 
@@ -154,7 +160,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 			MailUtil.validateAndSendEmail(helper);
 
 			message = "User successfully activated.  The user will be notified that their account is now active";
-			sess.save(theLab);
+			sess.saveOrUpdate(theLab);
 			sess.save(au);
 			sess.flush();
 		} else {
