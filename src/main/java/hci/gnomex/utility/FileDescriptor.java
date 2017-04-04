@@ -258,7 +258,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		if (!isDirectory()) {
 			Boolean found = false;
 			for (String ext : Constants.FILE_EXTENSIONS_FOR_VIEW) {
-				if (this.fileName.toLowerCase().endsWith(ext)) {
+				if (this.fileName.endsWith(ext)) {
 					found = true;
 					break;
 				}

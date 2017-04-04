@@ -12,14 +12,12 @@ import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,24 +37,22 @@ public class DownloadSingleFileServlet extends HttpServlet {
 
   private static Logger LOG = Logger.getLogger(DownloadSingleFileServlet.class);
 
-  private String                          serverName = null;
-  private String                          baseDir = null;
-  private String                          baseDirFlowCell = null;
-  private Integer                         idRequest = null;
-  private String                          requestNumber = null;
-  private String                          fileName = null;
-  private String                          dir = null;
-  private String                          view = "N";
+  private String        serverName       = null;
+  private String        baseDir          = null;
+  private String        baseDirFlowCell  = null;
+  private Integer       idRequest        = null;
+  private String        requestNumber    = null;
+  private String        fileName         = null;
+  private String        dir              = null;
+  private String        view             = "N";
 
-  private boolean                         needToPreprocess = false;
-  private String						  experimentDir = null;
-  private StringBuilder                   htmlText = new StringBuilder(1024000);
+  private boolean       needToPreprocess = false;
+  private String		experimentDir    = null;
+  private StringBuilder htmlText         = new StringBuilder(1024000);
   
   private String username = "";
 
-  public void init() {
-
-  }
+  public void init() { }
 
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
@@ -94,6 +90,14 @@ public class DownloadSingleFileServlet extends HttpServlet {
       fileName = req.getParameter("fileName");
       // Change all backslash to forward slash for comparison
       fileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
+
+      // If the file has a custom extension, but should be displayed as a text file, then load it as a text file.
+      for(String extension : Constants.FILE_EXTENSIONS_FOR_VIEW_CUSTOM_TEXT_FILES) {
+        if (fileName.endsWith(extension)) {
+          fileName = fileName.substring(0, fileName.length() - extension.length()) + ".txt";
+          break;
+        }
+      }
     }
     // Get the dir parameter
     if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
@@ -107,31 +111,26 @@ public class DownloadSingleFileServlet extends HttpServlet {
       LOG.error("idRequest/requestNumber and fileName required");
 
       response.setContentType("text/html");
-      response.getOutputStream().println(
-          "<html><head><title>Error</title></head>");
+      response.getOutputStream().println("<html><head><title>Error</title></head>");
       response.getOutputStream().println("<body><b>");
-      response.getOutputStream().println(
-          "Missing parameters:  idRequest and fileName required"
-              + "<br>");
+      response.getOutputStream().println("Missing parameters:  idRequest and fileName required<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
-      return;
 
+      return;
     }
 
     InputStream in = null;
     SecurityAdvisor secAdvisor = null;
     try {
-
-
       // Get security advisor
-     secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
-
         // Set the content type and content disposition based on whether we
         // want to serve the file to the browser or download it.
     	String mimeType = req.getSession().getServletContext().getMimeType(fileName); // recognized mime types are defined in Tomcat's web.xml
+
         if (view.equals("Y") && mimeType != null) {
           response.setContentType(mimeType);
           response.setHeader("Content-Disposition", "filename=" + "\"" + fileName + "\"");
@@ -143,20 +142,21 @@ public class DownloadSingleFileServlet extends HttpServlet {
         }
 
     	needToPreprocess = false;
+
         if (view.equals("Y")) {
           needToPreprocess = true;
           if (!(fileName.toLowerCase().endsWith("html") || fileName.toLowerCase().endsWith("htm"))) {
         	  needToPreprocess = false;
           }
-	  }
-
+        }
 
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
-
-        baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
-
-
+        baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(
+                req.getServerName(),
+                null,
+                PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY
+        );
 
         Request experiment = null;
         if (idRequest != null) {
@@ -174,7 +174,6 @@ public class DownloadSingleFileServlet extends HttpServlet {
           }
         }
 
-
         // If we can't find the experiment in the database, just bypass it.
         if (experiment == null) {
           throw new Exception("Cannot find experiment " + idRequest);
@@ -183,19 +182,32 @@ public class DownloadSingleFileServlet extends HttpServlet {
         // Check permissions - bypass this experiment if the user
         // does not have  permission to read it.
         if (!secAdvisor.canRead(experiment)) {
-          throw new Exception("Insufficient permissions to read experiment " + experiment.getNumber() + ".  Bypassing download.");
+          throw new Exception(
+                  "Insufficient permissions to read experiment " + experiment.getNumber() + ".  Bypassing download."
+          );
         }
 
-        baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), experiment.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(
+                req.getServerName(),
+                experiment.getIdCoreFacility(),
+                PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY
+        );
 
         // Now get the files that exist on the file server for this experiment
         Map requestMap = new TreeMap();
         Map directoryMap = new TreeMap();
-        Map fileMap = new HashMap();
+
         List requestNumbers = new ArrayList<String>();
-        Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseDir, Request.getBaseRequestNumber(experiment.getNumber()), experiment.getCreateYear(), experiment.getCodeRequestCategory());
+        Set folders = GetRequestDownloadList.getRequestDownloadFolders(
+                baseDir,
+                Request.getBaseRequestNumber(experiment.getNumber()),
+                experiment.getCreateYear(),
+                experiment.getCodeRequestCategory()
+        );
+
         StringBuffer keys = new StringBuffer();
         keys.append(experiment.getKey(""));  // add base directory
+
         for(Iterator i = folders.iterator(); i.hasNext();) {
           String folder = (String)i.next();
           if (keys.length() > 0) {
@@ -225,17 +237,27 @@ public class DownloadSingleFileServlet extends HttpServlet {
           }
           keys.append(fcKey);
         }
-        UploadDownloadHelper.getFileNamesToDownload(sess, serverName, baseDirFlowCell, keys.toString(), requestNumbers, requestMap, directoryMap, PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG));
 
-
+        UploadDownloadHelper.getFileNamesToDownload(
+                sess,
+                serverName,
+                baseDirFlowCell,
+                keys.toString(),
+                requestNumbers,
+                requestMap,
+                directoryMap,
+                PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG)
+        );
 
         // Find the file matching the fileName passed in as a parameter
         FileDescriptor experimentFd = null;
         List directoryKeys   = (List)requestMap.get(experiment.getNumber());
+
         for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
           String directoryKey = (String)i1.next();
           String dirTokens[] = directoryKey.split(Constants.DOWNLOAD_KEY_SEPARATOR);
           String theDirectory = "";
+
           if (dirTokens.length > 1) {
             theDirectory = dirTokens[1];
           }
@@ -266,7 +288,10 @@ public class DownloadSingleFileServlet extends HttpServlet {
           xferLog.setIdRequest(experiment.getIdRequest());
           xferLog.setIdLab(experiment.getIdLab());
 
-          experimentDir = experimentFd.getFileName().substring(0,experimentFd.getFileName().lastIndexOf(Constants.FILE_SEPARATOR_CHAR)+1);
+          experimentDir = experimentFd.getFileName().substring(
+                  0,
+                  experimentFd.getFileName().lastIndexOf(Constants.FILE_SEPARATOR_CHAR) + 1
+          );
 
           in = new FileInputStream(experimentFd.getFileName());
           OutputStream out = response.getOutputStream();
@@ -306,50 +331,53 @@ public class DownloadSingleFileServlet extends HttpServlet {
           out.close();
 
           in = null;
-          out = null;           
-                    
+          out = null;
         }
 
         sess.flush();
         
       } else {
         response.setContentType("text/html");
-        response.getOutputStream().println(
-            "<html><head><title>Error</title></head>");
+        response.getOutputStream().println("<html><head><title>Error</title></head>");
         response.getOutputStream().println("<body><b>");
         response.getOutputStream().println(
-            "DownloadSingleFileServlet: You must have a SecurityAdvisor in order to run this command."
-                + "<br>");
+            "DownloadSingleFileServlet: You must have a SecurityAdvisor in order to run this command." + "<br>"
+        );
         response.getOutputStream().println("</body>");
         response.getOutputStream().println("</html>");
-        System.out.println( "DownloadSingleFileServlet: You must have a SecurityAdvisor in order to run this command.");
+        System.out.println("DownloadSingleFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
-        String errorMessage = Util.GNLOG(LOG,"Error in DownloadSingleFileServlet ", e);
-        StringBuilder requestDump = Util.printRequest(req);
-        String serverName = req.getServerName();
+      String errorMessage = Util.GNLOG(LOG,"Error in DownloadSingleFileServlet ", e);
+      StringBuilder requestDump = Util.printRequest(req);
+      String serverName = req.getServerName();
 
-        Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
-
+      Util.sendErrorReport(
+              HibernateSession.currentSession(),
+              "GNomEx.Support@hci.utah.edu",
+              "DoNotReply@hci.utah.edu",
+              username,
+              errorMessage,
+              requestDump
+      );
 
       HibernateSession.rollback();
+
       response.setContentType("text/html");
-      response.getOutputStream().println(
-          "<html><head><title>Error</title></head>");
+      response.getOutputStream().println("<html><head><title>Error</title></head>");
       response.getOutputStream().println("<body><b>");
-      response.getOutputStream().println(
-          "DownloadSingleFileServlet: An exception occurred " + e.toString()
-              + "<br>");
+      response.getOutputStream().println("DownloadSingleFileServlet: An exception occurred " + e.toString() + "<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
 
 
     } finally {
       try {
-          if (secAdvisor != null) {
-              secAdvisor.closeHibernateSession();
-          }
+        if (secAdvisor != null) {
+          secAdvisor.closeHibernateSession();
+        }
       } catch (Exception e) {
+          LOG.error("Error closing Hibernate session", e);
       }
 
       if (in != null) {
@@ -382,244 +410,231 @@ public class DownloadSingleFileServlet extends HttpServlet {
   public static List getFlowCells(Session sess, Request experiment) {
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append(" SELECT DISTINCT fc ");
-    queryBuf.append(" FROM           Request as req ");
-    queryBuf.append(" JOIN           req.sequenceLanes as l ");
-    queryBuf.append(" JOIN           l.flowCellChannel as ch ");
-    queryBuf.append(" JOIN           ch.flowCell as fc ");
-    queryBuf.append(" WHERE          req.idRequest = " + experiment.getIdRequest());
-    queryBuf.append(" ORDER BY fc.number");
+    queryBuf.append("   FROM Request as req ");
+    queryBuf.append("   JOIN req.sequenceLanes as l ");
+    queryBuf.append("   JOIN l.flowCellChannel as ch ");
+    queryBuf.append("   JOIN ch.flowCell as fc ");
+    queryBuf.append("  WHERE req.idRequest = " + experiment.getIdRequest());
+    queryBuf.append("  ORDER BY fc.number");
 
     return sess.createQuery(queryBuf.toString()).list();
   }
 
-private void preProcessIMGTags (OutputStream out) {
-	int 					ipos = -1; 			// start of <img tag
-	int						epos = -1; 			// > end of tag
-	int						nxtpos = 0;			// next position in htmlText to search
-	int						lenhtmlText = -1;	// size of htmlText
+  private void preProcessIMGTags (OutputStream out) {
+    int ipos = -1; 			// start of <img tag
+    int epos = -1; 			// > end of tag
+    int nxtpos = 0;			// next position in htmlText to search
+    int lenhtmlText = -1;	    // size of htmlText
 
-	lenhtmlText = htmlText.length();
+    lenhtmlText = htmlText.length();
 
-	while (nxtpos < lenhtmlText) {
-		// find the start of the <img tag
-		ipos = htmlText.indexOf("<img",nxtpos);
+    while (nxtpos < lenhtmlText) {
+      // find the start of the <img tag
+      ipos = htmlText.indexOf("<img",nxtpos);
 
-		if (ipos == -1) {
-			// we are done, put the rest out
-			epos = lenhtmlText - 1;
-			outString (htmlText,nxtpos,epos,out);
-			break;
-		}
+      if (ipos == -1) {
+        // we are done, put the rest out
+        epos = lenhtmlText - 1;
+        outString (htmlText,nxtpos,epos,out);
+        break;
+      }
 
-		epos = htmlText.indexOf(">",ipos+4);
-		if (epos == -1) {
-			// assume it was the last characer
-			epos = lenhtmlText - 1;
-		}
+      epos = htmlText.indexOf(">",ipos+4);
+      if (epos == -1) {
+        // assume it was the last characer
+        epos = lenhtmlText - 1;
+      }
 
-		// put out everything up to the image tag
-		outString (htmlText,nxtpos,ipos,out);
+      // put out everything up to the image tag
+      outString (htmlText,nxtpos,ipos,out);
 
-		// get the line
-		String imgline = htmlText.substring (ipos, epos+1);
+      // get the line
+      String imgline = htmlText.substring (ipos, epos+1);
 
-		// process it
-		if (!processIMG (imgline,out)) {
-			// not the kind of img we are interested in, output the original text here
-			outString (htmlText,ipos,epos+1,out);
-		}
+      // process it
+      if (!processIMG (imgline,out)) {
+        // not the kind of img we are interested in, output the original text here
+        outString (htmlText,ipos,epos+1,out);
+      }
 
-		nxtpos = epos + 1;
+      nxtpos = epos + 1;
+    } // end of while
+  }
 
-	} // end of while
+  private void outString (StringBuilder theText, int startpos, int endpos, OutputStream out) {
 
-}
+    String theBytes = theText.substring(startpos,endpos);
+    byte[] asBytes = null;
 
-private void outString (StringBuilder theText, int startpos, int endpos, OutputStream out) {
+    try {
+      asBytes = theBytes.getBytes("UTF-8");
+      out.write(asBytes);
+    } catch (UnsupportedEncodingException e) {
+    	// TODO Auto-generated catch block
+    } catch (IOException e) {
+    	// TODO Auto-generated catch block
+    }
+  }
 
-	String theBytes = theText.substring(startpos,endpos);
-	byte[] asBytes = null;
+  private boolean processIMG (String imgline, OutputStream out) {
+    boolean processed = false;
 
-	try {
-		asBytes = theBytes.getBytes("UTF-8");
-		out.write(asBytes);		
-				
-	} catch (UnsupportedEncodingException e) {
-		// TODO Auto-generated catch block
+    // if already an inline base64 image, just return
+    int jpos = imgline.indexOf("src=\"data:image/");
+    if (jpos != -1) {
+      return processed;
+    }
 
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
 
-	}
-}
+    // there are two types of syntax, image tags containing DownloadSingleFileServlet
+    // and those with src="local image name" without a &dir specified
+    int syntaxType = 1;								// assume DownloadSingleFileServlet
+    int ipos = imgline.indexOf("DownloadSingleFileServlet");
+    if (ipos == -1) {
+      syntaxType = 2;
+    }
 
-private boolean processIMG (String imgline, OutputStream out) {
-	boolean processed = false;
-	
-	// if already an inline base64 image, just return
-	int jpos = imgline.indexOf("src=\"data:image/");
-	if (jpos != -1) {
-		return processed;
-	}
-	
-	
-	// there are two types of syntax, image tags containing DownloadSingleFileServlet
-	// and those with src="local image name" without a &dir specified
-	int syntaxType = 1;								// assume DownloadSingleFileServlet
-	int ipos = imgline.indexOf("DownloadSingleFileServlet");
-	if (ipos == -1) {
-		syntaxType = 2;
-	}
+    String localdir = null;
+    String fileName = null;
+    String imageType = "png";
+    int startA = 0;							// <
+    int endA = 0;							// everything upto src=
+    int startC = 0;							// everything after close " on src filename
 
-	String localdir = null;
-	String fileName = null;
-	String imageType = "png";
-	int startA = 0;							// <
-	int endA = 0;							// everything upto src=
-	int startC = 0;							// everything after close " on src filename
-	
-	if (syntaxType == 1) {
-		// get the image filename, here's an example of what the html looks like
-		// <img src="https://b2b.hci.utah.edu/gnomex/DownloadSingleFileServlet.gx?requestNumber=103R&fileName=per_base_quality.png&view=Y&dir=Images">
-		ipos = imgline.indexOf("fileName=");
-		if (ipos == -1) {
-			// not a format we can deal with
-			return processed;
-		}
+    if (syntaxType == 1) {
+      // get the image filename, here's an example of what the html looks like
+      // <img src="https://b2b.hci.utah.edu/gnomex/DownloadSingleFileServlet.gx?requestNumber=103R&fileName=per_base_quality.png&view=Y&dir=Images">
+      ipos = imgline.indexOf("fileName=");
+      if (ipos == -1) {
+        // not a format we can deal with
+        return processed;
+      }
 
-		int epos = imgline.indexOf("&",ipos+9);
-		if (epos == -1) {
-			return processed;
-		}
+      int epos = imgline.indexOf("&",ipos+9);
+      if (epos == -1) {
+        return processed;
+      }
 
-		fileName = imgline.substring(ipos+9,epos);
-	
-		// figure out what type of image it is
-		imageType = "png";
-		ipos = fileName.lastIndexOf('.');
-		if (ipos != -1 && (ipos+1 < fileName.length()) ) {
-			imageType = fileName.substring(ipos+1);
-		}
-	
-		// get the directory
-		ipos = imgline.indexOf("&dir=");
-		if (ipos == -1) {
-			return processed;
-		}
+      fileName = imgline.substring(ipos+9,epos);
 
-		epos = imgline.indexOf('"',ipos+5);
-		if (epos == -1) {
-			return processed;
-		}
+      // figure out what type of image it is
+      imageType = "png";
+      ipos = fileName.lastIndexOf('.');
+      if (ipos != -1 && (ipos+1 < fileName.length()) ) {
+        imageType = fileName.substring(ipos+1);
+      }
 
-		localdir = imgline.substring(ipos+5,epos) + Constants.FILE_SEPARATOR;
-	}
-	else if (syntaxType == 2) {
-		// <img src="UGP07_Trio_Rec_Pnt_Splice_Indel_10e4.png" alt="Run '.....' " style="width: 100%">
-		ipos = imgline.indexOf("src=");
-		if (ipos == -1) {
-			// not a format we can deal with
-			return processed;
-		}
-		
-		endA = ipos;			// end of everything upto src=
-		ipos = imgline.indexOf('"',ipos+4);
-		if (ipos == -1) {
-			// not a format we can deal with
-			return processed;
-		}
+      // get the directory
+      ipos = imgline.indexOf("&dir=");
+      if (ipos == -1) {
+        return processed;
+      }
 
-		int epos = imgline.indexOf('"',ipos+1);
-		if (epos == -1) {
-			return processed;
-		}
-		startC = epos+1;		// start up everything after the image name
-		fileName = imgline.substring(ipos+1,epos);
-		if (fileName.toLowerCase().startsWith("http")) {
-			// we only deal with local filenames
-			return processed;
-		}
-		
-		// figure out what type of image it is
-		imageType = "png";
-		ipos = fileName.lastIndexOf('.');
-		if (ipos != -1 && (ipos+1 < fileName.length()) ) {
-			imageType = fileName.substring(ipos+1);
-		}
-		
-		
-		localdir = dir + Constants.FILE_SEPARATOR;
-		if (experimentDir.endsWith(localdir))
-		{
-			localdir = "";
-		}
-	}
-	
-	// get the file
-	String pathname = experimentDir + localdir + fileName;		
-	File imageFd = new File(pathname);
+      epos = imgline.indexOf('"',ipos+5);
+      if (epos == -1) {
+        return processed;
+      }
 
-	// read it in
-	long filesize = imageFd.length();		
-	byte thefile[] = new byte[(int)filesize];
+      localdir = imgline.substring(ipos+5,epos) + Constants.FILE_SEPARATOR;
+    }
+    else if (syntaxType == 2) {
+      // <img src="UGP07_Trio_Rec_Pnt_Splice_Indel_10e4.png" alt="Run '.....' " style="width: 100%">
+      ipos = imgline.indexOf("src=");
+      if (ipos == -1) {
+        // not a format we can deal with
+        return processed;
+      }
+
+      endA = ipos;			// end of everything upto src=
+      ipos = imgline.indexOf('"',ipos+4);
+      if (ipos == -1) {
+        // not a format we can deal with
+        return processed;
+      }
+
+      int epos = imgline.indexOf('"',ipos+1);
+      if (epos == -1) {
+        return processed;
+      }
+      startC = epos+1;		// start up everything after the image name
+      fileName = imgline.substring(ipos+1,epos);
+      if (fileName.toLowerCase().startsWith("http")) {
+        // we only deal with local filenames
+        return processed;
+      }
+
+      // figure out what type of image it is
+      imageType = "png";
+      ipos = fileName.lastIndexOf('.');
+      if (ipos != -1 && (ipos+1 < fileName.length()) ) {
+        imageType = fileName.substring(ipos+1);
+      }
+
+
+      localdir = dir + Constants.FILE_SEPARATOR;
+      if (experimentDir.endsWith(localdir))
+      {
+        localdir = "";
+      }
+    }
+
+    // get the file
+    String pathname = experimentDir + localdir + fileName;
+    File imageFd = new File(pathname);
+
+    // read it in
+    long filesize = imageFd.length();
+    byte thefile[] = new byte[(int)filesize];
 
     FileInputStream inf;
     boolean readImageOK = true;
-	try {
-		inf = new FileInputStream(pathname);
-		int numRead = 0;
-        numRead = inf.read(thefile);
-        inf.close();
-	} catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
-		readImageOK = false;
+    try {
+  	  inf = new FileInputStream(pathname);
+  	  int numRead = 0;
+      numRead = inf.read(thefile);
+      inf.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      readImageOK = false;
+    }
 
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		readImageOK = false;
+    if (!readImageOK) {
+      return processed;
+    }
 
-	}
+    // convert it to base64
+    byte[] encodedBytes = Base64.encodeBase64(thefile);
 
-	if (!readImageOK) {
-		return processed;
-	}
-	
-	// convert it to base64
-	byte[] encodedBytes = Base64.encodeBase64(thefile);
+    // now build the <img tag
+    StringBuilder imgtag = new StringBuilder (1024000);
+    //imgtag.append("<img src=\"data:image/png;base64,");
+    if (syntaxType == 1) {
+      imgtag.append("<img src=\"data:image/");
+      imgtag.append(imageType);
+      imgtag.append(";base64,");
 
-	// now build the <img tag
-	StringBuilder imgtag = new StringBuilder (1024000);
-	//imgtag.append("<img src=\"data:image/png;base64,");
-	if (syntaxType == 1) {
-		imgtag.append("<img src=\"data:image/");
-		imgtag.append(imageType);
-		imgtag.append(";base64,"); 
-			
-		imgtag.append(new String(encodedBytes));
-		imgtag.append("\" />");
-	}
-	else if (syntaxType == 2) {
-		String partA = imgline.substring(startA,endA);
-		imgtag.append(partA);
+      imgtag.append(new String(encodedBytes));
+      imgtag.append("\" />");
+    }
+    else if (syntaxType == 2) {
+      String partA = imgline.substring(startA,endA);
+      imgtag.append(partA);
 
-		imgtag.append("src=\"data:image/");
-		imgtag.append(imageType);
-		imgtag.append(";base64,"); 
-			
-		imgtag.append(new String(encodedBytes));
-		imgtag.append("\"");
-		
-		String partC = imgline.substring(startC);
-		imgtag.append(partC);
-				
-	}
-	
-	// write it out
-	outString (imgtag,0,imgtag.length(),out);
-	processed = true;
+      imgtag.append("src=\"data:image/");
+      imgtag.append(imageType);
+      imgtag.append(";base64,");
 
-	return processed;
-}
+      imgtag.append(new String(encodedBytes));
+      imgtag.append("\"");
 
+      String partC = imgline.substring(startC);
+      imgtag.append(partC);
+    }
 
+    // write it out
+    outString (imgtag,0,imgtag.length(),out);
+    processed = true;
+
+    return processed;
+  }
 }
