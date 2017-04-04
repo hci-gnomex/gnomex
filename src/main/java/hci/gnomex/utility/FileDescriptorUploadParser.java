@@ -44,11 +44,9 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       if(folderNode.getAttribute("newName") != null && !folderNode.getAttribute("newName").equals("")){
         foldersToRename.put(directoryName, folderNode.getAttributeValue("newName"));
       }
-   
-      
+
       // Keep track of all new folders
-      recurseDirectories(folderNode, null); 
-      
+      recurseDirectories(folderNode, null);
     }
    
     if(root.getChildren("FileDescriptor").iterator().hasNext()){

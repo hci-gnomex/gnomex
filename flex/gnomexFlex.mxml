@@ -372,7 +372,7 @@
 		import views.util.UploadMultiRequestSampleSheetView;
 		import views.util.VerifyEmailWindow;
 		import views.workflow.FlowCellView;
-
+//		import views.util.FPBootstrap;
 		import flash.utils.getTimer;
 
 
@@ -1314,6 +1314,8 @@
 		}
 
 		protected function applicationCompleteHandler(event:FlexEvent):void {
+//			FPBootstrap.flex_pilotLibPath = 'http://localhost/gnomex/FlexPilot.swf';
+//			FPBootstrap.init(stage);
 			//set focus to this app using javascript
 			if (ExternalInterface.available) {
 				ExternalInterface.call("eval", "document.getElementById('" + ExternalInterface.objectID + "').tabIndex=0");

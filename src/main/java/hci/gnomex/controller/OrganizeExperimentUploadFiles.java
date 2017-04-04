@@ -79,6 +79,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 	if (request.getParameter("filesXMLString") != null && !request.getParameter("filesXMLString").equals("")) {
 		filesXMLString = request.getParameter("filesXMLString");
+		System.out.println ("[OEUF] filesXMLString:\n" + filesXMLString+"\n");
 
 		StringReader reader = new StringReader(filesXMLString);
 		try {
@@ -95,6 +96,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			&& !request.getParameter("experimentFileXMLString").equals("")) {
 		experimentFileXMLString = "<experimentFiles>" + request.getParameter("experimentFileXMLString")
 				+ "</experimentFiles>";
+		System.out.println ("[OEUF] experimentFileXMLString:\n" + experimentFileXMLString+"\n");
 
 		StringReader reader = new StringReader(experimentFileXMLString);
 		try {
@@ -110,6 +112,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			&& !request.getParameter("filesToRemoveXMLString").equals("")) {
 		filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString")
 				+ "</FilesToRemove>";
+		System.out.println ("[OEUF] filesToRemoveXMLString:\n" + filesToRemoveXMLString+"\n");
 
 		StringReader reader = new StringReader(filesToRemoveXMLString);
 		try {
@@ -126,6 +129,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			&& !request.getParameter("filesToUnlinkXMLString").equals("")) {
 		filesToUnlinkXMLString = "<FilesToUnlink>" + request.getParameter("filesToUnlinkXMLString")
 				+ "</FilesToUnlink>";
+		System.out.println ("[OEUF] filesToRemoveXMLString:\n" + filesToRemoveXMLString+"\n");
 
 		StringReader reader = new StringReader(filesToUnlinkXMLString);
 		try {
@@ -141,6 +145,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			&& !request.getParameter("linkedSampleFileXMLString").equals("")) {
 		linkedSampleFileXMLString = "<linkedSampleFiles>" + request.getParameter("linkedSampleFileXMLString")
 				+ "</linkedSampleFiles>";
+		System.out.println ("[OEUF] linkedSampleFileXMLString:\n" + linkedSampleFileXMLString+"\n");
 
 		StringReader reader = new StringReader(linkedSampleFileXMLString);
 		try {
@@ -308,10 +313,8 @@ public Command execute() throws RollBackCommandException {
 						boolean success = Util.renameTo(sourceFile,destFile);
 
 						// If we have renamed a file that is registered in the database
-						// under the ExperimentFile table, then update the ExperimentFile
-						// name
-						// so that we don't do an unnecessary delete in the register files
-						// servlet.
+						// under the ExperimentFile table, then update the ExperimentFile name
+						// so that we don't do an unnecessary delete in the register files servlet
 						if (success) {
 							String currentExpFileName = fileName.substring(fileName.indexOf(baseRequestNumber))
 									.replace("\\", Constants.FILE_SEPARATOR); // REMOVE
@@ -560,7 +563,6 @@ public Command execute() throws RollBackCommandException {
 							expFileDictionary.put(fileName, ef);
 						}
 					}
-
 				}
 
 				Map<String, List<Element>> sampleGroup = new TreeMap<String, List<Element>>();

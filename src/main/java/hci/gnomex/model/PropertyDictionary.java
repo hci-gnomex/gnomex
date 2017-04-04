@@ -170,6 +170,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
 	public static final String NEW_REQUEST_SAVE_BEFORE_SUBMIT = "new_request_save_before_submit";
 	public static final String USE_EXTERNAL_EXPERIMENT_NUMBERING = "use_external_experiment_numbering";
 	public static final String GET_REQUEST_NUMBER_PROCEDURE_EXTERNAL = "get_request_number_procedure_external";
+	public static final String PROTECTED_DIRECTORIES_ANALYSIS = "protected_directories_analysis";
+	public static final String PROTECTED_DIRECTORIES_EXPERIMENT = "protected_directories_experiment";
+	public static final String FAST_BROWSE_EXPERIMENTS = "fast_browse_experiments";
 
 	private Integer idPropertyDictionary;
 	private String propertyName;

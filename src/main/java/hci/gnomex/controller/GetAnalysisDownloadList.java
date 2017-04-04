@@ -68,11 +68,14 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 	if (request.getParameter("includeUploadStagingDir") != null
 			&& !request.getParameter("includeUploadStagingDir").equals("")) {
 		includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
+		System.out.println ("[GetAnalysisDownloadList] includeUploadStagingDir " + includeUploadStagingDir);
+
 	}
 
 	if (request.getParameter("skipUploadStagingDirFiles") != null
 			&& !request.getParameter("skipUploadStagingDirFiles").equals("")) {
 		skipUploadStagingDirFiles = request.getParameter("skipUploadStagingDirFiles");
+		System.out.println ("[GetAnalysisDownloadList] skipUploadStagingDirFiles " + skipUploadStagingDirFiles);
 	}
 
 	if (request.getParameter("idAnalysis") != null) {
@@ -146,6 +149,7 @@ public Command execute() throws RollBackCommandException {
 		if (isValid()) {
 			reqNumber = a.getNumber();
 
+			FileDescriptor.setupFileType(1);
 			Document doc = new Document(new Element("AnalysisDownloadList"));
 
 			a.excludeMethodFromXML("getIdLab");
@@ -306,6 +310,8 @@ public Command execute() throws RollBackCommandException {
 						fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());
 						fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed());
 						fdNode.setAttribute("GENEIOBIOViewer", fd.getIsGENELinkAllowed());
+						fdNode.setAttribute("PROTECTED", fd.isProtected());
+
 
 						fdNode.setAttribute("viewURL", fd.getViewURL(viewType));
 						if (StringUtils.isNumeric(fd.getIdFileString())) {
@@ -339,6 +345,8 @@ public Command execute() throws RollBackCommandException {
 
 			XMLOutputter out = new org.jdom.output.XMLOutputter();
 			this.xmlResult = out.outputString(doc);
+
+			System.out.println ("[GetAnalysisDownloadList] xmlResult:\n" + this.xmlResult);
 		}
 
 		if (isValid()) {
@@ -460,6 +468,7 @@ public static void addExpandedFileNodes(boolean autocreate, String baseDir, Elem
 				fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());
 				fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed());
 				fdNode.setAttribute("GENEIOBIOViewer", fd.getIsGENELinkAllowed());
+				fdNode.setAttribute("PROTECTED", fd.isProtected());
 
 				fdNode.setAttribute("viewURL", fd.getViewURL(viewType) != null ? fd.getViewURL(viewType) : "");
 
@@ -611,6 +620,7 @@ private static void recurseAddChildren(boolean autocreate, Element fdNode, FileD
 		childFdNode.setAttribute("BAMIOBIOViewer", childFd.getIsBAMIOBIOViewerAllowed());
 		childFdNode.setAttribute("URLLinkAllowed", childFd.getIsURLLinkAllowed());
 		childFdNode.setAttribute("GENEIOBIOViewer", childFd.getIsGENELinkAllowed());
+		childFdNode.setAttribute("PROTECTED", childFd.isProtected());
 
 		String viewType = "";
 		if (childFd.getId() != null) {

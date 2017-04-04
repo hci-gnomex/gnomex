@@ -22,7 +22,14 @@ public class TreeNodeRenderer extends TreeItemRenderer {
      		this.graphics.drawRect( 0, 0, this.width, this.height ); 
      	} else { 
      		this.graphics.clear(); 
-     	} 
+     	}
+
+         if (data != null && data.hasOwnProperty("@PROTECTED") && data.@PROTECTED == "Y") {
+             this.setStyle("color", "Red");
+         }
+         else {
+             this.setStyle("color", "Black");
+         }
      	super.updateDisplayList( unscaledWidth, unscaledHeight ); }
      } 
  
