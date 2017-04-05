@@ -77,7 +77,9 @@
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_METADATA_LOADED, onDictionaryMetadataLoaded);
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_SAVED, onDictionarySaved);
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_ADDED, onDictionaryAdded);
+
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_DELETED, onDictionaryDeleted);
+
 
 			initDictionaryTree();
 

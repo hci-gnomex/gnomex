@@ -84,6 +84,7 @@ public class DictionaryHelper implements Serializable {
 
   public static synchronized DictionaryHelper reload(Session sess) {
     theInstance = new DictionaryHelper();
+    WorkflowPropertyHelper.reload(sess);
     PropertyDictionaryHelper.reload(sess);
     theInstance.loadDictionaries(sess);
     theInstance.loadManagedDictionaries();
@@ -96,6 +97,7 @@ public class DictionaryHelper implements Serializable {
    */
   public static synchronized DictionaryHelper reloadLimited(Session sess) {
     theInstance = new DictionaryHelper();
+    WorkflowPropertyHelper.reload(sess);
     PropertyDictionaryHelper.reload(sess);
     theInstance.loadDictionaries(sess);
     return theInstance;

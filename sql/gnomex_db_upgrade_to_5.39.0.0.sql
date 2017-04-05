@@ -34,7 +34,6 @@ VALUES ('HYBRIDIZATION', 'Hybridization', '');
 INSERT INTO WorkflowProperty(workflowPropertyName, workflowPropertyValue, codeRequestCategory)
 VALUES ('EXTRACTION', 'Extraction', '');
 
-
 INSERT INTO ContextSensitiveHelp(context1, context2, context3, helpText, toolTipText)
 VALUES ('SampleDetailsOrganism', '1', '', '<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">If you wish to add a new organism</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">which does not exist in the list, simply type</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">it&apos;s name in the box and hit enter. </</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">That will bring up the new  organism</</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">dialog.  </</FONT></P></TEXTFORMAT>','<TEXTFORMAT LEADING="2"><P ALIGN="LEFT"><FONT FACE="Open Sans" SIZE="12" COLOR="#2E2D2C" LETTERSPACING="0" KERNING="0">Organism Dialog</FONT></P></TEXTFORMAT>');
 
@@ -67,6 +66,4 @@ modify reagent VARCHAR(100);
 
 ALTER TABLE Request_Audit
 modify elutionBuffer VARCHAR(100);
-
-
 
