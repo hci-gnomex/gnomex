@@ -372,7 +372,7 @@
 		import views.util.UploadMultiRequestSampleSheetView;
 		import views.util.VerifyEmailWindow;
 		import views.workflow.FlowCellView;
-
+//		import views.util.FPBootstrap;
 		import flash.utils.getTimer;
 
 
@@ -425,6 +425,8 @@
 		private var userPublicView:UserPublicView;
 
 		private var cursorID:Number = 0;
+
+		public var searchIDPresent:Boolean = false;
 
 		public var uploadSampleSheetURL:String = null;
 
@@ -1210,6 +1212,7 @@
 		public var PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB:String = "request_props_on_confirm_tab";
 		public var PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT:String = "new_request_save_before_submit";
 		public var PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION:String = "min_samples_allowed_for_plate_submission";
+		public var PROPERTY_EXCLUDE_NEW_REQUESTS:String = "exclude_new_requests";
 
 		public var BAM_IOBIO_VIEWER_URL:String = "bam_iobio_viewer_url";
 		public var VCF_IOBIO_VIEWER_URL:String = "vcf_iobio_viewer_url";
@@ -1229,7 +1232,7 @@
 		private var currentProgressInterval:uint = 0;
 
 		[Bindable]
-		public var isUnivUserAuth:Boolean = false;
+		public var isUniversityUserAuthentication:Boolean = false;
 
 		[Bindable]
 		public var version:String = "";
@@ -1281,12 +1284,7 @@
 
 		private function onGetLaunchProperties(event:ResultEvent):void {
 			if (getLaunchProperties.lastResult.name() == 'LaunchProperties') {
-				var prop:String = getLaunchProperties.lastResult.Property.(@name == PROPERTY_UNIVERSITY_USER_AUTHENTICATION).@value;
-				if (prop == 'Y') {
-					this.isUnivUserAuth = true;
-				} else {
-					this.isUnivUserAuth = false;
-				}
+				this.isUniversityUserAuthentication = (getLaunchProperties.lastResult.Property.(@name == PROPERTY_UNIVERSITY_USER_AUTHENTICATION).@value == 'Y');
 				baseURL = getLaunchProperties.lastResult.Property.(@name == "base_url").@value;
 				stateStack.selectedChild = initViews;
 				if (getLaunchProperties.lastResult.Property.(@name == "site_logo").@value != "") {
@@ -1314,6 +1312,8 @@
 		}
 
 		protected function applicationCompleteHandler(event:FlexEvent):void {
+//			FPBootstrap.flex_pilotLibPath = 'http://localhost/gnomex/FlexPilot.swf';
+//			FPBootstrap.init(stage);
 			//set focus to this app using javascript
 			if (ExternalInterface.available) {
 				ExternalInterface.call("eval", "document.getElementById('" + ExternalInterface.objectID + "').tabIndex=0");
@@ -1368,6 +1368,7 @@
 		private function lookupExperiment():void {
 			var number:String = requestNumber.text;
 			number = number.toUpperCase();
+			searchIDPresent = true;
 			if (number.indexOf("DT") == 0) {
 				this.showDataTrackForNumber(number);
 			} else if (number.indexOf("A") == 0) {

@@ -28,14 +28,7 @@ import org.hibernate.Session;
 public class ApproveLabMembership extends HttpServlet {
 private static Logger LOG = Logger.getLogger(ApproveLabMembership.class);
 
-private String idLab = "";
-private String idAppUser = "";
-private String guid = "";
-private AppUser au;
-private Lab lab;
-private String message = "";
-private String serverName;
-private Boolean denyRequest = false;
+private static String serverName;
 
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	serverName = req.getServerName();
@@ -43,13 +36,15 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 }
 
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	String message = "";
+
 	try {
 		Session sess = HibernateSession.currentSession("approveLabMembershipServlet");
-		idAppUser = (request.getParameter("idAppUser") != null) ? request.getParameter("idAppUser") : "";
-		idLab = (request.getParameter("idLab") != null) ? request.getParameter("idLab") : "";
-		guid = (request.getParameter("guid") != null) ? request.getParameter("guid") : "";
+		String idAppUser = (request.getParameter("idAppUser") != null) ? request.getParameter("idAppUser") : "";
+		String idLab = (request.getParameter("idLab") != null) ? request.getParameter("idLab") : "";
+		String guid = (request.getParameter("guid") != null) ? request.getParameter("guid") : "";
 
-		denyRequest = false;
+		Boolean denyRequest = false;
 		if (request.getParameter("denyRequest") != null && !request.getParameter("denyRequest").equals("")
 				&& request.getParameter("denyRequest").equals("Y")) {
 			denyRequest = true;
@@ -60,9 +55,9 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 		String doNotReplyEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
 		Boolean alreadyMember = false;
 
-		au = (AppUser) sess.createQuery(
+		AppUser au = (AppUser) sess.createQuery(
 				"from AppUser au where au.idAppUser = '" + idAppUser + "' and au.guid='" + guid + "'").uniqueResult();
-		lab = (Lab) sess.createQuery("from Lab l where l.idLab = '" + idLab + "'").uniqueResult();
+		Lab lab = (Lab) sess.createQuery("from Lab l where l.idLab = '" + idLab + "'").uniqueResult();
 
 		Set<Lab> labs = new HashSet();
 
@@ -71,7 +66,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 
 			for (Iterator i = labs.iterator(); i.hasNext();) {
 				Lab l = (Lab) i.next();
-				if (l.getIdLab() == Integer.parseInt(this.idLab)) {
+				if (l.getIdLab() == Integer.parseInt(idLab)) {
 					alreadyMember = true;
 					break;
 				}

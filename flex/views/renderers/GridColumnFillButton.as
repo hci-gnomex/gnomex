@@ -85,6 +85,12 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 			// Otherwise, the component has a tendency to become null suddenly and unexpectedly.
 			edtComponent.setFocus();
 		}
+
+		// This call is needed to ensure that multiple focus change events don't confuse the component.
+		// See JIRA Ticket GNOM-2230 for details.
+		// Easiest to see by commenting out, navigating to component, selecting an element and holding enter down.
+		// Replaces most data with null.
+        itemSelected();
 	}
 
 	override protected function focusInHandler(event:FocusEvent):void

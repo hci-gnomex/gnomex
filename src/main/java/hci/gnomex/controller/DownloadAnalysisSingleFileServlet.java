@@ -34,19 +34,6 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
     private static Logger LOG = Logger.getLogger(DownloadAnalysisSingleFileServlet.class);
 
-    private String                          baseDir = null;
-    private Integer                         idAnalysis = null;
-    private String                          fileName = null;
-    private String                          dir = null;
-    private String                          view = "N";
-    private String                          emailAddress = "";
-
-    private boolean                         needToPreprocess = false;
-    private String						  analysisDir = null;
-    private StringBuilder                   htmlText = new StringBuilder(1024000);
-    private String                          username = "";
-
-
     public void init() {
 
     }
@@ -54,17 +41,17 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse response)
             throws ServletException, IOException {
 
-        baseDir = null;
-        idAnalysis = null;
-        fileName = null;
-        dir = "";
-        emailAddress = "";
+        String baseDir = null;
+        Integer idAnalysis = null;
+        String fileName = null;
+        String dir = "";
+        String emailAddress = "";
 
-        view = "N";
-        needToPreprocess = false;
-        htmlText = new StringBuilder(1024000);
-        analysisDir = null;
-
+        String view = "N";
+        boolean needToPreprocess = false;
+        StringBuilder htmlText = new StringBuilder(1024000);
+        String analysisDir = null;
+        String username = "";
         // Restrict commands to local host if request is not secure
         if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
@@ -185,7 +172,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
                     for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
                         FileDescriptor fd = (FileDescriptor) i2.next();
                         fd.setQualifiedFilePath(theDirectory);
-                        FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(fd, fileName, theDirectory);
+                        FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(fd, fileName, theDirectory, dir);
                         if (matchingFd != null) {
                             analysisFd = matchingFd;
                             break;
@@ -250,7 +237,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
                     if (needToPreprocess) {
                         // remember htmlText is global
-                        preProcessIMGTags (out);
+                        preProcessIMGTags (out, htmlText, dir, analysisDir);
                     }
 
                     out.flush();
@@ -309,7 +296,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
     }
 
 
-    private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory) {
+    private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory, String dir) {
         // Change all backslash to forward slash for comparison
         String fdFileName = fd.getFileName().replaceAll("\\\\", Constants.FILE_SEPARATOR);
         if ( dir != null ) {
@@ -325,7 +312,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
                 childFd.setQualifiedFilePath(!fd.getQualifiedFilePath().equals("") ? fd.getQualifiedFilePath() + Constants.FILE_SEPARATOR + fd.getDisplayName() : fd.getDisplayName());
 
-                FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath());
+                FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath(), dir);
                 if (matchingFd != null) {
                     return matchingFd;
                 }
@@ -336,7 +323,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         }
     }
 
-    private void preProcessIMGTags (OutputStream out) {
+    private void preProcessIMGTags (OutputStream out, StringBuilder htmlText, String dir, String analysisDir) {
         int 					ipos = -1; 			// start of <img tag
         int						epos = -1; 			// > end of tag
         int						nxtpos = 0;			// next position in htmlText to search
@@ -368,7 +355,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
             String imgline = htmlText.substring (ipos, epos+1);
 
             // process it
-            if (!processIMG (imgline,out)) {
+            if (!processIMG (imgline,out, dir, analysisDir)) {
                 // not the kind of img we are interested in, output the original text here
                 outString (htmlText,ipos,epos+1,out);
             }
@@ -397,7 +384,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         }
     }
 
-    private boolean processIMG (String imgline, OutputStream out) {
+    private boolean processIMG (String imgline, OutputStream out, String dir, String analysisDir) {
         boolean processed = false;
 
         // if already an inline base64 image, just return

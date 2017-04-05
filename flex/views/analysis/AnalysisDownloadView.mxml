@@ -866,6 +866,7 @@
 							 showHeaders="true"  
 							 sortExpertMode="true" 
 							 allowMultipleSelection="true"
+							 groupItemRenderer="views.renderers.DownloadRenderer"
 							 sortableColumns="false"
 							 borderStyle="solid" 
 							 headerWordWrap="false" 

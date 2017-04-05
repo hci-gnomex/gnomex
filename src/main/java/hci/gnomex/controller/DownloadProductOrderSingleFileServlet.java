@@ -29,19 +29,6 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
 
     private static Logger LOG = Logger.getLogger(DownloadProductOrderSingleFileServlet.class);
 
-    private String                          baseDir = null;
-    private Integer                         idProductOrder = null;
-    private String                          fileName = null;
-    private String                          dir = null;
-    private String                          view = "N";
-    private String                          emailAddress = "";
-
-    private boolean                         needToPreprocess = false;
-    private String						  productOrderDir = null;
-    private StringBuilder                   htmlText = new StringBuilder(1024000);
-    private String                          username = "";
-
-
     public void init() {
 
     }
@@ -49,16 +36,17 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse response)
             throws ServletException, IOException {
 
-        baseDir = null;
-        idProductOrder = null;
-        fileName = null;
-        dir = "";
-        emailAddress = "";
+        String baseDir = null;
+        Integer idProductOrder = null;
+        String fileName = null;
+        String dir = "";
+        String emailAddress = "";
 
-        view = "N";
-        needToPreprocess = false;
-        htmlText = new StringBuilder(1024000);
-        productOrderDir = null;
+        String view = "N";
+        boolean needToPreprocess = false;
+        StringBuilder htmlText = new StringBuilder(1024000);
+        String productOrderDir = null;
+        String username = "";
 
         // Restrict commands to local host if request is not secure
         if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -180,7 +168,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
                     for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
                         FileDescriptor fd = (FileDescriptor) i2.next();
                         fd.setQualifiedFilePath(theDirectory);
-                        FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(fd, fileName, theDirectory);
+                        FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(fd, fileName, theDirectory, dir);
                         if (matchingFd != null) {
                             productOrderFd = matchingFd;
                             break;
@@ -245,7 +233,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
 
                     if (needToPreprocess) {
                         // remember htmlText is global
-                        preProcessIMGTags (out);
+                        preProcessIMGTags (out, htmlText, dir, productOrderDir);
                     }
 
                     out.flush();
@@ -304,7 +292,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
     }
 
 
-    private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory) {
+    private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory, String dir) {
         // Change all backslash to forward slash for comparison
          theDirectory = theDirectory.replace("\\", Constants.FILE_SEPARATOR);
 
@@ -316,7 +304,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
 
                 childFd.setQualifiedFilePath(!fd.getQualifiedFilePath().equals("") ? fd.getQualifiedFilePath() + Constants.FILE_SEPARATOR + fd.getDisplayName() : fd.getDisplayName());
 
-                FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath());
+                FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath(), dir);
                 if (matchingFd != null) {
                     return matchingFd;
                 }
@@ -327,7 +315,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
         }
     }
 
-    private void preProcessIMGTags (OutputStream out) {
+    private void preProcessIMGTags (OutputStream out, StringBuilder htmlText, String dir, String productOrderDir) {
         int 					ipos = -1; 			// start of <img tag
         int						epos = -1; 			// > end of tag
         int						nxtpos = 0;			// next position in htmlText to search
@@ -359,7 +347,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
             String imgline = htmlText.substring (ipos, epos+1);
 
             // process it
-            if (!processIMG (imgline,out)) {
+            if (!processIMG (imgline, out, dir, productOrderDir)) {
                 // not the kind of img we are interested in, output the original text here
                 outString (htmlText,ipos,epos+1,out);
             }
@@ -388,7 +376,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
         }
     }
 
-    private boolean processIMG (String imgline, OutputStream out) {
+    private boolean processIMG (String imgline, OutputStream out, String dir, String productOrderDir) {
         boolean processed = false;
 
         // if already an inline base64 image, just return

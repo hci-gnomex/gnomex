@@ -80,6 +80,7 @@ import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.persistence.PersistenceException;
 
 import org.hibernate.query.Query;
 import org.hibernate.query.NativeQuery;
@@ -1795,11 +1796,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			throw e;
 		} catch (ProductException e) {
 			LOG.error("An exception has occurred in SaveRequest: Unable to create ProductLedger for request. " + e.getMessage(), e);
-			this.errorDetails = Util.GNLOG(LOG,"Unable to create ProductLedger for request. ", e);
+			this.errorDetails = Util.GNLOG(LOG, "Unable to create ProductLedger for request. ", e);
 
 			throw new GNomExRollbackException(e.getMessage(), true, e.getMessage());
+		} catch (PersistenceException e) {
+			LOG.error("An exception has occurred in SaveRequest: Persistence error " + e.getMessage(), e);
+			this.errorDetails = Util.GNLOG(LOG,"One of the fields is too large. Please check the sample values.", e);
+			throw new GNomExRollbackException(e.getMessage(), true, "One of the fields is too large. Please check the sample values.");
+		} catch (NumberFormatException e) {
+			LOG.error("An exception has occurred in SaveRequest: Number Format Error " + e.getMessage(), e);
+			this.errorDetails = Util.GNLOG(LOG,"Format error ", e);
+			throw new GNomExRollbackException(e.getMessage(), true, "Format error - " + e.getLocalizedMessage());
 		} catch (Exception e) {
-			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveRequest ", e);
+			this.errorDetails = Util.GNLOG(LOG, "An exception has occurred in SaveRequest ", e);
 
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the request.");
 		}

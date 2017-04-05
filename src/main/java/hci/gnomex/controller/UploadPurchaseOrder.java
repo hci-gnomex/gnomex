@@ -24,10 +24,6 @@ import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 
 public class UploadPurchaseOrder extends HttpServlet {
-private Integer idBillingAccount;
-private String fileName;
-private File file;
-private String directoryName;
 
 private static final int ERROR_MISSING_TEMP_DIRECTORY_PROPERTY = 900;
 private static final int ERROR_INVALID_TEMP_DIRECTORY = 901;
@@ -47,8 +43,10 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 		byte[] blob = new byte[1024];
 		Part part;
 		String fileType = null;
+		Integer idBillingAccount = null;
+		File file = null;
 
-		directoryName = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(
+		String directoryName = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(
 				PropertyDictionary.TEMP_DIRECTORY, req.getServerName());
 		if (directoryName == null || directoryName.equals("")) {
 			res.setStatus(this.ERROR_MISSING_TEMP_DIRECTORY_PROPERTY);
@@ -88,7 +86,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 				}
 			} else if (part.isFile()) {
 				FilePart filePart = (FilePart) part;
-				fileName = filePart.getFileName();
+				String fileName = filePart.getFileName();
 				fileType = fileName.substring(fileName.indexOf("."));
 
 				if (fileName != null) {

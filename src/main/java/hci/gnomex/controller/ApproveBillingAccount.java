@@ -23,30 +23,27 @@ import org.hibernate.Session;
 public class ApproveBillingAccount extends HttpServlet {
 
 private static Logger LOG = Logger.getLogger(SaveLab.class);
-private String idBillingAccount = "";
-private BillingAccount ba;
-private String message = "";
-private String serverName = "";
-private String launchAppURL = "";
-private String approverEmail = "";
+private static String serverName = "";
 
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	doPost(req, res);
 }
 
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	String message = "";
 	try {
+		String launchAppURL = "";
 		Session sess = HibernateSession.currentSession("approveBillingAccountServlet");
-		idBillingAccount = (String) ((request.getParameter("idBillingAccount") != null) ? request
+		String idBillingAccount = (String) ((request.getParameter("idBillingAccount") != null) ? request
 				.getParameter("idBillingAccount") : "");
-		approverEmail = (String) ((request.getParameter("approverEmail") != null) ? request
+		String approverEmail = (String) ((request.getParameter("approverEmail") != null) ? request
 				.getParameter("approverEmail") : "");
 
 		PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 		String doNotReplyEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
 		serverName = request.getServerName();
 
-		ba = (BillingAccount) sess.createQuery(
+		BillingAccount ba = (BillingAccount) sess.createQuery(
 				"from BillingAccount ba where ba.idBillingAccount = '" + idBillingAccount + "'").uniqueResult();
 
 		if (ba == null) {

@@ -230,6 +230,7 @@
         <property name="custom3" column="custom3" type="string"/>
         <property name="approverEmail" column="approverEmail" type="string"/>
         <property name="idApprover" column="idApprover" type="integer"/>
+        <property name="activeAccount" column="activeAccount" type="string"/>
         <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false"
                      update="false"/>
     </class>

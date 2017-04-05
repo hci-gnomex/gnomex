@@ -245,40 +245,29 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   }
 
   private static void addTask(String taskFileDir, String sourceDir, String targetDir) {
-/*
-    if (!new File(taskFileDir).exists()) {
-      File dir = new File(taskFileDir);
-      boolean success = dir.mkdir();
-      if (!success) {
-        System.out.println("Error: unable to create task file directory: " + taskFileDir);
-        return;
-      }
-    }
-*/
     String taskFileName = taskFileDir + "/" + "info";
     File taskFile;
     int numTries = 10;
     while(true) {
-//      String taskFileName = taskFileDir + "/" + "info";
       taskFile = new File(taskFileName);
       if(!taskFile.exists()) {
         boolean success;
         try {
           success = taskFile.createNewFile();
           if (!success) {
-            System.out.println("Error: unable to create task file. " + taskFileName);
+            System.out.println("[FastDataTransferUploadStart] Error: unable to create task file. " + taskFileName);
             return;
           }
           break;
         } catch (IOException e) {
-          System.out.println("Error: unable to create task file. " + taskFileName);
+          System.out.println("[FastDataTransferUploadStart] Error: unable to create task file. " + taskFileName);
           return;
         }
       }
       // If the file already exists then try again but don't try forever
       numTries--;
       if(numTries == 0) {
-        System.out.println("Error: Unable to create task file: " + taskFileName);
+        System.out.println("[FastDataTransferUploadStart] Error: Unable to create task file: " + taskFileName);
         return;
       }
     }
@@ -293,7 +282,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       pw.flush();
       pw.close();
     } catch (IOException e) {
-      System.out.println("IOException: file " + taskFileName + " " + e.getMessage());
+      System.out.println("[FastDataTransferUploadStart] IOException: file " + taskFileName + " " + e.getMessage());
       return;
     }
   }

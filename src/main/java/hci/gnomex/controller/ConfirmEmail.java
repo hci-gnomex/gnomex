@@ -18,26 +18,23 @@ import org.hibernate.Session;
 public class ConfirmEmail extends HttpServlet {
 
 private static Logger LOG = Logger.getLogger(ConfirmEmail.class);
-private String guid = "";
-private String idAppUser = "";
-private String message = "";
 
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	doPost(req, res);
 }
 
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	String message = "";
 
 	try {
 
 		Session sess = HibernateSession.currentSession("confirmEmailServlet");
-		guid = (String) ((request.getParameter("guid") != null) ? request.getParameter("guid") : "");
-		idAppUser = (String) ((request.getParameter("idAppUser") != null) ? request.getParameter("idAppUser") : "");
+		String guid = (String) ((request.getParameter("guid") != null) ? request.getParameter("guid") : "");
+		String idAppUser = (String) ((request.getParameter("idAppUser") != null) ? request.getParameter("idAppUser") : "");
 
 		AppUser au = (AppUser) sess.createQuery("Select au from AppUser au where au.idAppUser = '" + idAppUser + "'")
 				.uniqueResult();
 
-		message = "";
 
 		if (au == null) {
 			message = "This user does not exist.";

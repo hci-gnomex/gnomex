@@ -19,12 +19,6 @@ import org.hibernate.Session;
 
 public class UploadAnalysisURLServlet extends HttpServlet {
 
-private Integer idAnalysis = null;
-private String directoryName = "";
-
-private Analysis analysis;
-private String fileName;
-
 private static final Logger LOG = Logger.getLogger(UploadAnalysisURLServlet.class);
 
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {

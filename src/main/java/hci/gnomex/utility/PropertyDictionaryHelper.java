@@ -30,7 +30,7 @@ public class PropertyDictionaryHelper implements Serializable {
   private static final String PROPERTY_FDT_DIRECTORY = "fdt_directory";
   private static final String PROPERTY_FDT_CLIENT_CODEBASE = "fdt_client_codebase";
   private static final String PROPERTY_FDT_SERVER_NAME = "fdt_server_name";
-  private static final String PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR = "fdt_file_daemon_task_dir";
+  //private static final String PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR = "fdt_file_daemon_task_dir";
   private static final String PROPERTY_FDT_JAR_LOCATION = "fdt_jar_location";
   public static final String PROPERTY_PRODUCT_ORDER_DIRECTORY = "directory_product_order";
   public static final String PROPERTY_RUNTIME_ERROR_SERVER_LIST = "runtime_error_server_list";
@@ -38,6 +38,7 @@ public class PropertyDictionaryHelper implements Serializable {
   public PropertyDictionaryHelper() {
   }
 
+/*
   public String getFDTFileDaemonTaskDir(String serverName) {
     String property = "";
     String propertyName = null;
@@ -52,7 +53,7 @@ public class PropertyDictionaryHelper implements Serializable {
     }
     return addFileSepIfNec(property);
   }
-
+*/
   public String getFDTDirectoryForGNomEx(String serverName) {
     String property = "";
     String propertyName = null;
@@ -231,6 +232,10 @@ public class PropertyDictionaryHelper implements Serializable {
     } else {
       return false;
     }
+  }
+
+  public boolean isUniversityUserAuthentication() {
+    return this.getProperty(PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION).equals("Y");
   }
 
   public String getFDTJarLocation(String serverName) {

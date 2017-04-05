@@ -1,6 +1,8 @@
 package hci.gnomex.lucene;
 
 
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 
 public class GlobalIndexHelper extends IndexHelper {
   
@@ -36,6 +38,31 @@ public class GlobalIndexHelper extends IndexHelper {
   public static final String       ANALYSIS = "globalObjectTypeAnalysis";
   public static final String       DATA_TRACK = "globalObjectTypeDataTrack";
   public static final String       TOPIC = "globalObjectTypeTopic";
-  
 
+
+  private static void addIndexedField(Document doc, String name, String value) {
+    if (value != null && !value.trim().equals("")) {
+      // There are certain global fields that need to be checked against dictionaries and must be case-sensitive.
+      if (name != null
+              && (name.equals(GlobalIndexHelper.OBJECT_TYPE) || name.equals(GlobalIndexHelper.CODE_REQUEST_CATEGORY))) {
+
+        doc.add(new Field(name, value, Field.Store.YES, Field.Index.TOKENIZED));
+      } else {
+        doc.add(new Field(name, value.toLowerCase(), Field.Store.YES, Field.Index.TOKENIZED));
+      }
+    }
+  }
+
+  private static void addNonIndexedField(Document doc, String name, String value) {
+    if (value != null && !value.trim().equals("")) {
+      // There are certain global fields that need to be checked against dictionaries and must be case-sensitive.
+      if (name != null
+              && (name.equals(GlobalIndexHelper.OBJECT_TYPE) || name.equals(GlobalIndexHelper.CODE_REQUEST_CATEGORY))) {
+
+        doc.add(new Field(name, value, Field.Store.YES, Field.Index.NO));
+      } else {
+        doc.add(new Field(name, value.toLowerCase(), Field.Store.YES, Field.Index.NO));
+      }
+    }
+  }
 }

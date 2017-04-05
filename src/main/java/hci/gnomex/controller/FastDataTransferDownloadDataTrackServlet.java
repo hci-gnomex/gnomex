@@ -33,14 +33,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
 
     private static Logger LOG = Logger.getLogger(FastDataTransferDownloadDataTrackServlet.class);
 
-    private String keys = "";
-
-
-    private String serverName;
-    private String baseDir;
-    private String analysisBaseDir;
-
-
+    private static String serverName;
 
     public void init() {
 
@@ -74,7 +67,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
 
             // Read analysis file parser, which contains a list of selected analysis files,
             //from session variable stored by CacheDataTrackFileDownloadList.
-            keys = (String)req.getSession().getAttribute(GetEstimatedDownloadDataTrackSize.SESSION_DATATRACK_KEYS);
+            String keys = (String)req.getSession().getAttribute(GetEstimatedDownloadDataTrackSize.SESSION_DATATRACK_KEYS);
 
             // Get security advisor
             SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -84,8 +77,8 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                 Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
                 DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-                baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
-                analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+                String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
+                String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
                 // Make sure the system is configured to run FDT
                 String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
@@ -173,7 +166,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     }
 
                     // For each file to be downloaded for the data track
-                    for (File file : dataTrack.getFiles(this.baseDir, this.analysisBaseDir)) {
+                    for (File file : dataTrack.getFiles(baseDir, analysisBaseDir)) {
 
                         // Ignore file descriptors that represent directories.  We will
                         // just download  actual files.
@@ -242,7 +235,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     out.println("3) Execute the following on the command line after changing the path2xxx variables:");
                     out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
                     out.println("");
-                    out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+                    out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
                     out.println("");
                     out.println("-->");
                     out.println("<information>");

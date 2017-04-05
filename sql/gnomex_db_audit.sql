@@ -21910,8 +21910,8 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`adminNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
  ,`archived`  char(1)  NULL DEFAULT NULL
- ,`reagent`  varchar(50)  NULL DEFAULT NULL
- ,`elutionBuffer`  varchar(50)  NULL DEFAULT NULL
+ ,`reagent`  varchar(100)  NULL DEFAULT NULL
+ ,`elutionBuffer`  varchar(100)  NULL DEFAULT NULL
  ,`usedDnase`  char(1)  NULL DEFAULT NULL
  ,`usedRnase`  char(1)  NULL DEFAULT NULL
  ,`keepSamples`  char(1)  NULL DEFAULT NULL

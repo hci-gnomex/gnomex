@@ -26,7 +26,6 @@
 
 <%
     Logger LOG = Logger.getLogger("login.jsp");
-String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 String errFlag = (String)((request.getParameter("err") != null)?request.getParameter("err"):"N");
 Integer idCoreFacility = JspHelper.getIdCoreFacility(request);
 String idCoreParm = idCoreFacility == null?"":("?idCore=" + idCoreFacility.toString());
@@ -35,7 +34,7 @@ String idCoreParm = idCoreFacility == null?"":("?idCore=" + idCoreFacility.toStr
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
 GNomExFrontController.setWebContextPath(webContextPath);
 
-boolean showCampusInfoLink = false;
+boolean isUniversityUserAuthentication = false;
 boolean itemNotPublic = false;
 boolean showUserSignup = true;
 boolean allowGuest = false;
@@ -44,10 +43,7 @@ String siteLogo = "";
 Session sess = null;
 try {
   sess = HibernateSession.currentReadOnlySession("guest");
-  PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
-    showCampusInfoLink = true;
-  }  
+  isUniversityUserAuthentication = PropertyDictionaryHelper.getInstance(sess).isUniversityUserAuthentication();
 
   // Get site specific log
   siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
@@ -131,7 +127,6 @@ try {
   }  
  } catch (Exception e){
               LOG.error("Error in login.jsp", e);
-  message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
     HibernateSession.closeSession();
@@ -205,7 +200,7 @@ The <%= itemType %> you are linking to does not have public visibility. Please s
       <br>
       
        <%
-        if( showCampusInfoLink ) {
+        if( isUniversityUserAuthentication ) {
       %>
         <div class="boxCenter"><note class="centered"><i>University of Utah investigators should 
           sign in with their UNID and CIS password.</i></note></div>      

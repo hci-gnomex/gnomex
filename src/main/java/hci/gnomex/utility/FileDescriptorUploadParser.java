@@ -44,11 +44,9 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       if(folderNode.getAttribute("newName") != null && !folderNode.getAttribute("newName").equals("")){
         foldersToRename.put(directoryName, folderNode.getAttributeValue("newName"));
       }
-   
-      
+
       // Keep track of all new folders
-      recurseDirectories(folderNode, null); 
-      
+      recurseDirectories(folderNode, null);
     }
    
     if(root.getChildren("FileDescriptor").iterator().hasNext()){
@@ -134,7 +132,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     Element root = this.doc.getRootElement();
     for(Iterator i = root.getChildren().iterator(); i.hasNext();) {
       Element node = (Element)i.next();
-      System.out.println("ready to remove  fileName" + node.getAttributeValue("fileName"));
+//      System.out.println("ready to remove  fileName" + node.getAttributeValue("fileName"));
       fileNames.add(node.getAttributeValue("fileName"));
     }
 

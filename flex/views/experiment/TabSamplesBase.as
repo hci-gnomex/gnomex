@@ -30,6 +30,7 @@ import views.renderers.TextInputSampleConcentration;
 import views.renderers.URLRenderer;
 import views.util.AnnotationAdvancedDataGridColumn;
 import views.util.CopySampleSheetColumnView;
+import views.util.SampleNumberValidator;
 import views.util.UploadSampleSheetView;
 
 [Bindable]
@@ -40,8 +41,17 @@ public class TabSamplesBase extends Canvas
     protected var downloadRequest:URLRequest;
     protected var downloadFileRef:FileReference;
 
-    public var sampleConcentrationFormatter:NumberFormatter;
+    public var sampleConcentrationFormatter: NumberFormatter;
     public var sampleVolumeFormatter:NumberFormatter;
+    protected var validate:SampleNumberValidator;
+
+    public var  VOLUME_MAX:Number = 99999;
+    public var QC_CONCENTRATION_MAX:Number = 99999;
+    public var QC_260_RATIO_MAX:Number = 9;
+    public var CONCENTRATION_MAX:Number = 99999;
+
+
+
 
     public var filteredSampleTypeList:XMLListCollection;
 
@@ -108,6 +118,7 @@ public class TabSamplesBase extends Canvas
         super();
         setupSampleConcentrationFormatter();
         setupSampleVolumeFormatter();
+        validate = new SampleNumberValidator()
     }
 
     public function setupSampleConcentrationFormatter(requestCategory:Object = null):void {
@@ -118,6 +129,7 @@ public class TabSamplesBase extends Canvas
             if (!isNaN(concentrationPrecision)) {
                 sampleConcentrationFormatter.precision = concentrationPrecision;
                 sampleConcentrationFormatter.rounding = NumberBaseRoundType.NEAREST;
+                sampleConcentrationFormatter.useThousandsSeparator = false;
             }
         }
     }
@@ -127,6 +139,7 @@ public class TabSamplesBase extends Canvas
         var concentrationPrecision:Number = 2;
         sampleVolumeFormatter.precision = concentrationPrecision;
         sampleVolumeFormatter.rounding = NumberBaseRoundType.NEAREST;
+        sampleVolumeFormatter.useThousandsSeparator = false;
     }
 
     import mx.collections.XMLListCollection;
@@ -454,6 +467,52 @@ public class TabSamplesBase extends Canvas
 
     protected function getNextPlate():int {
         return 0;
+    }
+    public function invalidNumber(value:String):Boolean{
+        if(isNaN(parseInt(value))){
+            if(value != ''){
+                return true;
+            }
+        }
+        return false;
+    }
+    public function validateSample():String{
+
+        var errorDict:Dictionary = new Dictionary();
+        var error:String = "";
+
+        for (var row:String in parentDocument.samples )
+        {
+
+            var sampleName:String = parentDocument.samples[row].(@name == "");
+            var qcConc:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualCalcConcentration") && @qualCalcConcentration != '');
+            var conc:XMLList= parentDocument.samples[row].(hasOwnProperty("@concentration") && @concentration != '');
+            var qc230:XMLList= parentDocument.samples[row].(hasOwnProperty("@qual260nmTo230nmRatio")&& @qual260nmTo230nmRatio != '');
+
+            // section for validating num text fields
+            var msgQCConc:String = validate.validateDecimal(qcConc.length() > 0 ? qcConc.@qualCalcConcentration  : "",QC_CONCENTRATION_MAX);
+            if(msgQCConc) {
+                errorDict["qcConc"] = msgQCConc + " in \"QC Conc.\" column.\n";
+            }
+            var msgConc:String = validate.validateDecimal(conc.length() > 0 ? conc.@concentration  : "",99999);
+            if(msgConc){
+                errorDict["conc"] = msgConc + " in \"Conc.\" column.\n";
+            }
+            var msgQC230:String = validate.validateDecimal(qc230.length() > 0 ? qc230.@qual260nmTo230nmRatio  : "",QC_260_RATIO_MAX);
+            if(msgQC230){
+                errorDict["qc230"] = msgQC230 + " in \"QC 260\\230\" column.\n"
+            }
+
+            // section for validating required text
+            if(sampleName != ""){
+                errorDict[sampleName] = "Please provide a name for all of your samples. \n";
+            }
+
+        }
+        for(var key:String in errorDict){
+            error +=errorDict[key];
+        }
+        return error;
     }
 
     public function uploadSampleSheet():void {

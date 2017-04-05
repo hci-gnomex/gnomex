@@ -46,10 +46,8 @@
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
 			import views.util.DictionaryHelper;
-			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
-			import views.util.SampleQCValidator;
 			
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
@@ -203,6 +201,28 @@
 				}
 				
 				return isValid;
+			}
+
+			override public function validateSample():String{
+				var errorDict:Dictionary = new Dictionary();
+				var superError:String = super.validateSample();
+				var error:String = "";
+
+				for (var row:String in parentDocument.samples) {
+					var libSize:XMLList = parentDocument.samples[row].(hasOwnProperty("@meanLibSizeActual") && @meanLibSizeActual != '');
+
+					var msgLib:String = validate.validateInteger(libSize.length() > 0 ? libSize.@meanLibSizeActual  : "");
+					if(msgLib){
+						errorDict["librarySize"] = msgLib  + " in \"Actual Ave. lib. Size\" column.\n";
+					}
+
+				}
+
+				for(var key:String in errorDict){
+					error += errorDict[key];
+				}
+				error += superError;
+				return error;
 			}
 			
 			override protected function uploadComplete(event:Event):void {
@@ -366,20 +386,6 @@
 							parentDocument.lanes.refresh();
 						}
 					}
-				}
-				
-				// Make sure that sample concentration is valid
-				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-				if (cw != "") {
-					parentDocument.userWarningsSamples += cw;
-					isComplete = false;
-				}
-				
-				// Make sure that sample QC is valid
-				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-				if (qcWarning != "") {
-					parentDocument.userWarningsSamples += qcWarning;
-					isComplete = false;
 				}
 
 				if (!parentDocument.isEditState()) {
@@ -839,8 +845,11 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" formatter="{sampleConcentrationFormatter}"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}"
+										   id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@concentration')}"
+										   editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -1034,7 +1043,8 @@
 										   width="80" 
 										   dataField="@qualCalcConcentration" 
 										   id="qualCalcConcCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qualCalcConcentration')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1045,7 +1055,13 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true">
+				<mx:AdvancedDataGridColumn id="meanLibSizeActual"
+										   visible="false"
+										   headerText="Actual Ave Lib Size"
+										   width="90"
+										   dataField="@meanLibSizeActual"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@meanLibSizeActual')}"
+										   editable="true">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
@@ -1061,7 +1077,8 @@
 										   width="80" 
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo230nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>

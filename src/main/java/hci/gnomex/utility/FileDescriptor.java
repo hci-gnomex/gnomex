@@ -21,6 +21,8 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	private static final double KB = Math.pow(2, 10);
 	private static final double MB = Math.pow(2, 20);
 	private static final double GB = Math.pow(2, 30);
+	private static int fileType = 1;		// assume it's analysis
+
 
 	private static final Logger LOG = Logger.getLogger(FileDescriptor.class);
 
@@ -47,6 +49,13 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	private String baseFilePath;
 	private List children = new ArrayList();
 	private boolean found = false;
+	private String [] theDirs = null;
+	private String protectedDir = null;
+	private String [] theDirsA = null;
+	private String protectedDirA = null;
+	private String [] theDirsE = null;
+	private String protectedDirE = null;
+	private String theBaseDir = null;
 
 	public FileDescriptor() {
 
@@ -61,7 +70,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		this.setSimpleName(file.getName());
 
 		try {
-			if (Util.isSymlink(file)) {
+			if (FileUtil.isSymlink(file)) {
 				this.setFileName(file.getPath().replace("\\", Constants.FILE_SEPARATOR));
 			} else {
 				this.setFileName(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
@@ -70,6 +79,10 @@ public class FileDescriptor extends DetailObject implements Serializable {
 			LOG.error("Error in FileDescriptor", e);
 			this.setFileName(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 		}
+
+		// remember the basedir
+		theBaseDir = baseDir;
+
 		// this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
 		if (new File(baseDir).isAbsolute()) {
 			this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
@@ -100,7 +113,18 @@ public class FileDescriptor extends DetailObject implements Serializable {
 
 		this.setType(ext);
 
-	}
+		// are there protected directories (for an analysis)?
+		protectedDir = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.PROTECTED_DIRECTORIES_ANALYSIS);
+		protectedDirA = protectedDir;
+//		System.out.println ("[FileDescriptor] protectedDir: " + protectedDir);
+		theDirs = file.getAbsolutePath().replace("\\","/").split("/");
+		theDirsA = theDirs;
+		// are there protected directories (for an experiment)?
+		protectedDirE = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.PROTECTED_DIRECTORIES_EXPERIMENT);
+//		System.out.println ("[FileDescriptor] protectedDir: " + protectedDirE);
+		theDirsE = file.getAbsolutePath().replace("\\","/").split("/");
+		setupProtected();
+    }
 
 	public String getFileSizeText() {
 
@@ -247,6 +271,23 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		this.flowCellIndicator = flowCellIndicator;
 	}
 
+	public static void setupFileType (int ft) {
+		fileType = ft;
+	}
+
+	public void setupProtected () {
+		if (fileType == 1) {
+			// it's an analysis file
+			protectedDir = protectedDirA;
+			theDirs = theDirsA;
+		}
+		else if (fileType == 2) {
+			// it's an experimemnt file
+			protectedDir = protectedDirE;
+			theDirs = theDirsE;
+		}
+	}
+
 	private Boolean isDirectory() {
 		return (this.type != null && this.type.equals("dir"));
 	}
@@ -258,7 +299,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		if (!isDirectory()) {
 			Boolean found = false;
 			for (String ext : Constants.FILE_EXTENSIONS_FOR_VIEW) {
-				if (this.fileName.toLowerCase().endsWith(ext)) {
+				if (this.fileName.endsWith(ext)) {
 					found = true;
 					break;
 				}
@@ -289,6 +330,28 @@ public class FileDescriptor extends DetailObject implements Serializable {
 
 	public boolean isFound() {
 		return this.found;
+	}
+
+	public String isProtected() {
+		String isP = "N";
+
+		// is it and experiment file or an analysis file?
+		String apath = getAbsolutePath();
+		if (protectedDir == null) {
+            return isP;
+        }
+
+//        System.out.println ();
+        for (int ii = 0; ii < theDirs.length; ii++) {
+//		    System.out.println ("[FileDescriptor:isProtected] protectedDir: " + protectedDir + " ii: " + ii + " dir:" + theDirs[ii]);
+		    if (protectedDir.equals(theDirs[ii])) {
+		        isP = "Y";
+//                System.out.println ("[FileDescriptor:isProtected] set Y");
+		        break;
+            }
+        }
+//        System.out.println ("[FileDescriptor:isProtected] returning: " + isP);
+		return isP;
 	}
 
 	public void registerMethodsToExcludeFromXML() {

@@ -34,17 +34,14 @@ public class DownloadABIRunFileServlet extends HttpServlet {
 
 private static Logger LOG = Logger.getLogger(DownloadABIRunFileServlet.class);
 
-private Integer idInstrumentRun;
-private InstrumentRun ir;
-private String codeReactionType = ReactionType.SEQUENCING_REACTION_TYPE;
-	private String username="";
-
 public void init() {
 
 }
 
 protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-
+	InstrumentRun ir = null;
+	Integer idInstrumentRun = null;
+	String codeReactionType = ReactionType.SEQUENCING_REACTION_TYPE;
 	// Restrict commands to local host if request is not secure
 	if (!ServletUtil.checkSecureRequest(req, LOG)) {
 		ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
@@ -76,7 +73,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 
 	InputStream in = null;
 	SecurityAdvisor secAdvisor = null;
-
+	String username = "";
 	try {
 
 		// Get security advisor
@@ -184,7 +181,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 								+ "\tInstrument Protocol 5\tAnalysis Protocol 5\t\r\n");
 			}
 
-			Element runNode = getRunWells(sess);
+			Element runNode = getRunWells(sess, ir);
 
 			if (runNode != null) {
 				Iterator i = runNode.getChildren("PlateWell").iterator();
@@ -302,7 +299,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 
 }
 
-private Element getRunWells(Session sess) {
+private Element getRunWells(Session sess, InstrumentRun ir) {
 
 	try {
 		Element irNode = ir.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
@@ -311,14 +308,14 @@ private Element getRunWells(Session sess) {
 
 			for (int col = 1; col <= 12; col++) {
 				for (int quadrant = 0; quadrant < 3; quadrant = quadrant + 2) {
-					Element wellNode = getWellNode(sess, row, col, quadrant);
+					Element wellNode = getWellNode(sess, row, col, quadrant, ir);
 					irNode.addContent(wellNode);
 				}
 			}
 			for (int col = 1; col <= 12; col++) {
 				for (int quadrant = 1; quadrant < 4; quadrant = quadrant + 2) {
 
-					Element wellNode = getWellNode(sess, row, col, quadrant);
+					Element wellNode = getWellNode(sess, row, col, quadrant, ir);
 					irNode.addContent(wellNode);
 				}
 			}
@@ -334,7 +331,7 @@ private Element getRunWells(Session sess) {
 	}
 }
 
-private Element getWellNode(Session sess, char row, int col, int quadrant) {
+private Element getWellNode(Session sess, char row, int col, int quadrant, InstrumentRun ir) {
 	try {
 
 		String plateQuery = "SELECT p from Plate as p where p.idInstrumentRun=" + ir.getIdInstrumentRun()

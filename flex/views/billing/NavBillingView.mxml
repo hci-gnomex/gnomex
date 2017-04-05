@@ -126,8 +126,8 @@
 			<idBillingPeriod>{lastSelectedBillingPeriod.@value}</idBillingPeriod>       	
 			<idLab>{labCombo.selectedItem.@idLab}</idLab>       	
 			<idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
-			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
-			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >  
 	
@@ -147,8 +147,8 @@
 			<invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
 			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
 			<idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
-			<idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>  
-			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
+			<idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >          
 	
@@ -167,8 +167,8 @@
 			<invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
 			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>       	
 			<idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>       	
-			<idCoreFacility>{coreFacilityCombo.selectedItem != null &amp;&amp; requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
-			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null &amp;&amp; requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >  
     
@@ -431,7 +431,9 @@
 
 		var params:Object = new Object();
 		params.idCoreFacility = this.getSelectedCoreFacilityId();
-		params.excludeNewRequests = this.getSelectedCoreFacilityId() == "2" ? "Y" : "N";
+		params.excludeNewRequests = coreFacilityCombo.selectedItem != null && parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N';
+
+
 		if (this.lastSelectedBillingPeriod == null) {
 			var currentBillingPeriod:Object = null;
 			for each(de in billingPeriods) {
@@ -1116,37 +1118,35 @@
 	}
 
 	private function gatherDisplayInfo(selectedItem:Object):void {
-
-		billingItemsDisplayed = new XMLListCollection();
-
-		billingItemsDisplayed.filterFunction = filterBillingItemsDisplayed;
-		billingItemsDisplayed.refresh();
-
 		var request:XML = null;
 		var lab:XML = null;
 
+		var requestNumbers:Object = new Object();
 		if (selectedItem.name() == "Status" && selectedItem.@status == 'PENDING') {
 			for each(request in selectedItem..Request) {
-				//billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == request.@idBillingAccount))));
-				billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == request.@idBillingAccount)));
+				requestNumbers[(request.@requestNumber).toString()] = (request.@requestNumber).toString();
 			}
 		} else if (selectedItem.name() == "Status") {
 			for each(lab in selectedItem..Lab) {
 				for each(request in lab.Request) {
-					//billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount))));
-					billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount)));
+					requestNumbers[(request.@requestNumber).toString()] = (request.@requestNumber).toString();
 				}
 			}
 		} else if (selectedItem.name() == "Lab") {
 			lab = XML(selectedItem);
 			for each(request in lab.Request) {
-				//billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount))));
-				billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == lab.@idBillingAccount)));
+				requestNumbers[(request.@requestNumber).toString()] = (request.@requestNumber).toString();
 			}
 		} else if (selectedItem.name() == "Request") {
-			//billingItemsDisplayed.addAll(this.buildRequestItems(new XMLListCollection(billingItems.source.(@requestNumber == selectedItem.@requestNumber && @idBillingAccount == selectedItem.@idBillingAccount))));
-			billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == selectedItem.@requestNumber && @idBillingAccount == selectedItem.@idBillingAccount)));
+			requestNumbers[(selectedItem.@requestNumber).toString()] = (selectedItem.@requestNumber).toString();
 		}
+
+		billingItemsDisplayed = new XMLListCollection();
+		for (var requestNumber:String in requestNumbers) {
+			billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == requestNumber)));
+		}
+		billingItemsDisplayed.filterFunction = filterBillingItemsDisplayed;
+		billingItemsDisplayed.refresh();
 
 		var invoicePrice:Number = new Number(0);
 
@@ -1189,61 +1189,6 @@
 		this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
 		this.billingItemGrid.selectedIndex = -1;
 	}
-
-//	/**
-//	 * This function rebuilds the request xml node and splitting the requests by billing account.
-//	 *
-//	 * @param billingItems		The current XMLListCollection representing the request.
-//	 * @return bid				The updated XMLListCollection representing the request/requests.
-//     */
-//	private function buildRequestItems(billingItems:XMLListCollection):XMLListCollection {
-//		var bid:XMLListCollection = new XMLListCollection();
-//		for each(var request:XML in billingItems) {
-//			var labAccount:String = null;
-//			var requestInvoicePrice:Number = 0;
-//			var rNode:XML = null;
-//
-//			if (request.children().length() < 1) {
-//				bid.addItem(request);
-//				continue;
-//			}
-//
-//			for each(var bi:XML in request.BillingItem) {
-//				if (bi.@idBillingAccount != labAccount) {
-//					if (rNode != null)
-//						rNode.@invoicePrice = currencyFormatter.format(requestInvoicePrice.toFixed(2).toString());
-//					requestInvoicePrice = 0;
-//					rNode = new XML(
-//							"<Request " +
-//							" idRequest='" + request.@idRequest + "'" +
-//							" idLab='" + request.@label + "'" +
-//							" requestNumber='" + request.@requestNumber + "'" +
-//							" label='" + request.@requestNumber + "'" +
-//							" codeRequestCategory='" + request.@codeRequestCategory + "'" +
-//							" idCoreFacility='" + request.@idCoreFacility + "'" +
-//							" icon='" + request.@icon + "'" +
-//							" type='" + request.@type + "'" +
-//							" submitter='" + request.@submitter + "'" +
-//							" billingLabName='" + bi.@labName + "'" +
-//							" billingAccountName='" + bi.@accountNameAndNumber + "'" +
-//							" idBillingAccount='" + bi.@idBillingAccount + "'" +
-//							" isExternalPricing='" + request.@isExternalPricing + "'" +
-//							" isExternalPricingCommercial='" + request.@isExternalPricingCommercial + "'" +
-//							" isDirty='" + request.@isDirty + "'" +
-//							" totalPrice='" + request.@totalPrice + "'" +
-//							"/>");
-//					bid.addItem(rNode);
-//				}
-//				requestInvoicePrice = sumInvoicePrice(requestInvoicePrice, bi);
-//				rNode.appendChild(bi);
-//				labAccount = bi.@idBillingAccount;
-//			}
-//			if (rNode != null)
-//				rNode.@invoicePrice = currencyFormatter.format(requestInvoicePrice.toFixed(2).toString());
-//
-//		}
-//		return bid;
-//	}
 
 	private function sumInvoicePrice(invoicePrice:Number, billingItem:Object):Number {
 		var price:String = billingItem.@invoicePrice;
