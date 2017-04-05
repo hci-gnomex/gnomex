@@ -25,7 +25,6 @@ String idCoreParm = idCoreFacility == null?"":("?idCore=" + idCoreFacility.toStr
 String href = "";
 CoreFacility facility = null;
 
-String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 List facilities = null;
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
@@ -36,9 +35,7 @@ String siteLogo = "";
 Session sess = null;
 try {
   sess = HibernateSession.currentReadOnlySession("guest");
-  PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-   
-  
+
   // Get site specific log
   siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
  
@@ -66,7 +63,6 @@ try {
   
 } catch (Exception e){
     LOG.error("Error in select_core.jsp", e);
-  message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
 	  HibernateSession.closeSession();

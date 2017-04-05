@@ -1,13 +1,12 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.utility.*;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderFile;
 import hci.gnomex.model.TransferLog;
-import hci.gnomex.utility.ProductOrderFileDescriptorUploadParser;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -92,11 +91,8 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 public Command execute() throws RollBackCommandException {
 
-	String status = null;
-	int[] nlines = {0};
-
+	List<String> problemFiles = new ArrayList<String>();
 	Session sess = null;
-	ArrayList tryLater = null;
 	if (filesXMLString != null) {
 		try {
 			sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
@@ -133,7 +129,7 @@ public Command execute() throws RollBackCommandException {
 				String qualifiedFilePath = contents[2];
 				String displayName = contents[3];
 
-				if (!Util.renameTo(f1,f2)) {
+				if (!FileUtil.renameTo(f1,f2)) {
 					throw new Exception("Error Renaming File, f1: " + f1.toString() + " f2: " + f2.toString());
 				} else {
 					// Rename the files in the DB
@@ -178,7 +174,6 @@ public Command execute() throws RollBackCommandException {
 			}
 
 			// Move files to designated folder
-			tryLater = new ArrayList();
 			for (Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext();) {
 
 				String directoryName = (String) i.next();
@@ -296,23 +291,8 @@ public Command execute() throws RollBackCommandException {
 						destFile.mkdirs();
 					}
 
-					boolean success = Util.renameTo (sourceFile, destFile);
-
-					// If the rename didn't work, check to see if the destination file was created, if so
-					// delete the source file.
-					if (!success) {
-						if (destFile.exists()) {
-							if (sourceFile.exists()) {
-									if (sourceFile.isDirectory()) {
-										// If can't delete directory then try again after everything has been moved
-										tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
-									} else {
-										status = Util.addProblemFile(status,fileName,nlines);
-									}
-								}
-						} else {
-							status = Util.addProblemFile(status,fileName,nlines);
-						}
+					if (!FileUtil.renameTo(sourceFile, destFile)) {
+						problemFiles.add(fileName);
 					}
 				}
 			}
@@ -378,18 +358,6 @@ public Command execute() throws RollBackCommandException {
 				}
 			}
 
-			if (tryLater != null) {
-				for (Iterator i = tryLater.iterator(); i.hasNext();) {
-					String fileName = (String) i.next();
-					File deleteFile = new File(fileName);
-					if (deleteFile.exists()) {
-						// Try to delete but don't throw error if unsuccessful.
-						// Just leave it to user to sort out the problem.
-						deleteFile.delete();
-					}
-				}
-			}
-
 			// clean up ghost files
 			String queryBuf = "SELECT pof from ProductOrderFile pof where pof.idProductOrder = :idProductOrder";
 			Query query = sess.createQuery(queryBuf);
@@ -406,17 +374,17 @@ public Command execute() throws RollBackCommandException {
 				}
 			}
 
+			String stagingDirectory = baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
+			FileUtil.pruneEmptyDirectories(stagingDirectory);
+
 			sess.flush();
 
-			XMLOutputter out = new org.jdom.output.XMLOutputter();
 			this.xmlResult = "<SUCCESS";
-			if (status != null) {
-				this.xmlResult += " warning= \"" + status;
-				this.xmlResult += "\"/>";
-			} else {
-				this.xmlResult += "/>";
+			if (problemFiles.size() > 0) {
+				String problemFileWarning = "Warning: Unable to move some files:\n" + Util.listToString(problemFiles, "\n", 5);
+				this.xmlResult += " warning=" + '"' + problemFileWarning + '"';
 			}
-//			System.out.println ("[OPOULF] this.xmlResult: " + this.xmlResult);
+			this.xmlResult += "/>";
 
 			setResponsePage(this.SUCCESS_JSP);
 

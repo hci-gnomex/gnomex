@@ -58,15 +58,12 @@ boolean showUserSignup = true;
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
 GNomExFrontController.setWebContextPath(webContextPath);
 
-boolean showCampusInfoLink = false;
+boolean isUniversityUserAuthentication = false;
 String siteLogo = "";
 Session sess = null;
 try {
   sess = HibernateSession.currentSession("guest");
-  PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
-    showCampusInfoLink = true;
-  }  
+  isUniversityUserAuthentication = PropertyDictionaryHelper.getInstance(sess).isUniversityUserAuthentication();
     
   // Determine if user sign up screen is enabled
   PropertyDictionary disableUserSignup = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.DISABLE_USER_SIGNUP + "'").uniqueResult();
@@ -79,7 +76,7 @@ try {
   
 } catch (Exception e){
     LOG.error("Error in reset_password.jsp", e);
-  message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
+  message = "Cannot obtain properties " + e.toString() + " sess=" + sess;
 } finally {
   try {
 	  HibernateSession.closeSession();
@@ -127,7 +124,7 @@ try {
       <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
       <a href="#" onclick="showEmail()" class="lookup" id="forgotUserName">Lookup by email</a>
       
-<% if (showCampusInfoLink) { %>
+<% if (isUniversityUserAuthentication) { %>
 <div class="bottomPanel">
 
 If you have registered using your uNID (u00000000), your password is tied to the University Campus Information System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a> to change or reset your password.

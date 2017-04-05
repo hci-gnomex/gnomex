@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.framework.control.Command;
-import hci.gnomex.utility.Util;
+import hci.gnomex.utility.*;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
@@ -16,9 +16,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,14 +24,12 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import hci.gnomex.utility.Util;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serializable {
 
@@ -101,10 +96,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
     public Command execute() throws RollBackCommandException {
 
-        String status = null;
-        int[] nlines = {0};
+        List<String> problemFiles = new ArrayList<String>();
         Session sess = null;
-        ArrayList tryLater = null;
         if (filesXMLString != null) {
             try {
                 sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
@@ -146,8 +139,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         String qualifiedFilePath = contents[2];
                         String displayName = contents[3];
 
+
+                        if (!FileUtil.renameTo(f1,f2)) {
                         System.out.println("[OAUF] renaming files f1: " + f1.getPath() + " f2: " + f2.getPath());
-                        if (!Util.renameTo(f1, f2)) {
                             throw new Exception("Error Renaming File");
                         } else {
                             // Rename the files in the DB
@@ -188,15 +182,14 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                         sess.save(af);
                                         sess.flush();
 
-                                    }
-                                }
-                            }
-                        }
+                                    } // end of for
+                                } // end of else
+                            } // end of if
+                        }  // end of else
 
                     }
 
                     // Move files to designated folder
-                    tryLater = new ArrayList();
                     for (Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext(); ) {
 
                         String directoryName = (String) i.next();
@@ -284,7 +277,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                     af.setQualifiedFilePath(qualifiedFilePath);
                                     System.out.println("[OAUF] l 280 idFileString: " + idFileString + " fileName: " + fileName);
                                     sess.save(af);
-                                    sess.flush();
                                 }
                             }
 
@@ -315,7 +307,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             // if the destination file exists and is not a directory, this is bad, don't mess with it
                             // tell the user we have a problem
                             if (destFile.exists() && !destFile.isDirectory()) {
-                                status = Util.addProblemFile("File with same name already exists.", fileName, nlines);
+                                problemFiles.add(fileName);
+//                                status = Util.addProblemFile("File with same name already exists.", fileName, nlines);
                                 System.out.println("[OAUF] renameTo sourceFile **FAILED** file exists: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
                                 continue;
                             }
@@ -326,27 +319,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             }
 
                             System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
-                            boolean success = Util.renameTo(sourceFile, destFile);
-
-                            // If the rename didn't work, check to see if the destination file was created, if so
-                            // delete the source file.  NOOOOOOOOOOOOOOOOOOOOOO
-                            // NOTE: Nothing should ever end up in tryLater now things are processed in filesystem order
-                            if (!success) {
-                                if (destFile.exists()) {    // destFile will always be a directory when we get here
-                                    if (sourceFile.exists()) {
-                                        if (sourceFile.isDirectory()) {
-                                            // If can't delete directory then try again after everything has been moved
-                                            System.out.println("[OAUF] ADDING To tryLater!!! " + sourceFile.getAbsolutePath());
-                                            tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
-                                        } else {
-                                            System.out.println("[OAUF] 1 addProblemFile " + fileName);
-                                            status = Util.addProblemFile(status, fileName, nlines);
-                                        }
-                                    }
-                                } else {
-                                    System.out.println("[OAUF] 2 addProblemFile " + fileName);
-                                    status = Util.addProblemFile(status, fileName, nlines);
-                                }
+                            if (!FileUtil.renameTo(sourceFile, destFile)) {
+                                problemFiles.add(fileName);
                             }
                         }
                     }
@@ -425,22 +399,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             }
                         }
                     }
-
-                    if (tryLater != null) {
-                        for (Iterator i = tryLater.iterator(); i.hasNext(); ) {
-                            String fileName = (String) i.next();
-                            System.out.println("[OAUF] trylater file: " + fileName + " idAnalysis: " + idAnalysis);
-                            File deleteFile = new File(fileName);
-                            if (deleteFile.exists() && deleteFile.isDirectory()) {
-                                // Try to delete but don't throw error if unsuccessful.
-                                // Just leave it to user to sort out the problem.
-                                // Directory probably contains files we couldn't move (because they're already there)
-                                deleteFile.delete();
-
-                            }
-                        }
-                    }
-
                     // clean up ghost files
                     String queryBuf = "SELECT af from AnalysisFile af where af.idAnalysis = :idAnalysis";
                     Query query = sess.createQuery(queryBuf);
@@ -459,22 +417,20 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         System.out.println("[OAUF] remove ghost file: " + filePath);
                         analysis.getFiles().remove(af);
                     }
+
                     System.out.println("[OAUF] l 430 *** at the end ***");
                     sess.flush();
 
-                    // get rid of empty upload_staging directory
-                    deleteEmptyUploadStagingDirs(baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR);
+                    String stagingDirectory = baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
+                    FileUtil.pruneEmptyDirectories(stagingDirectory);
 
-                    XMLOutputter out = new org.jdom.output.XMLOutputter();
                     this.xmlResult = "<SUCCESS";
-                    if (status != null) {
-                        this.xmlResult += " warning= \"" + status;
-                        this.xmlResult += "\"/>";
-                    } else {
-                        this.xmlResult += "/>";
+                    if (problemFiles.size() > 0) {
+                        String problemFileWarning = "Warning: Unable to move some files:\n" + Util.listToString(problemFiles, "\n", 5);
+                        this.xmlResult += " warning=" + '"' + problemFileWarning + '"';
                     }
+                        this.xmlResult += "/>";
 //                    System.out.println ("[OAULF] this.xmlResult: " + this.xmlResult);
-
                     setResponsePage(this.SUCCESS_JSP);
 
                 } else {
@@ -518,27 +474,4 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
         return true;
     }
 
-    private void deleteEmptyUploadStagingDirs(String filePath) {
-        File f = new File(filePath);
-        if (f.exists()) {
-            String[] files = f.list();
-            if (f.list().length == 0) {
-                f.delete();
-            } else {
-                for (int i = 0; i < files.length; i++) {
-                    File fChild = new File(f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + files[i]);
-                    if (fChild.isDirectory()) {
-                        deleteEmptyUploadStagingDirs(fChild.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                     }
-                }
-                // if after going through the list the file list is now empty then delete the file
-                if (f.list().length == 0) {
-                    f.delete();
-                }
-            }
-        }
-
-    }
-
-
-}

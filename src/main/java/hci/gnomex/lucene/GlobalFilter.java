@@ -65,7 +65,7 @@ public class GlobalFilter extends DetailObject {
       // Search by text1
       boolean textCriteriaAdded = false;
       if (text1 != null && !text1.equals("")){
-    	text1 = SearchIndex.truncateSearchWithApostrophe(text1); // Kludge for dealing with apostrophes in search
+    	text1 = SearchIndex.escapeSearchText(text1); // Kludge for dealing with apostrophes in search
         searchText.append(" " + GlobalIndexHelper.TEXT + ":");
         searchText.append("*" + text1 + "*");
         textCriteriaAdded = true;

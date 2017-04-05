@@ -91,8 +91,8 @@ public class Constants {
 
   public static final String   FDT_DOWNLOAD_INFO_FILE_NAME                    = "fdtDownloadInfoFile.txt";
 
-/* Keep lower case. */
-public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
+  /* Keep lower case. */
+  public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
 		".bam.bai", // this
 		// must
 		// precede
@@ -102,7 +102,7 @@ public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
 		".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi",
 		".narrowPeak", ".broadPeak", ".gappedPeak", ".ped" };
 
-public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed",
+  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed",
 		".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".narrowPeak", ".broadPeak", ".gappedPeak", ".ped" };
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] { ".bed", ".bgn", ".gff", ".gtf", ".psl", };
@@ -123,8 +123,14 @@ public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] {
 
   public static final String[] FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS             = new String[] { ".vcf.gz", };
 
-public static final String[] FILE_EXTENSIONS_FOR_VIEW = new String[] { ".pdf", ".jpg", ".png", ".gif", ".rtf", ".txt",
-		".html", ".htm", ".csv", ".ppt", ".pptx", ".xls", ".xlsx", ".xml", ".ped" };
+  /**
+   * Note: .Rmd and .md files are a custom file type created by a customer. GNomEx will serve them to the browser, but
+   *       the browser must be told what to do with them by the customer, as it is out of our domain at that point.
+   */
+  public static final String[] FILE_EXTENSIONS_FOR_VIEW = new String[] { ".pdf", ".jpg", ".png", ".gif", ".rtf", ".txt",
+		".html", ".htm", ".csv", ".ppt", ".pptx", ".xls", ".xlsx", ".xml", ".ped", ".Rmd", ".md" };
+
+  public static final String[] FILE_EXTENSIONS_FOR_VIEW_CUSTOM_TEXT_FILES = new String[] { ".Rmd", ".md" };
 
   public static final String[] SEQUENCE_FILE_EXTENSIONS                       = new String[] { ".bnib", ".fasta", };
 

@@ -47,18 +47,15 @@ boolean showUserSignup = true;
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
 GNomExFrontController.setWebContextPath(webContextPath);
 
-boolean showCampusInfoLink = false;
+boolean isUniversityUserAuthentication = false;
 String siteLogo = "";
 Session sess = null;
 String guid = "";
 String userName = "";
 try {
   sess = HibernateSession.currentReadOnlySession("guest");
-  PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-  if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
-    showCampusInfoLink = true;
-  }  
-    
+    isUniversityUserAuthentication = PropertyDictionaryHelper.getInstance(sess).isUniversityUserAuthentication();
+
   // Determine if user sign up screen is enabled
   PropertyDictionary disableUserSignup = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.DISABLE_USER_SIGNUP + "'").uniqueResult();
   if (disableUserSignup != null && disableUserSignup.getPropertyValue().equals("Y")) {
@@ -93,7 +90,7 @@ if(ts.after(au.getGuidExpiration())){
    
 } catch (Exception e){
     LOG.error("Error in change_password.jsp", e);
-  message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
+  message = "Cannot obtain properties " + e.toString() + " sess=" + sess;
 } finally {
   try {
 	  HibernateSession.closeSession();
@@ -145,7 +142,7 @@ if(ts.after(au.getGuidExpiration())){
 
       <div class="buttonPanel"><input type="button" class="submit" value="Submit" onclick="validateAndSubmit();" /></div>
 
-<% if (showCampusInfoLink) { %>
+<% if (isUniversityUserAuthentication) { %>
       <div class="bottomPanel">
       If you have registered using your uNID (u0000000), your password is tied to the University Campus Information System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a> to change or reset your password.
       </div>

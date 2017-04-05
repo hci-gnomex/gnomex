@@ -1438,6 +1438,16 @@
 					}
 				}			
 			}
+
+			private function setReagentBoxStyle(styleName:String):void {
+				this.reagentBox.styleName = styleName;
+				this.reagentInput.styleName = styleName;
+			}
+
+			private function setBufferBoxStyle(styleName:String):void {
+				this.elutionBox.styleName = styleName;
+				this.elutionBufferInput.styleName = styleName;
+			}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
@@ -1550,12 +1560,20 @@
 				<mx:VBox verticalAlign="middle">
 					<mx:HBox styleName="requiredBox" id="reagentBox">
 						<mx:Label text="(a) Specify the kit or reagents used for purification of the samples you will be submitting"/>
-						<mx:TextInput id="reagentInput" focusOut="{propagateReagent(); this.checkSampleSetupCompleteness(); reagentInput.text.length > 0 ? reagentBox.styleName = 'normalBox' : reagentBox.styleName='requiredBox'}" />
 					</mx:HBox>
+					<mx:VBox>
+						<mx:HBox>
+							<mx:TextInput styleName="requiredBox" id="reagentInput" focusOut="{propagateReagent(); this.checkSampleSetupCompleteness(); reagentInput.text.length > 0 ? this.setReagentBoxStyle('normalBox') : setReagentBoxStyle('requiredBox')}" width="800" maxChars="100"/>
+						</mx:HBox>
+					</mx:VBox>
 					<mx:HBox styleName="requiredBox" id="elutionBox">
 						<mx:Label text="(b) Specify the Elution Buffer used for purification of the samples you will be submitting"/>
-						<mx:TextInput id="elutionBufferInput" focusOut="{propagateElutionBuffer(); this.checkSampleSetupCompleteness(); elutionBufferInput.text.length > 0 ? elutionBox.styleName = 'normalBox' : elutionBox.styleName='requiredBox'}" />
 					</mx:HBox>
+					<mx:VBox>
+						<mx:HBox>
+							<mx:TextInput styleName="requiredBox" id="elutionBufferInput" focusOut="{propagateElutionBuffer(); this.checkSampleSetupCompleteness(); elutionBufferInput.text.length > 0 ? this.setBufferBoxStyle('normalBox') : this.setBufferBoxStyle('requiredBox')}" width="800" maxChars="100"/>
+						</mx:HBox>
+					</mx:VBox>
 					<mx:HBox id="dnaseBox" includeInLayout="false" visible="false">
 						<mx:Label text="(c) Click if RNA samples were treated with DNase" id="dnaseLabel"/>
 						<mx:CheckBox id="dnaseCheckBox" click="{propagateDnase()}" change="{this.checkSampleSetupCompleteness()}"/>

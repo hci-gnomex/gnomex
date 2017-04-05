@@ -71,12 +71,7 @@
 		
 	     private function onGetLab(event:ResultEvent):void {
           parentApplication.navUsersView.fullLab = getLab.lastResult.Lab.(@idLab = savedIdLab);
-          
-          var itemToSelect:XML = new XML("<Lab id='" + savedIdLab + "'/>");
-          parentApplication.navUsersView.itemToSelect = itemToSelect;
-
-          parentApplication.navUsersView.refreshGroupList();
-          parentApplication.navUsersView.labSearchText.text = String(parentApplication.navUsersView.fullLab.@name).replace(" (inactive)", "");
+          parentApplication.navUsersView.resetLabSearchAfterAdd(savedIdLab.toString());
         }
 				
 		private function checkEmailValidity(event:KeyboardEvent):void {

@@ -566,10 +566,10 @@ private boolean checkSampleExperimentFile(Session sess, List requestIdList) {
 		// check to see if there are any for the experiment files we have
 		// buf = new StringBuffer
 		// ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead1 = ef.idExperimentFile and ef.idRequest in (" +
-		// Util.listIntToString(requestIdList) + ")");
+		// Util.listToString(requestIdList) + ")");
 		buf = new StringBuffer(
 				"SELECT count(*) from SampleExperimentFile sef where sef.idExpFileRead1 in (select idExperimentFile from ExperimentFile where idRequest in ("
-						+ Util.listIntToString(requestIdList) + "))");
+						+ Util.listToString(requestIdList) + "))");
 		List results1 = sess.createQuery(buf.toString()).list();
 		int qty1 = (int) (long) results1.get(0);
 
@@ -577,10 +577,10 @@ private boolean checkSampleExperimentFile(Session sess, List requestIdList) {
 			// check idExpFileRead2
 			// buf = new StringBuffer
 			// ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead2 = ef.idExperimentFile and ef.idRequest in (" +
-			// Util.listIntToString(requestIdList) + ")");
+			// Util.listToString(requestIdList) + ")");
 			buf = new StringBuffer(
 					"SELECT count(*) from SampleExperimentFile sef where sef.idExpFileRead2 in (select idExperimentFile from ExperimentFile where idRequest in ("
-							+ Util.listIntToString(requestIdList) + "))");
+							+ Util.listToString(requestIdList) + "))");
 			List results2 = sess.createQuery(buf.toString()).list();
 			int qty2 = (int) (long) results2.get(0);
 

@@ -70,7 +70,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		this.setSimpleName(file.getName());
 
 		try {
-			if (Util.isSymlink(file)) {
+			if (FileUtil.isSymlink(file)) {
 				this.setFileName(file.getPath().replace("\\", Constants.FILE_SEPARATOR));
 			} else {
 				this.setFileName(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
@@ -299,7 +299,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		if (!isDirectory()) {
 			Boolean found = false;
 			for (String ext : Constants.FILE_EXTENSIONS_FOR_VIEW) {
-				if (this.fileName.toLowerCase().endsWith(ext)) {
+				if (this.fileName.endsWith(ext)) {
 					found = true;
 					break;
 				}
