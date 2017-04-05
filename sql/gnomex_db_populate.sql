@@ -879,7 +879,6 @@ INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescri
  ('fdt_directory_gnomex', '', 'The fdt staging directory (file path) that is accessible from gnomex application server.', 'N'),
  ('fdt_client_codebase', '', 'The URL that the fdtClient.jar is served from.', 'N'),
  ('fdt_server_name', '', 'The server name that the fdt server is running on', 'N'),
- ('fdt_file_daemon_task_dir', '', 'Location for fdtfilemonitor task files (these contain info on source/target folders for moving files after completion of uploads).', 'N'),
  ('fdt_user', 'fdt', 'User account that fdt server runs under.', 'N'),
  ('fdt_group', 'fdtsecurity', 'Unix group for fdt user account.', 'N'),
  ('usage_user_visibility', 'none', 'Permission level for non-admin gnomex users to view lab usage data. [none, masked, full]', 'N'),

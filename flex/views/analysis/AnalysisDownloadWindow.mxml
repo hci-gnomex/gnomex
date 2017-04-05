@@ -444,7 +444,7 @@
 							 styleName="instructionBox" 
 							 editable="false" wordWrap="true"  
 							 text="Drag files or folders that you want to download. Hold CTRL or SHIFT key to select multiple files." 
-							 toolTip="Drag the files you wish to download to the right panel.  Drag files you do not want to download back to the left."/>
+							 toolTip="Drag the files you wish to download to the right panel.  Drag files you do not want to download back to the left.  Protected files (xxxx) cannot be moved or deleted."/>
 				
 				
 			</mx:HBox>

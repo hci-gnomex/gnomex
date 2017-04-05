@@ -138,6 +138,61 @@ public class ProjectRequestFilter extends DetailObject {
 
   }
 
+  // Same query as above except there are placeholders for the fields we don't need
+  public StringBuffer getQueryLite(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
+    this.secAdvisor = secAdvisor;
+    this.dictionaryHelper = dictionaryHelper;
+    queryBuf = new StringBuffer();
+    addWhere = true;
+
+    queryBuf.append(" SELECT distinct project.idProject, project.name, project.description, '', ");
+    queryBuf.append("        req.idRequest, req.number, req.createDate, '', 0, 0, 0,");
+    queryBuf.append("        project.idLab, req.idLab, project.idAppUser, req.idAppUser, req.codeRequestCategory, req.codeApplication, lab.lastName, lab.firstName, '', projectLab.lastName, projectLab.firstName, ");
+    queryBuf.append("        '', req.codeVisibility,");
+    queryBuf.append("        projectOwner.firstName, projectOwner.lastName, ");
+    queryBuf.append("        reqOwner.firstName, reqOwner.lastName, req.isExternal, req.name, '', req.idInstitution, req.idSubmitter ");
+
+    getQueryBodyLite(queryBuf);
+
+    return queryBuf;
+
+  }
+
+  public void getQueryBodyLite(StringBuffer queryBuf) {
+
+    queryBuf.append(" FROM                Project as project ");
+    queryBuf.append(" JOIN                project.lab as projectLab ");
+    queryBuf.append(" JOIN                project.appUser as projectOwner ");
+    queryBuf.append(" LEFT JOIN           project.requests as req ");
+    queryBuf.append(" LEFT JOIN           req.appUser as reqOwner ");
+    queryBuf.append(" LEFT JOIN           req.lab as lab ");
+    queryBuf.append(" LEFT JOIN           req.collaborators as collab ");
+
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)
+            && (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES))) {
+      // Admins must do security limit by lab core facility.
+      queryBuf.append(" LEFT JOIN           projectLab.coreFacilities as labFacilities ");
+    }
+
+    if (experimentDesignCodes != null && experimentDesignCodes.size() > 0) {
+      queryBuf.append(" JOIN           project.experimentDesignEntries as ede ");
+    }
+    if (experimentFactorCodes != null && experimentFactorCodes.size() > 0) {
+      queryBuf.append(" JOIN           project.experimentFactorEntries as efe ");
+    }
+    addProjectCriteria();
+    addRequestCriteria();
+    addSecurityCriteria();
+
+    if (this.showCategory.equals("Y")) {
+      queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.codeRequestCategory, req.codeApplication, req.createDate desc, req.idRequest desc");
+    } else {
+      queryBuf.append(" order by projectLab.lastName, projectLab.firstName, project.name, req.createDate desc, req.idRequest desc");
+    }
+
+  }
+
+
   public void getQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM                Project as project ");

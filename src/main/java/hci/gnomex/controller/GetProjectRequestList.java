@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.utility.*;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Lab;
@@ -11,9 +12,6 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.model.WorkItem;
-import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -48,6 +46,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private String               listKind = "ProjectRequestList";
   private String               showMyLabsAlways = "N";
   private Boolean              hasQcWorkItems = false;
+  private String               isLite = "N";
 
 
   private int                  experimentCount = 0;
@@ -67,6 +66,12 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
     if (request.getParameter("showMyLabsAlways") != null && !request.getParameter("showMyLabsAlways").equals("")) {
       showMyLabsAlways = request.getParameter("showMyLabsAlways");
+    }
+
+    if (request.getParameter("isLite") != null && !request.getParameter("isLite").equals("")) {
+      // more filling and less calories....
+      // we figure this out based on the fast_browse_experiments property
+      isLite = request.getParameter("isLite");
     }
 
     if (request.getParameter("listKind") != null && !request.getParameter("listKind").equals("")) {
@@ -112,6 +117,15 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
         DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
+        // so we know what protected directories to use (i.e., experiment not analysis)
+        FileDescriptor.setupFileType(2);
+
+        // use fast mode?
+        if (useFastMode(sess)) {
+          isLite = "Y";
+        }
+        else isLite = "N";
+
         HashMap myLabMap = new HashMap();
         if (showMyLabsAlways.equals("Y")) {
           for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
@@ -122,37 +136,41 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           }
         }
 
-        //        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
-        //        	filter.setIsForExternalDataSharingSite(true);
-        //        }
-
-
         String message = "";
-        StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
-        LOG.info("Query for GetProjectRequestList: " + buf.toString());
+        StringBuffer buf = null;
+        if (isLite.equals("N")) {
+          buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
+        }
+        else {
+          buf = filter.getQueryLite(this.getSecAdvisor(), dictionaryHelper);
+        }
+//        System.out.println ("[GetProjectRequestList] isLite: " + isLite + " Query for GetProjectRequestList: " + buf.toString());
         Query query = sess.createQuery(buf.toString());
         results = (List)query.list();
 
-
-        buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
-        LOG.info("Query for GetProjectRequestList: " + buf.toString());
-        List analysisResults = (List)sess.createQuery(buf.toString()).list();
+        // if isLite don't get the analysis stuff
         HashMap analysisMap = new HashMap();
-        for(Iterator i = analysisResults.iterator(); i.hasNext();) {
-          Object[] row = (Object[])i.next();
-          Integer idRequest      = (Integer)row[0];
-          String  analysisNumber = (String)row[1];
-          String  analysisName   = (String)row[2];
+        if (isLite.equals("N")) {
+          buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
+          LOG.info("Query for GetProjectRequestList: " + buf.toString());
+          List analysisResults = (List) sess.createQuery(buf.toString()).list();
+          analysisMap = new HashMap();
+          for (Iterator i = analysisResults.iterator(); i.hasNext(); ) {
+            Object[] row = (Object[]) i.next();
+            Integer idRequest = (Integer) row[0];
+            String analysisNumber = (String) row[1];
+            String analysisName = (String) row[2];
 
-          StringBuffer names = (StringBuffer)analysisMap.get(idRequest);
-          if (names == null) {
-            names = new StringBuffer();
+            StringBuffer names = (StringBuffer) analysisMap.get(idRequest);
+            if (names == null) {
+              names = new StringBuffer();
+            }
+            if (names.length() > 0) {
+              names.append(", ");
+            }
+            names.append(analysisNumber + " (" + analysisName + ")");
+            analysisMap.put(idRequest, names);
           }
-          if (names.length() > 0) {
-            names.append(", ");
-          }
-          names.append(analysisNumber + " (" + analysisName + ")");
-          analysisMap.put(idRequest, names);
         }
 
         Integer prevIdLab      = new Integer(-1);
@@ -163,6 +181,11 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
 
         Integer maxExperiments = getMaxExperiments(sess);
+//        if (isLite.equals("Y")) {
+//          if (maxExperiments < 5000) {
+//            maxExperiments = 5000;
+//         }
+//        }
 
         Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dictionaryHelper, results, 4, 15);
 
@@ -282,6 +305,18 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     return this;
   }
 
+  private boolean useFastMode (Session sess) {
+    boolean fast = false;
+
+    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FAST_BROWSE_EXPERIMENTS);
+    if (prop != null && prop.length() > 0) {
+      if (prop.equalsIgnoreCase("ON") || prop.equalsIgnoreCase("YES") || prop.equalsIgnoreCase("TRUE")) {
+        fast = true;
+      } else fast = false;
+    }
+    return fast;
+  }
+
   private Integer getMaxExperiments(Session sess) {
     Integer maxExperiments = DEFAULT_MAX_REQUESTS_COUNT;
     String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
@@ -361,16 +396,18 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         request = sess.load(Request.class, (Integer) row[4]);
     }
     BillingTemplate billingTemplate = null;
-    if (request != null) {
-        billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
-    }
-    if (billingTemplate != null) {
-      canOpenNewBillingTemplate = billingTemplate.canBeDeactivated(sess);
-    }
-    if (billingTemplate != null && billingTemplate.getItems() != null && billingTemplate.getItems().size() > 1) {
-        hasMultipleAccounts = true;
-    }
 
+    if (isLite.equals("N")) {
+      if (request != null) {
+        billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+      }
+      if (billingTemplate != null) {
+        canOpenNewBillingTemplate = billingTemplate.canBeDeactivated(sess);
+      }
+      if (billingTemplate != null && billingTemplate.getItems() != null && billingTemplate.getItems().size() > 1) {
+        hasMultipleAccounts = true;
+      }
+    }
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
     requestNode.setAttribute("requestNumber",          row[5] == null ? ""  : (String)row[5]);

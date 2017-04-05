@@ -247,7 +247,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
           response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):");
           response.getOutputStream().println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Download Command Line link.");
-          response.getOutputStream().println("java -jar ./fdt.jar -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
+          response.getOutputStream().println("java -jar ./fdt.jar -noupdates -ka 999999 -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
           response.getOutputStream().flush();
           return;
         }
@@ -271,7 +271,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           out.println("3) Execute the following on the command line after changing the path2xxx variables:");
           out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Download Command Line link.");
           out.println("");
-          out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+          out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -noupdates -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
           out.println("");
           out.println("-->");	
           out.println("<information>");

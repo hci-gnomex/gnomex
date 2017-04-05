@@ -372,7 +372,7 @@
 		import views.util.UploadMultiRequestSampleSheetView;
 		import views.util.VerifyEmailWindow;
 		import views.workflow.FlowCellView;
-
+//		import views.util.FPBootstrap;
 		import flash.utils.getTimer;
 
 
@@ -425,6 +425,8 @@
 		private var userPublicView:UserPublicView;
 
 		private var cursorID:Number = 0;
+
+		public var searchIDPresent:Boolean = false;
 
 		public var uploadSampleSheetURL:String = null;
 
@@ -1310,6 +1312,8 @@
 		}
 
 		protected function applicationCompleteHandler(event:FlexEvent):void {
+//			FPBootstrap.flex_pilotLibPath = 'http://localhost/gnomex/FlexPilot.swf';
+//			FPBootstrap.init(stage);
 			//set focus to this app using javascript
 			if (ExternalInterface.available) {
 				ExternalInterface.call("eval", "document.getElementById('" + ExternalInterface.objectID + "').tabIndex=0");
@@ -1364,6 +1368,7 @@
 		private function lookupExperiment():void {
 			var number:String = requestNumber.text;
 			number = number.toUpperCase();
+			searchIDPresent = true;
 			if (number.indexOf("DT") == 0) {
 				this.showDataTrackForNumber(number);
 			} else if (number.indexOf("A") == 0) {

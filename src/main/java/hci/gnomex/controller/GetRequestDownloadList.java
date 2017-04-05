@@ -70,6 +70,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 	if (request.getParameter("includeUploadStagingDir") != null
 			&& !request.getParameter("includeUploadStagingDir").equals("")) {
 		includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
+		System.out.println ("[GetRequestDownloadList] includeUploadStagingDir " + includeUploadStagingDir);
 	}
 
 	if (request.getParameter("whereami") != null) {
@@ -408,6 +409,7 @@ public Command execute() throws RollBackCommandException {
 
 		XMLOutputter out = new org.jdom.output.XMLOutputter();
 		this.xmlResult = out.outputString(doc);
+		System.out.println ("[GetRequestDownloadList] xmlResult:\n" + xmlResult);
 
 		setResponsePage(this.SUCCESS_JSP);
 	} catch (Exception e) {
@@ -477,6 +479,7 @@ public static void addExpandedFileNodes(Session sess, String serverName, String 
 					fdNode.setAttribute("isSelected", "N");
 					fdNode.setAttribute("state", "unchecked");
 					fdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fd.getZipEntryName()));
+					fdNode.setAttribute("PROTECTED",fd.isProtected());
 
 					if (fd.getChildren().size() > 0) {
 						recurseAddChildren(fdNode, fd, isFlowCellDirectory, sess);
@@ -527,6 +530,7 @@ private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolea
 		childFdNode.setAttribute("canDelete", isFlowCellDirectory ? "N" : "Y");
 		childFdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
 		childFdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, childFd.getZipEntryName()));
+		childFdNode.setAttribute("PROTECTED",childFd.isProtected());
 
 		if (!childFd.getType().equals("dir")) {
 			childFdNode.setAttribute("viewURL", childFd.getViewURL(viewType));
@@ -674,6 +678,7 @@ private void addRootFileNodes(String baseDir, Element requestNode, String reques
 					getLinkedSampleNumber(sess,
 							fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
 			fdNode.setAttribute("viewURL", fdesc.getViewURL(viewType));
+			fdNode.setAttribute("PROTECTED",fdesc.isProtected());
 
 			if (f1.isDirectory()) {
 				fdNode.setAttribute("type", "dir");
@@ -735,6 +740,7 @@ private void recurseAddFiles(Element fdNode, File f1, String requestNumber, Stri
 
 		fileNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fd.getZipEntryName()));
 		fileNode.setAttribute("viewURL", fd.getViewURL(viewType));
+		fileNode.setAttribute("PROTECTED",fd.isProtected());
 		if (f.isDirectory()) {
 			fileNode.setAttribute("type", "dir");
 			recurseAddFiles(fileNode, f, requestNumber, directoryName, sess);

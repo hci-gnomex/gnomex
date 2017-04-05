@@ -562,12 +562,20 @@
                 parent = XML(downloadTree.selectedItem).parent();
             }
 
+			// is the parent protected?
+			var protectedAttribute:String = "N";
+			if (isProtected(parent)) {
+				protectedAttribute = "Y";
+			}
+
             var folder:XML = new XML("<RequestDownload isNew='Y' " +
                     "key='X\tX\tX\t" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
                     "itemNumber='" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
                     "type='dir'" +
                     "isEmpty='Y'" +
+					"PROTECTED='" + protectedAttribute + "'" +
                     "info='' />");
+
             if (parent.children().length() > 0) {
                 var firstChild:XML = parent.children()[0];
                 parent.insertChildBefore(firstChild, folder);
@@ -581,6 +589,63 @@
             this.downloadTree.selectedItem = null;
         }
 
+		private function isProtected(node:XML):Boolean {
+			var Protected:Boolean = false;
+
+			if (!node.hasOwnProperty("@PROTECTED") || (node.hasOwnProperty("@PROTECTED") && node.@PROTECTED == "N")) {
+				Protected = false;
+			} else if (node.hasOwnProperty("@PROTECTED") && node.@PROTECTED == "Y") {
+				Protected = true;
+			}
+
+			return Protected;
+		}
+
+		// see if any children are protected
+		private function hasProtectedChild(downloadFile:XML):Boolean {
+			var kidsAreProtected:Boolean = false;
+			for each(var childFile:XML in downloadFile.children()) {
+				if (childFile.hasOwnProperty("@fileName") && childFile.@type == "dir") {
+					if (isProtected(childFile)) {
+						kidsAreProtected = true;
+						break;
+					}
+					return (hasProtectedChild(childFile));
+				}
+				else if (isProtected(childFile)) {
+					kidsAreProtected = true;
+					break;
+				}
+			} // end of for
+			return kidsAreProtected;
+		}
+
+
+		private function checkXMLChildren(downloadFile:XML):void {
+			for each(var childFile:XML in downloadFile.children()) {
+				if (childFile.hasOwnProperty("@fileName") && childFile.@type == "dir") {
+					if (!hasProtectedChild(childFile)) {
+						this.filesToRemove.addItem(childFile);
+						this.deleteNode(childFile);
+						checkXMLChildren(childFile);
+					}
+					else {
+						mx.controls.Alert.show("Directory contains protected file. Protected files cannot be deleted.", "Warning");
+						return;
+					}
+				}
+				else if (downloadFile.hasOwnProperty("@fileName")) {
+					if (!isProtected(childFile)) {
+						this.filesToRemove.addItem(childFile);
+						this.deleteNode(childFile);
+					}
+					else {
+						mx.controls.Alert.show("Directory contains protected file. Protected files cannot be deleted.", "Warning");
+					}
+				}
+			}
+		}
+
 
         private function removeExperimentFile():void {
             if (this.filesGrid.selectedItems != null && this.filesGrid.selectedItems.length > 0) {
@@ -592,17 +657,31 @@
                 this.dirty.setDirty();
             } else if (this.downloadTree.selectedItems != null && this.downloadTree.selectedItems.length > 0) {
                 for each(var downloadFile:XML in this.downloadTree.selectedItems) {
-                    // Only add to remove list if this file exists
-                    if (downloadFile.hasOwnProperty("@fileName")) {
-                        this.filesToRemove.addItem(downloadFile);
+					// Only add to remove list if this file exists and not protected
+					if (downloadFile.@type == "dir") {
+						if (!hasProtectedChild(downloadFile)) {
+							this.filesToRemove.addItem(downloadFile);
+							checkXMLChildren(downloadFile);
+						}
+						else {
+							mx.controls.Alert.show("Directory contains protected file. Protected files cannot be deleted.", "Warning");
+							continue;
+						}
+					} else if (downloadFile.hasOwnProperty("@fileName")) {
+						if (!isProtected(downloadFile)) {
+							this.filesToRemove.addItem(downloadFile);
+						}
+						else {
+							mx.controls.Alert.show("Protected files cannot be deleted.", "Warning");
+							continue;
+						}
                     }
                     // Delete from XML hierarchy
                     this.deleteNode(downloadFile);
-
+					this.dirty.setDirty();
                 }
 
                 linkSamplesTab.enabled = false;
-                this.dirty.setDirty();
             }
         }
 
@@ -816,10 +895,9 @@
                 if (draggedItems.length == 1 && dropNode.children().length() == 2 && dropNode.children().contains(draggedItems[0])) {
                     var fileOne:XML = dropNode.children()[0].copy();
                     var fileTwo:XML = dropNode.children()[1].copy();
-                    ;
 
                     deleteNode(dropNode.children()[0]);
-                    deleteNode(dropNode.children()[0]);
+                    deleteNode(dropNode.children()[1]);
 
                     dropNode.appendChild(fileTwo);
                     dropNode.appendChild(fileOne);
@@ -868,6 +946,7 @@
             }
         }
 
+		// ********************************************************************
         private function onDragDropFile(event:DragEvent):void {
             // Get the dragged items
             var draggedItems:Array = null;
@@ -887,8 +966,7 @@
             if (downloadTree.selectedItem != null) {
                 dropNode = downloadTree.selectedItem as XML;
 
-                // Don't allow drag operation if nothing no drop node
-                // found
+                // Don't allow drag operation if nothing no drop node found
                 if (dropNode == null) {
                     event.preventDefault();
                     event.target.hideDropFeedback(event);
@@ -901,8 +979,7 @@
                     dropFolderNode = dropNode.parent();
                     siblingDropNode = dropNode;
                 }
-                // Don't allow drag operation if nothing no drop folder node
-                // found
+                // Don't allow drag operation if nothing no drop folder node found
                 if (dropFolderNode == null) {
                     event.preventDefault();
                     event.target.hideDropFeedback(event);
@@ -932,8 +1009,6 @@
 
                         downloadTree.expandItem(dropFolderNode, true);
 
-                        //numFilesToDownload.text = filesToDownload.source..FileDescriptor.(@type != 'dir').length() + ' file(s)';
-
                         downloadList.refresh();
                         uploadedFiles.refresh();
 
@@ -949,8 +1024,7 @@
         private function recurseFindNodeToDelete(dragItem:XML, uploadedFiles:XMLList):void {
             for each(var file:XML in uploadedFiles) {
                 if (file.@fileName == dragItem.@fileName) {
-                    trace(file.parent());
-                    deleteNode(file);
+                    deleteNode1(file);
                     return;
                 } else {
                     if (file.@type == 'dir') {
@@ -961,12 +1035,6 @@
         }
 
         private function addNodeToList(node:XML, req:XML, filesList:XMLListCollection):void {
-            // Check to see if the request node is already present.  If not, add it.
-//            if (filesList.source.(@requestNumber == req.@requestNumber).length() > 0) {
-//                req = filesList.source.(@requestNumber == req.@requestNumber)[0]
-//            } else {
-//                filesList.source += req;
-//            }
             if (node.name() == 'FileDescriptor') {
                 if (filesList.source.FileDescriptor.(@fileName == node.@fileName).length() == 0) {
                     req.appendChild(node);
@@ -1133,7 +1201,10 @@
             if ((filesGrid.selectedItem == null && downloadTree.selectedItem == null) || downloadTree.selectedIndex == 0) {
                 return;
             }
-
+			else if (downloadTree.selectedItem.hasOwnProperty("@PROTECTED") && downloadTree.selectedItem.@PROTECTED == "Y") {
+				mx.controls.Alert.show("Protected files cannot be renamed.", "Warning");
+				return;
+			}
             else {
                 var renameWindow:RenameExperimentWindow = RenameExperimentWindow(mx.managers.PopUpManager.createPopUp(this, RenameExperimentWindow, true));
             }
@@ -1217,7 +1288,30 @@
             }
         }
 
-        private function autoLinkFiles():void {
+		private function getIsProtected(node:XML):String {
+			var protectedAttribute:String = "N";
+
+			if (!node.hasOwnProperty("@PROTECTED") || (node.hasOwnProperty("@PROTECTED") && node.@PROTECTED == "N")) {
+				protectedAttribute = "N";
+			} else if (node.hasOwnProperty("@PROTECTED") && node.@PROTECTED == "Y") {
+				protectedAttribute = "Y";
+			}
+
+			return protectedAttribute;
+		}
+
+		private function deleteNode1(xmlToDelete:XML):Boolean {
+			var cn:XMLList = XMLList(xmlToDelete.parent()).children();
+			for (var i:Number = 0; i < cn.length(); i++) {
+				if (cn[i] == xmlToDelete) {
+					this.uploadedFiles.removeItemAt(i);
+					delete cn[i];
+					return true;
+				}
+			}
+			return false;
+		}
+		private function autoLinkFiles():void {
             var filesLinked:int = 0;
 
             for each(var expFile:XML in experimentFileList.children()..FileDescriptor) {
@@ -1495,7 +1589,6 @@
                         recurseRemoveParentFolder(parent, downloadList, downloadTree);
                     }
                 }
-                //numFilesToDownload.text = downloadList.source..FileDescriptor.(@type != 'dir').length() + ' file(s)';
 
                 filesGrid.selectedItem = null;
             }
@@ -1579,7 +1672,6 @@
 					<mx:LinkButton id="renameFileButton" label="Rename" textDecoration="underline" paddingLeft="0" click="renameFile(event)" enabled="{(this.downloadTree.selectedItem != null) &amp;&amp; this.downloadTree.selectedIndex != 0}" toolTip="Rename selected file or folder" icon="@Embed(source='../../assets/segment_import.png')" disabledIcon="@Embed(source='../../assets/segment_import_disable.png')"/>
 					<mx:Spacer width="100%"/>
 					<mx:LinkButton id="refresh" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles()"/>
-					
 				</mx:HBox>
 				
 				<mx:HDividedBox width="100%" height="100%">
@@ -1597,7 +1689,9 @@
 								    dragEnter="doDragEnterFileTree(event)"
 								    dragExit="doDragExit(event)"
 								    dragComplete="doDragComplete(event)"
-								 	dataProvider="{uploadedFiles}" dragMoveEnabled="true" itemClick="{this.downloadTree.selectedItem = null; this.renameFileButton.enabled = false}">
+								 	dataProvider="{uploadedFiles}"
+								 	dragMoveEnabled="true"
+								 	itemClick="{this.downloadTree.selectedItem = null; this.renameFileButton.enabled = false}">
 						</mx:Tree>
 					</mx:VBox>
 					<mx:VBox width="50%" height="100%" verticalGap="0" styleName="form">
@@ -1654,7 +1748,10 @@
 								 dragEnter="doDragEnterReturn(event)"
 								 dragComplete="doDragCompleteReturn(event)"
 								 width="100%" height="100%"
-								 dragMoveEnabled="true" dropEnabled="true" dragEnabled="true" itemClick="{this.samplesTree.selectedItem = null;}">
+								 dragMoveEnabled="true"
+								 dropEnabled="true"
+								 dragEnabled="true"
+								 itemClick="{this.samplesTree.selectedItem = null;}">
 						</mx:Tree>
 					</mx:VBox>
 					<mx:VBox width="50%" height="100%" verticalGap="0" styleName="form">
@@ -1663,7 +1760,8 @@
 											 dragDrop="onDetermineDragDrop(event)"
 											 dragOver="doDragOverSamples(event)"
 											 dragExit="doDragExitSamples(event)"
-											 dragEnter="doDragEnterSamples(event)" dragComplete="doDragCompleteSamples(event)"
+											 dragEnter="doDragEnterSamples(event)"
+											 dragComplete="doDragCompleteSamples(event)"
 											 iconFunction="getTreeIcon"
 											 sortExpertMode="true"
 											 sortableColumns="false"
@@ -1671,8 +1769,10 @@
 											 dropEnabled="true"  		                
 											 dragEnabled="true"  
 											 dragMoveEnabled="true"
-											 allowMultipleSelection="false" dataTipFunction="showFileNameToolTip"
-											 itemClick="{this.experimentFilesTree.selectedItem = null;}" mouseDown="getClickedItem(event)">
+											 allowMultipleSelection="false"
+											 dataTipFunction="showFileNameToolTip"
+											 itemClick="{this.experimentFilesTree.selectedItem = null;}"
+											 mouseDown="getClickedItem(event)">
 							<mx:dataProvider>
 								<mx:HierarchicalData id="sampleHierarchy" source="{sampleList}"/>
 							</mx:dataProvider>	
