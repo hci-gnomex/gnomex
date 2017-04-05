@@ -36,10 +36,6 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
    */
 private static final long serialVersionUID = 1L;
 
-private String directoryName = "";
-
-private String fileName;
-
 private static final int ERROR_MISSING_TEMP_DIRECTORY_PROPERTY = 900;
 private static final int ERROR_INVALID_TEMP_DIRECTORY = 901;
 private static final int ERROR_SECURITY_EXCEPTION = 902;
@@ -55,6 +51,8 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
  * advisor if one is not found, the Safari browser cannot handle authenticating the user (this second time). So for now, this servlet must be run non-secure.
  */
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	String fileName = null;
+
 	try {
 		Session sess = HibernateSession.currentReadOnlySession(req.getUserPrincipal().getName());
 
@@ -98,7 +96,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 		MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE);
 		Part part;
 
-		directoryName = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(
+		String directoryName = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(
 				PropertyDictionary.TEMP_DIRECTORY, req.getServerName());
 		if (directoryName == null || directoryName.equals("")) {
 			res.setStatus(this.ERROR_MISSING_TEMP_DIRECTORY_PROPERTY);
@@ -129,7 +127,6 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 
 		boolean fileWasWritten = false;
 		boolean hasColumnNames = false;
-
 		while ((part = mp.readNextPart()) != null) {
 			String name = part.getName();
 			if (part.isParam()) {

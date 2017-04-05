@@ -30,14 +30,8 @@ import com.oreilly.servlet.multipart.Part;
 
 public class UploadSequenceFileServlet extends HttpServlet {
 private static Logger LOG = Logger.getLogger(UploadSampleSheetURLServlet.class);
-private String fileName = null;
-private StringBuffer bypassedFiles = new StringBuffer();
-private File tempBulkUploadFile = null;
 
-private SecurityAdvisor secAdvisor = null;
-
-private String serverName;
-private String baseDir;
+private static String serverName;
 
 protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 }
@@ -49,6 +43,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
  */
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	Session sess = null;
+	File tempBulkUploadFile = null;
 
 	serverName = req.getServerName();
 
@@ -59,14 +54,14 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 	try {
 		sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
 
-		baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+		String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 
 		// Get the dictionary helper
 		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
 		// Get security advisor
-		secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+		SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 		if (secAdvisor == null) {
 			System.out
 					.println("UploadSequenceFileServlet:  Warning - unable to find existing session. Creating security advisor.");
@@ -123,7 +118,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			genomeBuild = (GenomeBuild) sess.get(GenomeBuild.class, idGenomeBuild);
 		}
 		if (genomeBuild != null) {
-			if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
+			if (secAdvisor.hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
 
 				// Make sure that the data root dir exists
 				if (!new File(baseDir).exists()) {

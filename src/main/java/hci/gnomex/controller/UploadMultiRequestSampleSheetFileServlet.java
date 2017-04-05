@@ -38,9 +38,6 @@ private static final long serialVersionUID = 1L;
 // the static field for logging in Log4J
 private static Logger LOG = Logger.getLogger(UploadMultiRequestSampleSheetFileServlet.class);
 
-private String directoryName = "";
-
-private String fileName;
 
 private static final int ERROR_MISSING_TEMP_DIRECTORY_PROPERTY = 900;
 private static final int ERROR_INVALID_TEMP_DIRECTORY = 901;
@@ -56,6 +53,9 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
  * advisor if one is not found, the Safari browser cannot handle authenicating the user (this second time). So for now, this servlet must be run non-secure.
  */
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	String directoryName = "";
+	String fileName = null;
+
 	try {
 		Session sess = HibernateSession.currentReadOnlySession(req.getUserPrincipal().getName());
 

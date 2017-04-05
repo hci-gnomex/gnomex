@@ -32,15 +32,6 @@ public class DownloadFileServlet extends HttpServlet {
 
   private static Logger LOG = Logger.getLogger(DownloadFileServlet.class);
 
-  private FileDescriptorParser parser = null;
-
-
-  private ArchiveHelper archiveHelper = new ArchiveHelper();
-
-  private String serverName = "";
-  private String username = "";
-
-
 
   public void init() {
 
@@ -49,9 +40,10 @@ public class DownloadFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
           throws ServletException, IOException {
 
-    serverName = req.getServerName();
+    String serverName = req.getServerName();
 
-    username = req.getUserPrincipal().getName();
+    String username = req.getUserPrincipal().getName();
+    ArchiveHelper archiveHelper = new ArchiveHelper();
 
     // Restrict commands to local host if request is not secure
     if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -73,7 +65,7 @@ public class DownloadFileServlet extends HttpServlet {
     String ipAddress = GNomExCommand.getRemoteIP(req);
 
     //  Get cached file descriptor parser
-    parser = (FileDescriptorParser) req.getSession().getAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
+    FileDescriptorParser parser = (FileDescriptorParser) req.getSession().getAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
     if (parser == null) {
       LOG.error("Unable to get file descriptor parser from session");
       return;
@@ -245,7 +237,6 @@ public class DownloadFileServlet extends HttpServlet {
     } catch (Exception e) {
       String errorMessage = Util.GNLOG(LOG,"Error in DownloadFileServlet ", e);
       StringBuilder requestDump = Util.printRequest(req);
-      String serverName = req.getServerName();
 
       Util.sendErrorReport(HibernateSession.currentSession(),"GNomEx.Support@hci.utah.edu", "DoNotReply@hci.utah.edu", username, errorMessage, requestDump);
 

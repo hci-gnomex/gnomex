@@ -121,13 +121,19 @@ public class BillingAccountParser extends DetailObject implements Serializable {
     } else {
       billingAccount.setIdCreditCardCompany(null);
     }
-    
+
     if (n.getAttributeValue("zipCode") != null && !n.getAttributeValue("zipCode").equals("")) {
       billingAccount.setZipCode(n.getAttributeValue("zipCode"));
     } else {
       billingAccount.setZipCode("");
     }
-    
+
+    if (n.getAttributeValue("activeAccount") != null && !n.getAttributeValue("activeAccount").equals("")) {
+      billingAccount.setActiveAccount(n.getAttributeValue("activeAccount"));
+    } else {
+      billingAccount.setActiveAccount("Y");
+    }
+
     if (n.getAttributeValue("totalDollarAmountDisplay") != null && !n.getAttributeValue("totalDollarAmountDisplay").equals("")) {
       String totalDollarAmount = n.getAttributeValue("totalDollarAmountDisplay");
       DecimalFormatSymbols dfs = new DecimalFormatSymbols();

@@ -105,7 +105,7 @@
 			this.applicationThemeRepeater.dataProvider = null;
 			this.applicationRepeater.dataProvider = null;
 			var themeMap:Array = new Array();
-			preparedAppList = new XMLListCollection();
+			var preparedAppListTemp:XMLListCollection = new XMLListCollection();
 			for each(var item:Object in parentDocument.filteredAppList) {
 				var de:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.ApplicationTheme", item.@idApplicationTheme);
 				if (de.length() >= 1) {
@@ -116,21 +116,21 @@
 				} else {
 					item.@price = "";
 				}
-				preparedAppList.addItem(item.copy());
+				preparedAppListTemp.addItem(item.copy());
 			}
+			preparedAppList = preparedAppListTemp;
 
 			if(this.samplesToBePreppedCheckbox.selected){
 				preparedAppList.sort = this.applicationSorterAlphabet;
-				preparedAppList.refresh();
 			}
 
-			themeList = new XMLListCollection();
+			var themeListTemp:XMLListCollection = new XMLListCollection();
 			for each(var theme:Object in themeMap) {
-				themeList.addItem(theme);
+				themeListTemp.addItem(theme);
 			}
+			themeList = themeListTemp;
 
 			themeList.sort = this.applicationSorter;
-			themeList.refresh();
 			this.applicationThemeRepeater.dataProvider = themeList;
 			themeList.refresh();
 			this.applicationRepeater.dataProvider = preparedAppList;

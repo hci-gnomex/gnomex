@@ -150,8 +150,7 @@ private AppUser lookupAndValidateAppUser(Session sess) {
 	if (appUser == null) {
 		regErrorMsg = "Invalid user.";
 		this.addInvalidField("Invalid username or email", regErrorMsg);
-	}
-	if (appUser.getIsActive() != null && appUser.getIsActive().equals("N")) {
+	} else if (appUser.getIsActive() != null && appUser.getIsActive().equals("N")) {
 		regErrorMsg = "Inactive user account.";
 		this.addInvalidField("Inactive user account", regErrorMsg);
 	}

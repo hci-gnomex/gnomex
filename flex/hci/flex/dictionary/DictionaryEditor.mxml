@@ -78,6 +78,9 @@
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_SAVED, onDictionarySaved);
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_ADDED, onDictionaryAdded);
 
+			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_DELETED, onDictionaryDeleted);
+
+
 			initDictionaryTree();
 
 			if (selectedDictClassName != null) {
@@ -112,6 +115,10 @@
 		}
 
 		public function onDictionaryAdded(event:Event):void {
+			this.reloadDictionaries();
+		}
+
+		public function onDictionaryDeleted(event:Event):void {
 			this.reloadDictionaries();
 		}
 

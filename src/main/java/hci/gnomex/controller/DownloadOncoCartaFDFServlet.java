@@ -32,15 +32,11 @@ private static Logger LOG = Logger.getLogger(DownloadOncoCartaFDFServlet.class);
 
 private static SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
-private String serverName = "";
-
 public void init() {
 
 }
 
 protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
-
-	serverName = req.getServerName();
 
 	// Restrict commands to local host if request is not secure
 	if (!ServletUtil.checkSecureRequest(req, LOG)) {

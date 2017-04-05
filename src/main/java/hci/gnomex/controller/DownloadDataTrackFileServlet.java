@@ -32,13 +32,7 @@ import org.hibernate.Session;
 public class DownloadDataTrackFileServlet extends HttpServlet {
 
 private static Logger LOG = Logger.getLogger(DownloadDataTrackFileServlet.class);
-
-private SecurityAdvisor secAdvisor;
-
-private String serverName;
-private String baseDir;
-private String analysisBaseDir;
-
+private static String serverName;
 public void init() {
 
 }
@@ -78,13 +72,13 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 				.getName() : "guest");
 
 		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-		baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+		String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
-		analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+		String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
 		// Get security advisor
-		secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+		SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
 		response.setContentType("application/x-download");
 		response.setHeader("Content-Disposition", "attachment;filename=genopub_dataTracks.zip");
@@ -116,7 +110,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 
 			DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
-			if (!this.secAdvisor.canRead(dataTrack)) {
+			if (!secAdvisor.canRead(dataTrack)) {
 				throw new Exception("Insufficient permission to read/download dataTrack.");
 			}
 
@@ -141,7 +135,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 
 			String path = dataTrackFolder.getQualifiedName() + Constants.FILE_SEPARATOR + dataTrack.getName() + Constants.FILE_SEPARATOR;
 
-			for (File file : dataTrack.getFiles(this.baseDir, this.analysisBaseDir)) {
+			for (File file : dataTrack.getFiles(baseDir, analysisBaseDir)) {
 				String zipEntryName = path + file.getName();
 				archiveHelper.setArchiveEntryName(zipEntryName);
 

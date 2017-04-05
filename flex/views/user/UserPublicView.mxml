@@ -61,17 +61,18 @@
 			
 			public function init():void {
 				getAppUserPublic.send();
+				radioUnivOrExternalBox.visible = parentApplication.isUniversityUserAuthentication;
 			}
 			
 			
 			private function resultHandler(event:ResultEvent):void {
 				publicUser = getAppUserPublic.lastResult;
-				
-				if (publicUser.@userNameExternal != '' && publicUser.@uNID == '') {
+				if (!parentApplication.isUniversityUserAuthentication || (publicUser.@userNameExternal != '' && publicUser.@uNID == '')) {
 					this.radioExternalUser.selected = true;
 				} else {
 					this.radioUniversityUser.selected = true;
 				}
+				onUserAccountChange();
 			}
 			
 			private function closeWindow():void {

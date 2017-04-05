@@ -55,6 +55,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
     }
     if (request.getParameter("showUploads") != null && !request.getParameter("showUploads").equals("")) {
       showUploads = request.getParameter("showUploads");
+      System.out.println ("[GetRequest] showUploads: " + showUploads);
     }
 
     serverName = request.getServerName();
@@ -675,6 +676,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             requestNode.setAttribute("canRename", "N");
             String key = request.getKey(Constants.UPLOAD_STAGING_DIR);
             GetRequestDownloadList.addExpandedFileNodes(sess, serverName, null, requestNode, requestUploadNode, request.getNumber(), key, request.getCodeRequestCategory(), dh, false);
+//            System.out.println ("\n[GetRequest] requestUploadNode:\n" + requestUploadNode.toString() + "\n");
           }
 
           // Default to not breaking out samples by plates.
@@ -1019,6 +1021,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = out.outputString(doc);
+//          System.out.println ("[GetRequest] xmlResult:\n" + xmlResult);
         }
 
       }

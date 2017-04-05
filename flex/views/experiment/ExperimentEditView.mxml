@@ -229,8 +229,6 @@
         import views.util.GNomExStringUtil;
         import views.util.PromptXMLListCollection;
         import views.util.RequestStatusComparator;
-        import views.util.SampleConcentrationValidator;
-        import views.util.SampleQCValidator;
 
         [Embed(source='../../assets/page.png')]
         [Bindable]
@@ -3018,28 +3016,12 @@
                 }
 
             }
-
+            var error:String = samplesView.validateSample();
+            errorMessage += error;
             if (currentState == 'SolexaEditState') {
-                for each (var samp1:Object in samples) {
-                    if (samp1.@multiplexGroupNumber == null || samp1.@multiplexGroupNumber == '' || !samp1.hasOwnProperty("@multiplexGroupNumber")) {
-                        errorMessage += "Please fill in missing multiplex group numbers.\n\n";
-                        break;
-                    }
-                }
-
                 if (!this.samplesView.areIndexTagsUnique()) {
                     warningMessage += "Two or more samples in the same multiplex group do not differ by at least 3 base pairs.\n\n";
                 }
-            }
-
-            var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(samples);
-            if (cw != "") {
-                errorMessage += cw + "\n\n";
-            }
-
-            var qcWarning:String = SampleQCValidator.instance.validateSampleQC(samples);
-            if (qcWarning != "") {
-                errorMessage += qcWarning + "\n\n";
             }
 
             // Check for duplicate sampleNames / wells
@@ -5642,6 +5624,10 @@
                 return false;
             }
 
+            if (item.@accountActive == 'N') {
+                return false;
+            }
+
             var idAppUser:Object = parentApplication.getIdAppUser();
             if (idAppUser != null && idAppUser.toString() != '' && item.@acctUsers != '') {
                 var ids:Array = item.@acctUsers.toString().split(",");
@@ -6053,7 +6039,7 @@
                 return true;
             }
 
-            if (item.@isActive == 'N' || item.@isApproved == 'N') {
+            if (item.@isActive == 'N' || item.@isApproved == 'N' || item.@activeAccount == 'N') {
                 return false;
             }
 
@@ -6998,22 +6984,6 @@
                                 text="(3) Select the category that best describes the services that you will be adding to this request."
                                 width="194"/>
                         <mx:VBox width="100%" height="100%" verticalGap="8" fontSize="11">
-                            <!--							<mx:VBox width="100%" height="100%" verticalGap="0">
-								<mx:Repeater id="requestCategoryRepeater1" dataProvider="{qcAmendRequestCategories}">
-									<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
-										<mx:HBox horizontalAlign="center">
-											<mx:Image
-												source="{requestCategoryRepeater1.currentItem.@icon}"/>
-										</mx:HBox>
-										<mx:RadioButton id="radioAmendRequestCategory1" groupName="radioGroupAmendType"
-														label="{requestCategoryRepeater1.currentItem.@display}" width="206"
-														value="{'QC-TO-' + requestCategoryRepeater1.currentItem.@value}"
-														click="highlightAmendRequestCategory();setAmendState();getCandidateAmendExperiments();this.checkAmendSetupCompleteness()" paddingTop="0" paddingBottom="1"/>
-										<mx:Text text="{requestCategoryRepeater1.currentItem.@notes}" width="100%"/>
-									</mx:HBox>
-								</mx:Repeater>
-							</mx:VBox>-->
-                            <!--							<mx:HRule width="100%"/>-->
                             <mx:VBox width="100%" height="100%" verticalGap="0">
                                 <mx:Repeater id="requestCategoryRepeater2"
                                              dataProvider="{addLanesAmendRequestCategories}">

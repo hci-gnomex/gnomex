@@ -66,7 +66,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
         String qualifiedDir = parentDir != null ? parentDir + Constants.FILE_SEPARATOR + directoryName : directoryName;
 
         if (folderNode.getAttributeValue("isNew") != null && folderNode.getAttributeValue("isNew").equals("Y")) {
-            newDirectoryNames.add(qualifiedDir);
+                newDirectoryNames.add(qualifiedDir);
         }
 
 
@@ -81,6 +81,13 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
             String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf(Constants.FILE_SEPARATOR) + 1), displayName);
             String fileIdString = childFileNode.getAttributeValue("idAnalysisFileString");
             String qualifiedFilePath = childFileNode.getAttributeValue("qualifiedFilePath");
+            String isProtected = childFileNode.getAttributeValue("PROTECTED");
+
+            // just in case the front end let something through it shouldn't have
+            if (isProtected == null || isProtected.equalsIgnoreCase("Y")) {
+                continue;
+            }
+
             String[] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
             if (!newFileName.equals(fileName) && !fileName.equals("")) {
                 // these are files that were explicitly renamed
@@ -103,6 +110,9 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
                 continue;
             }
 
+            // 03/22/2017 tim -- I see no need to add anything to fileIdMap or fileNameMap if there isn't any changes to the file
+            //                   If it wasn't renamed or moved somewhere we are just wasting time
+
             if (childFileNode.getAttributeValue("type") != null && !childFileNode.getAttributeValue("type").equals("dir")) {
                 fileIdMap.put(childFileName, childFileIdString);
             }
@@ -116,6 +126,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
             }
 
             fileNames.add(childFileName);
+
         } // end of for
 
 
@@ -138,6 +149,11 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
             String newFileName = newName + Constants.FILE_SEPARATOR + displayName;
             String fileIdString = e.getAttributeValue("idAnalysisFileString");
             String qualifiedFilePath = newName.substring(newName.lastIndexOf(Constants.FILE_SEPARATOR) + 1);
+            String isProtected = e.getAttributeValue("PROTECTED");
+            if (isProtected == null || isProtected.equalsIgnoreCase("Y")) {
+                continue;
+            }
+
             String[] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
 
             childrenToMoveMap.put(fileName, contents);
@@ -157,6 +173,11 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
 
             String fileIdString = node.getAttributeValue("idAnalysisFileString");
             String fileName = node.getAttributeValue("fileName");
+
+            String isProtected = node.getAttributeValue("PROTECTED");
+            if (isProtected == null || isProtected.equalsIgnoreCase("Y")) {
+                continue;
+            }
 
             List fileNames = (List) filesToDeleteMap.get(fileIdString);
 

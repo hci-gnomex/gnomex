@@ -188,17 +188,14 @@
         String webContextPath = getServletConfig().getServletContext().getRealPath("/");
         GNomExFrontController.setWebContextPath(webContextPath);
 
-        boolean showUserNameChoice = false;
+        boolean isUniversityUserAuthentication = false;
         String siteLogo = "";
         Session sess = null;
         String publicDataNotice = "";
 
         try {
           sess = HibernateSession.currentReadOnlySession("guest");
-          PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
-          if (propUniversityUserAuth != null && propUniversityUserAuth.getPropertyValue() != null && propUniversityUserAuth.getPropertyValue().equals("Y")) {
-            showUserNameChoice = true;
-          }
+          isUniversityUserAuthentication = PropertyDictionaryHelper.getInstance(sess).isUniversityUserAuthentication();
 
           // Get site specific log
           siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, coreToPassThru);
@@ -213,7 +210,7 @@
 
         } catch (Exception e){
             LOG.error("Error in register_user.jsp", e);
-          message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
+          message = "Cannot obtain properties " + e.toString() + " sess=" + sess;
         } finally {
           try {
             HibernateSession.closeSession();
@@ -308,7 +305,7 @@
 
 
 
-            <% if (showUserNameChoice) {%>
+            <% if (isUniversityUserAuthentication) {%>
             <div class="empty"></div>
             <div id="userChoiceDiv">
                 <div class="col1Wide" ><div class="right"> *Are you affiliated with the University of Utah?</div></div>
@@ -360,7 +357,7 @@
 <script  type="text/javascript" language="JavaScript">
 
     <%
-    if (!showUserNameChoice) {
+    if (!isUniversityUserAuthentication) {
     %>
     document.getElementById("externalDiv").style.display = "block";
     <%

@@ -21,6 +21,8 @@ package views.util
 		public static var sessionTimer:Timer;
 		public static var sessionMaxInActiveTime:int = -1;
 		private static var checkServerSessionMaxInActiveTime:Boolean = false;
+
+		private static var alertPopupOpen:Boolean = false;
 		
 		[Bindable]
 		public static var flexApplication:gnomexFlex;
@@ -109,7 +111,20 @@ package views.util
 					sandboxMessage += " (Remote)";
 					break;
 			}
-			Alert.show("SandboxType=" + sandboxMessage + "\n" + event.fault.toString(), title );
+			// Alert.show("SandboxType=" + sandboxMessage + "\n" + event.fault.toString(), title );
+
+            if (!alertPopupOpen) {
+                Alert.show(
+                        "SandboxType=" + sandboxMessage + "\n" + event.fault.toString(),
+                        title,
+                        0x4 /* Alert.OK */,
+                        null,
+                        onFaultAlertOK,
+                        null,
+                        0x4 /* Alert.OK */
+                );
+				alertPopupOpen = true;
+            }
 		}
 		
 		public static function createHTTPService(command:String):HTTPService{
@@ -205,5 +220,15 @@ package views.util
 			}
 			return errorMessage;
 		}
+        /**
+         * This function is meant to be triggered by closing the "Unable to check session status" alert box.
+         * It should reset the flag that will allow the popup to re-trigger.
+         *
+         * @param event Because this is added to the listener on the alert popup, it needs to have this signature,
+         * 				even though we don't use it at all.
+         */
+        public static function onFaultAlertOK(event:Event):void {
+            alertPopupOpen = false;
+        }
 	}
 }

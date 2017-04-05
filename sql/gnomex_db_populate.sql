@@ -879,7 +879,6 @@ INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescri
  ('fdt_directory_gnomex', '', 'The fdt staging directory (file path) that is accessible from gnomex application server.', 'N'),
  ('fdt_client_codebase', '', 'The URL that the fdtClient.jar is served from.', 'N'),
  ('fdt_server_name', '', 'The server name that the fdt server is running on', 'N'),
- ('fdt_file_daemon_task_dir', '', 'Location for fdtfilemonitor task files (these contain info on source/target folders for moving files after completion of uploads).', 'N'),
  ('fdt_user', 'fdt', 'User account that fdt server runs under.', 'N'),
  ('fdt_group', 'fdtsecurity', 'Unix group for fdt user account.', 'N'),
  ('usage_user_visibility', 'none', 'Permission level for non-admin gnomex users to view lab usage data. [none, masked, full]', 'N'),
@@ -969,9 +968,12 @@ Test City, UT 12345',
  ('gene_iobio_viewer_url','http://gene.iobio.io','','N'),
  ('notify_support_of_new_user','N','','N'),
  ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N'),
+ ('billing_account_exp_email','N','Reminder email sent to out to labs for billing accounts to expire within the month','Y'),
  ('min_samples_allowed_for_plate_submission', '32', 'And integer that represents the minimum number of samples that can be submitted on a plate for capillary sequencing experiments.', 'N');
 
+
  
+
 
 INSERT INTO gnomex.ProtocolType(codeProtocolType, protocolType, isActive)
 VALUES ('IACUC', 'IACUC', 'Y'),

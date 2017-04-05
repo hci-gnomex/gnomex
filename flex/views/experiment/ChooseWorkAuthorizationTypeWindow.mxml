@@ -44,10 +44,10 @@
 			}
 			
 			private function showWorkAuthForm():void {
-				// If this gnomex installation supports universtion user authentication,
+				// If this gnomex installation supports university user authentication,
 				// show window that allows user to enter work auth form directly; otherwise,
 				// show URL that is a printable work auth form.
-				if (parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == "Y") {
+				if (parentApplication.isUniversityUserAuthentication) {
 					parentApplication.showWorkAuthWindow(lab == null ? null : lab.@idLab, coreFacility == null ? null : coreFacility.@idCoreFacility);
 				}else {
 					navigateToURL(new URLRequest(parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH1_URL)), '_blank');			

@@ -37,19 +37,7 @@ import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 
 public class ReportIssueFeedbackServlet extends HttpServlet {
-private String subject = "Issue Reported";
-private String fromAddress;
-private String body = "Feedback";
-private String format = "text";
-private String IdAppUser = "";
-private String AppUserName = "";
-private String UNID = "";
-private BufferedImage image = null;
-private File outputfile = null;
-private String Filename = null; // not needed
-private SimpleDateFormat sdf = new SimpleDateFormat();
-private Date currentDate;
-private String serverName;
+private static String serverName;
 
 private static final int STATUS_ERROR = 999;
 private static final Logger LOG = Logger.getLogger(ReportIssueFeedbackServlet.class);
@@ -64,9 +52,21 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
  * advisor if one is not found, the Safari browser cannot handle authenticating the user (this second time). So for now, this servlet must be run non-secure.
  */
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	String subject = "Issue Reported";
+	String fromAddress = null;
+	String body = "Feedback";
+	String format = "text";
+	String IdAppUser = "";
+	String AppUserName = "";
+	String UNID = "";
+	BufferedImage image = null;
+	File outputfile = null;
+	String Filename = null; // not needed
+	SimpleDateFormat sdf = new SimpleDateFormat();
+
 	try {
 		serverName = req.getServerName();
-		currentDate = new Date(System.currentTimeMillis());
+		Date currentDate = new Date(System.currentTimeMillis());
 		Session sess = HibernateSession.currentReadOnlySession(req.getUserPrincipal() != null ? req.getUserPrincipal()
 				.getName() : "guest");
 
@@ -122,19 +122,19 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 				ParamPart paramPart = (ParamPart) part;
 				String value = paramPart.getStringValue();
 				if (name.equals("Filename")) { // not needed
-					this.Filename = value;
+					Filename = value;
 				} else if (name.equals("subject")) {
-					this.subject = value;
+					subject = value;
 				} else if (name.equals("fromAddress")) {
-					this.fromAddress = value;
+					fromAddress = value;
 				} else if (name.equals("body")) {
-					this.body = value;
+					body = value;
 				} else if (name.equals("IdAppUser")) {
-					this.IdAppUser = value;
+					IdAppUser = value;
 				} else if (name.equals("AppUserName")) {
-					this.AppUserName = value;
+					AppUserName = value;
 				} else if (name.equals("UNID")) {
-					this.UNID = value;
+					UNID = value;
 				}
 			} else if (part.isFile()) {
 				FilePart filePart = (FilePart) part;
@@ -207,13 +207,13 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					+ req.getRequestURL().toString()
 					+ "\r"
 					+ "IdAppUser: "
-					+ this.IdAppUser
+					+ IdAppUser
 					+ "\r"
 					+ "AppUserName: "
-					+ this.AppUserName
+					+ AppUserName
 					+ "\r"
 					+ "UNID: "
-					+ this.UNID
+					+ UNID
 					+ "\r"
 					+ "-------------------------------------------User Feedback-----------------------------------------------------"
 					+ "\r" + body.toString();
@@ -236,7 +236,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			baseURL = fullPath.substring(0, pos);
 		}
 
-		org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat.createPrettyPrint();
+		org.dom4j.io.OutputFormat format1 = org.dom4j.io.OutputFormat.createPrettyPrint();
 		org.dom4j.io.HTMLWriter writer = null;
 		res.setContentType("text/html");
 
@@ -247,12 +247,12 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 		link.addAttribute("rel", "stylesheet");
 		link.addAttribute("type", "text/css");
 		link.addAttribute("href", baseURL + "/css/message.css");
-		Element body = root.addElement("BODY");
-		Element h3 = body.addElement("H3");
+		Element body1 = root.addElement("BODY");
+		Element h3 = body1.addElement("H3");
 		h3.addCDATA("The issue has been successfully reported. Thank you.");
-		body.addElement("BR");
-		body.addElement("BR");
-		writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);
+		body1.addElement("BR");
+		body1.addElement("BR");
+		writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format1);
 		writer.write(doc);
 		writer.flush();
 		writer.close();

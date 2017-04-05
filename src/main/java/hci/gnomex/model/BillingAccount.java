@@ -45,6 +45,7 @@ public class BillingAccount extends HibernateDetailObject {
 	private String approverEmail;
 	private Integer idApprover;
 	private Lab lab;
+	private String activeAccount;
 
 	@Override
 	public int hashCode() {
@@ -356,7 +357,7 @@ public class BillingAccount extends HibernateDetailObject {
 		newBA.setTotalDollarAmount(getTotalDollarAmount());
 		newBA.setTotalChargesToDate(totalChargesToDate);
 		newBA.setZipCode(getZipCode());
-
+		newBA.setActiveAccount(getActiveAccount());
 		newBA.setIdCoreFacility(newIdCoreFacility);
 
 		return newBA;
@@ -574,6 +575,14 @@ public class BillingAccount extends HibernateDetailObject {
 
 	public void setLab(Lab lab) {
 		this.lab = lab;
+	}
+
+	public String getActiveAccount() {
+		return activeAccount;
+	}
+
+	public void setActiveAccount(String activeAccount) {
+		this.activeAccount = activeAccount;
 	}
 
 }

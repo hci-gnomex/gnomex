@@ -27,27 +27,16 @@
 		import mx.events.CollectionEvent;
 		import mx.events.CollectionEventKind;
 		import mx.events.DragEvent;
-		import mx.events.FlexEvent;
 		import mx.events.PropertyChangeEvent;
-		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
-		import mx.rpc.events.ResultEvent;
-		import mx.utils.ObjectUtil;
-		import mx.utils.StringUtil;
 
 		import views.renderers.CheckBoxRenderer;
 		import views.renderers.ComboBox;
 		import views.renderers.ComboBoxWorkflowStatus;
 		import views.renderers.GridColumnFillButton;
 		import views.renderers.MultiselectRenderer;
+		import views.renderers.NumberTextRenderer;
 		import views.renderers.TextInputSeqPrepByCore;
-		import views.renderers.URLRenderer;
-		import views.util.AdvancedDataGridColumnWithType;
-		import views.util.AnnotationAdvancedDataGridColumn;
-		import views.util.CopySampleSheetColumnView;
-		import views.util.DictionaryHelper;
-		import views.util.SampleConcentrationValidator;
-		import views.util.SampleQCValidator;
 		import views.util.UploadSampleSheetInstructionsView;
 		import views.util.UploadSampleSheetView;
 
@@ -260,6 +249,53 @@
 			return isValid;
 		}
 
+		override public function validateSample():String {
+			var errorDict:Dictionary = new Dictionary();
+			var superError:String = super.validateSample();
+			var error:String = "";
+
+			for (var row:String in parentDocument.samples) {
+
+				var multiplex:XMLList = parentDocument.samples[row].(@multiplexGroupNumber != '');
+				var volume:XMLList = parentDocument.samples[row].(hasOwnProperty("@sampleVolume")&& @sampleVolume != '');
+				var fragSizeTo:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeTo") && @qualFragmentSizeTo != '');
+				var fragSizeFrom:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeFrom") && @qualFragmentSizeFrom != '');
+				var libSize:XMLList = parentDocument.samples[row].(hasOwnProperty("@meanLibSizeActual") && @meanLibSizeActual != '');
+
+				if(validate.validateInteger(multiplex.length() > 0 ? multiplex.@multiplexGroupNumber : "")){
+					errorDict["multiplex"] = "\"Multiplex\" column only accepts integers.\n";
+				}
+				var msgVol:String = validate.validateDecimal(volume.length() > 0 ? volume.@sampleVolume  : '', VOLUME_MAX);
+				if(msgVol){
+					errorDict["volume"] = msgVol + " in \"Vol.\" column.\n";
+				}
+				var msgFragTo:String = validate.validateInteger(fragSizeTo.length() > 0 ? fragSizeTo.@qualFragmentSizeTo   : "");
+				if(msgFragTo){
+					errorDict["fragSizeTo"] = msgFragTo + " in\"QC Frag Size (To)\" column.\n";
+				}
+
+				var msgFragFrom:String = validate.validateInteger(fragSizeFrom.length() > 0 ? fragSizeFrom.@qualFragmentSizeFrom   : "");
+				if(msgFragFrom){
+					errorDict["fragSizeFrom"] = msgFragFrom + " in \"QC Frag Size (From)\" column.\n";
+				}
+				var msgLib:String = validate.validateInteger(libSize.length() > 0 ? libSize.@meanLibSizeActual  : "");
+				if(msgLib){
+					errorDict["librarySize"] = msgLib + " in \"Actual Ave. lib. Size\" column.\n";
+				}
+
+					//required
+				if (multiplex.length() < 1) { // if statement is the case where multiplex field is empty
+					errorDict["multiplexReq"] = "Multiplex number is required.\n";
+				}
+			}
+
+			for(var key:String in errorDict){
+				error += errorDict[key];
+			}
+			error += superError;
+			return error;
+		}
+
 		override protected function uploadComplete(event:Event):void {
 			propagateIndexTagSequence();
 			super.uploadComplete(event);
@@ -446,20 +482,6 @@
 				isComplete = true;
 			} else if (parentDocument.isEditState()) {
 				isComplete = true;
-			}
-
-			// Make sure that sample concentration is valid
-			var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-			if (cw != "") {
-				parentDocument.userWarningsSamples += cw;
-				isComplete = false;
-			}
-
-			// Make sure that sample QC is valid
-			var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-			if (qcWarning != "") {
-				parentDocument.userWarningsSamples += qcWarning;
-				isComplete = false;
 			}
 
 			// Make sure lane #'s are grouped
@@ -1100,11 +1122,12 @@
 				</mx:HBox>
 				<mx:Text styleName="labelSmall" text="Optional Annotation"/>
 			</mx:HBox>
-			
 		</mx:HBox>
+
 		
-		<util:AdvancedDataGridWithCustomRowColors width="100%" height="100%" id="samplesGrid"  
-												  editable="true" itemEditEnd="validateData(event)"
+		<util:AdvancedDataGridWithCustomRowColors width="100%" height="100%" id="samplesGrid"
+                                                  itemEditEnd="validateData(event)"
+												  editable="true"
 												  itemFocusOut="checkSamplesCompleteness()"  
 												  dragDrop="onDragDropSample(event)"
 												  addRowEnabled="true"
@@ -1114,9 +1137,10 @@
 												  showRowNumberCol="true"
 												  lockedColumnCount="4">
 			<util:columns>
-				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex Group #" dataField="@multiplexGroupNumber" editable="true" visible="true"
+				<mx:AdvancedDataGridColumn id="multiplexGroupNumberEditColumn" headerText="Multiplex #" dataField="@multiplexGroupNumber" editable="true" visible="true"
 										   width="69" rendererIsEditor="false" itemRenderer="{hci.flex.controls.Label.create('@multiplexGroupNumber')}"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInput.create('@multiplexGroupNumber', true, '0-9').newInstance(), '')}" editorDataField="value"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInput.create('@multiplexGroupNumber', true).newInstance(), '')}"
+										   editorDataField="value"
 										   showDataTips="true">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1158,8 +1182,12 @@
 				</mx:AdvancedDataGridColumn>   
 				
 				<mx:AdvancedDataGridColumn
-                        headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="80" formatter="{sampleConcentrationFormatter}"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
+                        headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}"
+						id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="80"
+						itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}"
+						itemRenderer="{views.renderers.NumberTextRenderer.create('@concentration')}"
+						editorDataField="value"
+						dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -1200,11 +1228,11 @@
 				</mx:AdvancedDataGridColumn>
 
 				<mx:AdvancedDataGridColumn id="sampleVolumeCol"
-										   formatter="{sampleVolumeFormatter}"
 										   editable="{true}"
 										   headerText="Vol. (uL)" width="80"
 										   dataField="@sampleVolume"
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.TextInput.create('@sampleVolume', false).newInstance(), '')}"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@sampleVolume')}"
 										   editorDataField="value">
 					<mx:headerRenderer >
 						<mx:Component>
@@ -1221,7 +1249,8 @@
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="80" 
 										   dataField="@qual260nmTo280nmRatio" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo280nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1305,7 +1334,7 @@
 													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(this.filteredSampleTypeList.source, '@display', '@value', '@idSampleType', true).newInstance(), '')}">
 					<util:headerRenderer > 
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
 								<util:ContextHelp context1="sampleType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample type Help" showEdit="{parentApplication.isAdminState}"
 												  label="Sample Type" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
@@ -1313,15 +1342,15 @@
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>					
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="true" width="170" headerText="Organism"  dataField="@idOrganism" 
-													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
-													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', '', true, true)}"              
+													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"
+													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', '', true, true)}"
 													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}">
-					<util:headerRenderer > 
+					<util:headerRenderer >
 						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
 								<util:ContextHelp context1="sampleOrganism" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Organism Help" showEdit="{parentApplication.isAdminState}"
 												  label="Organism" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
+							</mx:VBox>
 						</mx:Component>
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
@@ -1338,6 +1367,7 @@
 										   dataField="@qualCalcConcentration"
 										   id="qualCalcConcCol"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@qualCalcConcentration')}"
 										   editorDataField="value">
 					<mx:headerRenderer >
 						<mx:Component>
@@ -1467,7 +1497,12 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn> 
 				
-				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true">
+				<mx:AdvancedDataGridColumn id="meanLibSizeActual"
+										   visible="false"
+										   headerText="Actual Ave Lib Size" width="90"
+										   dataField="@meanLibSizeActual"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@meanLibSizeActual')}"
+										   editable="true">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
@@ -1483,7 +1518,8 @@
 										   width="80" 
 										   dataField="@qual260nmTo230nmRatio" 
 										   id="qual260_230Col" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qual260nmTo230nmRatio')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1500,7 +1536,8 @@
 										   width="87" 
 										   dataField="@qualFragmentSizeFrom" 
 										   id="qualFragSizeFromCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qualFragmentSizeFrom')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1517,7 +1554,8 @@
 										   width="87" 
 										   dataField="@qualFragmentSizeTo" 
 										   id="qualFragSizeToCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+                                           itemRenderer="{views.renderers.NumberTextRenderer.create('@qualFragmentSizeTo')}"
 										   editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>

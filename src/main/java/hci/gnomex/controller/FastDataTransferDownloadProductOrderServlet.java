@@ -29,12 +29,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
     private static Logger LOG = Logger.getLogger(FastDataTransferDownloadProductOrderServlet.class);
 
-    private ProductOrderFileDescriptorParser parser = null;
-
-
-    //private ArchiveHelper archiveHelper = new ArchiveHelper();
-
-    private String serverName = "";
+    private static String serverName = "";
 
 
 
@@ -79,7 +74,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
             // Read productOrder file parser, which contains a list of selected productOrder files,
             //from session variable stored by CacheProductOrderFileDownloadList.
-            parser = (ProductOrderFileDescriptorParser) req.getSession().getAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
+            ProductOrderFileDescriptorParser parser = (ProductOrderFileDescriptorParser) req.getSession().getAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
 
             // Get security advisor
             SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -154,7 +149,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
                         // Make softlinks directory
                         if(softlinks_dir.length() == 0) {
-                            softlinks_dir = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(req.getServerName())+uuid.toString();
+                            softlinks_dir = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName)+uuid.toString();
                             File dir = new File(softlinks_dir);
                             boolean success = dir.mkdir();
                             if (!success) {
@@ -225,9 +220,9 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                 // clear out session variable
                 req.getSession().setAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
 
-                String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
-                String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-                String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+ Constants.FILE_SEPARATOR+productOrderNumberBase;
+                String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(serverName);
+                String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(serverName);
+                String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName)+uuid.toString()+ Constants.FILE_SEPARATOR+productOrderNumberBase;
                 if (fdtJarLoc == null || fdtJarLoc.equals("")) {
                     fdtJarLoc = "http://monalisa.cern.ch/FDT/";
                 }
@@ -239,7 +234,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                     response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
                     response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):");
                     response.getOutputStream().println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
-                    response.getOutputStream().println("java -jar ./fdt.jar -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
+                    response.getOutputStream().println("java -jar ./fdt.jar -ka 999999 -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
                     response.getOutputStream().flush();
                     return;
                 }
@@ -253,7 +248,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
                     out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                     out.println("<jnlp spec=\"1.0\"");
-                    String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
+                    String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(serverName);
                     out.println("codebase=\""+codebase_param+"\">");
                     out.println("<!--");
                     out.println("");
@@ -267,7 +262,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                     out.println("3) Execute the following on the command line after changing the path2xxx variables:");
                     out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
                     out.println("");
-                    out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+                    out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
                     out.println("");
                     out.println("-->");
                     out.println("<information>");
