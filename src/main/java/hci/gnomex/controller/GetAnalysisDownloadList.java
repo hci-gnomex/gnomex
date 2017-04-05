@@ -68,14 +68,14 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 	if (request.getParameter("includeUploadStagingDir") != null
 			&& !request.getParameter("includeUploadStagingDir").equals("")) {
 		includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
-		System.out.println ("[GetAnalysisDownloadList] includeUploadStagingDir " + includeUploadStagingDir);
+//		System.out.println ("[GetAnalysisDownloadList] includeUploadStagingDir " + includeUploadStagingDir);
 
 	}
 
 	if (request.getParameter("skipUploadStagingDirFiles") != null
 			&& !request.getParameter("skipUploadStagingDirFiles").equals("")) {
 		skipUploadStagingDirFiles = request.getParameter("skipUploadStagingDirFiles");
-		System.out.println ("[GetAnalysisDownloadList] skipUploadStagingDirFiles " + skipUploadStagingDirFiles);
+//		System.out.println ("[GetAnalysisDownloadList] skipUploadStagingDirFiles " + skipUploadStagingDirFiles);
 	}
 
 	if (request.getParameter("idAnalysis") != null) {
@@ -346,7 +346,7 @@ public Command execute() throws RollBackCommandException {
 			XMLOutputter out = new org.jdom.output.XMLOutputter();
 			this.xmlResult = out.outputString(doc);
 
-			System.out.println ("[GetAnalysisDownloadList] xmlResult:\n" + this.xmlResult);
+//			System.out.println ("[GetAnalysisDownloadList] xmlResult:\n" + this.xmlResult);
 		}
 
 		if (isValid()) {

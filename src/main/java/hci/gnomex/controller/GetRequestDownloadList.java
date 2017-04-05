@@ -70,7 +70,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 	if (request.getParameter("includeUploadStagingDir") != null
 			&& !request.getParameter("includeUploadStagingDir").equals("")) {
 		includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
-		System.out.println ("[GetRequestDownloadList] includeUploadStagingDir " + includeUploadStagingDir);
+//		System.out.println ("[GetRequestDownloadList] includeUploadStagingDir " + includeUploadStagingDir);
 	}
 
 	if (request.getParameter("whereami") != null) {
@@ -409,7 +409,7 @@ public Command execute() throws RollBackCommandException {
 
 		XMLOutputter out = new org.jdom.output.XMLOutputter();
 		this.xmlResult = out.outputString(doc);
-		System.out.println ("[GetRequestDownloadList] xmlResult:\n" + xmlResult);
+//		System.out.println ("[GetRequestDownloadList] xmlResult:\n" + xmlResult);
 
 		setResponsePage(this.SUCCESS_JSP);
 	} catch (Exception e) {

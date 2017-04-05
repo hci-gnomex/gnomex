@@ -1029,7 +1029,7 @@ private Map<String, boolean[]> canReadSamples(List<String> ccNumbers) {
 		stmt = con.createStatement();
 
 		StringBuffer buf = buildSampleQuery(ccNumbers);
-		System.out.println("[canReadSamples] query: " + buf.toString());
+//		System.out.println("[canReadSamples] query: " + buf.toString());
 		rs = stmt.executeQuery(buf.toString());
 		while (rs.next()) {
 			String ccNumber = rs.getString("col_0_0_");

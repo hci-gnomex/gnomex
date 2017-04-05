@@ -75,7 +75,7 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 	}
 	if (request.getParameter("showUploads") != null && !request.getParameter("showUploads").equals("")) {
 		showUploads = request.getParameter("showUploads");
-		System.out.println ("[GetAnalysis] showUploads: " + showUploads);
+//		System.out.println ("[GetAnalysis] showUploads: " + showUploads);
 	}
 
 	if (idAnalysis == null && analysisNumber == null) {
@@ -226,7 +226,7 @@ public Command execute() throws RollBackCommandException {
 			XMLOutputter out = new org.jdom.output.XMLOutputter();
 			this.xmlResult = out.outputString(doc);
 
-			System.out.println ("[GetAnalysis] xmlResult:\n" + this.xmlResult);
+//			System.out.println ("[GetAnalysis] xmlResult:\n" + this.xmlResult);
 		}
 
 		if (isValid()) {

@@ -91,7 +91,6 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
             String[] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
             if (!newFileName.equals(fileName) && !fileName.equals("")) {
                 // these are files that were explicitly renamed
-                System.out.println ("[AFDUParser] renameFile fileName: " + fileName + " new fileName: " + newFileName + " isProtected: " + isProtected);
                 filesToRename.put(fileName, contents);
                 if (childFileNode.getAttributeValue("type").equals("dir")) {
                     renameDirectoryChildren(childFileNode, newFileName);
@@ -154,7 +153,6 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
             if (isProtected == null || isProtected.equalsIgnoreCase("Y")) {
                 continue;
             }
-            System.out.println ("[AFDUParser] renameDirectoryChildren fileName: " + fileName + " new fileName: " + newFileName + " isProtected: " + isProtected);
 
             String[] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
 
@@ -180,7 +178,6 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
             if (isProtected == null || isProtected.equalsIgnoreCase("Y")) {
                 continue;
             }
-            System.out.println ("[AFDUParser] FilesToRemove fileName: " + fileName + " isProtected: " + isProtected);
 
             List fileNames = (List) filesToDeleteMap.get(fileIdString);
 

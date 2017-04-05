@@ -80,7 +80,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
         if (request.getParameter("filesXMLString") != null && !request.getParameter("filesXMLString").equals("")) {
             filesXMLString = request.getParameter("filesXMLString");
-            System.out.println("[OEUF] filesXMLString:\n" + filesXMLString + "\n");
+//            System.out.println("[OEUF] filesXMLString:\n" + filesXMLString + "\n");
 
             StringReader reader = new StringReader(filesXMLString);
             try {
@@ -97,7 +97,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 && !request.getParameter("experimentFileXMLString").equals("")) {
             experimentFileXMLString = "<experimentFiles>" + request.getParameter("experimentFileXMLString")
                     + "</experimentFiles>";
-            System.out.println("[OEUF] experimentFileXMLString:\n" + experimentFileXMLString + "\n");
+//            System.out.println("[OEUF] experimentFileXMLString:\n" + experimentFileXMLString + "\n");
 
             StringReader reader = new StringReader(experimentFileXMLString);
             try {
@@ -113,7 +113,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 && !request.getParameter("filesToRemoveXMLString").equals("")) {
             filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString")
                     + "</FilesToRemove>";
-            System.out.println("[OEUF] filesToRemoveXMLString:\n" + filesToRemoveXMLString + "\n");
+//            System.out.println("[OEUF] filesToRemoveXMLString:\n" + filesToRemoveXMLString + "\n");
 
             StringReader reader = new StringReader(filesToRemoveXMLString);
             try {
@@ -130,7 +130,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 && !request.getParameter("filesToUnlinkXMLString").equals("")) {
             filesToUnlinkXMLString = "<FilesToUnlink>" + request.getParameter("filesToUnlinkXMLString")
                     + "</FilesToUnlink>";
-            System.out.println("[OEUF] filesToRemoveXMLString:\n" + filesToRemoveXMLString + "\n");
+//            System.out.println("[OEUF] filesToRemoveXMLString:\n" + filesToRemoveXMLString + "\n");
 
             StringReader reader = new StringReader(filesToUnlinkXMLString);
             try {
@@ -146,7 +146,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 && !request.getParameter("linkedSampleFileXMLString").equals("")) {
             linkedSampleFileXMLString = "<linkedSampleFiles>" + request.getParameter("linkedSampleFileXMLString")
                     + "</linkedSampleFiles>";
-            System.out.println("[OEUF] linkedSampleFileXMLString:\n" + linkedSampleFileXMLString + "\n");
+//            System.out.println("[OEUF] linkedSampleFileXMLString:\n" + linkedSampleFileXMLString + "\n");
 
             StringReader reader = new StringReader(linkedSampleFileXMLString);
             try {
