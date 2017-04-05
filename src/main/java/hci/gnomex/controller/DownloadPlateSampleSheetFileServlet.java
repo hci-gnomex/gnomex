@@ -24,9 +24,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
 
   private static Logger LOG = Logger.getLogger(DownloadPlateSampleSheetFileServlet.class);
   
-  private Integer                        idPlate;
-  private Plate                          plate;
-  
+
   public void init() {
   
   }
@@ -34,6 +32,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
 
+      Integer idPlate = null;
 
     // Restrict commands to local host if request is not secure
     if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -64,7 +63,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
      if (secAdvisor != null) {
 
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
-        plate = (Plate)sess.load(Plate.class, idPlate);
+        Plate plate = (Plate)sess.load(Plate.class, idPlate);
 
         String plateName = plate.getLabel() != null && !plate.getLabel().equals("") ? plate.getLabel() : plate.getIdPlate().toString();
         plateName = plateName.replaceAll("\\s", "_");
@@ -99,7 +98,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
         
         
         
-        Element runNode = getPlateWells( sess );
+        Element runNode = getPlateWells( sess, plate );
 
         if( runNode != null ) {
           Iterator i = runNode.getChildren("PlateWell").iterator();
@@ -159,7 +158,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
   }    
   
   
-  private Element getPlateWells(Session sess) {
+  private Element getPlateWells(Session sess, Plate plate) {
 
     try { 
       Element plateNode = plate.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
@@ -167,7 +166,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
       for ( int col = 1; col <= 12; col++ ) {
         for( char row = 'A'; row <= 'H'; row ++ ){
           
-            Element wellNode = getWellNode( sess, row, col );
+            Element wellNode = getWellNode( sess, row, col, plate );
             plateNode.addContent(wellNode);
           
         }
@@ -183,7 +182,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
     }
   }
   
-  private Element getWellNode( Session sess, char row, int col) {
+  private Element getWellNode( Session sess, char row, int col, Plate plate) {
     try {
       
       Element wellNode = new Element("PlateWell");

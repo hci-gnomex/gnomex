@@ -32,14 +32,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
   private static Logger LOG = Logger.getLogger(FastDataTransferDownloadExpServlet.class);
 
-  private FileDescriptorParser parser = null;
-
-
-  //private ArchiveHelper archiveHelper = new ArchiveHelper();
-
-  private String serverName = "";
-
-
+  private static String serverName = "";
 
   public void init() {
 
@@ -81,7 +74,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
       // Read the experiment file parser, which contains a list of selected analysis files,
       //from session variable stored by CacheFileDownloadList.
-      parser = (FileDescriptorParser) req.getSession().getAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
+        FileDescriptorParser parser = (FileDescriptorParser) req.getSession().getAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
 
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);

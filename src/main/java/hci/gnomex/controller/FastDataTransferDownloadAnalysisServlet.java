@@ -31,12 +31,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
   private static Logger LOG = Logger.getLogger(FastDataTransferDownloadAnalysisServlet.class);
 
-  private AnalysisFileDescriptorParser parser = null;
-
-
-  //private ArchiveHelper archiveHelper = new ArchiveHelper();
-
-  private String serverName = "";
+  private static String serverName = "";
 
 
 
@@ -81,7 +76,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
       // Read analysis file parser, which contains a list of selected analysis files,
       //from session variable stored by CacheAnalysisFileDownloadList.
-      parser = (AnalysisFileDescriptorParser) req.getSession().getAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
+      AnalysisFileDescriptorParser parser = (AnalysisFileDescriptorParser) req.getSession().getAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
 
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -156,7 +151,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
             // Make softlinks directory
             if(softlinks_dir.length() == 0) {							
-              softlinks_dir = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(req.getServerName())+uuid.toString();
+              softlinks_dir = PropertyDictionaryHelper.getInstance(sess).getFDTDirectoryForGNomEx(serverName)+uuid.toString();
               File dir = new File(softlinks_dir);
               boolean success = dir.mkdir();
               if (!success) {
@@ -227,9 +222,9 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
         // clear out session variable
         req.getSession().setAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
         
-        String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
-        String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+Constants.FILE_SEPARATOR+analysisNumberBase;
+        String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(serverName);
+        String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(serverName);
+        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName)+uuid.toString()+Constants.FILE_SEPARATOR+analysisNumberBase;
         if (fdtJarLoc == null || fdtJarLoc.equals("")) {
           fdtJarLoc = "http://monalisa.cern.ch/FDT/";
         }
@@ -255,7 +250,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
           out.println("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
           out.println("<jnlp spec=\"1.0\"");
-          String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(req.getServerName());
+          String codebase_param = PropertyDictionaryHelper.getInstance(sess).getFDTClientCodebase(serverName);
           out.println("codebase=\""+codebase_param+"\">");
           out.println("<!--");
           out.println("");

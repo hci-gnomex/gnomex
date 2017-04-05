@@ -41,8 +41,8 @@ public class DownloadSingleFileServlet extends HttpServlet {
 
   private static String                          serverName = null;
 
+  
   public void init() { }
-
 
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {

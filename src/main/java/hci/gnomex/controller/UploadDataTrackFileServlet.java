@@ -51,14 +51,7 @@ import com.oreilly.servlet.multipart.Part;
 
 public class UploadDataTrackFileServlet extends HttpServlet {
 
-private String fileName = null;
-private StringBuffer bypassedFiles = new StringBuffer();
-private File tempBulkUploadFile = null;
-
-private SecurityAdvisor secAdvisor = null;
-
-private String serverName;
-private String baseDir;
+private static String serverName;
 
 // fields for bulkUploading
 private static final Pattern BULK_UPLOAD_LINE_SPLITTER = Pattern.compile("([^\\t]+)\\t([^\\t]+)\\t([^\\t]+)\\t(.+)",
@@ -86,18 +79,18 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 	Integer idGenomeBuild = null;
 	Integer idDataTrackFolder = null;
 	Integer idLab = null;
-
+	File tempBulkUploadFile = null;
 	try {
 		sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
 
-		baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+		String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 
 		// Get the dictionary helper
 		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
 		// Get security advisor
-		secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+		SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 		if (secAdvisor == null) {
 			System.out
 					.println("UploadDataTrackFileServlet:  Warning - unable to find existing session. Creating security advisor.");
@@ -179,7 +172,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			}
 			dataTrack = createNewDataTrack(sess, dataTrackName, codeVisibility, idGenomeBuild,
 					idDataTrackFolder != null && idDataTrackFolder.intValue() == -99 ? null : idDataTrackFolder,
-					idLab != null && idLab.intValue() == -99 ? null : idLab);
+					idLab != null && idLab.intValue() == -99 ? null : idLab, baseDir, secAdvisor);
 			sess.flush();
 		}
 
@@ -214,7 +207,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			if (part.isFile()) {
 				// it's a file part
 				FilePart filePart = (FilePart) part;
-				fileName = filePart.getFileName();
+				String fileName = filePart.getFileName();
 				// is it a bulk upload?
 				if (fileName.endsWith("bulkUpload")) {
 					// write temp file
@@ -222,7 +215,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					filePart.writeTo(tempBulkUploadFile);
 					// make new dataTracks based on current dataTrack with modifications from the 1.ablk text file
 					DataTrackFolder ag = getDefaultDataTrackFolder(dataTrack, sess, idDataTrackFolder);
-					uploadBulkDataTracks(sess, tempBulkUploadFile, dataTrack, ag, res);
+					uploadBulkDataTracks(sess, tempBulkUploadFile, dataTrack, ag, secAdvisor, baseDir);
 					if (tempBulkUploadFile.exists()) {
 						if (!tempBulkUploadFile.delete()) {
 							LOG.warn("Unable to delete file " + tempBulkUploadFile.getName() + " during bulk upload.");
@@ -325,7 +318,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 }
 
 private DataTrack createNewDataTrack(Session sess, String name, String codeVisibility, Integer idGenomeBuild,
-		Integer idDataTrackFolder, Integer idLab) throws Exception {
+		Integer idDataTrackFolder, Integer idLab, String baseDir, SecurityAdvisor secAdvisor) throws Exception {
 	DataTrack dataTrack = new DataTrack();
 
 	dataTrack.setName(name);
@@ -341,7 +334,7 @@ private DataTrack createNewDataTrack(Session sess, String name, String codeVisib
 	}
 
 	dataTrack.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-	dataTrack.setCreatedBy(this.secAdvisor.getUID());
+	dataTrack.setCreatedBy(secAdvisor.getUID());
 
 	sess.save(dataTrack);
 	sess.flush();
@@ -403,7 +396,7 @@ private DataTrackFolder getDefaultDataTrackFolder(DataTrack sourceDataTrack, Ses
  * @author davidnix
  */
 private void uploadBulkDataTracks(Session sess, File spreadSheet, DataTrack sourceDataTrack,
-		DataTrackFolder defaultDataTrackFolder, HttpServletResponse res) throws Exception {
+		DataTrackFolder defaultDataTrackFolder, SecurityAdvisor secAdvisor, String baseDir) throws Exception {
 
 	// validate upload file
 	String errors = validateBulkUploadFile(spreadSheet);
@@ -449,7 +442,7 @@ private void uploadBulkDataTracks(Session sess, File spreadSheet, DataTrack sour
 			}
 
 			// does the dataTrack currently exist? if so then add files to it, needed for bar and bam files
-			File dir = fetchDataTrackDirectory(ag, dataTrackName);
+			File dir = fetchDataTrackDirectory(ag, dataTrackName, baseDir);
 			if (dir != null) {
 				File moved = new File(dir, dataFile.getName());
 				if (dataFile.renameTo(moved) == false) {
@@ -463,7 +456,7 @@ private void uploadBulkDataTracks(Session sess, File spreadSheet, DataTrack sour
 			}
 			// make new dataTrack cloning current dataTrack
 			else
-				addNewClonedDataTrack(sess, sourceDataTrack, dataTrackName, summary, description, dataFile, ag, res);
+				addNewClonedDataTrack(sess, sourceDataTrack, dataTrackName, summary, description, dataFile, ag, secAdvisor, baseDir);
 
 		}
 
@@ -619,11 +612,11 @@ private DataTrackFolder getSpecifiedDataTrackFolder(Session sess, DataTrackFolde
  * @author davidnix
  */
 private void addNewClonedDataTrack(Session sess, DataTrack sourceDataTrack, String name, String summary,
-		String description, File dataFile, DataTrackFolder ag, HttpServletResponse res) throws BulkFileUploadException,
+		String description, File dataFile, DataTrackFolder ag, SecurityAdvisor secAdvisor, String baseDir) throws BulkFileUploadException,
 		UnknownPermissionException, Exception {
 
 	// Make sure the user can write this annotation
-	if (!this.secAdvisor.canUpdate(sourceDataTrack)) {
+	if (!secAdvisor.canUpdate(sourceDataTrack)) {
 		throw new Exception("Insufficient permision to write annotation.");
 	}
 
@@ -650,7 +643,7 @@ private void addNewClonedDataTrack(Session sess, DataTrack sourceDataTrack, Stri
 	dup.setIdGenomeBuild(sourceDataTrack.getIdGenomeBuild());
 	dup.setIsLoaded("N");
 	dup.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-	dup.setCreatedBy(this.secAdvisor.getUID());
+	dup.setCreatedBy(secAdvisor.getUID());
 	dup.setDataPath(baseDir);
 
 	// save DataTrack so that it's assigned an ID
@@ -758,7 +751,7 @@ private void addNewClonedDataTrack(Session sess, DataTrack sourceDataTrack, Stri
  * 
  * @author davidnix
  */
-private File fetchDataTrackDirectory(DataTrackFolder folder, String dataTrackName) {
+private File fetchDataTrackDirectory(DataTrackFolder folder, String dataTrackName, String baseDir) {
 	Iterator it = folder.getDataTracks().iterator();
 	while (it.hasNext()) {
 		DataTrack a = (DataTrack) it.next();
