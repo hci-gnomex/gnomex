@@ -198,8 +198,7 @@
 						}
 					}
 					parentDocument.callGetAppUserList();
-					parentDocument.callGetAppUser();
-				} else { 
+				} else {
 					if (saveAppUser.lastResult.name() == "ERROR") {
 						Alert.show(saveAppUser.lastResult.@message);
 					} else if(saveAppUser.lastResult.name() == "NULL_EMAIL_ERROR"){
