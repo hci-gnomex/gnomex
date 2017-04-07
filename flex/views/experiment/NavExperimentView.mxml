@@ -903,11 +903,10 @@
 		    // For normal users, make sure we scope to the
 			// correct level to show the experiment just looked up.
 			if (currentState == null || currentState == "") {
-				if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {		
-					// If this experiment is not in user's lab, search
-					// other lab's public experiments.
+				if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {
+					// We want to search all labs (including myLab) if PUBLIC visibility. AllExperiments does this.
 					if (selectedExperiment.@codeVisibility == 'PUBLIC') {
-						params.publicExperimentsInOtherGroups = "Y";
+						params.allExperiments = "Y";
 						this.publicExperimentsOtherGroupsCheckbox.selected = true;
 					} else {
 						this.myLabsExperimentsCheckbox.selected = true;
@@ -973,11 +972,11 @@
 			// For normal users, make sure we scope to the
 			// correct level to show the experiment just looked up.
 			if (currentState == null || currentState == "") {
-				if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {		
-					// If this experiment is not in user's lab, search
-					// other lab's public experiments.
-					if (selectedExperiment.@codeVisibility == 'PUBLIC') {
-						params.publicExperimentsInOtherGroups = "Y";
+				// Initially, isMyLab is not set so will return false
+				if (!parentApplication.isMyLab(selectedExperiment.@idLab)) {
+					// We want to search all labs (including myLab) if PUBLIC visibility. AllExperiments does this.
+ 					if (selectedExperiment.@codeVisibility == 'PUBLIC') {
+						params.allExperiments = "Y";
 						this.publicExperimentsOtherGroupsCheckbox.selected = true;
 					} else {
 						this.myLabsExperimentsCheckbox.selected = true;
@@ -1622,12 +1621,12 @@
 							</mx:VBox>
 							
 							<mx:RadioButton label="" id="publicExperimentsOtherGroupsCheckbox"   groupName="experimentRadioGroup" paddingLeft="2" paddingRight="2">
-								<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
+								<mx:toolTip>Experiments that are available to the public</mx:toolTip>
 								<mx:click>this.toggleOwnershipRadio();getProjectRequestList.send(getBrowseParameters());</mx:click>
 							</mx:RadioButton>
 							<mx:VBox styleName="{publicExperimentsOtherGroupsCheckbox.selected?'selectedLabel':'labelSmall'}" id="vbox8">
 								<mx:Label text="Public data" styleName="{publicExperimentsOtherGroupsCheckbox.selected?'selectedLabel':'labelSmall'}"  id="label5">
-									<mx:toolTip>Other lab's experiments that are available to public</mx:toolTip>
+									<mx:toolTip>Experiments that are available to the public</mx:toolTip>
 									<mx:click>this.toggleOwnershipRadio();publicExperimentsOtherGroupsCheckbox.selected=true;getProjectRequestList.send(getBrowseParameters());</mx:click>
 								</mx:Label>
 							</mx:VBox>

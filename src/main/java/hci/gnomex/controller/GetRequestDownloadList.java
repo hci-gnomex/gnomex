@@ -84,6 +84,14 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 		whereami = "unknown";
 	}
 
+	if (request.getParameter("allExperiments") != null) {
+		filter.setAllExperiments(request.getParameter("allExperiments"));
+	}
+
+	if (request.getParameter("publicExperimentsInOtherGroups") != null) {
+		filter.setPublicExperimentsInOtherGroups(request.getParameter("publicExperimentsInOtherGroups"));
+	}
+
 	String idRequestStringList = request.getParameter("idRequestStringList");
 	if (idRequestStringList != null && !idRequestStringList.equals("")) {
 		List idRequests = new ArrayList<Integer>();

@@ -1581,7 +1581,11 @@
 					if (oldId == null) oldId = "crap";
 					if (newId == null) newId = "crap";
 					params.whereami = "1" + "/" + oldId + "/" + newId;
-
+					// We want to search all labs (including myLab) if PUBLIC visibility. All experiments does this.
+					// This fixes issue where files were not shown for PUBLIC experiments
+					if (selectedExperiment.@codeVisibility == 'PUBLIC') {
+						params.allExperiments = "Y";
+					}
 					filesView.getRequestDownloadList.send(params);
 				}
 
