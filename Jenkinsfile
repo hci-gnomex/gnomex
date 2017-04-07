@@ -8,7 +8,8 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh '''gradle gnomex_all
+        sh '''PATH=$PATH:/opt/gradle/latest:
+gradle gnomex_all
 '''
       }
     }
