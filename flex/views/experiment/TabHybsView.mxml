@@ -521,24 +521,15 @@
         	cy3Samples = new XMLListCollection();
         	cy5Samples = new XMLListCollection();
         	var sample:Object = null;
-        	for each(sample in parentDocument.samples) {
-        		if (!sample.hasOwnProperty("@label") || sample.@label == null || sample.@label == '') {
-        			cy3Samples.addItem(sample);
-        		}
-        	}
-        	for each(sample in parentDocument.samples) {
-        		if (sample.@label != null && sample.@label == 'cy3') {
-        			cy3Samples.addItem(sample);
-        		}
-        	}
-        	for each(sample in parentDocument.samples) {
-        		if (sample.@label != null && sample.@label == 'cy5') {
-        			cy5Samples.addItem(sample);
-        		}
-        	}
-        	
-        	// Now for any hybs, correct the channel
-        	for each(sample in parentDocument.samples) {
+			for each(sample in parentDocument.samples) {
+				if (sample.hasOwnProperty("@label") && sample.@label == 'cy3') {
+					cy3Samples.addItem(sample.copy());
+				} else if (sample.hasOwnProperty("@label") && sample.@label == 'cy5') {
+					cy5Samples.addItem(sample.copy());
+				} else {
+					cy3Samples.addItem(sample.copy());
+				}
+				// Now for any hybs, correct the channel
         		if (!sample.hasOwnProperty("@label")) {
         			continue;
         		}
