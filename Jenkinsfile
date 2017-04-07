@@ -9,7 +9,7 @@ pipeline {
     stage('Build') {
       steps {
         sh '''PATH=$PATH:/opt/gradle/bin:
-gradle -debug gnomex_all
+gradle -g /home/orionsrvs -c /home/orionsrvs/gradle.properties -debug gnomex_all
 '''
       }
     }
