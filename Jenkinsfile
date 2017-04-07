@@ -9,7 +9,7 @@ pipeline {
     stage('Build') {
       steps {
         sh '''PATH=$PATH:/opt/gradle/bin:
-gradle gnomex_all
+gradle -debug gnomex_all
 '''
       }
     }
