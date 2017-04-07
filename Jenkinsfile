@@ -8,7 +8,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh '''PATH=$PATH:/opt/gradle/bin:
+        sh '''PATH=$PATH:/opt/gradle/latest/bin:/root/.sdkman/candidates/groovy/current/bin/:
 gradle -g /home/orionsrvs -c /home/orionsrvs/gradle.properties -debug gnomex_all
 '''
       }
