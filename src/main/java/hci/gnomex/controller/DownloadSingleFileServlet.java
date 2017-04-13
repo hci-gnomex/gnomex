@@ -80,14 +80,6 @@ public class DownloadSingleFileServlet extends HttpServlet {
       fileName = req.getParameter("fileName");
       // Change all backslash to forward slash for comparison
       fileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
-
-      // If the file has a custom extension, but should be displayed as a text file, then load it as a text file.
-      for(String extension : Constants.FILE_EXTENSIONS_FOR_VIEW_CUSTOM_TEXT_FILES) {
-        if (fileName.endsWith(extension)) {
-          fileName = fileName.substring(0, fileName.length() - extension.length()) + ".txt";
-          break;
-    }
-      }
     }
     // Get the dir parameter
     if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
@@ -117,9 +109,11 @@ public class DownloadSingleFileServlet extends HttpServlet {
      secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
       if (secAdvisor != null) {
+        String mimeSpoofName = SpoofTxtFiles(fileName);
+
         // Set the content type and content disposition based on whether we
         // want to serve the file to the browser or download it.
-    	String mimeType = req.getSession().getServletContext().getMimeType(fileName); // recognized mime types are defined in Tomcat's web.xml
+    	String mimeType = req.getSession().getServletContext().getMimeType(mimeSpoofName); // recognized mime types are defined in Tomcat's web.xml
 
         if (view.equals("Y") && mimeType != null) {
           response.setContentType(mimeType);
@@ -629,4 +623,28 @@ private boolean processIMG (String imgline, OutputStream out, String dir, String
 
 	return processed;
 }
+
+  /**
+   * A helper function which assists in the process of allowing files to be served as though they were txt files,
+   * changing how the browser interacts with them.
+   * @param fileName    the original fileName
+   * @return            If the file type is listed in Constants.FILE_EXTENSIONS_FOR_VIEW_CUSTOM_TEXT_FILES, then
+   *                    returns the properly-formatted filename with a .txt extension.
+   *                    Otherwise, returns the original filename.
+   */
+  private String SpoofTxtFiles(String fileName) {
+      String spoofName = fileName;
+
+      if (fileName != null && !fileName.equals("")) {
+          // If the file has a custom extension, but should be displayed as a text file, then load it as a text file.
+          for(String extension : Constants.FILE_EXTENSIONS_FOR_VIEW_CUSTOM_TEXT_FILES) {
+              if (fileName.endsWith(extension)) {
+                  spoofName = fileName.substring(0, fileName.length() - extension.length()) + ".txt";
+                  break;
+              }
+          }
+      }
+
+      return spoofName;
+  }
 }
