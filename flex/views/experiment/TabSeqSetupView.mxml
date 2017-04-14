@@ -105,7 +105,12 @@
 			this.applicationThemeRepeater.dataProvider = null;
 			this.applicationRepeater.dataProvider = null;
 			var themeMap:Array = new Array();
+
+			// Use temporary variables when recreating these lists, which will prevent bound components or event
+			// listeners from responding to the incremental updates. This speeds things up considerably.
 			var preparedAppListTemp:XMLListCollection = new XMLListCollection();
+			var themeListTemp:XMLListCollection = new XMLListCollection();
+
 			for each(var item:Object in parentDocument.filteredAppList) {
 				var de:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.ApplicationTheme", item.@idApplicationTheme);
 				if (de.length() >= 1) {
@@ -118,16 +123,17 @@
 				}
 				preparedAppListTemp.addItem(item.copy());
 			}
-			preparedAppList = preparedAppListTemp;
 
 			if(this.samplesToBePreppedCheckbox.selected){
 				preparedAppList.sort = this.applicationSorterAlphabet;
 			}
 
-			var themeListTemp:XMLListCollection = new XMLListCollection();
 			for each(var theme:Object in themeMap) {
 				themeListTemp.addItem(theme);
 			}
+
+			// Assign the list variables to the temporary lists, causing a single update event instead of many.
+			preparedAppList = preparedAppListTemp;
 			themeList = themeListTemp;
 
 			themeList.sort = this.applicationSorter;
