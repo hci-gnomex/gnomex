@@ -123,9 +123,8 @@
 				}
 				preparedAppListTemp.addItem(item.copy());
 			}
-			preparedAppList = preparedAppListTemp;
 			if(this.samplesToBePreppedCheckbox.selected){
-				preparedAppList.sort = this.applicationSorterAlphabet;
+				preparedAppListTemp.sort = this.applicationSorterAlphabet;
 			}
 
 			for each(var theme:Object in themeMap) {
@@ -133,6 +132,7 @@
 			}
 
 			// Assign the list variables to the temporary lists, causing a single update event instead of many.
+			preparedAppList = preparedAppListTemp;
 			themeList = themeListTemp;
 
 			themeList.sort = this.applicationSorter;
