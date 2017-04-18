@@ -114,13 +114,13 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       if (this.isValid()) {
         SimpleDateFormat dateFormat = new SimpleDateFormat();
         if (requestParser.getSampleIds().size() == 0) {
-          ReportRow reportRow = makeReportRow(new Sample(), dateFormat, sess);
+          ReportRow reportRow = makeReportRow(new Sample(), "", sess);
           tray.addRow(reportRow);
         } else {
           for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
             String idSampleString = (String)i.next();
             Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
-            ReportRow reportRow = makeReportRow(sample, dateFormat, sess);
+            ReportRow reportRow = makeReportRow(sample, idSampleString, sess);
             tray.addRow(reportRow);
           }
         }
@@ -185,7 +185,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     return reportCol;
   }
 
-  private ReportRow makeReportRow(Sample sample, SimpleDateFormat dateFormat, Session sess) {
+  private ReportRow makeReportRow(Sample sample, String idSampleString, Session sess) {
     ReportRow reportRow = new ReportRow();
     List values = new ArrayList();
     for(String[] names : parser.getColumnList()) {
@@ -197,7 +197,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
         value = getAssayValue(sample, propertyName);
       }
       if (value == null) {
-        value = getPropertyValue(sample, gridLabel, sess);
+        value = getPropertyValue(idSampleString, gridLabel, sess);
       }
       if (value == null) {
         value = getValueByReflection(sample, propertyName);
@@ -268,8 +268,11 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     }
   }
   
-  private String getPropertyValue(Sample sample, String name, Session sess) {
-    Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(String.valueOf(sample.getIdSample()));
+  private String getPropertyValue(String idSampleString, String name, Session sess) {
+    // The idSample field in the XML we receive is set to "Sample1", "Sample2" etc. for samples in new experiments
+    // When converting the XML to Sample objects (in which idSample is an Integer), this id is lost
+    // We need the id when retrieving annotation fields values, so it has to be explicitly passed in here
+    Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
     if (sampleAnnotations != null) {
       for(Object key : sampleAnnotations.keySet()) {
         Integer idProperty = (Integer) key;
@@ -296,78 +299,6 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     }
     
     return retVal;
-  }
-  
-  private Object surroundWithQuotes(Object value) {
-    String s;
-    if (value == null) {
-      s = "";
-    } else {
-      s = value.toString();
-      s = s.replace("\"", "\"\"");
-    }
-    return "\"" + s + "\"";
-  }
-  
-  private String cleanText(String description) {
-    Pattern pattern = Pattern.compile("\\x0d");
-    description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
-
-    String[] tokens = description.split("_NEWLINE_GOES_HERE_");
-    if (tokens.length > 0) {
-      StringBuffer buf = new StringBuffer();
-      for (int x = 0; x < tokens.length; x++) {
-        buf.append(tokens[x]);
-        buf.append("\n");
-      }
-      description = buf.toString();
-    } 
-    return description.toString();
-  }
-  
-  private String cleanRichText(String description) {
-
-    if (description == null) {
-      return "";
-    } else if (description.trim().equals("")) {
-      return "";
-    }
-   
-    Pattern paragraph = Pattern.compile("<P.*?>");
-    description = paragraph.matcher(description).replaceAll("");
-    
-    Pattern pattern = Pattern.compile("<\\/P.*?>");
-    description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
-
-    String[] tokens = description.split("_NEWLINE_GOES_HERE_");
-    if (tokens.length > 0) {
-      StringBuffer buf = new StringBuffer();
-      for (int x = 0; x < tokens.length; x++) {
-        buf.append(tokens[x]);
-        buf.append("\n");
-      }
-      description = buf.toString();
-    } 
-    
-    
-    pattern = Pattern.compile("<B.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    pattern = Pattern.compile("<\\/B.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    pattern = Pattern.compile("<U.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    pattern = Pattern.compile("<\\/U.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    pattern = Pattern.compile("<LI.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    pattern = Pattern.compile("<\\/LI.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    pattern = Pattern.compile("<I.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    pattern = Pattern.compile("<\\/I.*?>");
-    description = pattern.matcher(description).replaceAll("");
-    
-    return description;
   }
   
   /* (non-Javadoc)
