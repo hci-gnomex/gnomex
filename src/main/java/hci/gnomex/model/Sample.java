@@ -86,6 +86,7 @@ public class Sample extends HibernateDetailObject {
   private Integer     idLibPrepQCProtocol;
   private BigDecimal  sampleVolume;
   private Integer     idLibPrepPerformedBy;
+  private Integer     numberSequencingLanes;
 
   private int         sequenceLaneCount; // a non-persistent variable used for XML
 
@@ -298,8 +299,8 @@ public class Sample extends HibernateDetailObject {
   }
 
   public String getCanChangeSampleInfo() {
-    if (this.getQualDate() != null || 
-        (this.getQualFailed() != null && this.getQualFailed().equals("Y"))) {
+    if (this.getQualDate() != null ||
+            (this.getQualFailed() != null && this.getQualFailed().equals("Y"))) {
       return "N";
     } else {
       return "Y";
@@ -316,7 +317,7 @@ public class Sample extends HibernateDetailObject {
   }
 
   public String getCanChangeSampleConcentration() {
-    return getCanChangeSampleInfo();    
+    return getCanChangeSampleInfo();
   }
 
   public String getCanChangeSeqPrepByCore() {
@@ -488,7 +489,7 @@ public class Sample extends HibernateDetailObject {
 
 
   public void setSeqPrepQualCodeBioanalyzerChipType(
-      String seqPrepQualCodeBioanalyzerChipType) {
+          String seqPrepQualCodeBioanalyzerChipType) {
     this.seqPrepQualCodeBioanalyzerChipType = seqPrepQualCodeBioanalyzerChipType;
   }
 
@@ -661,8 +662,11 @@ public class Sample extends HibernateDetailObject {
    * so that it is highlighted on 'Add services' when QC request
    * is converted to a sequencing request.
    */
-  public String getNumberSequencingLanes() {
-    return "";
+  public Integer getNumberSequencingLanes() {
+    return numberSequencingLanes;
+  }
+  public void setNumberSequencingLanes(Integer numberSequencingLanes ){
+    this.numberSequencingLanes = numberSequencingLanes;
   }
 
   public Set getWells() {
@@ -788,7 +792,7 @@ public class Sample extends HibernateDetailObject {
           step = new Integer(lastStep - 4).toString();
         } else {
           step = new Integer(lastStep - 5).toString();
-        }      
+        }
 
       } else {
         if (laneStatusMap.size() > 0) {
@@ -805,7 +809,7 @@ public class Sample extends HibernateDetailObject {
           step = new Integer(lastStep - 3).toString();
         } else {
           step = new Integer(lastStep - 4).toString();
-        }      
+        }
 
       }
     } else if (RequestCategory.isMicroarrayRequestCategory(request.getCodeRequestCategory())) {
@@ -871,7 +875,7 @@ public class Sample extends HibernateDetailObject {
         stepMap.put(new Integer(lastStep - 1).toString(), null);
       } else if (lane.getFlowCellChannel() != null) {
         stepMap.put(new Integer(lastStep - 1).toString(), null);
-      } 
+      }
     }
     return stepMap;
 
@@ -882,14 +886,14 @@ public class Sample extends HibernateDetailObject {
     for (LabeledSample ls : (Set<LabeledSample>)this.getLabeledSamples()) {
       for (Hybridization hyb : (Set<Hybridization>)request.getHybridizations()) {
         if ((hyb.getLabeledSampleChannel1().getIdLabeledSample().equals(ls.getIdLabeledSample())) ||
-            (hyb.getLabeledSampleChannel2() != null && hyb.getLabeledSampleChannel2().getIdLabeledSample().equals(ls.getIdLabeledSample()))) {
+                (hyb.getLabeledSampleChannel2() != null && hyb.getLabeledSampleChannel2().getIdLabeledSample().equals(ls.getIdLabeledSample()))) {
           if (hyb.getExtractionDate() != null) {
             stepMap.put(new Integer(lastStep).toString(), null);
           } else if (hyb.getHybDate() != null) {
             stepMap.put(new Integer(lastStep - 1).toString(), null);
           } else if (ls.getLabelingDate() != null) {
             stepMap.put(new Integer(lastStep - 2).toString(), null);
-          }   
+          }
         }
       }
     }
@@ -977,23 +981,23 @@ public class Sample extends HibernateDetailObject {
   public void setGroupName(String groupName) {
     this.groupName = groupName;
   }
-  
+
   public String getQcCodeApplication() {
     return qcCodeApplication;
   }
   public void setQcCodeApplication(String qcCodeApplication) {
     this.qcCodeApplication = qcCodeApplication;
   }
-  
+
   public String getBarcodeA() {
-    return getIdOligoBarcode() != null ? 
-        DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", getIdOligoBarcode().toString()) 
-        : (getBarcodeSequence() != null && !getBarcodeSequence().equals("") ? getBarcodeSequence() : "");
+    return getIdOligoBarcode() != null ?
+            DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", getIdOligoBarcode().toString())
+            : (getBarcodeSequence() != null && !getBarcodeSequence().equals("") ? getBarcodeSequence() : "");
   }
   public String getBarcodeB() {
-    return getIdOligoBarcodeB() != null ? 
-        DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", getIdOligoBarcodeB().toString()) 
-        : (getBarcodeSequenceB() != null && !getBarcodeSequenceB().equals("") ? getBarcodeSequenceB() : "");
+    return getIdOligoBarcodeB() != null ?
+            DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", getIdOligoBarcodeB().toString())
+            : (getBarcodeSequenceB() != null && !getBarcodeSequenceB().equals("") ? getBarcodeSequenceB() : "");
   }
 
   public BigDecimal getQcLibConcentration() {
