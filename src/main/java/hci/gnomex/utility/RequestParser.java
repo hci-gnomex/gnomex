@@ -579,6 +579,12 @@ public class RequestParser implements Serializable {
     } else {
       sample.setIdSampleSource(null);
     }
+    if (n.getAttributeValue("numberSequencingLanes") != null && !n.getAttributeValue("numberSequencingLanes").equals("")) {
+      sample.setNumberSequencingLanes(new Integer(n.getAttributeValue("numberSequencingLanes")));
+    } else {
+      sample.setNumberSequencingLanes(null);
+    }
+
     if (n.getAttributeValue("otherSamplePrepMethod") != null && !n.getAttributeValue("otherSamplePrepMethod").equals("")) {
       sample.setOtherSamplePrepMethod(n.getAttributeValue("otherSamplePrepMethod"));
     } else {
