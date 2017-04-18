@@ -180,7 +180,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 seqLaneCount++;
               }
             }
-            s.setNumberSequencingLanes(seqLaneCount);
+            s.setSequenceLaneCount(seqLaneCount);
           }
 
           // Generate xml
