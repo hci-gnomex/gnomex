@@ -123,9 +123,8 @@
 				}
 				preparedAppListTemp.addItem(item.copy());
 			}
-
 			if(this.samplesToBePreppedCheckbox.selected){
-				preparedAppList.sort = this.applicationSorterAlphabet;
+				preparedAppListTemp.sort = this.applicationSorterAlphabet;
 			}
 
 			for each(var theme:Object in themeMap) {
