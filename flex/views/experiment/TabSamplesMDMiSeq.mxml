@@ -213,7 +213,7 @@
 					var numSeqLanes:XMLList = parentDocument.samples[row].(hasOwnProperty("@numberSequencingLanes") && @numberSequencingLanes != '');
 
 					var msgNumSeqLanes:String = validate.validateInteger(numSeqLanes.length() > 0 ? numSeqLanes.@numberSequencingLanes  : '', true);
-					if(msgNumSeqLanes){
+					if(msgNumSeqLanes && action == "submit"){
 						errorDict["numberOfSeqLanes"] =msgNumSeqLanes +  " in \"# of Seq Lanes\" column.\n";
 					}
 					var msgLib:String = validate.validateInteger(libSize.length() > 0 ? libSize.@meanLibSizeActual  : "");
