@@ -581,13 +581,7 @@ public class Sample extends HibernateDetailObject {
   public void setIdSeqLibProtocol(Integer idSeqLibProtocol) {
     this.idSeqLibProtocol = idSeqLibProtocol;
   }
-
-
-  public int getSequenceLaneCount() {
-    return sequenceLaneCount;
-  }
-
-
+  
   public String getPrepInstructions() {
     return prepInstructions;
   }
