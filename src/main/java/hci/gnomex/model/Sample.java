@@ -88,7 +88,6 @@ public class Sample extends HibernateDetailObject {
   private Integer     idLibPrepPerformedBy;
   private Integer     numberSequencingLanes;
 
-  private int         sequenceLaneCount; // a non-persistent variable used for XML
 
   private String      idSampleString;  // a non-persistent variable used for estimated billing charges
   // before sample has been saved.
@@ -586,11 +585,6 @@ public class Sample extends HibernateDetailObject {
 
   public int getSequenceLaneCount() {
     return sequenceLaneCount;
-  }
-
-
-  public void setSequenceLaneCount(int sequenceLaneCount) {
-    this.sequenceLaneCount = sequenceLaneCount;
   }
 
 
