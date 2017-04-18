@@ -49,6 +49,7 @@ public class TabSamplesBase extends Canvas
     public var QC_CONCENTRATION_MAX:Number = 99999;
     public var QC_260_RATIO_MAX:Number = 9;
     public var CONCENTRATION_MAX:Number = 99999;
+    public var NUM_SEQ_TOOLTIP:String = "This is the number of times(1 or greater) that you want to sequence this sample."
 
 
 
@@ -476,7 +477,7 @@ public class TabSamplesBase extends Canvas
         }
         return false;
     }
-    public function validateSample():String{
+    public function validateSample(action:String):String{
 
         var errorDict:Dictionary = new Dictionary();
         var error:String = "";

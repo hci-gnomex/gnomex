@@ -18,7 +18,6 @@ package views.util
             integerValidator.domain = "int";
             integerValidator.integerError = "Integers only permitted";
             integerValidator.allowNegative = false;
-            integerValidator.required = false;
             integerValidator.invalidCharError ="Numerical characters only permitted";
             integerValidator.negativeError="Positive integers only permitted";
             integerValidator.maxValue = "99999"
@@ -45,7 +44,7 @@ package views.util
 		public function validateDecimal(item:String,maxSize:Number):String {
 			decimalValidator.maxValue = maxSize;
 
-            var commaMessage = hasCommas(item);
+            var commaMessage:String = hasCommas(item);
 			if(commaMessage != null){
 				return commaMessage;
 			}
@@ -57,8 +56,9 @@ package views.util
 			
 			return null;
 		}
-        public function validateInteger(item:String):String{
-            var commaMessage = hasCommas(item);
+        public function validateInteger(item:String,required:Boolean = false):String{
+			integerValidator.required = required;
+            var commaMessage:String = hasCommas(item);
             if(commaMessage != null){
                 return commaMessage;
             }

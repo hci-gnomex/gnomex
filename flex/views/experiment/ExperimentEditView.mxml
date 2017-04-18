@@ -1099,13 +1099,22 @@
                     if (theTab.getTabAt(nextChildIndex).visible) {
                         var nextVisibleChild:UIComponent = UIComponent(theTab.getChildAt(nextChildIndex));
                         if (nextVisibleChild.enabled) {
-                            nextButton.enabled = true;
+
+                                if(samplesView != null && theTab.selectedChild == samplesView){
+                                    var error:String = samplesView.validateSample("submit");
+                                    if (error != "") {
+                                        userWarningsSamples = error;
+                                        break;
+                                    }
+                                }
+                                nextButton.enabled = true;
+
+                            }
+                            break;
+                        } else {
+                            nextChildIndex++;
                         }
-                        break;
-                    } else {
-                        nextChildIndex++;
                     }
-                }
             } else {
                 nextButton.enabled = false;
                 confirmButtonStack.selectedIndex = 1;
@@ -2710,7 +2719,7 @@
 
                 var params:Object = new Object();
                 params.idLab = requestEditLabCombo.selectedItem.@idLab;
-                trace ("ExperimentEditView refrehLab call getLab.send");
+                trace("ExperimentEditView refrehLab call getLab.send");
                 var token:AsyncToken = getLab.send(params);
             }
         }
@@ -3016,8 +3025,12 @@
                 }
 
             }
-            var error:String = samplesView.validateSample();
-            errorMessage += error;
+
+            if(action == "save"){
+                var error:String = samplesView.validateSample(action);
+                errorMessage += error;
+            }
+
             if (currentState == 'SolexaEditState') {
                 if (!this.samplesView.areIndexTagsUnique()) {
                     warningMessage += "Two or more samples in the same multiplex group do not differ by at least 3 base pairs.\n\n";
@@ -3201,11 +3214,11 @@
                 }
             }
 
-            if(saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "submit"){
+            if (saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "submit") {
                 errorMessage += "On Setup tab, 'document experimental details' is too long.";
             }
-            else if(saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "save"){
-                errorMessage +="Experiment's description is too long.";
+            else if (saveDescription != null && saveDescription.length > parentApplication.MAX_DESCRIPT_LIMIT && action == "save") {
+                errorMessage += "Experiment's description is too long.";
             }
 
             if (productsView != null && theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
