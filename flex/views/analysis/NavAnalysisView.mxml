@@ -1346,10 +1346,10 @@
 				</mx:VBox>
 				<mx:ControlBar width="100%" verticalAlign="bottom">
 					<mx:VBox verticalGap="0">
-						<mx:LinkButton label="New analysis" id="newAnalysisButton" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')" 
-									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." enabled="true" disabledIcon="@Embed(source='../../assets/map_add_disable.png')" textDecoration="underline"/>
-						<mx:LinkButton label="New analysis group" id="newAnalysisGroupButton" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')" 
-									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  enabled="true" textDecoration="underline">
+						<mx:LinkButton label="New analysis" id="newAnalysisButton" enabled="{!parentApplication.isGuestMode()}" click="showNewAnalysisWindow()" icon="@Embed('../../assets/map_add.png')"
+									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis..." disabledIcon="@Embed(source='../../assets/map_add_disable.png')" textDecoration="underline"/>
+						<mx:LinkButton label="New analysis group" id="newAnalysisGroupButton" enabled="{!parentApplication.isGuestMode()}" click="getNewAnalysisGroup.send()" icon="@Embed('../../assets/folder_add.png')"
+									   paddingLeft="1" paddingRight="0" horizontalGap="0" letterSpacing=".3" toolTip="New analysis group..."  textDecoration="underline">
 							<mx:disabledIcon>@Embed(source='../../assets/folder_add_disable.png')</mx:disabledIcon>
 						</mx:LinkButton>
 						
@@ -1360,7 +1360,7 @@
 									   letterSpacing=".3" horizontalGap="0" toolTip="Delete"  enabled="false" textDecoration="underline">
 							<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
 						</mx:LinkButton>
-						<mx:LinkButton label="Drag-and-drop hint" 
+						<mx:LinkButton label="Drag-and-drop hint"
 									   click="{Alert.show('Drag-and-drop to move analysis to another group; Select multiple analyses by using SHIFT or CTRL')}" id="linkbutton2" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
 						</mx:LinkButton>
 					</mx:VBox>
