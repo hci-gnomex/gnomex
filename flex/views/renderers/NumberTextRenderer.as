@@ -30,6 +30,8 @@ import views.util.SampleNumberValidator;
 public class NumberTextRenderer extends mx.controls.Label {
 
     public var _dataField:String;
+    public var _isRequired:Boolean;
+    public var _toolTipField:String;
     public var missingRequiredFieldBackground:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
     public var missingRequiredFieldBorder:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
     public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS;
@@ -51,7 +53,7 @@ public class NumberTextRenderer extends mx.controls.Label {
     private function createToolTip(event:MouseEvent):void{
             var toolTipMessage:String = validateNumber();
             if(toolTipMessage!= null) {
-                var stagePoint:Point = event.target.localToGlobal(new Point(0, -25));
+                var stagePoint:Point = event.target.localToGlobal(new Point(0, -30));
                 applicableToolTip = ToolTipManager.createToolTip(
                                 toolTipMessage,
                                 stagePoint.x,
@@ -70,15 +72,19 @@ public class NumberTextRenderer extends mx.controls.Label {
                 ToolTipManager.destroyToolTip(applicableToolTip);
                 ToolTipManager.currentToolTip = null;
                 applicableToolTip = null;
-                 // will throw exception
+
             }
     }
 
 
 
-    public static function create(dataField:String):IFactory {
+    public static function create(dataField:String,
+                                  isRequired:Boolean = false,
+                                  toolTipField:String=""):IFactory {
         return RendererFactory.create(views.renderers.NumberTextRenderer,
-                {_dataField: dataField});
+                                        {_dataField: dataField,
+                                        _isRequired:isRequired,
+                                        _toolTipField:toolTipField});
 
     }
 
@@ -88,9 +94,16 @@ public class NumberTextRenderer extends mx.controls.Label {
 
             if(_dataField == "@meanLibSizeActual"
                     || _dataField == "@qualFragmentSizeFrom"
-                    ||_dataField == "@qualFragmentSizeTo" ){
-               return validate.validateInteger(data[_dataField]);
-
+                    ||_dataField == "@qualFragmentSizeTo"
+                    || _dataField == "@multiplexGroupNumber") {
+                return validate.validateInteger(data[_dataField], _isRequired);
+            }
+            else if(_dataField == "@numberSequencingLanes"){
+                var result:String = validate.validateInteger(data[_dataField], _isRequired);
+                if(result == null){
+                    return _toolTipField;
+                }
+                return result;
             }
             else if(_dataField == "@qual260nmTo230nmRatio" || _dataField == "@qual260nmTo280nmRatio" ) {
                return validate.validateDecimal(data[_dataField],parentDocument.QC_260_RATIO_MAX);
@@ -124,13 +137,38 @@ public class NumberTextRenderer extends mx.controls.Label {
             return;
         }
 
-        if(validateNumber() != null) {
+        if(data[_dataField] == "" && _isRequired){ // required fields are empty
+            g.beginFill(missingRequiredFieldBackground);
+            g.lineStyle(missingRequiredFieldBorderThickness,missingRequiredFieldBackground);
+            g.drawRect(0, 0, unscaledWidth, unscaledHeight);
+            g.endFill();
+            return;
+        }
 
+        var invalidMessage:String = validateNumber();
+
+
+        if(_dataField == "@numberSequencingLanes"){
+            if(invalidMessage != null && _toolTipField != invalidMessage){
+                g.beginFill(errorBackground);
+                g.lineStyle(missingRequiredFieldBorderThickness, errorBackground);
+                g.drawRect(0, 0, unscaledWidth, unscaledHeight);
+                g.endFill();
+                return;
+            }
+            g.beginFill(highlightedColor);
+            g.lineStyle(missingRequiredFieldBorderThickness, highlightedColor);
+            g.drawRect(0, 0, unscaledWidth, unscaledHeight);
+            g.endFill();
+        }
+        else if (invalidMessage != null) { // error
             g.beginFill(errorBackground);
             g.lineStyle(missingRequiredFieldBorderThickness, errorBackground);
             g.drawRect(0, 0, unscaledWidth, unscaledHeight);
             g.endFill();
         }
+
+
 
     }
 }

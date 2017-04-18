@@ -16,14 +16,12 @@ package views.renderers
 		public static function create(
 			dataField:String, 
 			isRequired:Boolean = false,
-			restrict:String = null,
 			missingRequiredFieldBackground:uint = 0xFFFFB9,
 			missingFieldBackground:uint = 0xeaeaea):IFactory {
 			
 			return RendererFactory.create(views.renderers.TextInput, { 
 				dataField: dataField,
-				isRequired: isRequired, 
-				restrict: restrict,
+				isRequired: isRequired,
 				missingRequiredFieldBackground: missingRequiredFieldBackground,
 				missingFieldBackground: missingFieldBackground});							  
 		}			

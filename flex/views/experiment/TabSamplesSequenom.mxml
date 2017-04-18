@@ -302,9 +302,9 @@
 				}
 			}
 
-			override public function validateSample():String{
+			override public function validateSample(action:String):String{
 				var errorDict:Dictionary = new Dictionary();
-				var superError:String = super.validateSample();
+				var superError:String = super.validateSample(action);
 				var error:String = "";
 
 				for (var row:String in parentDocument.samples) {

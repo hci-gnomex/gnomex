@@ -203,14 +203,19 @@
 				return isValid;
 			}
 
-			override public function validateSample():String{
+			override public function validateSample(action:String):String{
 				var errorDict:Dictionary = new Dictionary();
-				var superError:String = super.validateSample();
+				var superError:String = super.validateSample(action);
 				var error:String = "";
 
 				for (var row:String in parentDocument.samples) {
 					var libSize:XMLList = parentDocument.samples[row].(hasOwnProperty("@meanLibSizeActual") && @meanLibSizeActual != '');
+					var numSeqLanes:XMLList = parentDocument.samples[row].(hasOwnProperty("@numberSequencingLanes") && @numberSequencingLanes != '');
 
+					var msgNumSeqLanes:String = validate.validateInteger(numSeqLanes.length() > 0 ? numSeqLanes.@numberSequencingLanes  : '', true);
+					if(msgNumSeqLanes){
+						errorDict["numberOfSeqLanes"] =msgNumSeqLanes +  " in \"# of Seq Lanes\" column.\n";
+					}
 					var msgLib:String = validate.validateInteger(libSize.length() > 0 ? libSize.@meanLibSizeActual  : "");
 					if(msgLib){
 						errorDict["librarySize"] = msgLib  + " in \"Actual Ave. lib. Size\" column.\n";
@@ -692,11 +697,6 @@
 					Alert.show("Maximum allowed limit is 30 characters");					
 				}
 			}
-			
-			private function numberSequencingLanesColTip(item:Object):String{
-				return "This is the number of times (1 or greater) that you want to sequence this sample.";
-			}
-			
 			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
 				if(item[column.dataField] == ''){
 					item[column.dataField] = '0';
@@ -882,9 +882,9 @@
 				
 				
 				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Seq Lanes" width="72" dataField="@numberSequencingLanes" 
-										   editable="false" showDataTips="true" dataTipFunction="numberSequencingLanesColTip"
-										   rendererIsEditor="false" labelFunction="defaultToZero"
-										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
+										   editable="false" showDataTips="true"
+										   rendererIsEditor="false"
+										   itemRenderer="{views.renderers.NumberTextRenderer.create('@numberSequencingLanes', true,NUM_SEQ_TOOLTIP)}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
 					<mx:headerRenderer > 
 						<mx:Component>
