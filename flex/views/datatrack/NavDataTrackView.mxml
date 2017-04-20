@@ -1788,7 +1788,7 @@
 				<mx:HBox width="100%" verticalAlign="middle" paddingTop="4" paddingBottom="4"
 						 id="topBar" horizontalGap="2">
 					<mx:LinkButton   label="New Data Track" 
-									 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'GenomeBuild' || browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
+									 enabled="{currentState != 'GuestState' &amp;&amp; browseTree.selectedItem != null &amp;&amp; (browseTree.selectedItem.name() == 'DataTrackFolder' || browseTree.selectedItem.name() == 'DataTrack') }"
 									 visible="{currentState != 'GuestState'}"
 									 includeInLayout="{currentState != 'GuestState'}"
 									 toolTip="New data track" 
