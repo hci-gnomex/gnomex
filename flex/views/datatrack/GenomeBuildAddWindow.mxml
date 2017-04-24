@@ -63,8 +63,8 @@
 			parentApplication.dictionaryManager.reload("hci.gnomex.model.GenomeBuildLite");
 			
 				
-		} else if (addGenomeBuild.lastResult.name() == "Error") {
-			Alert.show(addGenomeBuild.lastResult..ACTMESSAGE.@TEXT);
+		} else {
+			mx.controls.Alert.show(addGenomeBuild.lastResult..ACTMESSAGE.@TEXT);
 		}	
 	}
 
