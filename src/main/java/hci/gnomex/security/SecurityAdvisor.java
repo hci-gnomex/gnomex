@@ -3230,9 +3230,9 @@ private void appendLuceneCoreFacilitiesIManage(StringBuffer searchText) {
 	for (CoreFacility cf : (Set<CoreFacility>) this.getCoreFacilitiesIManage()) {
 		if (!firstTime) {
 			searchText.append(" ");
-			firstTime = false;
 		}
 		searchText.append(cf.getIdCoreFacility());
+		firstTime = false;
 	}
 
 }
