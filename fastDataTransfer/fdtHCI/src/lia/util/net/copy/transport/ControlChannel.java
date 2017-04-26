@@ -51,7 +51,7 @@ public class ControlChannel extends AbstractFDTCloseable implements Runnable {
 
     public static final int CONNECT_TIMEOUT = 20 * 1000;
 
-    public static final int SOCKET_TIMEOUT = 60 * 1000;
+    public static final int SOCKET_TIMEOUT = 180 * 1000;
 
     private final Socket controlSocket;
 
