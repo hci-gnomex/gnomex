@@ -1,8 +1,8 @@
 use gnomex;
 
------------------------------------
+-- ---------------------------------
 -- Create table WorkflowProperty --
------------------------------------
+-- ---------------------------------
 
 DROP TABLE IF EXISTS WorkflowProperty;
 CREATE TABLE WorkflowProperty (
