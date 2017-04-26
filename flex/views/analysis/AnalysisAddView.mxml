@@ -319,7 +319,7 @@
 		var isComplete:Boolean = false;
 		if (currentState == "NewAnalysisGroupState") {
 			isComplete = labCombo.selectedItem != null &&
-					labCombo.selectedItem.@idLab != ""
+					labCombo.selectedItem.@idLab != "" &&
 			newAnalysisGroupName.text != '' &&
 			analysisName.text != '' &&
 			organismCombo.selectedItem != null &&
@@ -332,7 +332,7 @@
 
 		} else {
 			isComplete = labCombo.selectedItem != null &&
-					labCombo.selectedItem.@idLab != ""
+					labCombo.selectedItem.@idLab != "" &&
 			analysisName.text != '' &&
 			organismCombo.selectedItem != null &&
 			organismCombo.selectedItem.@value != "" &&
@@ -664,7 +664,7 @@
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
 				<mx:Label text="Visibility" width="118"/>
-				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281" close="{visibilityChosen()}"/>
+				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281" close="{visibilityChosen()}" change="checkCompleteness()"/>
 			</mx:HBox>
 			<mx:Text id="institutionNote" paddingLeft="30" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0">									
 				<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
