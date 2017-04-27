@@ -1110,7 +1110,7 @@
 
 				} else if (currentState == 'QCState' || currentState == 'ExternalQCState') {
 					sampleVolumeCol.visible = false;
-					concentrationCol.visible = false;
+					concentrationCol.visible = true;
 					sampleTypeCol.visible = false;
 					organismCol.visible = false;
 					preppedByLabCol.visible = false;
