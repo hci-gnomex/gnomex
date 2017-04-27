@@ -498,33 +498,28 @@
 				}
 				
 				if (this.browseTree.selectedItem.name() == "Topic") {
-					if(this.mainViewStack.selectedChild.id == "topicView") {
-						topicViewShow();
-					} else {
-					this.mainViewStack.selectedChild = this.topicView;
-					}
+					topicViewShow();
 				} else if (this.browseTree.selectedItem.name() == "DataTrack") {
-					if(this.mainViewStack.selectedChild.id == "dataTrackView") {
-						dataTrackViewShow();
-					} else {
-					this.mainViewStack.selectedChild = this.dataTrackView;
-					}
+					dataTrackViewShow();
 				} else if (this.browseTree.selectedItem.name() == "Request") {
-					if(this.mainViewStack.selectedChild.id == "experimentViews") {
-						experimentViewShow();
-					} else {
-					mainViewStack.selectedChild = experimentViews;
-					}
+					experimentViewShow();
 				} else if (this.browseTree.selectedItem.name() == "Analysis") {
-					if(this.mainViewStack.selectedChild.id == "analysisViews") {
-						analysisViewShow();
-					} else {
-					this.mainViewStack.selectedChild = this.analysisViews;
-					}
+					analysisViewShow();
 				}
 			}
-			
-			private function dataTrackViewShow():void {		
+
+			private var topicViewInitialized:Boolean = false;
+			private var dataTrackViewInitialized:Boolean = false;
+			private var experimentViewInitialized:Boolean = false;
+			private var analysisViewInitialized:Boolean = false;
+
+			private function dataTrackViewShow():void {
+				this.mainViewStack.selectedChild = this.dataTrackView;
+				if (!dataTrackViewInitialized) {
+					// mainViewStack uses lazy loading - the first time we switch to this view it will initialize automatically
+					dataTrackViewInitialized = true;
+					return;
+				}
 				var parms1:Object = new Object();
 				parms1.idDataTrack = this.browseTree.selectedItem.@idDataTrack;
 				dataTrackView.getDataTrack.send(parms1);
@@ -533,10 +528,22 @@
 			}
 			
 			private function topicViewShow():void {
+				this.mainViewStack.selectedChild = this.topicView;
+				if (!topicViewInitialized) {
+					// mainViewStack uses lazy loading - the first time we switch to this view it will initialize automatically
+					topicViewInitialized = true;
+					return;
+				}
 				this.topicView.init();
 			}
 			
 			private function experimentViewShow():void {
+				mainViewStack.selectedChild = experimentViews;
+				if (!experimentViewInitialized) {
+					// mainViewStack uses lazy loading - the first time we switch to this view it will initialize automatically
+					experimentViewInitialized = true;
+					return;
+				}
 				// These are needed by experimentDetailView
 				selectedIdLab = null;
 				selectedIdProject = null;
@@ -558,6 +565,12 @@
 			}
 			
 			private function analysisViewShow():void {
+				this.mainViewStack.selectedChild = this.analysisViews;
+				if (!analysisViewInitialized) {
+					// mainViewStack uses lazy loading - the first time we switch to this view it will initialize automatically
+					analysisViewInitialized = true;
+					return;
+				}
 				analysisDetailView.titleLabel.text = "Analysis " + browseTree.selectedItem.@number;
 				selectedIdAnalysis = browseTree.selectedItem.@idAnalysis;
 				var parms:Object = new Object();
