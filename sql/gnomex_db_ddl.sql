@@ -328,7 +328,7 @@ CREATE TABLE gnomex.BillingAccount (
   isCreditCard CHAR(1) NULL,
   zipCode VARCHAR(20) NULL,
   isApproved CHAR(1) NULL,
-  activeAccount CHAR(1) NULL,
+  activeAccount CHAR(1) NOT NULL DEFAULT 'Y',
   approvedDate DATETIME NULL,
   createDate DATETIME NULL,
   submitterEmail VARCHAR(200) NULL,
@@ -387,6 +387,7 @@ CREATE TABLE `gnomex`.`BillingTemplateItem` (
 	`percentSplit` DECIMAL(4, 3) NULL,
 	`dollarAmount` DECIMAL(7, 2) NULL,
 	`dollarAmountBalance` DECIMAL(7, 2) NULL,
+	`sortOrder` INT(10) NULL,
 	PRIMARY KEY (`idBillingTemplateItem`),
 	CONSTRAINT `FK_BillingTemplateItem_BillingAccount` FOREIGN KEY `FK_BillingTemplateItem_BillingAccount` (`idBillingAccount`)
 		REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
@@ -1106,6 +1107,9 @@ CREATE TABLE gnomex.FlowCell (
   notes VARCHAR(200) NULL,
   barcode VARCHAR(100) NULL,
   codeSequencingPlatform VARCHAR(10) NULL,
+  runNumber INT(10) NULL,
+  idInstrument INT(10) NULL,
+  side CHAR(1) NULL,
  idCoreFacility INT(10) null,
  idNumberSequencingCyclesAllowed INT(10) null,
   PRIMARY KEY (idFlowCell),
@@ -1137,7 +1141,6 @@ CREATE TABLE gnomex.FlowCellChannel (
   idFlowCellChannel INT(10) NOT NULL AUTO_INCREMENT,
   idFlowCell INT(10) NULL,
   number INT(10) NULL,
-  idSequenceLane INT(10) NULL,
   idSequencingControl INT(10) NULL,
   numberSequencingCyclesActual INT(10) NULL,
   clustersPerTile INT(10) NULL,
@@ -1328,7 +1331,6 @@ CREATE TABLE gnomex.Lab (
   idLab INT(10) NOT NULL AUTO_INCREMENT,
   name VARCHAR(200) NULL,
   department VARCHAR(200) NULL,
-  notes VARCHAR(500) NULL,
   contactName VARCHAR(200) NULL,
   contactAddress VARCHAR(200) NULL,
   contactCodeState VARCHAR(10) NULL,
@@ -3472,6 +3474,14 @@ CREATE TABLE gnomex.AnnotationReportField (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS gnomex.WorkflowProperty;
+CREATE TABLE gnomex.WorkflowProperty (
+  idWorkflowProperty INT(10) NOT NULL AUTO_INCREMENT Primary Key,
+  workflowPropertyName VARCHAR(50) NOT NULL,
+  workflowPropertyValue VARCHAR(50) NOT NULL,
+  codeRequestCategory VARCHAR(50)
+)
+ENGINE = INNODB;
 
 
 -- Procedure to modify columns in audit tables if they exist.
