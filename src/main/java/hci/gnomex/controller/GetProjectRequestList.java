@@ -188,7 +188,6 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 //        }
 
         Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dictionaryHelper, results, 4, 15);
-
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
 
@@ -204,7 +203,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           String  codeApplication     = row[16]== null ? "" : (String)row[16];
           StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
 
-          if(idRequest != -2){
+          if(idRequest != -2 && isLite == "N" ){
             Request req = (Request)sess.load(Request.class, idRequest);
             if (!this.getSecAdvisor().canRead(req)) {
               continue;
