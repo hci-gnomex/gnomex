@@ -124,6 +124,7 @@ public Command execute() throws RollBackCommandException {
 		Map<String, String[]> peopleMap = new HashMap<String, String[]>();
 
 		Map<String, String> vcfMap = new HashMap<String, String>();
+		String vcfPathName = "";
 		ArrayList<String> bamList = new ArrayList<String>();
 
 		Analysis a = (Analysis) sess.get(Analysis.class, idAnalysis);
@@ -137,11 +138,31 @@ public Command execute() throws RollBackCommandException {
 			status = setupPedFileFromXML(PEDFileXMLString, headerMap, peopleMap);
 			System.out.println("[MakeGeneURL] after launch setupPedFileFromXML status: " + status);
 
-			// construct the URL
-			ArrayList<String> urlsToLink = processTrio(theProband, headerMap, peopleMap);
-			System.out.println("[MakeGeneURL] the url: " + urlsToLink.get(0));
+			// get the vcf info so we can validate
+			vcfInfoParser(VCFInfoXMLString, analysisDirectory, vcfMap);
 
-			this.xmlResult = "<SUCCESS urlsToLink=\"" + urlsToLink.get(0) + "\"" + "/>";
+			// validate the pedfile
+			status = validatePedFile(theProband, headerMap, peopleMap,vcfMap);
+
+			// are we ok?
+			if (status == null) {
+				// yes, construct the URL
+				ArrayList<String> urlsToLink = processTrio(theProband, headerMap, peopleMap);
+				System.out.println("[MakeGeneURL] the url: " + urlsToLink.get(0));
+
+				this.xmlResult = "<SUCCESS urlsToLink=\"" + urlsToLink.get(0) + "\"" + "/>";
+			} else {
+				// nope, something is not right
+				// build the xml needed for the UI to call ManagePedFile
+				Document ManagePedFile = buildManagePedFileXML(pedpath, PEDInfoXMLString, VCFInfoXMLString, BAMInfoXMLString, headerMap,
+						peopleMap, status);
+
+				XMLOutputter out = new org.jdom.output.XMLOutputter();
+				this.xmlResult = out.outputString(ManagePedFile);
+
+				System.out.println("[MakeGeneURL] xmlResult: \n" + this.xmlResult);
+
+			}
 			setResponsePage(this.SUCCESS_JSP);
 		} else {
 			// parse the .ped file
@@ -615,6 +636,95 @@ public ArrayList<String> processTrio(String theProband, Map<Integer, String> hea
 
 	return theURLS;
 }
+
+
+	public String validatePedFile(String theProband, Map<Integer, String> headerMap, Map<String, String[]> peopleMap, Map<String, String> vcfMap) {
+		String status = null;
+		String statusStart = "Error: wrong vcf file: ";
+		boolean firstError = true;
+
+		System.out.println("[validatePedFile] theProband: " + theProband);
+
+		// column numbers
+		int SAMPLEID = mapColumn("sample_id", headerMap);
+		int FATHER = mapColumn("paternal_id", headerMap);
+		int MOTHER = mapColumn("maternal_id", headerMap);
+		int BAM = mapColumn("bam", headerMap);
+		int VCF = mapColumn("vcf", headerMap);
+
+		// get the proband
+		String[] proband = peopleMap.get(theProband);
+		if (proband == null) {
+			return "Unable to find proband";
+		}
+
+		String sample0 = proband[SAMPLEID];
+		String motherId = proband[MOTHER];
+		String fatherId = proband[FATHER];
+		System.out.println("[validatePedFile] sample0: " + sample0 + " motherId: " + motherId + " fatherId: " + fatherId);
+
+		// does the vcf file contain the sampleId?
+		String vcfPath = vcfMap.get(sample0);
+		if (vcfPath != null) {
+			if (!vcfPath.equals(proband[VCF])) {
+				if (firstError) {
+					status = statusStart + "proband";
+					firstError = false;
+				}
+				else {
+					status += "proband";
+				}
+			}
+		} // check proband vcf file
+
+		String theMother = "mother";
+		String[] mother = peopleMap.get(motherId);
+		if (mother == null) {
+			System.out.println("[validatePedFile] no mother, motherId: " + motherId);
+			theMother = "";
+		}
+
+		if (!theMother.equals("")) {
+			// Mothers vcf file ok?
+			vcfPath = vcfMap.get(motherId);
+			if (vcfPath != null) {
+				if (!vcfPath.equals(mother[VCF])) {
+					if (firstError) {
+						status = statusStart + "mother";
+						firstError = false;
+					} else {
+						status += ", mother";
+					}
+				}
+			} // check mother vcf file
+		} // theMother is not ""
+
+		String theFather = "father";
+		String[] father = peopleMap.get(fatherId);
+		if (father == null) {
+			System.out.println("[validatePedFile] no father, fatherId: " + fatherId);
+			theFather = "";
+		}
+
+		if (!theFather.equals("")) {
+			// Fathers vcf file ok?
+			vcfPath = vcfMap.get(fatherId);
+			if (vcfPath != null) {
+				if (!vcfPath.equals(father[VCF])) {
+					if (firstError) {
+						status = statusStart + "father";
+						firstError = false;
+					} else {
+						status += ", father";
+					}
+				}
+			} // check father vcf file
+		} // theFather is not ""
+
+		System.out.println ("[validatePedFile] returning status: " + status);
+		return status;
+	}
+
 
 /*
  * Returns the sample_id of everyone with a mother, father, bam and vcf info for them and their parents
