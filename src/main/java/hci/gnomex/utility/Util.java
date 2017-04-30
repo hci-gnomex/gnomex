@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import org.hibernate.Session;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -330,55 +332,60 @@ public class Util {
 	}
 
 	public static void sendErrorReport(org.hibernate.Session sess, String softwareTestEmail, String fromAddress, String userName, String errorMessage, StringBuilder requestDump) {
-		boolean sendMail = true;
 		try {
-			java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
-			if (sendMail) {
-
-				String errorMessageString = "User: " + userName + "\n";
-				if (errorMessage != null) {
-					errorMessageString = errorMessageString + errorMessage + "\n" + requestDump.toString() + "\n";
-				}
-				else {
-					errorMessageString = errorMessageString + "No traceback available" + "\n" + requestDump.toString() + "\n";
-				}
-
-				// if it wasn't really a trace back then just leave
-				if (errorMessageString.equals("")) {
-					return;
-				}
-
-				// figure out where to send the email
-				String machinelist = PropertyDictionaryHelper.getInstance(sess).getDirectory(null, null,
-						PropertyDictionaryHelper.PROPERTY_RUNTIME_ERROR_SERVER_LIST);
-				if (machinelist != null) {
-					machinelist = machinelist.toLowerCase();
-				}
-
-				String toaddress = softwareTestEmail;
-				String serverName1 = localMachine.getHostName();
-				if (serverName1 != null && !serverName1.equals("") && machinelist != null) {
-
-					// map server to email address
-					int ipos = machinelist.indexOf (serverName1.toLowerCase());
-					if (ipos != -1) {
-						int nextpos = ipos + serverName1.length();
-						if (nextpos < machinelist.length()) {
-							int jpos = machinelist.indexOf(",", nextpos);
-							toaddress = machinelist.substring (nextpos,jpos);
-						}
-					}
-				}
-
-				MailUtilHelper helper = new MailUtilHelper(toaddress, null, null, fromAddress,
-						"GNomEx Runtime Error [Server: " + localMachine.getHostName() + "]", errorMessageString, null,
-						false, DictionaryHelper.getInstance(sess), serverName1, false, toaddress);
-				MailUtil.validateAndSendEmail(helper);
-
+			String errorMessageString = "User: " + userName + "\n";
+			if (errorMessage != null) {
+				errorMessageString = errorMessageString + errorMessage + "\n" + requestDump.toString() + "\n";
 			}
+			else {
+				errorMessageString = errorMessageString + "No traceback available" + "\n" + requestDump.toString() + "\n";
+			}
+
+			// if it wasn't really a trace back then just leave
+			if (errorMessageString.equals("")) {
+				return;
+			}
+
+			String toaddress = softwareTestEmail;
+			java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+			String serverName = localMachine.getHostName();
+
+			// If the error occurred on a developer workstation, get their email address and use it instead
+			String localhostEmail = getLocalhostEmail(sess, serverName);
+			if (localhostEmail != null) {
+				toaddress = localhostEmail;
+			}
+
+			MailUtilHelper helper = new MailUtilHelper(toaddress, null, null, fromAddress,
+					"GNomEx Runtime Error [Server: " + localMachine.getHostName() + "]", errorMessageString, null,
+					false, DictionaryHelper.getInstance(sess), serverName, false, toaddress);
+			MailUtil.validateAndSendEmail(helper);
+
 		} catch (Exception e) {
 			System.err.println("GNomExFrontController unable to email error report.   " + e.toString());
 		}
+	}
+
+	private static String getLocalhostEmail(Session sess, String serverName) {
+		if (serverName != null && !serverName.equals("")) {
+
+            // This property looks like 'COMPUTER1 email1@server.com,COMPUTER2 email2@server.com'
+            String machinelist = PropertyDictionaryHelper.getInstance(sess).getProperty(
+					PropertyDictionaryHelper.PROPERTY_RUNTIME_ERROR_SERVER_LIST);
+
+			if (machinelist != null) {
+                for (String machineEntry : machinelist.toLowerCase().split(",")) {
+                    String[] items = machineEntry.trim().split(" ", 2);
+                    String machine = items[0];
+                    if (items.length == 2 && machine.equals(serverName.toLowerCase())) {
+                        String email = items[1];
+                        return email;
+                    }
+                }
+            }
+
+        }
+		return null;
 	}
 
 }

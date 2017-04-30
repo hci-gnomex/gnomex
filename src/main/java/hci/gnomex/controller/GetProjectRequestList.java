@@ -390,22 +390,22 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
     boolean hasMultipleAccounts = false;
     boolean canOpenNewBillingTemplate = false;
-    Request request = null;
-    if (row[4] != null) {
-        request = sess.load(Request.class, (Integer) row[4]);
-    }
-    BillingTemplate billingTemplate = null;
 
     if (isLite.equals("N")) {
-      if (request != null) {
+        Request request = null;
+        if (row[4] != null) {
+            request = sess.load(Request.class, (Integer) row[4]);
+        }
+        BillingTemplate billingTemplate = null;
+        if (request != null) {
         billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
-      }
-      if (billingTemplate != null) {
+        }
+        if (billingTemplate != null) {
         canOpenNewBillingTemplate = billingTemplate.canBeDeactivated(sess);
-      }
-      if (billingTemplate != null && billingTemplate.getItems() != null && billingTemplate.getItems().size() > 1) {
+        }
+        if (billingTemplate != null && billingTemplate.getItems() != null && billingTemplate.getItems().size() > 1) {
         hasMultipleAccounts = true;
-      }
+        }
     }
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
