@@ -147,7 +147,7 @@
                 this.errorAction.visible = true;
                 this.errorAction.includeInLayout = true;
                 errorMessage = thereason;
-                return;
+//                return;
             }
 
             if (thereason.indexOf("choose") >= 0) {
@@ -206,6 +206,9 @@
         private function onMakeGeneURL(event:ResultEvent):void {
             if (makeGeneURL.lastResult.name() == "SUCCESS") {
                 navigateToURL(new URLRequest(makeGeneURL.lastResult.@urlsToLink), "GENE");
+            }
+            else if (makeGeneURL.lastResult.name() == "PROBLEM") {
+                Alert.show(makeGeneURL.lastResult.@status, "Error launching gene.iobio.io");
             }
             else {
                 Alert.show(event.result..ERROR.@message.toString(), "Error launching gene.iobio.io");

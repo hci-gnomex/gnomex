@@ -1,6 +1,8 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.GenomeBuild;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
@@ -16,11 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -130,6 +128,13 @@ public Command execute() throws RollBackCommandException {
 		Analysis a = (Analysis) sess.get(Analysis.class, idAnalysis);
 		analysisDirectory = GetAnalysisDownloadList.getAnalysisDirectory(baseDir, a);
 
+		// genome build
+		Set<GenomeBuild> gbs = a.getGenomeBuilds();
+		GenomeBuild gb = gbs.iterator().next();
+		String genomeBuildName = gb.getGenomeBuildName(); //Just pull the first one, should only be one.
+
+		String gBN = getGRCName (genomeBuildName);
+
 		String[] theProbands = null;
 
 		String status = null;
@@ -147,20 +152,23 @@ public Command execute() throws RollBackCommandException {
 			// are we ok?
 			if (status == null) {
 				// yes, construct the URL
-				ArrayList<String> urlsToLink = processTrio(theProband, headerMap, peopleMap);
+				ArrayList<String> urlsToLink = processTrio(theProband, headerMap, peopleMap,gBN);
 				System.out.println("[MakeGeneURL] the url: " + urlsToLink.get(0));
 
 				this.xmlResult = "<SUCCESS urlsToLink=\"" + urlsToLink.get(0) + "\"" + "/>";
 			} else {
 				// nope, something is not right
-				// build the xml needed for the UI to call ManagePedFile
-				Document ManagePedFile = buildManagePedFileXML(pedpath, PEDInfoXMLString, VCFInfoXMLString, BAMInfoXMLString, headerMap,
-						peopleMap, status);
+				this.xmlResult = "<PROBLEM status=\"" + status + "\"" + "/>";
 
-				XMLOutputter out = new org.jdom.output.XMLOutputter();
-				this.xmlResult = out.outputString(ManagePedFile);
+				// build the xml needed for the UI to call ManagePedFile
+				//Document ManagePedFile = buildManagePedFileXML(pedpath, PEDInfoXMLString, VCFInfoXMLString, BAMInfoXMLString, headerMap,
+				//		peopleMap, status);
+
+				//XMLOutputter out = new org.jdom.output.XMLOutputter();
+				//this.xmlResult = out.outputString(ManagePedFile);
 
 				System.out.println("[MakeGeneURL] xmlResult: \n" + this.xmlResult);
+				setResponsePage(this.SUCCESS_JSP);
 
 			}
 			setResponsePage(this.SUCCESS_JSP);
@@ -227,7 +235,7 @@ public Command execute() throws RollBackCommandException {
 
 			if (status == null) {
 				// construct the URL
-				ArrayList<String> urlsToLink = processTrio(theProband, headerMap, peopleMap);
+				ArrayList<String> urlsToLink = processTrio(theProband, headerMap, peopleMap,gBN);
 				System.out.println("[MakeGeneURL] the url: " + urlsToLink.get(0));
 
 				this.xmlResult = "<SUCCESS urlsToLink=\"" + urlsToLink.get(0) + "\"" + "/>";
@@ -556,7 +564,7 @@ public static String findBAM(String sampleId, ArrayList<String> bamList) {
 	return theBamFile;
 }
 
-public ArrayList<String> processTrio(String theProband, Map<Integer, String> headerMap, Map<String, String[]> peopleMap) {
+public ArrayList<String> processTrio(String theProband, Map<Integer, String> headerMap, Map<String, String[]> peopleMap, String gBN) {
 	ArrayList<String> theURLS = new ArrayList<String>();
 
 	System.out.println("[processTrio] theProband: " + theProband);
@@ -630,6 +638,10 @@ public ArrayList<String> processTrio(String theProband, Map<Integer, String> hea
 	url = url + "&vcf1=" + vcf1 + "&sample1=" + sample1;
 	url = url + "&vcf2=" + vcf2 + "&sample2=" + sample2;
 
+	if (gBN != null) {
+		url = url + "&build=" + gBN;
+	}
+
     url = url.replace("\\","/");
 
 	theURLS.add(url);
@@ -665,8 +677,7 @@ public ArrayList<String> processTrio(String theProband, Map<Integer, String> hea
 
 		// does the vcf file contain the sampleId?
 		String vcfPath = vcfMap.get(sample0);
-		if (vcfPath != null) {
-			if (!vcfPath.equals(proband[VCF])) {
+			if (vcfPath == null || !vcfPath.equals(proband[VCF])) {
 				if (firstError) {
 					status = statusStart + "proband";
 					firstError = false;
@@ -674,8 +685,7 @@ public ArrayList<String> processTrio(String theProband, Map<Integer, String> hea
 				else {
 					status += "proband";
 				}
-			}
-		} // check proband vcf file
+			} // check proband vcf file
 
 		String theMother = "mother";
 		String[] mother = peopleMap.get(motherId);
@@ -687,16 +697,14 @@ public ArrayList<String> processTrio(String theProband, Map<Integer, String> hea
 		if (!theMother.equals("")) {
 			// Mothers vcf file ok?
 			vcfPath = vcfMap.get(motherId);
-			if (vcfPath != null) {
-				if (!vcfPath.equals(mother[VCF])) {
+				if (vcfPath == null || !vcfPath.equals(mother[VCF])) {
 					if (firstError) {
 						status = statusStart + "mother";
 						firstError = false;
 					} else {
 						status += ", mother";
 					}
-				}
-			} // check mother vcf file
+				} // check mother vcf file
 		} // theMother is not ""
 
 		String theFather = "father";
@@ -709,16 +717,14 @@ public ArrayList<String> processTrio(String theProband, Map<Integer, String> hea
 		if (!theFather.equals("")) {
 			// Fathers vcf file ok?
 			vcfPath = vcfMap.get(fatherId);
-			if (vcfPath != null) {
-				if (!vcfPath.equals(father[VCF])) {
+				if (vcfPath == null || !vcfPath.equals(father[VCF])) {
 					if (firstError) {
 						status = statusStart + "father";
 						firstError = false;
 					} else {
 						status += ", father";
 					}
-				}
-			} // check father vcf file
+				} // check father vcf file
 		} // theFather is not ""
 
 		System.out.println ("[validatePedFile] returning status: " + status);
@@ -1526,4 +1532,24 @@ private String checkForUserFolderExistence(File igvLinkDir, String username) thr
 	return desiredDirectory;
 }
 
+private String getGRCName (String genomeBuildName) {
+	String theName = null;
+
+	if (genomeBuildName == null || genomeBuildName.equals("")) {
+		return theName;
+	}
+
+	String[] name = genomeBuildName.split(";");
+
+	for (int ii = 0; ii < name.length; ii++) {
+		System.out.println("[getGRCName] ii: " + ii + " name: " + name[ii]);
+		String thename = name[ii].trim();
+		if (thename.startsWith("GRC")) {
+			theName = thename;
+			break;
+		}
+	}
+
+	return theName;
+}
 }
