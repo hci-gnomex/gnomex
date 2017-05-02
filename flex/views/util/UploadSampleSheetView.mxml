@@ -297,6 +297,9 @@
 			}
 			
 			private function isValidBarcode(barcode:XML, isBTag:Boolean):Boolean{
+				if (this.idSeqLibProtocol == null || this.idSeqLibProtocol == "") {
+					return false;
+				}
 				var schemesAllowedForSeqLib:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeSchemeAllowed').DictionaryEntry.(@value != '' && @idSeqLibProtocol == this.idSeqLibProtocol));
 				var match:Boolean = false;
 				for each(var entry:XML in schemesAllowedForSeqLib){
@@ -411,7 +414,7 @@
 													// Strip off @ if it's there -- not needed for this action
 													thisValueField = thisValueField.substr(1);
 												}
-												if(thisDataProvider != null && this.idSeqLibProtocol != null && this.idSeqLibProtocol.length > 0) {
+												if(thisDataProvider != null) {
 													for each (var dataProviderItem:XML in thisDataProvider) {
 														if(dataProviderItem.hasOwnProperty("@name")){
 															trace(dataProviderItem.@[thisLabelField].toLowerCase());
