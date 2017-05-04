@@ -230,12 +230,12 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     if (fdtJarLoc == null || fdtJarLoc.equals("")) {
                         fdtJarLoc = "http://monalisa.cern.ch/FDT/";
                     }
-                    out.println("1) Download the fdt.jar app from " + fdtJarLoc);
+                    out.println("1) Download the fdtCommandLine.jar app from " + fdtJarLoc);
                     out.println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
                     out.println("3) Execute the following on the command line after changing the path2xxx variables:");
                     out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
                     out.println("");
-                    out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+                    out.println("java -jar path2YourLocalCopyOfFDT/fdtCommandLine.jar -noupdates -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
                     out.println("");
                     out.println("-->");
                     out.println("<information>");

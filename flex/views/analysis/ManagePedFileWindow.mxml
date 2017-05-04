@@ -184,6 +184,8 @@
             this.saveAction.includeInLayout = false;
             this.parentAction.visible = false;
             this.parentAction.includeInLayout = false;
+            this.errorAction.visible = false;
+            this.errorAction.includeInLayout = false;
 
             if (managePedFileSave.lastResult.name() == "SUCCESS") {
                 Alert.show("Ped file saved. Select the sample_id of the trio proband and press Launch.");

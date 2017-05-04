@@ -83,17 +83,10 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      LOG.error("An exception has occurred in SaveVisibility ", e);
+      this.errorDetails = Util.GNLOG(LOG, "An exception has occurred in SaveVisibility  ", e);
 
       throw new RollBackCommandException(e.getMessage());
 
-    } finally {
-      try {
-        //closeHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in SaveVisibility ", e);
-
-      }
     }
       
     

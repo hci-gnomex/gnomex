@@ -1011,6 +1011,12 @@ DROP TRIGGER IF EXISTS TrAU_Visibility_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_Visibility_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_WorkflowProperty_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_WorkflowProperty_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_WorkflowProperty_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_WorkItem_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_WorkItem_FER
@@ -1022,10 +1028,6 @@ $$
 --
 -- Audit Table For AlignmentPlatform 
 --
-
--- select 'Creating table AlignmentPlatform'$$
-
--- DROP TABLE IF EXISTS `AlignmentPlatform_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AlignmentPlatform_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -1156,10 +1158,6 @@ $$
 -- Audit Table For AlignmentProfileGenomeIndex 
 --
 
--- select 'Creating table AlignmentProfileGenomeIndex'$$
-
--- DROP TABLE IF EXISTS `AlignmentProfileGenomeIndex_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `AlignmentProfileGenomeIndex_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -1270,10 +1268,6 @@ $$
 --
 -- Audit Table For AlignmentProfile 
 --
-
--- select 'Creating table AlignmentProfile'$$
-
--- DROP TABLE IF EXISTS `AlignmentProfile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AlignmentProfile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -1431,10 +1425,6 @@ $$
 -- Audit Table For AnalysisCollaborator 
 --
 
--- select 'Creating table AnalysisCollaborator'$$
-
--- DROP TABLE IF EXISTS `AnalysisCollaborator_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `AnalysisCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -1563,10 +1553,6 @@ $$
 --
 -- Audit Table For AnalysisExperimentItem 
 --
-
--- select 'Creating table AnalysisExperimentItem'$$
-
--- DROP TABLE IF EXISTS `AnalysisExperimentItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisExperimentItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -1723,10 +1709,6 @@ $$
 --
 -- Audit Table For AnalysisFile 
 --
-
--- select 'Creating table AnalysisFile'$$
-
--- DROP TABLE IF EXISTS `AnalysisFile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -1899,14 +1881,10 @@ $$
 
 
 --
--- Audit Table For AnalysisGenomebuild 
+-- Audit Table For AnalysisGenomeBuild 
 --
 
--- select 'Creating table AnalysisGenomebuild'$$
-
--- DROP TABLE IF EXISTS `AnalysisGenomebuild_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `AnalysisGenomebuild_Audit` (
+CREATE TABLE IF NOT EXISTS `AnalysisGenomeBuild_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -1919,10 +1897,10 @@ $$
 
 
 --
--- Initial audit table rows for AnalysisGenomebuild 
+-- Initial audit table rows for AnalysisGenomeBuild 
 --
 
-INSERT INTO AnalysisGenomebuild_Audit
+INSERT INTO AnalysisGenomeBuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -1938,18 +1916,18 @@ INSERT INTO AnalysisGenomebuild_Audit
   , 0
   , idAnalysis
   , idGenomeBuild
-  FROM AnalysisGenomebuild
-  WHERE NOT EXISTS(SELECT * FROM AnalysisGenomebuild_Audit)
+  FROM AnalysisGenomeBuild
+  WHERE NOT EXISTS(SELECT * FROM AnalysisGenomeBuild_Audit)
 $$
 
 --
--- Audit Triggers For AnalysisGenomebuild 
+-- Audit Triggers For AnalysisGenomeBuild 
 --
 
 
-CREATE TRIGGER TrAI_AnalysisGenomebuild_FER AFTER INSERT ON AnalysisGenomebuild FOR EACH ROW
+CREATE TRIGGER TrAI_AnalysisGenomeBuild_FER AFTER INSERT ON AnalysisGenomeBuild FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGenomebuild_Audit
+  INSERT INTO AnalysisGenomeBuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -1969,9 +1947,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_AnalysisGenomebuild_FER AFTER UPDATE ON AnalysisGenomebuild FOR EACH ROW
+CREATE TRIGGER TrAU_AnalysisGenomeBuild_FER AFTER UPDATE ON AnalysisGenomeBuild FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGenomebuild_Audit
+  INSERT INTO AnalysisGenomeBuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -1991,9 +1969,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_AnalysisGenomebuild_FER AFTER DELETE ON AnalysisGenomebuild FOR EACH ROW
+CREATE TRIGGER TrAD_AnalysisGenomeBuild_FER AFTER DELETE ON AnalysisGenomeBuild FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGenomebuild_Audit
+  INSERT INTO AnalysisGenomeBuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -2014,14 +1992,10 @@ $$
 
 
 --
--- Audit Table For AnalysisGroupitem 
+-- Audit Table For AnalysisGroupItem 
 --
 
--- select 'Creating table AnalysisGroupitem'$$
-
--- DROP TABLE IF EXISTS `AnalysisGroupitem_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `AnalysisGroupitem_Audit` (
+CREATE TABLE IF NOT EXISTS `AnalysisGroupItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -2034,10 +2008,10 @@ $$
 
 
 --
--- Initial audit table rows for AnalysisGroupitem 
+-- Initial audit table rows for AnalysisGroupItem 
 --
 
-INSERT INTO AnalysisGroupitem_Audit
+INSERT INTO AnalysisGroupItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -2053,18 +2027,18 @@ INSERT INTO AnalysisGroupitem_Audit
   , 0
   , idAnalysisGroup
   , idAnalysis
-  FROM AnalysisGroupitem
-  WHERE NOT EXISTS(SELECT * FROM AnalysisGroupitem_Audit)
+  FROM AnalysisGroupItem
+  WHERE NOT EXISTS(SELECT * FROM AnalysisGroupItem_Audit)
 $$
 
 --
--- Audit Triggers For AnalysisGroupitem 
+-- Audit Triggers For AnalysisGroupItem 
 --
 
 
-CREATE TRIGGER TrAI_AnalysisGroupitem_FER AFTER INSERT ON AnalysisGroupitem FOR EACH ROW
+CREATE TRIGGER TrAI_AnalysisGroupItem_FER AFTER INSERT ON AnalysisGroupItem FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGroupitem_Audit
+  INSERT INTO AnalysisGroupItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -2084,9 +2058,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_AnalysisGroupitem_FER AFTER UPDATE ON AnalysisGroupitem FOR EACH ROW
+CREATE TRIGGER TrAU_AnalysisGroupItem_FER AFTER UPDATE ON AnalysisGroupItem FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGroupitem_Audit
+  INSERT INTO AnalysisGroupItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -2106,9 +2080,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_AnalysisGroupitem_FER AFTER DELETE ON AnalysisGroupitem FOR EACH ROW
+CREATE TRIGGER TrAD_AnalysisGroupItem_FER AFTER DELETE ON AnalysisGroupItem FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGroupitem_Audit
+  INSERT INTO AnalysisGroupItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -2131,10 +2105,6 @@ $$
 --
 -- Audit Table For AnalysisGroup 
 --
-
--- select 'Creating table AnalysisGroup'$$
-
--- DROP TABLE IF EXISTS `AnalysisGroup_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisGroup_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2282,10 +2252,6 @@ $$
 --
 -- Audit Table For AnalysisProtocol 
 --
-
--- select 'Creating table AnalysisProtocol'$$
-
--- DROP TABLE IF EXISTS `AnalysisProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2443,10 +2409,6 @@ $$
 -- Audit Table For AnalysisToTopic 
 --
 
--- select 'Creating table AnalysisToTopic'$$
-
--- DROP TABLE IF EXISTS `AnalysisToTopic_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `AnalysisToTopic_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -2557,10 +2519,6 @@ $$
 --
 -- Audit Table For AnalysisType 
 --
-
--- select 'Creating table AnalysisType'$$
-
--- DROP TABLE IF EXISTS `AnalysisType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2690,10 +2648,6 @@ $$
 --
 -- Audit Table For Analysis 
 --
-
--- select 'Creating table Analysis'$$
-
--- DROP TABLE IF EXISTS `Analysis_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Analysis_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2923,10 +2877,6 @@ $$
 -- Audit Table For AnnotationReportField 
 --
 
--- select 'Creating table AnnotationReportField'$$
-
--- DROP TABLE IF EXISTS `AnnotationReportField_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `AnnotationReportField_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3083,10 +3033,6 @@ $$
 -- Audit Table For ApplicationTheme 
 --
 
--- select 'Creating table ApplicationTheme'$$
-
--- DROP TABLE IF EXISTS `ApplicationTheme_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ApplicationTheme_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3216,10 +3162,6 @@ $$
 -- Audit Table For ApplicationType 
 --
 
--- select 'Creating table ApplicationType'$$
-
--- DROP TABLE IF EXISTS `ApplicationType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ApplicationType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3330,10 +3272,6 @@ $$
 --
 -- Audit Table For Application 
 --
-
--- select 'Creating table Application'$$
-
--- DROP TABLE IF EXISTS `Application_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Application_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -3562,10 +3500,6 @@ $$
 --
 -- Audit Table For AppUser 
 --
-
--- select 'Creating table AppUser'$$
-
--- DROP TABLE IF EXISTS `AppUser_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AppUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -3831,10 +3765,6 @@ $$
 -- Audit Table For ArrayCoordinate 
 --
 
--- select 'Creating table ArrayCoordinate'$$
-
--- DROP TABLE IF EXISTS `ArrayCoordinate_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ArrayCoordinate_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3973,10 +3903,6 @@ $$
 -- Audit Table For ArrayDesign 
 --
 
--- select 'Creating table ArrayDesign'$$
-
--- DROP TABLE IF EXISTS `ArrayDesign_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ArrayDesign_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -4105,10 +4031,6 @@ $$
 --
 -- Audit Table For Assay 
 --
-
--- select 'Creating table Assay'$$
-
--- DROP TABLE IF EXISTS `Assay_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Assay_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -4239,10 +4161,6 @@ $$
 -- Audit Table For BillingAccountUser 
 --
 
--- select 'Creating table BillingAccountUser'$$
-
--- DROP TABLE IF EXISTS `BillingAccountUser_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `BillingAccountUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -4354,10 +4272,6 @@ $$
 -- Audit Table For BillingAccount 
 --
 
--- select 'Creating table BillingAccount'$$
-
--- DROP TABLE IF EXISTS `BillingAccount_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -4383,6 +4297,7 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`isCreditCard`  char(1)  NULL DEFAULT NULL
  ,`zipCode`  varchar(20)  NULL DEFAULT NULL
  ,`isApproved`  char(1)  NULL DEFAULT NULL
+ ,`activeAccount`  char(1)  NULL DEFAULT NULL
  ,`approvedDate`  datetime  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
  ,`submitterEmail`  varchar(200)  NULL DEFAULT NULL
@@ -4432,6 +4347,7 @@ INSERT INTO BillingAccount_Audit
   , isCreditCard
   , zipCode
   , isApproved
+  , activeAccount
   , approvedDate
   , createDate
   , submitterEmail
@@ -4473,6 +4389,7 @@ INSERT INTO BillingAccount_Audit
   , isCreditCard
   , zipCode
   , isApproved
+  , activeAccount
   , approvedDate
   , createDate
   , submitterEmail
@@ -4525,6 +4442,7 @@ BEGIN
   , isCreditCard
   , zipCode
   , isApproved
+  , activeAccount
   , approvedDate
   , createDate
   , submitterEmail
@@ -4566,6 +4484,7 @@ BEGIN
   , NEW.isCreditCard
   , NEW.zipCode
   , NEW.isApproved
+  , NEW.activeAccount
   , NEW.approvedDate
   , NEW.createDate
   , NEW.submitterEmail
@@ -4613,6 +4532,7 @@ BEGIN
   , isCreditCard
   , zipCode
   , isApproved
+  , activeAccount
   , approvedDate
   , createDate
   , submitterEmail
@@ -4654,6 +4574,7 @@ BEGIN
   , NEW.isCreditCard
   , NEW.zipCode
   , NEW.isApproved
+  , NEW.activeAccount
   , NEW.approvedDate
   , NEW.createDate
   , NEW.submitterEmail
@@ -4701,6 +4622,7 @@ BEGIN
   , isCreditCard
   , zipCode
   , isApproved
+  , activeAccount
   , approvedDate
   , createDate
   , submitterEmail
@@ -4742,6 +4664,7 @@ BEGIN
   , OLD.isCreditCard
   , OLD.zipCode
   , OLD.isApproved
+  , OLD.activeAccount
   , OLD.approvedDate
   , OLD.createDate
   , OLD.submitterEmail
@@ -4765,10 +4688,6 @@ $$
 --
 -- Audit Table For BillingChargeKind 
 --
-
--- select 'Creating table BillingChargeKind'$$
-
--- DROP TABLE IF EXISTS `BillingChargeKind_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingChargeKind_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -4889,10 +4808,6 @@ $$
 --
 -- Audit Table For BillingItem 
 --
-
--- select 'Creating table BillingItem'$$
-
--- DROP TABLE IF EXISTS `BillingItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -5191,14 +5106,10 @@ $$
 
 
 --
--- Audit Table For Billingperiod 
+-- Audit Table For BillingPeriod 
 --
 
--- select 'Creating table Billingperiod'$$
-
--- DROP TABLE IF EXISTS `Billingperiod_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `Billingperiod_Audit` (
+CREATE TABLE IF NOT EXISTS `BillingPeriod_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -5214,10 +5125,10 @@ $$
 
 
 --
--- Initial audit table rows for Billingperiod 
+-- Initial audit table rows for BillingPeriod 
 --
 
-INSERT INTO Billingperiod_Audit
+INSERT INTO BillingPeriod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -5239,18 +5150,18 @@ INSERT INTO Billingperiod_Audit
   , startDate
   , endDate
   , isActive
-  FROM Billingperiod
-  WHERE NOT EXISTS(SELECT * FROM Billingperiod_Audit)
+  FROM BillingPeriod
+  WHERE NOT EXISTS(SELECT * FROM BillingPeriod_Audit)
 $$
 
 --
--- Audit Triggers For Billingperiod 
+-- Audit Triggers For BillingPeriod 
 --
 
 
-CREATE TRIGGER TrAI_Billingperiod_FER AFTER INSERT ON Billingperiod FOR EACH ROW
+CREATE TRIGGER TrAI_BillingPeriod_FER AFTER INSERT ON BillingPeriod FOR EACH ROW
 BEGIN
-  INSERT INTO Billingperiod_Audit
+  INSERT INTO BillingPeriod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -5276,9 +5187,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Billingperiod_FER AFTER UPDATE ON Billingperiod FOR EACH ROW
+CREATE TRIGGER TrAU_BillingPeriod_FER AFTER UPDATE ON BillingPeriod FOR EACH ROW
 BEGIN
-  INSERT INTO Billingperiod_Audit
+  INSERT INTO BillingPeriod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -5304,9 +5215,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Billingperiod_FER AFTER DELETE ON Billingperiod FOR EACH ROW
+CREATE TRIGGER TrAD_BillingPeriod_FER AFTER DELETE ON BillingPeriod FOR EACH ROW
 BEGIN
-  INSERT INTO Billingperiod_Audit
+  INSERT INTO BillingPeriod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -5335,10 +5246,6 @@ $$
 --
 -- Audit Table For BillingSlideProductClass 
 --
-
--- select 'Creating table BillingSlideProductClass'$$
-
--- DROP TABLE IF EXISTS `BillingSlideProductClass_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingSlideProductClass_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -5460,10 +5367,6 @@ $$
 -- Audit Table For BillingSlideServiceClass 
 --
 
--- select 'Creating table BillingSlideServiceClass'$$
-
--- DROP TABLE IF EXISTS `BillingSlideServiceClass_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `BillingSlideServiceClass_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -5583,10 +5486,6 @@ $$
 --
 -- Audit Table For BillingStatus 
 --
-
--- select 'Creating table BillingStatus'$$
-
--- DROP TABLE IF EXISTS `BillingStatus_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -5708,10 +5607,6 @@ $$
 -- Audit Table For BillingTemplateItem 
 --
 
--- select 'Creating table BillingTemplateItem'$$
-
--- DROP TABLE IF EXISTS `BillingTemplateItem_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -5724,6 +5619,7 @@ CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
  ,`percentSplit`  decimal(4,3)  NULL DEFAULT NULL
  ,`dollarAmount`  decimal(7,2)  NULL DEFAULT NULL
  ,`dollarAmountBalance`  decimal(7,2)  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -5743,7 +5639,8 @@ INSERT INTO BillingTemplateItem_Audit
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance )
+  , dollarAmountBalance
+  , sortOrder )
   SELECT
   'No Context'
   , 'L'
@@ -5756,6 +5653,7 @@ INSERT INTO BillingTemplateItem_Audit
   , percentSplit
   , dollarAmount
   , dollarAmountBalance
+  , sortOrder
   FROM BillingTemplateItem
   WHERE NOT EXISTS(SELECT * FROM BillingTemplateItem_Audit)
 $$
@@ -5778,7 +5676,8 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance )
+  , dollarAmountBalance
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -5790,7 +5689,8 @@ BEGIN
   , NEW.idBillingAccount
   , NEW.percentSplit
   , NEW.dollarAmount
-  , NEW.dollarAmountBalance );
+  , NEW.dollarAmountBalance
+  , NEW.sortOrder );
 END;
 $$
 
@@ -5808,7 +5708,8 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance )
+  , dollarAmountBalance
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -5820,7 +5721,8 @@ BEGIN
   , NEW.idBillingAccount
   , NEW.percentSplit
   , NEW.dollarAmount
-  , NEW.dollarAmountBalance );
+  , NEW.dollarAmountBalance
+  , NEW.sortOrder );
 END;
 $$
 
@@ -5838,7 +5740,8 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance )
+  , dollarAmountBalance
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -5850,7 +5753,8 @@ BEGIN
   , OLD.idBillingAccount
   , OLD.percentSplit
   , OLD.dollarAmount
-  , OLD.dollarAmountBalance );
+  , OLD.dollarAmountBalance
+  , OLD.sortOrder );
 END;
 $$
 
@@ -5858,10 +5762,6 @@ $$
 --
 -- Audit Table For BillingTemplate 
 --
-
--- select 'Creating table BillingTemplate'$$
-
--- DROP TABLE IF EXISTS `BillingTemplate_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingTemplate_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -5872,6 +5772,7 @@ CREATE TABLE IF NOT EXISTS `BillingTemplate_Audit` (
  ,`idBillingTemplate`  int(10)  NULL DEFAULT NULL
  ,`targetClassIdentifier`  int(10)  NULL DEFAULT NULL
  ,`targetClassName`  varchar(100)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -5888,7 +5789,8 @@ INSERT INTO BillingTemplate_Audit
   , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
-  , targetClassName )
+  , targetClassName
+  , isActive )
   SELECT
   'No Context'
   , 'L'
@@ -5898,6 +5800,7 @@ INSERT INTO BillingTemplate_Audit
   , idBillingTemplate
   , targetClassIdentifier
   , targetClassName
+  , isActive
   FROM BillingTemplate
   WHERE NOT EXISTS(SELECT * FROM BillingTemplate_Audit)
 $$
@@ -5917,7 +5820,8 @@ BEGIN
   , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
-  , targetClassName )
+  , targetClassName
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -5926,7 +5830,8 @@ BEGIN
   , 0
   , NEW.idBillingTemplate
   , NEW.targetClassIdentifier
-  , NEW.targetClassName );
+  , NEW.targetClassName
+  , NEW.isActive );
 END;
 $$
 
@@ -5941,7 +5846,8 @@ BEGIN
   , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
-  , targetClassName )
+  , targetClassName
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -5950,7 +5856,8 @@ BEGIN
   , 0
   , NEW.idBillingTemplate
   , NEW.targetClassIdentifier
-  , NEW.targetClassName );
+  , NEW.targetClassName
+  , NEW.isActive );
 END;
 $$
 
@@ -5965,7 +5872,8 @@ BEGIN
   , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
-  , targetClassName )
+  , targetClassName
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -5974,7 +5882,8 @@ BEGIN
   , 0
   , OLD.idBillingTemplate
   , OLD.targetClassIdentifier
-  , OLD.targetClassName );
+  , OLD.targetClassName
+  , OLD.isActive );
 END;
 $$
 
@@ -5982,10 +5891,6 @@ $$
 --
 -- Audit Table For BioanalyzerChipType 
 --
-
--- select 'Creating table BioanalyzerChipType'$$
-
--- DROP TABLE IF EXISTS `BioanalyzerChipType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -6178,10 +6083,6 @@ $$
 --
 -- Audit Table For Chromatogram 
 --
-
--- select 'Creating table Chromatogram'$$
-
--- DROP TABLE IF EXISTS `Chromatogram_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Chromatogram_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -6420,10 +6321,6 @@ $$
 -- Audit Table For ConcentrationUnit 
 --
 
--- select 'Creating table ConcentrationUnit'$$
-
--- DROP TABLE IF EXISTS `ConcentrationUnit_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ConcentrationUnit_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -6561,10 +6458,6 @@ $$
 --
 -- Audit Table For ContextSensitiveHelp 
 --
-
--- select 'Creating table ContextSensitiveHelp'$$
-
--- DROP TABLE IF EXISTS `ContextSensitiveHelp_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ContextSensitiveHelp_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -6713,10 +6606,6 @@ $$
 -- Audit Table For CoreFacilityLab 
 --
 
--- select 'Creating table CoreFacilityLab'$$
-
--- DROP TABLE IF EXISTS `CoreFacilityLab_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `CoreFacilityLab_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -6827,10 +6716,6 @@ $$
 --
 -- Audit Table For CoreFacilityManager 
 --
-
--- select 'Creating table CoreFacilityManager'$$
-
--- DROP TABLE IF EXISTS `CoreFacilityManager_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `CoreFacilityManager_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -6943,10 +6828,6 @@ $$
 -- Audit Table For CoreFacilitySubmitter 
 --
 
--- select 'Creating table CoreFacilitySubmitter'$$
-
--- DROP TABLE IF EXISTS `CoreFacilitySubmitter_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `CoreFacilitySubmitter_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -7057,10 +6938,6 @@ $$
 --
 -- Audit Table For CoreFacility 
 --
-
--- select 'Creating table CoreFacility'$$
-
--- DROP TABLE IF EXISTS `CoreFacility_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `CoreFacility_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -7290,10 +7167,6 @@ $$
 -- Audit Table For CreditCardCompany 
 --
 
--- select 'Creating table CreditCardCompany'$$
-
--- DROP TABLE IF EXISTS `CreditCardCompany_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `CreditCardCompany_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -7423,10 +7296,6 @@ $$
 -- Audit Table For DataTrackCollaborator 
 --
 
--- select 'Creating table DataTrackCollaborator'$$
-
--- DROP TABLE IF EXISTS `DataTrackCollaborator_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `DataTrackCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -7537,10 +7406,6 @@ $$
 --
 -- Audit Table For DataTrackFile 
 --
-
--- select 'Creating table DataTrackFile'$$
-
--- DROP TABLE IF EXISTS `DataTrackFile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `DataTrackFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -7661,10 +7526,6 @@ $$
 --
 -- Audit Table For DataTrackFolder 
 --
-
--- select 'Creating table DataTrackFolder'$$
-
--- DROP TABLE IF EXISTS `DataTrackFolder_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `DataTrackFolder_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -7831,10 +7692,6 @@ $$
 -- Audit Table For DataTrackToFolder 
 --
 
--- select 'Creating table DataTrackToFolder'$$
-
--- DROP TABLE IF EXISTS `DataTrackToFolder_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `DataTrackToFolder_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -7946,10 +7803,6 @@ $$
 -- Audit Table For DataTrackToTopic 
 --
 
--- select 'Creating table DataTrackToTopic'$$
-
--- DROP TABLE IF EXISTS `DataTrackToTopic_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `DataTrackToTopic_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -8060,10 +7913,6 @@ $$
 --
 -- Audit Table For DataTrack 
 --
-
--- select 'Creating table DataTrack'$$
-
--- DROP TABLE IF EXISTS `DataTrack_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `DataTrack_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -8284,10 +8133,6 @@ $$
 -- Audit Table For DiskUsageByMonth 
 --
 
--- select 'Creating table DiskUsageByMonth'$$
-
--- DROP TABLE IF EXISTS `DiskUsageByMonth_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `DiskUsageByMonth_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -8476,14 +8321,9 @@ END;
 $$
 
 
-
 --
 -- Audit Table For ExperimentDesignEntry 
 --
-
--- select 'Creating table ExperimentDesignEntry'$$
-
--- DROP TABLE IF EXISTS `ExperimentDesignEntry_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ExperimentDesignEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -8622,10 +8462,6 @@ $$
 --
 -- Audit Table For ExperimentDesign 
 --
-
--- select 'Creating table ExperimentDesign'$$
-
--- DROP TABLE IF EXISTS `ExperimentDesign_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ExperimentDesign_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -8774,10 +8610,6 @@ $$
 -- Audit Table For ExperimentFactorEntry 
 --
 
--- select 'Creating table ExperimentFactorEntry'$$
-
--- DROP TABLE IF EXISTS `ExperimentFactorEntry_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ExperimentFactorEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -8915,10 +8747,6 @@ $$
 --
 -- Audit Table For ExperimentFactor 
 --
-
--- select 'Creating table ExperimentFactor'$$
-
--- DROP TABLE IF EXISTS `ExperimentFactor_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ExperimentFactor_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -9067,10 +8895,6 @@ $$
 -- Audit Table For ExperimentFile 
 --
 
--- select 'Creating table ExperimentFile'$$
-
--- DROP TABLE IF EXISTS `ExperimentFile_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ExperimentFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -9206,14 +9030,10 @@ $$
 
 
 --
--- Audit Table For Faq 
+-- Audit Table For FAQ 
 --
 
--- select 'Creating table Faq'$$
-
--- DROP TABLE IF EXISTS `Faq_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `Faq_Audit` (
+CREATE TABLE IF NOT EXISTS `FAQ_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -9228,10 +9048,10 @@ $$
 
 
 --
--- Initial audit table rows for Faq 
+-- Initial audit table rows for FAQ 
 --
 
-INSERT INTO Faq_Audit
+INSERT INTO FAQ_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -9251,18 +9071,18 @@ INSERT INTO Faq_Audit
   , title
   , url
   , idCoreFacility
-  FROM Faq
-  WHERE NOT EXISTS(SELECT * FROM Faq_Audit)
+  FROM FAQ
+  WHERE NOT EXISTS(SELECT * FROM FAQ_Audit)
 $$
 
 --
--- Audit Triggers For Faq 
+-- Audit Triggers For FAQ 
 --
 
 
-CREATE TRIGGER TrAI_Faq_FER AFTER INSERT ON Faq FOR EACH ROW
+CREATE TRIGGER TrAI_FAQ_FER AFTER INSERT ON FAQ FOR EACH ROW
 BEGIN
-  INSERT INTO Faq_Audit
+  INSERT INTO FAQ_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -9286,9 +9106,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Faq_FER AFTER UPDATE ON Faq FOR EACH ROW
+CREATE TRIGGER TrAU_FAQ_FER AFTER UPDATE ON FAQ FOR EACH ROW
 BEGIN
-  INSERT INTO Faq_Audit
+  INSERT INTO FAQ_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -9312,9 +9132,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Faq_FER AFTER DELETE ON Faq FOR EACH ROW
+CREATE TRIGGER TrAD_FAQ_FER AFTER DELETE ON FAQ FOR EACH ROW
 BEGIN
-  INSERT INTO Faq_Audit
+  INSERT INTO FAQ_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -9341,10 +9161,6 @@ $$
 --
 -- Audit Table For FeatureExtractionProtocol 
 --
-
--- select 'Creating table FeatureExtractionProtocol'$$
-
--- DROP TABLE IF EXISTS `FeatureExtractionProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `FeatureExtractionProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -9493,10 +9309,6 @@ $$
 -- Audit Table For FlowCellChannel 
 --
 
--- select 'Creating table FlowCellChannel'$$
-
--- DROP TABLE IF EXISTS `FlowCellChannel_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -9506,7 +9318,6 @@ CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
  ,`idFlowCellChannel`  int(10)  NULL DEFAULT NULL
  ,`idFlowCell`  int(10)  NULL DEFAULT NULL
  ,`number`  int(10)  NULL DEFAULT NULL
- ,`idSequenceLane`  int(10)  NULL DEFAULT NULL
  ,`idSequencingControl`  int(10)  NULL DEFAULT NULL
  ,`numberSequencingCyclesActual`  int(10)  NULL DEFAULT NULL
  ,`clustersPerTile`  int(10)  NULL DEFAULT NULL
@@ -9545,7 +9356,6 @@ INSERT INTO FlowCellChannel_Audit
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9576,7 +9386,6 @@ INSERT INTO FlowCellChannel_Audit
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9618,7 +9427,6 @@ BEGIN
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9649,7 +9457,6 @@ BEGIN
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
   , NEW.number
-  , NEW.idSequenceLane
   , NEW.idSequencingControl
   , NEW.numberSequencingCyclesActual
   , NEW.clustersPerTile
@@ -9686,7 +9493,6 @@ BEGIN
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9717,7 +9523,6 @@ BEGIN
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
   , NEW.number
-  , NEW.idSequenceLane
   , NEW.idSequencingControl
   , NEW.numberSequencingCyclesActual
   , NEW.clustersPerTile
@@ -9754,7 +9559,6 @@ BEGIN
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9785,7 +9589,6 @@ BEGIN
   , OLD.idFlowCellChannel
   , OLD.idFlowCell
   , OLD.number
-  , OLD.idSequenceLane
   , OLD.idSequencingControl
   , OLD.numberSequencingCyclesActual
   , OLD.clustersPerTile
@@ -9815,10 +9618,6 @@ $$
 -- Audit Table For FlowCell 
 --
 
--- select 'Creating table FlowCell'$$
-
--- DROP TABLE IF EXISTS `FlowCell_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -9833,11 +9632,11 @@ CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
  ,`notes`  varchar(200)  NULL DEFAULT NULL
  ,`barcode`  varchar(100)  NULL DEFAULT NULL
  ,`codeSequencingPlatform`  varchar(10)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
- ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
  ,`runNumber`  int(10)  NULL DEFAULT NULL
  ,`idInstrument`  int(10)  NULL DEFAULT NULL
  ,`side`  char(1)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -9860,11 +9659,11 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   SELECT
   'No Context'
   , 'L'
@@ -9879,11 +9678,11 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
   , side
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   FROM FlowCell
   WHERE NOT EXISTS(SELECT * FROM FlowCell_Audit)
 $$
@@ -9909,11 +9708,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -9928,11 +9727,11 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side );
+  , NEW.side
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed );
 END;
 $$
 
@@ -9953,11 +9752,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -9972,11 +9771,11 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side );
+  , NEW.side
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed );
 END;
 $$
 
@@ -9997,11 +9796,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -10016,11 +9815,11 @@ BEGIN
   , OLD.notes
   , OLD.barcode
   , OLD.codeSequencingPlatform
-  , OLD.idCoreFacility
-  , OLD.idNumberSequencingCyclesAllowed
   , OLD.runNumber
   , OLD.idInstrument
-  , OLD.side );
+  , OLD.side
+  , OLD.idCoreFacility
+  , OLD.idNumberSequencingCyclesAllowed );
 END;
 $$
 
@@ -10028,10 +9827,6 @@ $$
 --
 -- Audit Table For FundingAgency 
 --
-
--- select 'Creating table FundingAgency'$$
-
--- DROP TABLE IF EXISTS `FundingAgency_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `FundingAgency_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -10162,10 +9957,6 @@ $$
 -- Audit Table For GenomeBuildAlias 
 --
 
--- select 'Creating table GenomeBuildAlias'$$
-
--- DROP TABLE IF EXISTS `GenomeBuildAlias_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `GenomeBuildAlias_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -10285,10 +10076,6 @@ $$
 --
 -- Audit Table For GenomeBuild 
 --
-
--- select 'Creating table GenomeBuild'$$
-
--- DROP TABLE IF EXISTS `GenomeBuild_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -10527,10 +10314,6 @@ $$
 -- Audit Table For GenomeIndex 
 --
 
--- select 'Creating table GenomeIndex'$$
-
--- DROP TABLE IF EXISTS `GenomeIndex_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `GenomeIndex_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -10668,10 +10451,6 @@ $$
 --
 -- Audit Table For HybProtocol 
 --
-
--- select 'Creating table HybProtocol'$$
-
--- DROP TABLE IF EXISTS `HybProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `HybProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -10819,10 +10598,6 @@ $$
 --
 -- Audit Table For Hybridization 
 --
-
--- select 'Creating table Hybridization'$$
-
--- DROP TABLE IF EXISTS `Hybridization_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Hybridization_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11106,10 +10881,6 @@ $$
 -- Audit Table For InstitutionLab 
 --
 
--- select 'Creating table InstitutionLab'$$
-
--- DROP TABLE IF EXISTS `InstitutionLab_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `InstitutionLab_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -11220,10 +10991,6 @@ $$
 --
 -- Audit Table For Institution 
 --
-
--- select 'Creating table Institution'$$
-
--- DROP TABLE IF EXISTS `Institution_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Institution_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11363,10 +11130,6 @@ $$
 -- Audit Table For InstrumentRunStatus 
 --
 
--- select 'Creating table InstrumentRunStatus'$$
-
--- DROP TABLE IF EXISTS `InstrumentRunStatus_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `InstrumentRunStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -11486,10 +11249,6 @@ $$
 --
 -- Audit Table For InstrumentRun 
 --
-
--- select 'Creating table InstrumentRun'$$
-
--- DROP TABLE IF EXISTS `InstrumentRun_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `InstrumentRun_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11665,10 +11424,6 @@ $$
 -- Audit Table For Instrument 
 --
 
--- select 'Creating table Instrument'$$
-
--- DROP TABLE IF EXISTS `Instrument_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Instrument_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -11788,10 +11543,6 @@ $$
 --
 -- Audit Table For InternalAccountFieldsConfiguration 
 --
-
--- select 'Creating table InternalAccountFieldsConfiguration'$$
-
--- DROP TABLE IF EXISTS `InternalAccountFieldsConfiguration_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `InternalAccountFieldsConfiguration_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11967,10 +11718,6 @@ $$
 -- Audit Table For Invoice 
 --
 
--- select 'Creating table Invoice'$$
-
--- DROP TABLE IF EXISTS `Invoice_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Invoice_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12118,10 +11865,6 @@ $$
 -- Audit Table For IsolationPrepType 
 --
 
--- select 'Creating table IsolationPrepType'$$
-
--- DROP TABLE IF EXISTS `IsolationPrepType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `IsolationPrepType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12260,10 +12003,6 @@ $$
 -- Audit Table For LabCollaborator 
 --
 
--- select 'Creating table LabCollaborator'$$
-
--- DROP TABLE IF EXISTS `LabCollaborator_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `LabCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12383,10 +12122,6 @@ $$
 --
 -- Audit Table For LabeledSample 
 --
-
--- select 'Creating table LabeledSample'$$
-
--- DROP TABLE IF EXISTS `LabeledSample_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `LabeledSample_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -12580,10 +12315,6 @@ $$
 -- Audit Table For LabelingProtocol 
 --
 
--- select 'Creating table LabelingProtocol'$$
-
--- DROP TABLE IF EXISTS `LabelingProtocol_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `LabelingProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12731,10 +12462,6 @@ $$
 -- Audit Table For LabelingReactionSize 
 --
 
--- select 'Creating table LabelingReactionSize'$$
-
--- DROP TABLE IF EXISTS `LabelingReactionSize_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `LabelingReactionSize_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12864,10 +12591,6 @@ $$
 -- Audit Table For Label 
 --
 
--- select 'Creating table Label'$$
-
--- DROP TABLE IF EXISTS `Label_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Label_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12988,10 +12711,6 @@ $$
 -- Audit Table For LabManager 
 --
 
--- select 'Creating table LabManager'$$
-
--- DROP TABLE IF EXISTS `LabManager_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `LabManager_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -13111,10 +12830,6 @@ $$
 --
 -- Audit Table For LabUser 
 --
-
--- select 'Creating table LabUser'$$
-
--- DROP TABLE IF EXISTS `LabUser_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `LabUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -13254,10 +12969,6 @@ $$
 -- Audit Table For Lab 
 --
 
--- select 'Creating table Lab'$$
-
--- DROP TABLE IF EXISTS `Lab_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Lab_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -13267,7 +12978,6 @@ CREATE TABLE IF NOT EXISTS `Lab_Audit` (
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`department`  varchar(200)  NULL DEFAULT NULL
- ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`contactName`  varchar(200)  NULL DEFAULT NULL
  ,`contactAddress`  varchar(200)  NULL DEFAULT NULL
  ,`contactCodeState`  varchar(10)  NULL DEFAULT NULL
@@ -13304,7 +13014,6 @@ INSERT INTO Lab_Audit
   , idLab
   , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13333,7 +13042,6 @@ INSERT INTO Lab_Audit
   , idLab
   , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13373,7 +13081,6 @@ BEGIN
   , idLab
   , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13402,7 +13109,6 @@ BEGIN
   , NEW.idLab
   , NEW.name
   , NEW.department
-  , NEW.notes
   , NEW.contactName
   , NEW.contactAddress
   , NEW.contactCodeState
@@ -13437,7 +13143,6 @@ BEGIN
   , idLab
   , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13466,7 +13171,6 @@ BEGIN
   , NEW.idLab
   , NEW.name
   , NEW.department
-  , NEW.notes
   , NEW.contactName
   , NEW.contactAddress
   , NEW.contactCodeState
@@ -13501,7 +13205,6 @@ BEGIN
   , idLab
   , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13530,7 +13233,6 @@ BEGIN
   , OLD.idLab
   , OLD.name
   , OLD.department
-  , OLD.notes
   , OLD.contactName
   , OLD.contactAddress
   , OLD.contactCodeState
@@ -13557,10 +13259,6 @@ $$
 --
 -- Audit Table For LibraryPrepQCProtocol 
 --
-
--- select 'Creating table LibraryPrepQCProtocol'$$
-
--- DROP TABLE IF EXISTS `LibraryPrepQCProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `LibraryPrepQCProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -13681,10 +13379,6 @@ $$
 --
 -- Audit Table For MasterBillingItem 
 --
-
--- select 'Creating table MasterBillingItem'$$
-
--- DROP TABLE IF EXISTS `MasterBillingItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `MasterBillingItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -13887,10 +13581,6 @@ $$
 -- Audit Table For MetrixObject 
 --
 
--- select 'Creating table MetrixObject'$$
-
--- DROP TABLE IF EXISTS `MetrixObject_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `MetrixObject_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14017,12 +13707,119 @@ $$
 
 
 --
--- Audit Table For NewsItem 
+-- Audit Table For MicroArrayRequestNumber 
 --
 
--- select 'Creating table NewsItem'$$
+CREATE TABLE IF NOT EXISTS `MicroArrayRequestNumber_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
+ ,`number`  int(10)  NULL DEFAULT NULL
+ ,`dummy`  char(1)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
+$$
 
--- DROP TABLE IF EXISTS `NewsItem_Audit`$$
+
+--
+-- Initial audit table rows for MicroArrayRequestNumber 
+--
+
+INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , 0
+  , number
+  , dummy
+  FROM MicroArrayRequestNumber
+  WHERE NOT EXISTS(SELECT * FROM MicroArrayRequestNumber_Audit)
+$$
+
+--
+-- Audit Triggers For MicroArrayRequestNumber 
+--
+
+
+CREATE TRIGGER TrAI_MicroArrayRequestNumber_FER AFTER INSERT ON MicroArrayRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.number
+  , NEW.dummy );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_MicroArrayRequestNumber_FER AFTER UPDATE ON MicroArrayRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.number
+  , NEW.dummy );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_MicroArrayRequestNumber_FER AFTER DELETE ON MicroArrayRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , 0
+  , OLD.number
+  , OLD.dummy );
+END;
+$$
+
+
+--
+-- Audit Table For NewsItem 
+--
 
 CREATE TABLE IF NOT EXISTS `NewsItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -14170,10 +13967,6 @@ $$
 --
 -- Audit Table For Notification 
 --
-
--- select 'Creating table Notification'$$
-
--- DROP TABLE IF EXISTS `Notification_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Notification_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -14367,10 +14160,6 @@ $$
 -- Audit Table For NucleotideType 
 --
 
--- select 'Creating table NucleotideType'$$
-
--- DROP TABLE IF EXISTS `NucleotideType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `NucleotideType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14472,10 +14261,6 @@ $$
 --
 -- Audit Table For NumberSequencingCyclesAllowed 
 --
-
--- select 'Creating table NumberSequencingCyclesAllowed'$$
-
--- DROP TABLE IF EXISTS `NumberSequencingCyclesAllowed_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `NumberSequencingCyclesAllowed_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -14651,10 +14436,6 @@ $$
 -- Audit Table For NumberSequencingCycles 
 --
 
--- select 'Creating table NumberSequencingCycles'$$
-
--- DROP TABLE IF EXISTS `NumberSequencingCycles_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `NumberSequencingCycles_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14793,10 +14574,6 @@ $$
 -- Audit Table For OligoBarcodeSchemeAllowed 
 --
 
--- select 'Creating table OligoBarcodeSchemeAllowed'$$
-
--- DROP TABLE IF EXISTS `OligoBarcodeSchemeAllowed_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `OligoBarcodeSchemeAllowed_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14926,10 +14703,6 @@ $$
 -- Audit Table For OligoBarcodeScheme 
 --
 
--- select 'Creating table OligoBarcodeScheme'$$
-
--- DROP TABLE IF EXISTS `OligoBarcodeScheme_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `OligoBarcodeScheme_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -15058,10 +14831,6 @@ $$
 --
 -- Audit Table For OligoBarcode 
 --
-
--- select 'Creating table OligoBarcode'$$
-
--- DROP TABLE IF EXISTS `OligoBarcode_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `OligoBarcode_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -15209,10 +14978,6 @@ $$
 --
 -- Audit Table For Organism 
 --
-
--- select 'Creating table Organism'$$
-
--- DROP TABLE IF EXISTS `Organism_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Organism_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -15406,10 +15171,6 @@ $$
 -- Audit Table For OtherAccountFieldsConfiguration 
 --
 
--- select 'Creating table OtherAccountFieldsConfiguration'$$
-
--- DROP TABLE IF EXISTS `OtherAccountFieldsConfiguration_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `OtherAccountFieldsConfiguration_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -15536,12 +15297,8 @@ $$
 
 
 --
--- Audit Table For PipelineProtocol
+-- Audit Table For PipelineProtocol 
 --
-
--- select 'Creating table PipelineProtocol'$$
-
--- DROP TABLE IF EXISTS `PipelineProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PipelineProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -15549,17 +15306,17 @@ CREATE TABLE IF NOT EXISTS `PipelineProtocol_Audit` (
  ,`AuditSystemUser`    varchar(30)  NULL
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
- ,`idPipelineProtocol` int(10)      NULL DEFAULT NULL
- ,`description`        longtext     NULL DEFAULT NULL
- ,`idCoreFacility`     int(10)      NULL DEFAULT NULL
- ,`protocol`           varchar(50)  NULL DEFAULT NULL
- ,`isDefault`          varchar(1)   NULL DEFAULT NULL
+ ,`idPipelineProtocol`  int(10)  NULL DEFAULT NULL
+ ,`description`  longtext  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`protocol`  varchar(50)  NULL DEFAULT NULL
+ ,`isDefault`  varchar(1)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for PipelineProtocol
+-- Initial audit table rows for PipelineProtocol 
 --
 
 INSERT INTO PipelineProtocol_Audit
@@ -15589,7 +15346,7 @@ INSERT INTO PipelineProtocol_Audit
 $$
 
 --
--- Audit Triggers For PipelineProtocol
+-- Audit Triggers For PipelineProtocol 
 --
 
 
@@ -15678,12 +15435,8 @@ $$
 
 
 --
--- Audit Table For PlateType
+-- Audit Table For PlateType 
 --
-
--- select 'Creating table PlateType'$$
-
--- DROP TABLE IF EXISTS `PlateType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PlateType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -15699,7 +15452,7 @@ $$
 
 
 --
--- Initial audit table rows for PlateType
+-- Initial audit table rows for PlateType 
 --
 
 INSERT INTO PlateType_Audit
@@ -15725,7 +15478,7 @@ INSERT INTO PlateType_Audit
 $$
 
 --
--- Audit Triggers For PlateType
+-- Audit Triggers For PlateType 
 --
 
 
@@ -15804,10 +15557,6 @@ $$
 --
 -- Audit Table For PlateWell 
 --
-
--- select 'Creating table PlateWell'$$
-
--- DROP TABLE IF EXISTS `PlateWell_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PlateWell_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -16019,10 +15768,6 @@ $$
 -- Audit Table For Plate 
 --
 
--- select 'Creating table Plate'$$
-
--- DROP TABLE IF EXISTS `Plate_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Plate_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16206,10 +15951,6 @@ $$
 -- Audit Table For PriceCategoryStep 
 --
 
--- select 'Creating table PriceCategoryStep'$$
-
--- DROP TABLE IF EXISTS `PriceCategoryStep_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PriceCategoryStep_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16320,10 +16061,6 @@ $$
 --
 -- Audit Table For PriceCategory 
 --
-
--- select 'Creating table PriceCategory'$$
-
--- DROP TABLE IF EXISTS `PriceCategory_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PriceCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -16490,10 +16227,6 @@ $$
 -- Audit Table For PriceCriteria 
 --
 
--- select 'Creating table PriceCriteria'$$
-
--- DROP TABLE IF EXISTS `PriceCriteria_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PriceCriteria_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16623,10 +16356,6 @@ $$
 -- Audit Table For PriceSheetPriceCategory 
 --
 
--- select 'Creating table PriceSheetPriceCategory'$$
-
--- DROP TABLE IF EXISTS `PriceSheetPriceCategory_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PriceSheetPriceCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16747,10 +16476,6 @@ $$
 -- Audit Table For PriceSheetRequestCategory 
 --
 
--- select 'Creating table PriceSheetRequestCategory'$$
-
--- DROP TABLE IF EXISTS `PriceSheetRequestCategory_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PriceSheetRequestCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16861,10 +16586,6 @@ $$
 --
 -- Audit Table For PriceSheet 
 --
-
--- select 'Creating table PriceSheet'$$
-
--- DROP TABLE IF EXISTS `PriceSheet_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PriceSheet_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -16994,10 +16715,6 @@ $$
 --
 -- Audit Table For Price 
 --
-
--- select 'Creating table Price'$$
-
--- DROP TABLE IF EXISTS `Price_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Price_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -17164,10 +16881,6 @@ $$
 -- Audit Table For Primer 
 --
 
--- select 'Creating table Primer'$$
-
--- DROP TABLE IF EXISTS `Primer_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Primer_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -17305,10 +17018,6 @@ $$
 --
 -- Audit Table For ProductLedger 
 --
-
--- select 'Creating table ProductLedger'$$
-
--- DROP TABLE IF EXISTS `ProductLedger_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ProductLedger_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -17484,10 +17193,6 @@ $$
 -- Audit Table For ProductLineItem 
 --
 
--- select 'Creating table ProductLineItem'$$
-
--- DROP TABLE IF EXISTS `ProductLineItem_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ProductLineItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -17634,10 +17339,6 @@ $$
 --
 -- Audit Table For ProductOrderFile 
 --
-
--- select 'Creating table ProductOrderFile'$$
-
--- DROP TABLE IF EXISTS `ProductOrderFile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ProductOrderFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -17795,10 +17496,6 @@ $$
 -- Audit Table For ProductOrderStatus 
 --
 
--- select 'Creating table ProductOrderStatus'$$
-
--- DROP TABLE IF EXISTS `ProductOrderStatus_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ProductOrderStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -17918,10 +17615,6 @@ $$
 --
 -- Audit Table For ProductOrder 
 --
-
--- select 'Creating table ProductOrder'$$
-
--- DROP TABLE IF EXISTS `ProductOrder_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -18106,10 +17799,6 @@ $$
 -- Audit Table For ProductType 
 --
 
--- select 'Creating table ProductType'$$
-
--- DROP TABLE IF EXISTS `ProductType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ProductType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18247,10 +17936,6 @@ $$
 --
 -- Audit Table For Product 
 --
-
--- select 'Creating table Product'$$
-
--- DROP TABLE IF EXISTS `Product_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Product_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -18444,10 +18129,6 @@ $$
 -- Audit Table For Project 
 --
 
--- select 'Creating table Project'$$
-
--- DROP TABLE IF EXISTS `Project_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Project_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18604,10 +18285,6 @@ $$
 -- Audit Table For PropertyAnalysisType 
 --
 
--- select 'Creating table PropertyAnalysisType'$$
-
--- DROP TABLE IF EXISTS `PropertyAnalysisType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PropertyAnalysisType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18719,10 +18396,6 @@ $$
 -- Audit Table For PropertyAppUser 
 --
 
--- select 'Creating table PropertyAppUser'$$
-
--- DROP TABLE IF EXISTS `PropertyAppUser_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PropertyAppUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18833,10 +18506,6 @@ $$
 --
 -- Audit Table For PropertyDictionary 
 --
-
--- select 'Creating table PropertyDictionary'$$
-
--- DROP TABLE IF EXISTS `PropertyDictionary_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyDictionary_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -18994,10 +18663,6 @@ $$
 -- Audit Table For PropertyEntryOption 
 --
 
--- select 'Creating table PropertyEntryOption'$$
-
--- DROP TABLE IF EXISTS `PropertyEntryOption_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PropertyEntryOption_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -19108,10 +18773,6 @@ $$
 --
 -- Audit Table For PropertyEntryValue 
 --
-
--- select 'Creating table PropertyEntryValue'$$
-
--- DROP TABLE IF EXISTS `PropertyEntryValue_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyEntryValue_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -19232,10 +18893,6 @@ $$
 --
 -- Audit Table For PropertyEntry 
 --
-
--- select 'Creating table PropertyEntry'$$
-
--- DROP TABLE IF EXISTS `PropertyEntry_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -19402,10 +19059,6 @@ $$
 -- Audit Table For PropertyOption 
 --
 
--- select 'Creating table PropertyOption'$$
-
--- DROP TABLE IF EXISTS `PropertyOption_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PropertyOption_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -19544,10 +19197,6 @@ $$
 -- Audit Table For PropertyOrganism 
 --
 
--- select 'Creating table PropertyOrganism'$$
-
--- DROP TABLE IF EXISTS `PropertyOrganism_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PropertyOrganism_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -19658,10 +19307,6 @@ $$
 --
 -- Audit Table For PropertyPlatformApplication 
 --
-
--- select 'Creating table PropertyPlatformApplication'$$
-
--- DROP TABLE IF EXISTS `PropertyPlatformApplication_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyPlatformApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -19792,10 +19437,6 @@ $$
 -- Audit Table For PropertyType 
 --
 
--- select 'Creating table PropertyType'$$
-
--- DROP TABLE IF EXISTS `PropertyType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `PropertyType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -19915,10 +19556,6 @@ $$
 --
 -- Audit Table For Property 
 --
-
--- select 'Creating table Property'$$
-
--- DROP TABLE IF EXISTS `Property_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Property_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -20157,10 +19794,6 @@ $$
 -- Audit Table For ProtocolType 
 --
 
--- select 'Creating table ProtocolType'$$
-
--- DROP TABLE IF EXISTS `ProtocolType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ProtocolType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20280,10 +19913,6 @@ $$
 --
 -- Audit Table For QualityControlStepEntry 
 --
-
--- select 'Creating table QualityControlStepEntry'$$
-
--- DROP TABLE IF EXISTS `QualityControlStepEntry_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `QualityControlStepEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -20423,10 +20052,6 @@ $$
 -- Audit Table For QualityControlStep 
 --
 
--- select 'Creating table QualityControlStep'$$
-
--- DROP TABLE IF EXISTS `QualityControlStep_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `QualityControlStep_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20565,10 +20190,6 @@ $$
 -- Audit Table For ReactionType 
 --
 
--- select 'Creating table ReactionType'$$
-
--- DROP TABLE IF EXISTS `ReactionType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ReactionType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20688,10 +20309,6 @@ $$
 --
 -- Audit Table For RequestCategoryApplication 
 --
-
--- select 'Creating table RequestCategoryApplication'$$
-
--- DROP TABLE IF EXISTS `RequestCategoryApplication_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `RequestCategoryApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -20840,10 +20457,6 @@ $$
 -- Audit Table For RequestCategoryType 
 --
 
--- select 'Creating table RequestCategoryType'$$
-
--- DROP TABLE IF EXISTS `RequestCategoryType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `RequestCategoryType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20981,10 +20594,6 @@ $$
 --
 -- Audit Table For RequestCategory 
 --
-
--- select 'Creating table RequestCategory'$$
-
--- DROP TABLE IF EXISTS `RequestCategory_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -21250,10 +20859,6 @@ $$
 -- Audit Table For RequestCollaborator 
 --
 
--- select 'Creating table RequestCollaborator'$$
-
--- DROP TABLE IF EXISTS `RequestCollaborator_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `RequestCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -21383,10 +20988,6 @@ $$
 -- Audit Table For RequestHybridization 
 --
 
--- select 'Creating table RequestHybridization'$$
-
--- DROP TABLE IF EXISTS `RequestHybridization_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `RequestHybridization_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -21498,10 +21099,6 @@ $$
 -- Audit Table For RequestSeqLibTreatment 
 --
 
--- select 'Creating table RequestSeqLibTreatment'$$
-
--- DROP TABLE IF EXISTS `RequestSeqLibTreatment_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `RequestSeqLibTreatment_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -21612,10 +21209,6 @@ $$
 --
 -- Audit Table For RequestStatus 
 --
-
--- select 'Creating table RequestStatus'$$
-
--- DROP TABLE IF EXISTS `RequestStatus_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `RequestStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -21737,10 +21330,6 @@ $$
 -- Audit Table For RequestToTopic 
 --
 
--- select 'Creating table RequestToTopic'$$
-
--- DROP TABLE IF EXISTS `RequestToTopic_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `RequestToTopic_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -21851,10 +21440,6 @@ $$
 --
 -- Audit Table For Request 
 --
-
--- select 'Creating table Request'$$
-
--- DROP TABLE IF EXISTS `Request_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Request_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -22423,14 +22008,10 @@ $$
 
 
 --
--- Audit Table For Sampledropofflocation 
+-- Audit Table For SampleDropOffLocation 
 --
 
--- select 'Creating table Sampledropofflocation'$$
-
--- DROP TABLE IF EXISTS `Sampledropofflocation_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `Sampledropofflocation_Audit` (
+CREATE TABLE IF NOT EXISTS `SampleDropOffLocation_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -22444,10 +22025,10 @@ $$
 
 
 --
--- Initial audit table rows for Sampledropofflocation 
+-- Initial audit table rows for SampleDropOffLocation 
 --
 
-INSERT INTO Sampledropofflocation_Audit
+INSERT INTO SampleDropOffLocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22465,18 +22046,18 @@ INSERT INTO Sampledropofflocation_Audit
   , idSampleDropOffLocation
   , sampleDropOffLocation
   , isActive
-  FROM Sampledropofflocation
-  WHERE NOT EXISTS(SELECT * FROM Sampledropofflocation_Audit)
+  FROM SampleDropOffLocation
+  WHERE NOT EXISTS(SELECT * FROM SampleDropOffLocation_Audit)
 $$
 
 --
--- Audit Triggers For Sampledropofflocation 
+-- Audit Triggers For SampleDropOffLocation 
 --
 
 
-CREATE TRIGGER TrAI_Sampledropofflocation_FER AFTER INSERT ON Sampledropofflocation FOR EACH ROW
+CREATE TRIGGER TrAI_SampleDropOffLocation_FER AFTER INSERT ON SampleDropOffLocation FOR EACH ROW
 BEGIN
-  INSERT INTO Sampledropofflocation_Audit
+  INSERT INTO SampleDropOffLocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22498,9 +22079,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Sampledropofflocation_FER AFTER UPDATE ON Sampledropofflocation FOR EACH ROW
+CREATE TRIGGER TrAU_SampleDropOffLocation_FER AFTER UPDATE ON SampleDropOffLocation FOR EACH ROW
 BEGIN
-  INSERT INTO Sampledropofflocation_Audit
+  INSERT INTO SampleDropOffLocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22522,9 +22103,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Sampledropofflocation_FER AFTER DELETE ON Sampledropofflocation FOR EACH ROW
+CREATE TRIGGER TrAD_SampleDropOffLocation_FER AFTER DELETE ON SampleDropOffLocation FOR EACH ROW
 BEGIN
-  INSERT INTO Sampledropofflocation_Audit
+  INSERT INTO SampleDropOffLocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22547,14 +22128,10 @@ $$
 
 
 --
--- Audit Table For Sampleexperimentfile 
+-- Audit Table For SampleExperimentFile 
 --
 
--- select 'Creating table Sampleexperimentfile'$$
-
--- DROP TABLE IF EXISTS `Sampleexperimentfile_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `Sampleexperimentfile_Audit` (
+CREATE TABLE IF NOT EXISTS `SampleExperimentFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -22570,10 +22147,10 @@ $$
 
 
 --
--- Initial audit table rows for Sampleexperimentfile 
+-- Initial audit table rows for SampleExperimentFile 
 --
 
-INSERT INTO Sampleexperimentfile_Audit
+INSERT INTO SampleExperimentFile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22595,18 +22172,18 @@ INSERT INTO Sampleexperimentfile_Audit
   , idExpFileRead1
   , idExpFileRead2
   , seqRunNumber
-  FROM Sampleexperimentfile
-  WHERE NOT EXISTS(SELECT * FROM Sampleexperimentfile_Audit)
+  FROM SampleExperimentFile
+  WHERE NOT EXISTS(SELECT * FROM SampleExperimentFile_Audit)
 $$
 
 --
--- Audit Triggers For Sampleexperimentfile 
+-- Audit Triggers For SampleExperimentFile 
 --
 
 
-CREATE TRIGGER TrAI_Sampleexperimentfile_FER AFTER INSERT ON Sampleexperimentfile FOR EACH ROW
+CREATE TRIGGER TrAI_SampleExperimentFile_FER AFTER INSERT ON SampleExperimentFile FOR EACH ROW
 BEGIN
-  INSERT INTO Sampleexperimentfile_Audit
+  INSERT INTO SampleExperimentFile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22632,9 +22209,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Sampleexperimentfile_FER AFTER UPDATE ON Sampleexperimentfile FOR EACH ROW
+CREATE TRIGGER TrAU_SampleExperimentFile_FER AFTER UPDATE ON SampleExperimentFile FOR EACH ROW
 BEGIN
-  INSERT INTO Sampleexperimentfile_Audit
+  INSERT INTO SampleExperimentFile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22660,9 +22237,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Sampleexperimentfile_FER AFTER DELETE ON Sampleexperimentfile FOR EACH ROW
+CREATE TRIGGER TrAD_SampleExperimentFile_FER AFTER DELETE ON SampleExperimentFile FOR EACH ROW
 BEGIN
-  INSERT INTO Sampleexperimentfile_Audit
+  INSERT INTO SampleExperimentFile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22689,14 +22266,10 @@ $$
 
 
 --
--- Audit Table For Samplefiletype 
+-- Audit Table For SampleFileType 
 --
 
--- select 'Creating table Samplefiletype'$$
-
--- DROP TABLE IF EXISTS `Samplefiletype_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `Samplefiletype_Audit` (
+CREATE TABLE IF NOT EXISTS `SampleFileType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -22709,10 +22282,10 @@ $$
 
 
 --
--- Initial audit table rows for Samplefiletype 
+-- Initial audit table rows for SampleFileType 
 --
 
-INSERT INTO Samplefiletype_Audit
+INSERT INTO SampleFileType_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22728,18 +22301,18 @@ INSERT INTO Samplefiletype_Audit
   , 0
   , codeSampleFileType
   , description
-  FROM Samplefiletype
-  WHERE NOT EXISTS(SELECT * FROM Samplefiletype_Audit)
+  FROM SampleFileType
+  WHERE NOT EXISTS(SELECT * FROM SampleFileType_Audit)
 $$
 
 --
--- Audit Triggers For Samplefiletype 
+-- Audit Triggers For SampleFileType 
 --
 
 
-CREATE TRIGGER TrAI_Samplefiletype_FER AFTER INSERT ON Samplefiletype FOR EACH ROW
+CREATE TRIGGER TrAI_SampleFileType_FER AFTER INSERT ON SampleFileType FOR EACH ROW
 BEGIN
-  INSERT INTO Samplefiletype_Audit
+  INSERT INTO SampleFileType_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22759,9 +22332,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Samplefiletype_FER AFTER UPDATE ON Samplefiletype FOR EACH ROW
+CREATE TRIGGER TrAU_SampleFileType_FER AFTER UPDATE ON SampleFileType FOR EACH ROW
 BEGIN
-  INSERT INTO Samplefiletype_Audit
+  INSERT INTO SampleFileType_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22781,9 +22354,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Samplefiletype_FER AFTER DELETE ON Samplefiletype FOR EACH ROW
+CREATE TRIGGER TrAD_SampleFileType_FER AFTER DELETE ON SampleFileType FOR EACH ROW
 BEGIN
-  INSERT INTO Samplefiletype_Audit
+  INSERT INTO SampleFileType_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22804,14 +22377,10 @@ $$
 
 
 --
--- Audit Table For Sampleprepmethod 
+-- Audit Table For SamplePrepMethod 
 --
 
--- select 'Creating table Sampleprepmethod'$$
-
--- DROP TABLE IF EXISTS `Sampleprepmethod_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `Sampleprepmethod_Audit` (
+CREATE TABLE IF NOT EXISTS `SamplePrepMethod_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -22825,10 +22394,10 @@ $$
 
 
 --
--- Initial audit table rows for Sampleprepmethod 
+-- Initial audit table rows for SamplePrepMethod 
 --
 
-INSERT INTO Sampleprepmethod_Audit
+INSERT INTO SamplePrepMethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22846,18 +22415,18 @@ INSERT INTO Sampleprepmethod_Audit
   , idSamplePrepMethod
   , samplePrepMethod
   , isActive
-  FROM Sampleprepmethod
-  WHERE NOT EXISTS(SELECT * FROM Sampleprepmethod_Audit)
+  FROM SamplePrepMethod
+  WHERE NOT EXISTS(SELECT * FROM SamplePrepMethod_Audit)
 $$
 
 --
--- Audit Triggers For Sampleprepmethod 
+-- Audit Triggers For SamplePrepMethod 
 --
 
 
-CREATE TRIGGER TrAI_Sampleprepmethod_FER AFTER INSERT ON Sampleprepmethod FOR EACH ROW
+CREATE TRIGGER TrAI_SamplePrepMethod_FER AFTER INSERT ON SamplePrepMethod FOR EACH ROW
 BEGIN
-  INSERT INTO Sampleprepmethod_Audit
+  INSERT INTO SamplePrepMethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22879,9 +22448,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Sampleprepmethod_FER AFTER UPDATE ON Sampleprepmethod FOR EACH ROW
+CREATE TRIGGER TrAU_SamplePrepMethod_FER AFTER UPDATE ON SamplePrepMethod FOR EACH ROW
 BEGIN
-  INSERT INTO Sampleprepmethod_Audit
+  INSERT INTO SamplePrepMethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22903,9 +22472,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Sampleprepmethod_FER AFTER DELETE ON Sampleprepmethod FOR EACH ROW
+CREATE TRIGGER TrAD_SamplePrepMethod_FER AFTER DELETE ON SamplePrepMethod FOR EACH ROW
 BEGIN
-  INSERT INTO Sampleprepmethod_Audit
+  INSERT INTO SamplePrepMethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22928,14 +22497,10 @@ $$
 
 
 --
--- Audit Table For Samplesource 
+-- Audit Table For SampleSource 
 --
 
--- select 'Creating table Samplesource'$$
-
--- DROP TABLE IF EXISTS `Samplesource_Audit`$$
-
-CREATE TABLE IF NOT EXISTS `Samplesource_Audit` (
+CREATE TABLE IF NOT EXISTS `SampleSource_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -22949,10 +22514,10 @@ $$
 
 
 --
--- Initial audit table rows for Samplesource 
+-- Initial audit table rows for SampleSource 
 --
 
-INSERT INTO Samplesource_Audit
+INSERT INTO SampleSource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -22970,18 +22535,18 @@ INSERT INTO Samplesource_Audit
   , idSampleSource
   , sampleSource
   , isActive
-  FROM Samplesource
-  WHERE NOT EXISTS(SELECT * FROM Samplesource_Audit)
+  FROM SampleSource
+  WHERE NOT EXISTS(SELECT * FROM SampleSource_Audit)
 $$
 
 --
--- Audit Triggers For Samplesource 
+-- Audit Triggers For SampleSource 
 --
 
 
-CREATE TRIGGER TrAI_Samplesource_FER AFTER INSERT ON Samplesource FOR EACH ROW
+CREATE TRIGGER TrAI_SampleSource_FER AFTER INSERT ON SampleSource FOR EACH ROW
 BEGIN
-  INSERT INTO Samplesource_Audit
+  INSERT INTO SampleSource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -23003,9 +22568,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Samplesource_FER AFTER UPDATE ON Samplesource FOR EACH ROW
+CREATE TRIGGER TrAU_SampleSource_FER AFTER UPDATE ON SampleSource FOR EACH ROW
 BEGIN
-  INSERT INTO Samplesource_Audit
+  INSERT INTO SampleSource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -23027,9 +22592,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Samplesource_FER AFTER DELETE ON Samplesource FOR EACH ROW
+CREATE TRIGGER TrAD_SampleSource_FER AFTER DELETE ON SampleSource FOR EACH ROW
 BEGIN
-  INSERT INTO Samplesource_Audit
+  INSERT INTO SampleSource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -23054,10 +22619,6 @@ $$
 --
 -- Audit Table For SampleTypeRequestCategory 
 --
-
--- select 'Creating table SampleTypeRequestCategory'$$
-
--- DROP TABLE IF EXISTS `SampleTypeRequestCategory_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SampleTypeRequestCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -23178,10 +22739,6 @@ $$
 --
 -- Audit Table For SampleType 
 --
-
--- select 'Creating table SampleType'$$
-
--- DROP TABLE IF EXISTS `SampleType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SampleType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -23338,10 +22895,6 @@ $$
 --
 -- Audit Table For Sample 
 --
-
--- select 'Creating table Sample'$$
-
--- DROP TABLE IF EXISTS `Sample_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Sample_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -23931,10 +23484,6 @@ $$
 -- Audit Table For ScanProtocol 
 --
 
--- select 'Creating table ScanProtocol'$$
-
--- DROP TABLE IF EXISTS `ScanProtocol_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `ScanProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -24082,10 +23631,6 @@ $$
 -- Audit Table For SealType 
 --
 
--- select 'Creating table SealType'$$
-
--- DROP TABLE IF EXISTS `SealType_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `SealType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -24205,10 +23750,6 @@ $$
 --
 -- Audit Table For Segment 
 --
-
--- select 'Creating table Segment'$$
-
--- DROP TABLE IF EXISTS `Segment_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Segment_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -24348,10 +23889,6 @@ $$
 -- Audit Table For SeqLibProtocolApplication 
 --
 
--- select 'Creating table SeqLibProtocolApplication'$$
-
--- DROP TABLE IF EXISTS `SeqLibProtocolApplication_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `SeqLibProtocolApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -24462,10 +23999,6 @@ $$
 --
 -- Audit Table For SeqLibProtocol 
 --
-
--- select 'Creating table SeqLibProtocol'$$
-
--- DROP TABLE IF EXISTS `SeqLibProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SeqLibProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -24623,10 +24156,6 @@ $$
 -- Audit Table For SeqLibTreatment 
 --
 
--- select 'Creating table SeqLibTreatment'$$
-
--- DROP TABLE IF EXISTS `SeqLibTreatment_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `SeqLibTreatment_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -24746,10 +24275,6 @@ $$
 --
 -- Audit Table For SeqRunType 
 --
-
--- select 'Creating table SeqRunType'$$
-
--- DROP TABLE IF EXISTS `SeqRunType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SeqRunType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -24879,10 +24404,6 @@ $$
 --
 -- Audit Table For SequenceLane 
 --
-
--- select 'Creating table SequenceLane'$$
-
--- DROP TABLE IF EXISTS `SequenceLane_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SequenceLane_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -25094,10 +24615,6 @@ $$
 -- Audit Table For SequencingControl 
 --
 
--- select 'Creating table SequencingControl'$$
-
--- DROP TABLE IF EXISTS `SequencingControl_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `SequencingControl_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25227,10 +24744,6 @@ $$
 -- Audit Table For SequencingPlatform 
 --
 
--- select 'Creating table SequencingPlatform'$$
-
--- DROP TABLE IF EXISTS `SequencingPlatform_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `SequencingPlatform_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25350,10 +24863,6 @@ $$
 --
 -- Audit Table For SlideDesign 
 --
-
--- select 'Creating table SlideDesign'$$
-
--- DROP TABLE IF EXISTS `SlideDesign_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SlideDesign_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -25502,10 +25011,6 @@ $$
 -- Audit Table For SlideProductApplication 
 --
 
--- select 'Creating table SlideProductApplication'$$
-
--- DROP TABLE IF EXISTS `SlideProductApplication_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `SlideProductApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25616,10 +25121,6 @@ $$
 --
 -- Audit Table For SlideProduct 
 --
-
--- select 'Creating table SlideProduct'$$
-
--- DROP TABLE IF EXISTS `SlideProduct_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SlideProduct_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -25840,10 +25341,6 @@ $$
 -- Audit Table For SlideSource 
 --
 
--- select 'Creating table SlideSource'$$
-
--- DROP TABLE IF EXISTS `SlideSource_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `SlideSource_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25972,10 +25469,6 @@ $$
 --
 -- Audit Table For Slide 
 --
-
--- select 'Creating table Slide'$$
-
--- DROP TABLE IF EXISTS `Slide_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Slide_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26106,10 +25599,6 @@ $$
 -- Audit Table For State 
 --
 
--- select 'Creating table State'$$
-
--- DROP TABLE IF EXISTS `State_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `State_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -26229,10 +25718,6 @@ $$
 --
 -- Audit Table For Step 
 --
-
--- select 'Creating table Step'$$
-
--- DROP TABLE IF EXISTS `Step_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Step_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26362,10 +25847,6 @@ $$
 --
 -- Audit Table For SubmissionInstruction 
 --
-
--- select 'Creating table SubmissionInstruction'$$
-
--- DROP TABLE IF EXISTS `SubmissionInstruction_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SubmissionInstruction_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26522,10 +26003,6 @@ $$
 --
 -- Audit Table For Topic 
 --
-
--- select 'Creating table Topic'$$
-
--- DROP TABLE IF EXISTS `Topic_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Topic_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26710,10 +26187,6 @@ $$
 -- Audit Table For TreatmentEntry 
 --
 
--- select 'Creating table TreatmentEntry'$$
-
--- DROP TABLE IF EXISTS `TreatmentEntry_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `TreatmentEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -26842,10 +26315,6 @@ $$
 --
 -- Audit Table For UnloadDataTrack 
 --
-
--- select 'Creating table UnloadDataTrack'$$
-
--- DROP TABLE IF EXISTS `UnloadDataTrack_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `UnloadDataTrack_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26976,10 +26445,6 @@ $$
 -- Audit Table For UserPermissionKind 
 --
 
--- select 'Creating table UserPermissionKind'$$
-
--- DROP TABLE IF EXISTS `UserPermissionKind_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `UserPermissionKind_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -27099,10 +26564,6 @@ $$
 --
 -- Audit Table For Vendor 
 --
-
--- select 'Creating table Vendor'$$
-
--- DROP TABLE IF EXISTS `Vendor_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Vendor_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -27233,10 +26694,6 @@ $$
 -- Audit Table For Visibility 
 --
 
--- select 'Creating table Visibility'$$
-
--- DROP TABLE IF EXISTS `Visibility_Audit`$$
-
 CREATE TABLE IF NOT EXISTS `Visibility_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -27345,14 +26802,139 @@ $$
 
 
 --
--- Audit Table For Workitem 
+-- Audit Table For WorkflowProperty 
 --
 
--- select 'Creating table Workitem'$$
+CREATE TABLE IF NOT EXISTS `WorkflowProperty_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
+ ,`idWorkflowProperty`  int(10)  NULL DEFAULT NULL
+ ,`workflowPropertyName`  varchar(50)  NULL DEFAULT NULL
+ ,`workflowPropertyValue`  varchar(50)  NULL DEFAULT NULL
+ ,`codeRequestCategory`  varchar(50)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
+$$
 
--- DROP TABLE IF EXISTS `Workitem_Audit`$$
 
-CREATE TABLE IF NOT EXISTS `Workitem_Audit` (
+--
+-- Initial audit table rows for WorkflowProperty 
+--
+
+INSERT INTO WorkflowProperty_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idWorkflowProperty
+  , workflowPropertyName
+  , workflowPropertyValue
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , 0
+  , idWorkflowProperty
+  , workflowPropertyName
+  , workflowPropertyValue
+  , codeRequestCategory
+  FROM WorkflowProperty
+  WHERE NOT EXISTS(SELECT * FROM WorkflowProperty_Audit)
+$$
+
+--
+-- Audit Triggers For WorkflowProperty 
+--
+
+
+CREATE TRIGGER TrAI_WorkflowProperty_FER AFTER INSERT ON WorkflowProperty FOR EACH ROW
+BEGIN
+  INSERT INTO WorkflowProperty_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idWorkflowProperty
+  , workflowPropertyName
+  , workflowPropertyValue
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.idWorkflowProperty
+  , NEW.workflowPropertyName
+  , NEW.workflowPropertyValue
+  , NEW.codeRequestCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_WorkflowProperty_FER AFTER UPDATE ON WorkflowProperty FOR EACH ROW
+BEGIN
+  INSERT INTO WorkflowProperty_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idWorkflowProperty
+  , workflowPropertyName
+  , workflowPropertyValue
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.idWorkflowProperty
+  , NEW.workflowPropertyName
+  , NEW.workflowPropertyValue
+  , NEW.codeRequestCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_WorkflowProperty_FER AFTER DELETE ON WorkflowProperty FOR EACH ROW
+BEGIN
+  INSERT INTO WorkflowProperty_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idWorkflowProperty
+  , workflowPropertyName
+  , workflowPropertyValue
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , 0
+  , OLD.idWorkflowProperty
+  , OLD.workflowPropertyName
+  , OLD.workflowPropertyValue
+  , OLD.codeRequestCategory );
+END;
+$$
+
+
+--
+-- Audit Table For WorkItem 
+--
+
+CREATE TABLE IF NOT EXISTS `WorkItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
@@ -27374,10 +26956,10 @@ $$
 
 
 --
--- Initial audit table rows for Workitem 
+-- Initial audit table rows for WorkItem 
 --
 
-INSERT INTO Workitem_Audit
+INSERT INTO WorkItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -27411,18 +26993,18 @@ INSERT INTO Workitem_Audit
   , idFlowCellChannel
   , idCoreFacility
   , status
-  FROM Workitem
-  WHERE NOT EXISTS(SELECT * FROM Workitem_Audit)
+  FROM WorkItem
+  WHERE NOT EXISTS(SELECT * FROM WorkItem_Audit)
 $$
 
 --
--- Audit Triggers For Workitem 
+-- Audit Triggers For WorkItem 
 --
 
 
-CREATE TRIGGER TrAI_Workitem_FER AFTER INSERT ON Workitem FOR EACH ROW
+CREATE TRIGGER TrAI_WorkItem_FER AFTER INSERT ON WorkItem FOR EACH ROW
 BEGIN
-  INSERT INTO Workitem_Audit
+  INSERT INTO WorkItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -27460,9 +27042,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_Workitem_FER AFTER UPDATE ON Workitem FOR EACH ROW
+CREATE TRIGGER TrAU_WorkItem_FER AFTER UPDATE ON WorkItem FOR EACH ROW
 BEGIN
-  INSERT INTO Workitem_Audit
+  INSERT INTO WorkItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
@@ -27500,9 +27082,9 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_Workitem_FER AFTER DELETE ON Workitem FOR EACH ROW
+CREATE TRIGGER TrAD_WorkItem_FER AFTER DELETE ON WorkItem FOR EACH ROW
 BEGIN
-  INSERT INTO Workitem_Audit
+  INSERT INTO WorkItem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser

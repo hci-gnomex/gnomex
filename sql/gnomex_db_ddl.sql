@@ -1171,10 +1171,6 @@ CREATE TABLE gnomex.FlowCellChannel (
     REFERENCES gnomex.SequencingControl (idSequencingControl)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT FK_FlowCellChannel_SequenceLane FOREIGN KEY FK_FlowCellChannel_SequenceLane (idSequenceLane)
-    REFERENCES gnomex.SequenceLane (idSequenceLane)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT FK_FlowCellChannel_PipelineProtocol FOREIGN KEY FK_FlowCellChannel_PipelineProtocol (idPipelineProtocol)
     REFERENCES gnomex.PipelineProtocol (idPipelineProtocol)
     ON DELETE NO ACTION
@@ -3198,14 +3194,6 @@ CREATE TABLE gnomex.PlateType (
   PRIMARY KEY (codePlateType)
 )
 ENGINE = INNODB;
-
--- 
--- New Columns for FlowCell
---
-
-alter table FlowCell add runNumber int(10) NULL;
-alter table FlowCell add idInstrument int(10) NULL;
-alter table FlowCell add side char(1) NULL;
 
 --
 -- Table structure for table Topic

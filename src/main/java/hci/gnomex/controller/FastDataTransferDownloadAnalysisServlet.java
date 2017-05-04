@@ -232,11 +232,11 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
         if(showCommandLineInstructions != null && showCommandLineInstructions.equals("Y")) {
           response.setContentType("text/html");
           response.getOutputStream().println("Complete the following steps to run FDT from the command line:");
-          response.getOutputStream().println("1) Download the fdt.jar app from " + fdtJarLoc);
+          response.getOutputStream().println("1) Download the fdtCommandLine.jar app from " + fdtJarLoc);
           response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
           response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):");
           response.getOutputStream().println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
-          response.getOutputStream().println("java -jar ./fdt.jar -ka 999999 -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
+          response.getOutputStream().println("java -jar ./fdtCommandLine.jar -ka 999999 -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
           response.getOutputStream().flush();
           return;
         }
@@ -257,14 +257,14 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
           out.println("Command line download instructions:");
           out.println("");        
           if (fdtJarLoc == null || fdtJarLoc.equals("")) {
-            fdtJarLoc = "http://monalisa.cern.ch/FDT/";
+            fdtJarLoc = "http://hci-bio-app.hcu.utah.edu/FDT/";
           }
-          out.println("1) Download the fdt.jar app from " + fdtJarLoc);
+          out.println("1) Download the fdtCommandLine.jar app from " + fdtJarLoc);
           out.println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
           out.println("3) Execute the following on the command line after changing the path2xxx variables:");
           out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
           out.println("");
-          out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+          out.println("java -jar path2YourLocalCopyOfFDT/fdtCommandLine.jar -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
           out.println("");
           out.println("-->");
           out.println("<information>");

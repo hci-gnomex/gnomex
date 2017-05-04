@@ -219,16 +219,10 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
 
 
       }catch (Exception e){
-        LOG.error("An exception has occurred in SaveWorkItemSolexaPrep ", e);
+        this.errorDetails = Util.GNLOG(LOG, "An exception has occurred in SaveWorkItemSolexaPrep ", e);
 
         throw new RollBackCommandException(e.getMessage());
           
-      }finally {
-        try {
-          //closeHibernateSession;        
-        } catch(Exception e){
-        LOG.error("Error", e);
-      }
       }
       
     } else {
