@@ -323,9 +323,7 @@
 			newAnalysisGroupName.text != '' &&
 			analysisName.text != '' &&
 			organismCombo.selectedItem != null &&
-			organismCombo.selectedItem.@value != "" &&
-			ownerCombo.selectedItem != null &&
-			ownerCombo.selectedItem.@idAppUser != "" &&
+			organismCombo.selectedItem.@value != "" && ((analysisOwnerBox.visible && ownerCombo.selectedItem != null && ownerCombo.selectedItem.@idAppUser != "") || !analysisOwnerBox.visible) &&
 			institutionNote.visible == false &&
 			visibilityCombo.selectedItem != null &&
 			visibilityCombo.selectedItem.@value != "";
@@ -335,9 +333,7 @@
 					labCombo.selectedItem.@idLab != "" &&
 			analysisName.text != '' &&
 			organismCombo.selectedItem != null &&
-			organismCombo.selectedItem.@value != "" &&
-			ownerCombo.selectedItem != null &&
-			ownerCombo.selectedItem.@idAppUser != "" &&
+			organismCombo.selectedItem.@value != "" && ((analysisOwnerBox.visible && ownerCombo.selectedItem != null && ownerCombo.selectedItem.@idAppUser != "") || !analysisOwnerBox.visible) &&
 			institutionNote.visible == false &&
 			visibilityCombo.selectedItem != null &&
 			visibilityCombo.selectedItem.@value != "";
@@ -676,8 +672,7 @@
 		</mx:VBox>
 		<mx:ControlBar width="451" horizontalAlign="right">
 			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" 
-					   enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null &amp;&amp; !institutionNote.visible &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; 
-					   			visibilityCombo.selectedItem.@value != '' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedItem.@value != ''}" 
+					   enabled="false"
 					   disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 			<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 		</mx:ControlBar>				
