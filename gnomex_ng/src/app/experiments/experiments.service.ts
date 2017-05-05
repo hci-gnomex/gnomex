@@ -1,6 +1,8 @@
 import { Inject, Injectable, OpaqueToken } from "@angular/core";
-import { Http, Response } from "@angular/http";
+import {Http, Headers, RequestOptions, Response} from "@angular/http";
 import { Observable } from "rxjs/Observable";
+
+import {ExternalInfo, ExternalData, FilterInfo, PageInfo, SortInfo} from "hci-ng-grid/index";
 
 export let BROWSE_EXPERIMENTS_ENDPOINT: OpaqueToken = new OpaqueToken("browse_experiments_url");
 
@@ -19,4 +21,5 @@ export class ExperimentsService {
             }
         });
     }
+
 }

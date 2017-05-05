@@ -8,7 +8,7 @@ import {Http} from "@angular/http";
 @Component({
   selector: "about",
   template: require("./about.component.html"),
-  styles: [require("./about.component.less")],
+  styles: [require("./about.component.less").toString()],
   providers: []
 })
 export class AboutComponent implements OnInit {

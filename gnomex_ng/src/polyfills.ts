@@ -1,14 +1,10 @@
 import "core-js/es6";
-import "reflect-metadata";
-require("zone.js/dist/zone");
+import "core-js/es7/reflect";
+import "zone.js/dist/zone";
 
-// TODO: JEH (10/14/2016) - Figure out how to handle this.  process.env.ENV does not exits
-/*
 if (process.env.ENV === "production") {
-  // Production
+    // Production
 } else {
-  // Development
-  Error["stackTraceLimit"] = Infinity;
-  require("zone.js/dist/long-stack-trace-zone");
+    Error["stackTraceLimit"] = Infinity;
+    require("zone.js/dist/long-stack-trace-zone");
 }
-*/

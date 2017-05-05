@@ -18,7 +18,6 @@ import { Observable } from "rxjs/Observable";
 @Component({
   selector: "gnomex-app",
   providers: [],
-  /*styles: [require("./gnomex-app.component.less")],*/
   template: require("./gnomex-app.component.html")
 })
 export class GnomexAppComponent implements OnInit {

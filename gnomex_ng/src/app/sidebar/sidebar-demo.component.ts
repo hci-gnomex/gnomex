@@ -23,7 +23,7 @@ import {SidebarService} from "./sidebar.service";
 @Component({
   selector: "sidebar-demo",
   providers: [SidebarService, Window],
-  styles: [require("./sidebar-demo.component.less")],
+  styles: [require("./sidebar-demo.component.less").toString()],
   template: require("./sidebar-demo.component.html")
 })
 export class SidebarDemoComponent {

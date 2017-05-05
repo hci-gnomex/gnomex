@@ -33,7 +33,7 @@ public class UserSessionResource {
    * </ul>
    * For example:
    * <pre>
-   *   {"username":"u0077682", "password":"tupac"}
+   *   {"username":"u0077682", "password":"temppass"}
    * </pre>
    * <p>
    * The client will be authenticated with the submitted credentials and if that process is successful a user session will
@@ -66,11 +66,7 @@ public class UserSessionResource {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
-    URI location = UriBuilder.fromUri("")
-                             .path(UserSessionResource.class)
-                             .path(UserSessionResource.class, "getActiveUserSession")
-                             .build();
-    return Response.created(location).build();
+    return Response.status(Response.Status.CREATED).build();
   }
 
   /**

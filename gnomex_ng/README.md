@@ -29,7 +29,7 @@ npm start
 When started, this will server the app on http://localhost:3000/ This port is pre-configured, but you can change it if you 
 like. It is specified in two spots: 
  * [package.json](package.json) - line 9
- * [webpack/webpack.dev.js](webpack/webpack.dev.js) - line 11
+ * [webpack/webpack.dev.js](config/webpack.dev.js) - line 11
 
 As you make changes this web server will actively watch all files in the project, recompile them and reload your browser. 
 It's pretty handy. 

@@ -3,42 +3,30 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'be.filipblondeel.gradle:gradle-gulp-plugin:0.1'
+    classpath "com.moowork.gradle:gradle-node-plugin:0.12"
   }
 }
 
-apply plugin: 'gulp'
+import org.apache.tools.ant.taskdefs.condition.Os
 
 ext {
-  explodedWarDirName = "gnomex.war"
+  npmCommand = Os.isFamily(Os.FAMILY_WINDOWS) ? 'npm.cmd' : 'npm'
 }
 
-task gulpBuild(type: GulpTask) {
+task npmInstall(type: Exec) {
+  executable = npmCommand
+  args = ["install"]
+}
+
+task webpack(type: Exec, dependsOn: npmInstall) {
+  executable = npmCommand
   if (project.hasProperty("devBuild") && devBuild == '1') {
-    args = ["build"]
+    args = ["run", "build"]
   } else {
-    args = ["build", "--prod"]
+    args = ["run", "build:prod"]
   }
 }
 
-task copyWebapp {
-  dependsOn 'gulpBuild'
-  copy {
-    from("../gnomex_ng2/dist") {}
-    into "$gnomexServerHome/$gnomexDeployDir/$explodedWarDirName"
-  }
+clean {
+  delete "dist"
 }
-
-task deployWebapp(type: Copy) {
-  dependsOn 'copyWebapp'
-  from('template') {
-    include 'deploy.exploded.template'
-    rename { file -> "$explodedWarDirName" + '.dodeploy' }
-  }
-  into "$gnomexServerHome/$gnomexDeployDir"
-}
-/*
-task clean {
-  delete 'dist'
-}*/
-

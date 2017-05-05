@@ -16,16 +16,16 @@ import {FormsModule} from "@angular/forms";
 import {DropdownModule, CollapseModule} from "ng2-bootstrap";
 import {
   LOGOUT_PATH, LOGIN_PATH, SERVER_URL, LOGIN_ROUTE, DEFAULT_SUCCESS_URL,
-  USER_SESSION_ENDPOINT, AUTHENTICATED_USER_ENDPOINT, UserModule, UserService
+  USER_SESSION_ENDPOINT, AUTHENTICATED_USER_ENDPOINT, ACTIVE_SESSION_ENDPOINT, UserModule, UserService
 } from "@hci/user";
 import {AppHeaderModule} from "@hci/app-header";
 import {NavigationModule} from "@hci/navigation";
-import {LOCAL_STORAGE_SERVICE_CONFIG, LocalStorageService} from "angular-2-local-storage";
+import {LocalStorageModule, LocalStorageService, ILocalStorageServiceConfig} from "angular-2-local-storage";
 
 import "./gnomex-app.css";
 import {AppFooterModule, APP_INFO_SOURCE} from "@hci/app-footer";
 
-let localStorageServiceConfig = {
+let localStorageServiceConfig: ILocalStorageServiceConfig = {
   prefix: "hci-ri-core",
   storageType: "localStorage"
 };
@@ -42,13 +42,14 @@ let localStorageServiceConfig = {
     RouterModule,
     FormsModule,
     HomeModule,
-    DropdownModule,
-    CollapseModule,
+    DropdownModule.forRoot(),
+    CollapseModule.forRoot(),
     AppHeaderModule,
     UserModule,
     NavigationModule,
     AppFooterModule,
-    ExperimentsModule
+    ExperimentsModule,
+    LocalStorageModule.withConfig(localStorageServiceConfig)
   ],
   declarations: [GnomexAppComponent],
   bootstrap: [GnomexAppComponent],
@@ -57,13 +58,13 @@ let localStorageServiceConfig = {
     {provide: AUTHENTICATED_USER_ENDPOINT, useValue: "/gnomex/api/user/authenticated"},
     {provide: DEFAULT_SUCCESS_URL, useValue: ""},
     {provide: USER_SESSION_ENDPOINT, useValue: "/gnomex/api/user-session"},
+    {provide: ACTIVE_SESSION_ENDPOINT, useValue: "/gnomex/api/user-session/active"},
     {provide: SERVER_URL, useValue: null},
     {provide: LOGIN_PATH, useValue: null},
     {provide: LOGOUT_PATH, useValue: null},
     {provide: LOGIN_ROUTE, useValue: "/login"},
     UserService,
     ExperimentsService,
-    {provide: LOCAL_STORAGE_SERVICE_CONFIG, useValue: localStorageServiceConfig},
     LocalStorageService,
     {provide: APP_INFO_SOURCE, useValue: "data/appInfo.json"}
   ]
