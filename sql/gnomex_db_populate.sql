@@ -1505,7 +1505,6 @@ VALUES ('COMPLETE', 'Complete', 'Y', null),
   ('MISEQASSEM', 'Illumina MiSeq Seq Prep', 'Y', 3),
   ('MISEQPIPE', 'Illumina MiSeq Data Pipeline', 'Y', 4),
   ('MISEQPREP', 'Illumina MiSeq Library Prep', 'Y', 2),
-  ('MISEQPREPQC' ,'Illumina HiSeq Library Prep QC','Y',null),
   ('MISEQQC', 'Illumina MiSeq Quality Control', 'Y', 1),
   ('STOP', 'Stop/Failed', 'Y', null);
 
