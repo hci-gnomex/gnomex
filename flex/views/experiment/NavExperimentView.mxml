@@ -597,20 +597,23 @@
   			
   		}
 
-	    public function expandAllNodes():void
-  		{
-  			browseTree.expandItem(getProjectRequestList.lastResult, true);
-  			for each(var lab:Object in getProjectRequestList.lastResult..Lab) {
-  				browseTree.expandItem(lab, true);
-  			}
-  			for each(var project:Object in getProjectRequestList.lastResult..Project) {
-  				browseTree.expandItem(project, true);
-  			}
-  			browseTree.validateNow();
-  			treeContainer.validateNow();
-  		}
-  		
-  		
+		private function addBranchesRecursively(branches:Array, branch:Object):void {
+			if (branch.children().length() > 0) {
+				branches.push(branch);
+			}
+			for each (var child:Object in branch.children()) {
+				addBranchesRecursively(branches, child);
+			}
+		}
+
+		public function expandAllNodes():void {
+			var allTreeBranches:Array = [];
+			addBranchesRecursively(allTreeBranches, browseTree.dataProvider);
+			browseTree.openItems = allTreeBranches;
+			browseTree.validateNow();
+			treeContainer.validateNow();
+		}
+
   		private function collapseAllBrowseNodes():void {
   			if (browseTree == null || browseTree.openItems == null) {
   				return;
