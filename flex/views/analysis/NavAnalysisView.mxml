@@ -508,17 +508,19 @@
 			treeContainer.validateNow();
 		}
 
+		private function addBranchesRecursively(branches:Array, branch:Object):void {
+			if (branch.children().length() > 0) {
+				branches.push(branch);
+			}
+			for each (var child:Object in branch.children()) {
+				addBranchesRecursively(branches, child);
+			}
+		}
+
 		public function expandAllNodes():void {
-			browseTree.expandItem(getAnalysisGroupList.lastResult, true);
-			for each(var lab:Object in getAnalysisGroupList.lastResult..Lab) {
-				browseTree.expandItem(lab, true);
-			}
-			for each(var ag:Object in getAnalysisGroupList.lastResult..AnalysisGroup) {
-				browseTree.expandItem(ag, true);
-			}
-			for each(var a:Object in getAnalysisGroupList.lastResult..Analysis) {
-				browseTree.expandItem(a, true);
-			}
+			var allTreeBranches:Array = [];
+			addBranchesRecursively(allTreeBranches, browseTree.dataProvider);
+			browseTree.openItems = allTreeBranches;
 			browseTree.validateNow();
 			treeContainer.validateNow();
 		}
