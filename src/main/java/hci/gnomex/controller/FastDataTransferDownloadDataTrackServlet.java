@@ -222,13 +222,14 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     out.println("codebase=\""+codebase_param+"\">");
                     out.println("<!--");
                     out.println("");
+                    out.println("***** Please read, the directions have changed *****");
                     out.println("Command line download instructions:");
                     out.println("");
                     String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
                     String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
                     String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+Constants.FILE_SEPARATOR+downloadDateText;
                     if (fdtJarLoc == null || fdtJarLoc.equals("")) {
-                        fdtJarLoc = "http://monalisa.cern.ch/FDT/";
+                        fdtJarLoc = "http://hci-bio-app.hci.utah.edu/FDT/";
                     }
                     out.println("1) Download the fdtCommandLine.jar app from " + fdtJarLoc);
                     out.println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");

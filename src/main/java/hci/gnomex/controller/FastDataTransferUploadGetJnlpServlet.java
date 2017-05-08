@@ -80,11 +80,12 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
                 String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(serverName);
                 String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName)+uuid;
                 if (fdtJarLoc == null || fdtJarLoc.equals("")) {
-                    fdtJarLoc = "http://monalisa.cern.ch/FDT/";
+                    fdtJarLoc = "http://hci-bio-app.hci.utah.edu/FDT/";
                 }
 
                 if(showCommandLineInstructions != null && showCommandLineInstructions.equals("Y")) {
                     response.setContentType("text/html");
+                    response.getOutputStream().println("***** Please read, the directions have changed *****");
                     response.getOutputStream().println("Complete the following steps to run FDT from the command line:");
                     response.getOutputStream().println("1) Download the fdtCommandLine.jar app from " + fdtJarLoc);
                     response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
@@ -108,6 +109,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
                     out.println("codebase=\""+codebase_param+"\">");
                     out.println("<!--");
                     out.println("");
+                    out.println("***** Please read, the directions have changed *****");
                     out.println("Command line upload instructions:");
                     out.println("");
                     out.println("1) Download the fdtCommandLine.jar app from " + fdtJarLoc);

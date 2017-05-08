@@ -893,7 +893,7 @@ INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescri
  ('contact_email_core_facility_workauth_reminder', 'first.last@somwhere.edu', 'Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'Y'),
  ('dataset_privacy_expiration', '0', 'When a new dataset is created, this value will determine the default number of months until its visibility is automatically changed to public. If the value is <= 0 then the feature is disabled.', 'N'),
  ('dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N'),
- ('fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
+ ('fdt_jar_location', 'http://hci-bio-app.hci.utah.edu/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
  ('fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N'),
  ('contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N'),
  ('reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y'),
