@@ -578,25 +578,6 @@
 	    
         
         
-	    private function expandLabNodes():void
-  		{
-  			browseTree.expandItem(getProjectRequestList.lastResult, true);
-  			for each(var lab:Object in getProjectRequestList.lastResult..Lab) {
-  				browseTree.expandItem(lab, true);
-  			}
-  			browseTree.validateNow();
-  			treeContainer.validateNow();
-  		}
-  		
-  		private function collapseProjectNodes():void {
-  			for each(var project:Object in getProjectRequestList.lastResult..Project) {
-  				browseTree.expandItem(project, false);
-  			}
-  			browseTree.validateNow();
-  			treeContainer.validateNow();
-  			
-  		}
-
 		private function addBranchesRecursively(branches:Array, branch:Object):void {
 			if (branch.children().length() > 0) {
 				branches.push(branch);
@@ -1766,7 +1747,7 @@
 									<mx:LinkButton label="Expand projects" click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" />
 								</mx:HBox>
 								<mx:HBox horizontalAlign="left">
-									<mx:LinkButton label="Collapse projects" click="{treeExpansionStack.selectedIndex = 0;this.collapseProjectNodes()}" textDecoration="underline" />					    	
+									<mx:LinkButton label="Collapse projects" click="{treeExpansionStack.selectedIndex = 0;this.collapseAllBrowseNodes()}" textDecoration="underline" />
 								</mx:HBox>
 							</mx:ViewStack>
 							<mx:CheckBox label="Show Empty Folders"  id="showEmptyProjectFolders" toolTip="Show Empty Project Folders"
