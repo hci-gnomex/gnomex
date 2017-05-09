@@ -241,28 +241,28 @@
             }
         }
 
-        private function expandDownloadTree():void {
-            var maxFiles:int = 60;
-            var count:int = 0;
-            if (downloadTree != null) {
-                downloadTree.expandItem(downloadList.getItemAt(0), true);
-                for each(var a:Object in getAnalysisDownloadList.lastResult..FileDescriptor) {
-                    downloadTree.expandItem(a, true);
-                    count++;
-                    if (count >= maxFiles) {
-                        break;
-                    }
-                }
+        private function addBranchesRecursively(branches:Array, branch:Object):void {
+            if (branch.children().length() > 0) {
+                branches.push(branch);
             }
+            for each (var child:Object in branch.children()) {
+                addBranchesRecursively(branches, child);
+            }
+        }
+
+        public function expandDownloadTree():void {
+            var allTreeBranches:Array = [];
+            for each (var branch:XML in downloadTree.dataProvider) {
+                addBranchesRecursively(allTreeBranches, branch);
+            }
+            downloadTree.openItems = allTreeBranches;
+            downloadTree.validateNow();
         }
 
         private function collapseDownloadTree():void {
             if (downloadTree != null) {
-                downloadTree.expandItem(downloadList.getItemAt(0), true);
-                for each(var a:Object in getAnalysisDownloadList.lastResult..FileDescriptor) {
-                    downloadTree.expandItem(a, false);
-
-                }
+                downloadTree.openItems = [];
+                downloadTree.validateNow();
             }
         }
 
