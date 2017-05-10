@@ -359,7 +359,7 @@
 		<replace file="${flexapp.dir}/views/util/FlexAppVersion.as" token="@flexAppVersion@" value="${gnomex_version}.${gnomex_build}" />
 		<replace file="${flexapp.dir}/views/util/FlexAppVersion.as" token="@flexBuildDate@" value="${build.date}" />
 
-		<mxmlc file="${flexapp.dir}/${flexapp.name}.mxml" 
+		<mxmlc file="${flexapp.dir}/${flexapp.mainClass}.mxml"
 			output="${build.dir}/${flexapp.name}.${gnomex_version}.${gnomex_build}.swf">
 	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
 	        <source-path path-element="${FLEX_HOME}/frameworks"/>
@@ -373,7 +373,7 @@
 		      file="${flexapp.name}.html"
 		      width="100%"
 		      height="100%"
-		      application="${flexapp.name}"
+		      application="${flexapp.mainClass}"
 		      swf="${flexapp.name}.${gnomex_version}.${gnomex_build}"
 		      version-major="10"
 		      version-minor="0"
@@ -799,7 +799,7 @@
         <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
         <property name="lib.dir" value="${sandbox.dir}/lib"/>
         <property name="src.dir" value="${basedir}/src"/>
-          <property name="flex.appname" value="${flexapp.name}"/>
+          <property name="flex.appname" value="${flexapp.mainClass}"/>
           <property name="flex.title" value="${flex.title}"/>
           <fileset dir="${basedir}" includes="build.xml"/>
     </subant>
