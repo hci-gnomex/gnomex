@@ -386,6 +386,7 @@
             this.downloadTree.selectedItem = folder;
             this.downloadTree.scrollToIndex(this.downloadTree.selectedIndex);
             this.downloadTree.selectedItem = null;
+            Alert.show("Please save changes before attempting to move files into new directory.");
         }
 
         private function removeAnalysisFile():void {
@@ -602,7 +603,7 @@
                 var dragItem:XML = XML(draggedItems[i]);
 
                 // Don't allow dropping on yourself (causes a cyclical error)
-                if (dragItem.@fileName == dropFolderNode.@fileName) {
+                if (dragItem.hasOwnProperty("@fileName") && dropFolderNode.hasOwnProperty("@fileName") && dragItem.@fileName == dropFolderNode.@fileName) {
                     return;
                 }
 
@@ -641,7 +642,7 @@
         private function recurseFindNodeToDelete(dragItem:XML, uploadedFiles:XMLList):void {
             for each(var file:XML in uploadedFiles) {
                 if (file.@fileName == dragItem.@fileName) {
-                    deleteNode1(file);
+                    deleteNode(file);
                     return;
                 } else {
                     if (file.@type == 'dir') {
@@ -652,10 +653,13 @@
         }
 
         private function addNodeToList(node:XML, req:XML, filesList:XMLListCollection):void {
-            if (node.hasOwnProperty("@fileName")) {
+            if (node.hasOwnProperty("@fileName")  && filesList.source.FileDescriptor.hasOwnProperty("@fileName")) {
                 if (filesList.source.FileDescriptor.(@fileName == node.@fileName).length() == 0) {
                     req.appendChild(node);
                 }
+            }
+            else if (filesList.length == 1 && !filesList.source.FileDescriptor.hasOwnProperty("@fileName")) {
+                req.appendChild(node);
             }
         }
 
@@ -675,17 +679,6 @@
             var cn:XMLList = XMLList(xmlToDelete.parent()).children();
             for (var i:Number = 0; i < cn.length(); i++) {
                 if (cn[i] == xmlToDelete) {
-                    delete cn[i];
-                    return true;
-                }
-            }
-            return false;
-        }
-        private function deleteNode1(xmlToDelete:XML):Boolean {
-            var cn:XMLList = XMLList(xmlToDelete.parent()).children();
-            for (var i:Number = 0; i < cn.length(); i++) {
-                if (cn[i] == xmlToDelete) {
-                    this.uploadedFiles.removeItemAt(i);
                     delete cn[i];
                     return true;
                 }
