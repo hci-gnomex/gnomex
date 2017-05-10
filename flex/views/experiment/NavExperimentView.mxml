@@ -589,9 +589,8 @@
   		}
   		
   		private function collapseProjectNodes():void {
-  			for each(var project:Object in getProjectRequestList.lastResult..Project) {
-  				browseTree.expandItem(project, false);
-  			}
+			browseTree.openItems = [];
+
   			browseTree.validateNow();
   			treeContainer.validateNow();
   			
