@@ -305,6 +305,12 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                             }
                             File destFile = new File(targetDir, sourceFile.getName());
 
+                            if (sourceFile.isDirectory() && destFile.exists() && destFile.isDirectory()) {
+                                // nothing to do, the directory already exists
+//                                System.out.println("[OEUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath() + " directory already exists");
+                                continue;
+                            }
+
                             if (FileUtil.renameTo(sourceFile, destFile)) {
                                 // If we have renamed a file that is registered in the database
                                 // under the ExperimentFile table, then update the ExperimentFile name
