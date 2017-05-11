@@ -1,9 +1,7 @@
 /*
  * Copyright (c) 2016 Huntsman Cancer Institute at the University of Utah, Confidential and Proprietary
  */
-import {Component, OnInit} from "@angular/core";
-
-import {GridComponent, ExternalData, ExternalInfo} from "hci-ng-grid/index";
+import {Component} from "@angular/core";
 
 import {ExperimentsService} from "./experiments.service";
 
@@ -24,13 +22,11 @@ import {ExperimentsService} from "./experiments.service";
     </div>
     `
 })
-export class BrowseExperimentsComponent implements OnInit {
+export class BrowseExperimentsComponent {
 
     private experiments: Array<Object> = null;
 
-    constructor(private experimentsService: ExperimentsService) {}
-
-    ngOnInit() {
+    constructor(private experimentsService: ExperimentsService) {
         this.experimentsService.getExperiments().subscribe((response: Array<Object>) => {
             this.experiments = response;
         });
