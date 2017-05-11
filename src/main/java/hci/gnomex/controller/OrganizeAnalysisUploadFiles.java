@@ -16,10 +16,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -189,6 +186,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
                     }
 
+                    List<File> directoriesToDelete = new ArrayList<File>();
+
                     // Move files to designated folder
                     for (Iterator i = parser.getFileNameMap().keySet().iterator(); i.hasNext(); ) {
 
@@ -317,6 +316,12 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                 destFile.mkdirs();
                             }
 
+                            if (sourceFile.isDirectory() && destFile.exists() && destFile.isDirectory()) {
+                                // we'll delete the original directory after moving everything
+                                directoriesToDelete.add(sourceFile);
+                                continue;
+                            }
+
 //                            System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
                             if (!FileUtil.renameTo(sourceFile, destFile)) {
                                 problemFiles.add(fileName);
@@ -399,6 +404,18 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             }
                         }
                     }
+
+                    Comparator<File> sortByPath = new Comparator<File>() {
+                        public int compare(File one, File two) {
+                            return one.getAbsolutePath().compareTo(two.getAbsolutePath());
+                        }
+                    };
+                    // sorts directories in reverse order so subdirectories are deleted first
+                    directoriesToDelete.sort(sortByPath.reversed());
+                    for (File directory : directoriesToDelete) {
+                        directory.delete();
+                    }
+
                     // clean up ghost files
                     String queryBuf = "SELECT af from AnalysisFile af where af.idAnalysis = :idAnalysis";
                     Query query = sess.createQuery(queryBuf);
