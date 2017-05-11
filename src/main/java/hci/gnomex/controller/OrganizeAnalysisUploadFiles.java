@@ -318,6 +318,12 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             }
 
 //                            System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
+                            if (sourceFile.isDirectory() && destFile.exists() && destFile.isDirectory()) {
+                                // nothing to do, the directory already exists
+//                                System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath() + " directory already exists");
+                                continue;
+                            }
+
                             if (!FileUtil.renameTo(sourceFile, destFile)) {
                                 problemFiles.add(fileName);
                             }

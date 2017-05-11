@@ -578,27 +578,6 @@
 	    
         
         
-<<<<<<< HEAD
-	    private function expandLabNodes():void
-  		{
-  			browseTree.expandItem(getProjectRequestList.lastResult, true);
-  			for each(var lab:Object in getProjectRequestList.lastResult..Lab) {
-  				browseTree.expandItem(lab, true);
-  			}
-  			browseTree.validateNow();
-  			treeContainer.validateNow();
-  		}
-  		
-  		private function collapseProjectNodes():void {
-			browseTree.openItems = [];
-
-  			browseTree.validateNow();
-  			treeContainer.validateNow();
-  			
-  		}
-
-=======
->>>>>>> 261f7a800c6cf26964748329f2aa59284bbfe96b
 		private function addBranchesRecursively(branches:Array, branch:Object):void {
 			if (branch.children().length() > 0) {
 				branches.push(branch);
