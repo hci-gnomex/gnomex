@@ -48,6 +48,29 @@
                 template="express-installation"
                 output="${build.dir}"/>
 
+        <mxmlc file="${lowresapp.dir}/${lowresapp.mainClass}.mxml"
+               output="${build.dir}/${lowresapp.name}.${gnomex_version}.${gnomex_build}.swf">
+            <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+            <source-path path-element="${FLEX_HOME}/frameworks"/>
+            <compiler.library-path dir="${lib.dir}" append="true">
+                <include name="AlivePDF.swc" />
+            </compiler.library-path>
+            <compiler.debug>true</compiler.debug>
+        </mxmlc>
+        <html-wrapper
+                title="${lowresapp.title}"
+                file="${lowresapp.name}.html"
+                width="100%"
+                height="100%"
+                application="${lowresapp.mainClass}"
+                swf="${lowresapp.name}.${gnomex_version}.${gnomex_build}"
+                version-major="10"
+                version-minor="0"
+                version-revision="0"
+                history="false"
+                template="express-installation"
+                output="${build.dir}"/>
+
         <!-- delete version.as -->
         <delete file="${flexapp.dir}/views/util/FlexAppVersion.as" />
 
@@ -84,6 +107,32 @@
         <replace file="${build.dir}/${flexapp.guest.name}.jsp"
                  token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
                  value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
+
+        <!--  Create gnomexFlex_lowResolution.jsp with parameters -->
+        <copy file="${build.dir}/${lowresapp.name}.html" tofile="${build.dir}/${lowresapp.name}.jsp"/>
+        <copy file="${build.dir}/${lowresapp.name}.html" tofile="${build.dir}/${lowresapp.guest.name}.jsp"/>
+        <replace file="${build.dir}/${lowresapp.name}.jsp"
+                 token="&lt;html lang=&quot;en&quot;&gt;"
+                 value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
+        <replace file="${build.dir}/${lowresapp.name}.jsp"
+                 token="&quot;src&quot;, &quot;${lowresapp.name}.${gnomex_version}.${gnomex_build}&quot;,"
+                 value="&quot;src&quot;, &quot;${lowresapp.name}.${gnomex_version}.${gnomex_build}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;idCore=&lt;%=request.getParameter(&quot;idCore&quot;)%&gt;&amp;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&amp;ccNumberList=&lt;%=request.getParameter(&quot;ccNumberList&quot;)%&gt;&amp;idRequest=&lt;%=request.getParameter(&quot;idRequest&quot;)%&gt;&amp;amendState=&lt;%=request.getParameter(&quot;amendState&quot;)%&gt;&amp;comingFromEmail=&lt;%=request.getParameter(&quot;comingFromEmail&quot;)%&gt;&quot;,"/>
+        <replace file="${build.dir}/${lowresapp.name}.jsp"
+                 token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
+                 value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
+        <!--  Create gnomexGuestFlex_lowResolution.jsp - hardcoded isGuest parameters -->
+
+        <copy file="${build.dir}/${lowresapp.name}.html" tofile="${build.dir}/${lowresapp.guest.name}.jsp"/>
+        <replace file="${build.dir}/${lowresapp.guest.name}.jsp"
+                 token="&lt;html lang=&quot;en&quot;&gt;"
+                 value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
+        <replace file="${build.dir}/${lowresapp.guest.name}.jsp"
+                 token="&quot;src&quot;, &quot;${lowresapp.name}.${gnomex_version}.${gnomex_build}&quot;,"
+                 value="&quot;src&quot;, &quot;${lowresapp.name}.${gnomex_version}.${gnomex_build}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;idCore=&lt;%=request.getParameter(&quot;idCore&quot;)%&gt;&amp;isGuest=Y&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&amp;ccNumberList=&lt;%=request.getParameter(&quot;ccNumberList&quot;)%&gt;&amp;idRequest=&lt;%=request.getParameter(&quot;idRequest&quot;)%&gt;&amp;amendState=&lt;%=request.getParameter(&quot;amendState&quot;)%&gt;&amp;comingFromEmail=&lt;%=request.getParameter(&quot;comingFromEmail&quot;)%&gt;&quot;,"/>
+        <replace file="${build.dir}/${lowresapp.guest.name}.jsp"
+                 token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
+                 value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
+
 
         <!--  Version swf so we don't get caching -->
         <replace file="${build.dir}/AC_OETags.js" token=".swf" value=".swf?v=${gnomex_version}.${gnomex_build}" />
