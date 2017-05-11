@@ -653,7 +653,7 @@
 
         private function addNodeToList(node:XML, req:XML, filesList:XMLListCollection):void {
             if (node.hasOwnProperty("@fileName")) {
-                if (filesList.source.FileDescriptor.(@fileName == node.@fileName).length() == 0) {
+                if (filesList.source.FileDescriptor.(hasOwnProperty("@fileName") && @fileName == node.@fileName).length() == 0) {
                     req.appendChild(node);
                 }
             }

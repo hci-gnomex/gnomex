@@ -413,7 +413,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                     // sorts directories in reverse order so subdirectories are deleted first
                     directoriesToDelete.sort(sortByPath.reversed());
                     for (File directory : directoriesToDelete) {
-                        directory.delete();
+                        if (directory.isDirectory() && directory.list().length == 0) {
+                            directory.delete();
+                        }
                     }
 
                     // clean up ghost files
