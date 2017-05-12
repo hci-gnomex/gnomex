@@ -97,16 +97,9 @@ public class SaveExperimentPlatformSortOrderList extends GNomExCommand implement
       this.xmlResult = "<SUCCESS />";
 
     }catch (Exception e){
-      LOG.error("An exception has occurred in SaveExperimentPlatform ", e);
-
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveExperimentPlatformSortOrderList ", e);
       throw new RollBackCommandException(e.getMessage());
         
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;

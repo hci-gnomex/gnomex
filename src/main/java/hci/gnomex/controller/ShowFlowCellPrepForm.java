@@ -149,30 +149,24 @@ public class ShowFlowCellPrepForm extends GNomExCommand implements Serializable 
       }
     
     }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in ShowFlowCellPrepForm ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowFlowCellPrepForm ", e);
 
       throw new RollBackCommandException(e.getMessage());
         
     }catch (NamingException e){
-      LOG.error("An exception has occurred in ShowFlowCellPrepForm ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowFlowCellPrepForm ", e);
 
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      LOG.error("An exception has occurred in ShowFlowCellPrepForm ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowFlowCellPrepForm ", e);
 
       throw new RollBackCommandException(e.getMessage());
       
     } catch (Exception e) {
-      LOG.error("An exception has occurred in ShowFlowCellForm ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowFlowCellForm ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;    
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
     
     return this;

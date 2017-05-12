@@ -57,18 +57,11 @@ public class SaveAnalysisOwner extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
       
     }catch (Exception e){
-      LOG.error("An exception has occurred in SaveAnalysis ", e);
-
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveAnalysisOwner ", e);
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
+
     }
-    
+
     return this;
   }
 }

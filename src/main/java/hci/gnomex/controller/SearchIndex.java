@@ -486,32 +486,26 @@ public class SearchIndex extends GNomExCommand implements Serializable {
             this.xmlResult = out.outputString(xmlDoc);
 
         } catch (UnknownPermissionException e) {
-            LOG.error("An exception has occurred in SearchIndex ", e);
+            this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SearchIndex ", e);
 
             throw new RollBackCommandException(e.getMessage());
 
         } catch (NamingException e) {
-            LOG.error("An exception has occurred in SearchIndex ", e);
+            this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SearchIndex ", e);
             throw new RollBackCommandException(e.getMessage());
 
         } catch (SQLException e) {
-            LOG.error("An exception has occurred in SearchIndex ", e);
+            this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SearchIndex ", e);
 
             throw new RollBackCommandException(e.getMessage());
         } catch (XMLReflectException e) {
-            LOG.error("An exception has occurred in SearchIndex ", e);
+            this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SearchIndex ", e);
 
             throw new RollBackCommandException(e.getMessage());
         } catch (Exception e) {
-            LOG.error("An exception has occurred in SearchIndex ", e);
+            this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SearchIndex ", e);
 
             throw new RollBackCommandException(e.getMessage());
-        } finally {
-            try {
-                //closeReadOnlyHibernateSession;
-            } catch (Exception e) {
-                LOG.error("Error", e);
-            }
         }
 
 

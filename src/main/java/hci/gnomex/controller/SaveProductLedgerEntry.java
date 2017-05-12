@@ -85,8 +85,7 @@ public Command execute() throws RollBackCommandException {
 		}
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in SaveProductLedgerEntry ", e);
-
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveProductLedgerEntry ", e);
 		throw new RollBackCommandException(e.getMessage());
 
 	}

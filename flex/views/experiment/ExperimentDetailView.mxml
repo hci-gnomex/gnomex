@@ -1919,7 +1919,7 @@
 					<mx:Text text="{this.selectedExperiment.@elutionBuffer}"/>
 				</mx:HBox>
 				<mx:HBox includeInLayout="{this.selectedExperiment.@usedDnase == 'Y'}" visible="{this.selectedExperiment.@usedDnase == 'Y'}">
-					<mx:Label text="Samples were treated with DNase"  width="125" styleName="formLabel" textAlign="left" id="usedDnaseLabel"/>
+					<mx:Label text="Samples were treated with DNase"  width="170" styleName="formLabel" textAlign="left" id="usedDnaseLabel"/>
 				</mx:HBox>
 				<mx:HBox includeInLayout="{this.selectedExperiment.@usedRnase == 'Y'}" visible="{this.selectedExperiment.@usedRnase == 'Y'}">
 					<mx:Label text="Samples were treated with RNase"  width="170" styleName="formLabel" textAlign="left" id="usedRnaseLabel"/>

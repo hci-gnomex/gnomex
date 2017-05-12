@@ -685,15 +685,10 @@ public Command execute() throws RollBackCommandException {
 		}
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in SaveAnalysis ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveAnalysis ", e);
 		throw new RollBackCommandException(e.getMessage());
 	}
 
-	/*
-	 * finally { try { HibernateSession.closeSession("SaveAnalysis"); } catch (Exception e) { LOG.error("An exception has occurred in SaveAnalysis ", e);
-	 * 
-	 * } }
-	 */
 	return this;
 }
 

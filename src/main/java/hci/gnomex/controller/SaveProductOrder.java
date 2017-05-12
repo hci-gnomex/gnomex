@@ -295,17 +295,9 @@ public Command execute() throws RollBackCommandException {
 		}
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred while emailing in SaveRequest ", e);
-
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred while emailing in SaveProductOrder ", e);
 		throw new RollBackCommandException(e.toString());
-	} finally {
-		try {
-			//closeHibernateSession;
-		} catch (Exception e) {
-			LOG.error("An exception has occurred while emailing in SaveRequest ", e);
-		}
 	}
-
 	return this;
 }
 

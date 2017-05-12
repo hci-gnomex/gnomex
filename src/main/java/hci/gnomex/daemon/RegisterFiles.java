@@ -103,6 +103,8 @@ private String fromEmailAddress = "DoNotReply@hci.utah.edu";
 private String currentEntityString;
 
 private Boolean justOne = false;
+private Boolean onlyAnalysis = false;
+private Boolean onlyExperiment = false;
 private String analysisId = null;
 private String requestId = null;
 private Boolean removeLinks = false;
@@ -136,6 +138,12 @@ public RegisterFiles(String[] args) {
 			experimentWarnings = true;
 		} else if (args[i].equals("-testConnection")) {
 			testConnection = true;
+		} else if (args[i].equals("-onlyAnalysis")) {
+			onlyAnalysis = true;
+			all = true;
+		} else if (args[i].equals("-onlyExperiment")) {
+			onlyExperiment = true;
+			all = true;
 		} else if (args[i].equals("-analysis")) {
 			justOne = true;
 			analysisId = args[++i];
@@ -214,6 +222,10 @@ public void run() {
 
 		if (removeLinks) {
 			app.destroyLinks();
+		} else if (onlyAnalysis) {
+			app.registerAnalysisFiles();
+		} else if (onlyExperiment) {
+			app.registerExperimentFiles();
 		} else if (justOne && analysisId != null) {
 			app.registerAnalysisFiles();
 		} else if (justOne && requestId != null) {
@@ -503,6 +515,9 @@ private void registerAnalysisFiles() throws Exception {
 	if (justOne) {
 		buf.append(" WHERE a.number = '" + analysisId + "'");
 	}
+
+	System.out.println ("Analysis query: " + buf.toString());
+
 	List results = sess.createQuery(buf.toString()).list();
 	if (results.isEmpty()) {
 		System.out.println("WARNING: No analyses to process.");

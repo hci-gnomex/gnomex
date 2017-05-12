@@ -118,7 +118,7 @@ public Command execute() throws RollBackCommandException {
 		}
 
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in SendBillingInvoiceEmail ", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SendBillingInvoiceEmail ", e);
 
 		throw new RollBackCommandException(e.getMessage());
 	}

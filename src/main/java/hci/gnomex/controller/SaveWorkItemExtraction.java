@@ -155,17 +155,11 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
         
         
       }catch (Exception e){
-        LOG.error("An exception has occurred in SaveWorkflowExtraction ", e);
-
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveWorkflowExtraction ", e);
         throw new RollBackCommandException(e.getMessage());
           
-      }finally {
-        try {
-          //closeHibernateSession;        
-        } catch(Exception e){
-        LOG.error("Error", e);
       }
-      }
+
       
     } else {
       this.xmlResult = "<SUCCESS/>";

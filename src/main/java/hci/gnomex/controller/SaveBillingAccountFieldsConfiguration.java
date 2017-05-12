@@ -98,17 +98,10 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
         InternalAccountFieldsConfiguration.reloadConfigurations(sess);
         OtherAccountFieldsConfiguration.reloadConfigurations(sess);
       }catch (Exception e){
-        LOG.error("An exception has occurred in SaveBillingItem ", e);
-
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveBillingAccountFieldsConfiguration ", e);
         throw new RollBackCommandException(e.getMessage());
-          
-      }finally {
-        try {
-          //closeHibernateSession;        
-        } catch(Exception e){
-        LOG.error("Error", e);
       }
-      }
+
       this.xmlResult = "<SUCCESS/>";
       setResponsePage(this.SUCCESS_JSP);
       

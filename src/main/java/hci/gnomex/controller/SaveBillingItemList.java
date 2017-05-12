@@ -286,19 +286,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
 
         this.executionLogger.LogTimes();
       } catch (GNomExRollbackException e) {
-        LOG.error("An exception has occurred in SaveBillingItem ", e);
+        LOG.error("An exception has occurred in SaveBillingItemList ", e);
         throw new GNomExRollbackException(e.getMessage(), true, e.getDisplayFriendlyMessage());
       } catch (Exception e){
-        LOG.error("An exception has occurred in SaveBillingItem ", e);
-        throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the billing items.");
-      }finally {
-        try {
-          //closeHibernateSession;        
-        } catch(Exception e){
-        LOG.error("Error", e);
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveBillingItemList ", e);
+        throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the billing item list.");
       }
-      }
-
     } else {
       this.xmlResult = "<SUCCESS/>";
       setResponsePage(this.SUCCESS_JSP);

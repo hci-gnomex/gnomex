@@ -147,32 +147,25 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
       }
 
     } catch( UnknownPermissionException e ) {
-      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+      this.errorDetails = Util.GNLOG(LOG, "An exception has occurred in ShowRedoReport ", e );
 
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( NamingException e ) {
-      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowRedoReport ", e );
 
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( SQLException e ) {
-      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowRedoReport ", e );
 
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( Exception e ) {
-      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowRedoReport ", e );
 
       throw new RollBackCommandException( e.getMessage() );
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch( Exception e ) {
-
-      }
     }
-
     return this;
   }
 

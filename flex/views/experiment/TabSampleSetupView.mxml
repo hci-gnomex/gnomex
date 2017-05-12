@@ -1574,11 +1574,11 @@
 							<mx:TextInput styleName="requiredBox" id="elutionBufferInput" focusOut="{propagateElutionBuffer(); this.checkSampleSetupCompleteness(); elutionBufferInput.text.length > 0 ? this.setBufferBoxStyle('normalBox') : this.setBufferBoxStyle('requiredBox')}" width="800" maxChars="100"/>
 						</mx:HBox>
 					</mx:VBox>
-					<mx:HBox id="dnaseBox" includeInLayout="false" visible="false">
+					<mx:HBox styleName="requiredBox" id="dnaseBox" includeInLayout="false" visible="false">
 						<mx:Label text="(c) Click if RNA samples were treated with DNase" id="dnaseLabel"/>
 						<mx:CheckBox id="dnaseCheckBox" click="{propagateDnase()}" change="{this.checkSampleSetupCompleteness()}"/>
 					</mx:HBox>
-					<mx:HBox id="rnaseBox" includeInLayout="false" visible="false">
+					<mx:HBox styleName="requiredBox" id="rnaseBox" includeInLayout="false" visible="false">
 						<mx:Label text="(c) Click if DNA samples were treated with RNase" id="rnaseLabel"/>
 						<mx:CheckBox id="rnaseCheckBox" click="{propagateRnase()}" change="{this.checkSampleSetupCompleteness()}"/>
 					</mx:HBox>

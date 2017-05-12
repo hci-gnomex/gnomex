@@ -215,16 +215,9 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         
         
       }catch (Exception e){
-        LOG.error("An exception has occurred in SaveWorkflowSolexaPipeline ", e);
-
+        this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveWorkflowSolexaPipeline ", e);
         throw new RollBackCommandException(e.getMessage());
           
-      }finally {
-        try {
-          //closeHibernateSession;        
-        } catch(Exception e){
-        LOG.error("Error", e);
-      }
       }
       
     } else {

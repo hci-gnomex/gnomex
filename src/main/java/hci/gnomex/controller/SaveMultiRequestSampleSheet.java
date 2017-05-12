@@ -115,17 +115,8 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
       }
       
     } catch (Exception e){
-      LOG.error("An exception has occurred while saving a Multi-Request sample sheet. ", e);
-      throw new RollBackCommandException(e.toString());      
-    } finally {
-      try {
-       
-        if (sess != null) {
-          //closeHibernateSession;
-        }
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred while saving a Multi-Request sample sheet. ", e);
+      throw new RollBackCommandException(e.toString());
     }
 
     return this;
