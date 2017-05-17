@@ -48,7 +48,7 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
 
     try {
 
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
+//      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -121,11 +121,11 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
 
         // Send redirect with response SUCCESS or ERROR page.
         setResponsePage(this.SUCCESS_JSP);
-
+/*
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to manage workflow.");
         setResponsePage(this.ERROR_JSP);
-      }
+      }*/
 
     } catch (Exception e) {
       this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in GetExperimentOverviewList ", e);

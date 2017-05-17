@@ -1,0 +1,28 @@
+
+<div class="container-fluid" sidebar-responsive="/sidebar" iconized-modifier="fa-2x">
+
+  <!-- .sidebar class denotes sidebar element.  Can have .sidebar-small or .sidebar-large added to manipulate css. -->
+  <div class="col-sm-3 col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+      <li class="content1"><!-- content1 used to identify li that can have an .active class added to it (when route activated to /../sidebar/content1/.. -->
+        <a [routerLink]=" [ 'content1' ] "><i class="icon-resize fa fa-flask"></i><span class="a-label">Item 1</span></a>
+      </li>
+      <li class="content2">
+        <a [routerLink]=" [ 'content2' ] "><i class="icon-resize fa fa-cubes"></i><span class="a-label">Item 2</span></a>
+      </li>
+      <li class="content3">
+        <a [routerLink]=" [ 'content3' ] "><i class="icon-resize fa fa-gears"></i><span class="a-label">Item 3</span></a>
+      </li>
+    </ul>
+    <ul class="nav nav-sidebar sidebar-footer">
+      <li>
+        <a sidebar-toggle smallIcon="fa-angle-right" largeIcon="fa-angle-left"><i class="fa"></i></a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- .main class denotes main content element.  Can have .sidebar-small or .sidebar-large added to manipulate css. -->
+  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <router-outlet></router-outlet>
+  </div>
+</div>

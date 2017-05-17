@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
 import net.sf.json.JSON;
 import net.sf.json.xml.XMLSerializer;
 
@@ -91,14 +93,14 @@ protected static void initLog4j() {
 }
 
 public static boolean areWeLite() {
-	boolean glite = false;
+	boolean glite = true;
 
 	// check for GNomExLite.properties, if it exists, then we are GNomExLite
-	String configFile = webContextPath + "/WEB-INF/classes/GNomExLite.properties";
+	/*String configFile = webContextPath + "/WEB-INF/classes/GNomExLite.properties";
 	File glp = new File(configFile);
 	if (glp.exists()) {
 		glite = true;
-	}
+	}*/
 
 	return glite;
 }
@@ -197,7 +199,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 			&& (!requestName.equals("ShowRequestDownloadFormForGuest"))
 			&& (!requestName.equals("ShowExperimentMatrix"))
 			&& (!requestName.equals("ShowTopicTree"))) {
-
+		LOG.debug("Invalid SecurityAdvisor");
 		commandInstance.addInvalidField("SecurityAdvisor",
 				"You must create a SecurityAdvisor in order to run this command.");
 	}
@@ -322,7 +324,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 
 	// if command didn't provide one, default to message.jsp (for error)
 	if (forwardJSP == null || forwardJSP.equals("")) {
-		forwardJSP = "/message.jsp";
+		forwardJSP = "/getJSON.jsp";
 	}
 
 	if (!GNomExLite || (requestName != null && requestName.contains("ShowAnnotationProgressReport"))) {

@@ -1,62 +1,107 @@
+buildscript {
+    repositories {
+        maven {
+            credentials {
+                username = repo_user
+                password = repo_password
+            }
+            url repo_resolve_url
+        }
+        maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+        classpath 'hci:hci-conventions:2.0.0'
+    }
+}
+
 apply plugin: 'war'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply from: 'common.gradle'
-ant.importBuild 'flexBuild.xml'
 import org.apache.tools.ant.filters.*;
 
-
-repositories {
-    mavenLocal()
-    //mavenCentral()
-    jcenter()
+allprojects {
+    apply plugin: 'hci-conventions'
 }
 
 dependencies {
-    compile fileTree (dir: 'libEnv', include: 'hci-hibernate5-utils-1.0.jar');
-    compile fileTree (dir: 'lib', include: 'biojava.jar')
-    compile fileTree (dir: 'lib', include: 'metrixClient-1.4.jar')
-    compile fileTree (dir: 'libEnv', include: 'hci_framework.jar')
-    compile fileTree (dir: 'libEnv', include: 'hci_utils.jar')
-    compile fileTree (dir: 'libEnv', include: 'HCIReport.jar')
-    //have to use extremely old jdom b/c the hci framework is using a very old jdom
-    compile fileTree (dir: 'libEnv', include: 'jdom.jar')
 
+    //All
+    runtime group: 'hci', name: 'hci-servlet-filter-nocache', version: '1.+'
+    runtime group: 'hci', name: 'hci-servlet-filter-xsrf', version: '1.1+'
+    runtime group: 'hci', name: 'hci-servlet-filter-cors', version: '1.+'
+    runtime group: 'hci', name: 'hci-servlet-filter-pushstate', version: '1.+'
 
-    //Realm stuff
-    providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
-    providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
-    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
-    providedCompile 'log4j:log4j:1.2.12'
-    providedCompile 'javax.mail:mail:1.4.7'
+    compile group: 'hci', name: 'hci-ri-auth', version: '2.0.0-alpha.3'
+    compile group: 'hci', name: 'hci-bean-validation', version: '+'
+
+    compile "org.apache.shiro:shiro-core:1.3.2"
+    compile "org.apache.shiro:shiro-web:1.3.2"
+    compile "org.apache.shiro:shiro-aspectj:1.3.2"
+
+    compile group: 'servlets.com', name: 'cos', version: '05Nov2002'
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.1'
+    compile group: 'org.ostermiller', name: 'utils', version: '1.07.00'
+    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
+    compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.9'
+    compile group: 'org.freemarker', name: 'freemarker', version: '2.3.20'
+    compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
+    compile group: 'org.apache.lucene', name: 'lucene-core', version: '2.9.4'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'jdom', name: 'jdom', version: '1.0b8'
 
     //xml to json stuff for gnomexlite
     compile group: 'jline', name: 'jline', version: '0.9.94'
     compile group: 'xom', name: 'xom', version: '1.2.5'
 
-    //
+    //lib & libEnv
+    compile fileTree(dir: 'libEnv', include: 'hci-hibernate5-utils-1.0.jar');
+    compile fileTree(dir: 'lib', include: 'biojava.jar')
+    compile fileTree(dir: 'lib', include: 'metrixClient-1.4.jar')
+    compile fileTree(dir: 'libEnv', include: 'hci_framework.jar')
+    compile fileTree(dir: 'libEnv', include: 'hci_utils.jar')
+    compile fileTree(dir: 'libEnv', include: 'HCIReport.jar')
+
+    //Realm stuff
+    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
+    providedCompile group: 'log4j', name: 'log4j', version: '1.2.12'
+    providedCompile group: 'javax.mail', name: 'mail', version: '1.4.7'
+    providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
+    providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
+
+    //Subprojects
+    providedCompile project(':gnomex_crypt')
+    providedCompile project(':gnomex_tomcat_support')
+
+    //Tomcat
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.2.Final'
-    compile group: 'servlets.com', name: 'cos', version: '05Nov2002'
-    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.1'
-    compile group: 'org.ostermiller', name: 'utils', version: '1.07.00'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.5'
-    compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
+    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.10.Final'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
-    compile group: 'org.apache.lucene', name: 'lucene-core', version: '2.9.4'
-    compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.9'
-    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
-    compile group: 'org.freemarker', name: 'freemarker', version: '2.3.20'
-    compile group: 'org.apache.poi', name: 'poi', version: '3.10-FINAL'
+
+    // JAX-RS Related
+    compile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-servlet-initializer', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-cdi', version: '3.0.19.Final'
+
+    // CDI Related
+    providedCompile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
+    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
+    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.4.1.Final'
 }
 
 def buildAliases = [
-        'gnomex_all' : ['clean', 'clean_tomcat', 'enableHTTPS', 'makeFlex', 'makeSQLServer', 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts', 'war', 'gnomex_deploy'],
-        'gnomex_all_opensource' : ['clean', 'clean_tomcat', 'disableHTTPS', 'makeMySQL', 'makeFlex', 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts', 'opensourceWar', 'enableHTTPS', 'opensourceSecureWar', 'moveSecureWar', 'gnomex_deploy', 'createOpenSourceZip'],
-        'gnomex_clean' : ['clean', 'clean_tomcat'],
-        'gnomex_lite_all' : ['clean', 'clean_tomcat', 'enableHTTPS', 'makeLite', 'makeSQLServer', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'gnomexLiteWar', 'gnomex_deploy'],
-        'gnomex_lite_all_opensource' : ['clean', 'clean_tomcat', 'disableHTTPS', 'makeLite', 'makeMySQL', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'gnomexLiteOpenSourceWar', 'enableHTTPS', 'gnomexLiteOpenSourceSecureWar', 'moveSecureWar', 'gnomex_deploy']
+        'gnomex_all'           : ['clean', 'clean_tomcat', 'makeSQLServer', 'jar', 'clientJar', 'copyScripts', 'war', 'gnomex_deploy'],
+        'gnomex_all_opensource': ['clean', 'clean_tomcat', 'makeMySQL', 'jar', 'clientJar', 'copyScripts', 'opensourceWar', 'gnomex_deploy', 'createOpenSourceZip'],
+        'gnomex_clean'         : ['clean', 'clean_tomcat']
 ]
 def expandedTaskList = []
 
@@ -67,11 +112,7 @@ gradle.startParameter.taskNames.each {
 gradle.startParameter.taskNames = expandedTaskList.flatten()
 
 task clean_tomcat << {
-    delete "${serverHome}/webapps/gnomex.war"
-    delete "${serverHome}/lib/gnomex_realm.jar"
-    delete "${serverHome}/webapps/gnomex"
-    delete "${serverHome}/webapps/gnomexlite.war"
-    delete "${serverHome}/webapps/gnomexLite"
+    delete "${gnomexServerHome}/webapps/gnomex"
 }
 
 // replace string  helper function
@@ -82,60 +123,28 @@ def replaceString(fileName, fromString, toString) {
     new File(fileName).write(fileText)
 }
 
-task moveSecureWar << {
-    copy{
-        from buildDir.getAbsolutePath() + "/libs"
-        include "*secure*"
-        into buildDir.getAbsolutePath() + "/secure";
-        rename("gnomexlite_secure.war", "gnomexlite.war");
-        rename("gnomex_secure.war", "gnomex.war");
-    }
-}
-
-task disableHTTPS << {
-    replaceString("${baseDir}/src/main/java/hci/gnomex/constants/Constants.java",
-            "REQUIRE_SECURE_REMOTE = true;",
-            "REQUIRE_SECURE_REMOTE = false;")
-}
-
-task enableHTTPS << {
-    replaceString("${baseDir}/src/main/java/hci/gnomex/constants/Constants.java",
-            "REQUIRE_SECURE_REMOTE = false;",
-            "REQUIRE_SECURE_REMOTE = true;")
-}
-
-task makeFlex <<{
-    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexLite.jsp", "gnomexFlex.jsp");
-}
-
-task makeLite << {
-    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexFlex.jsp", "gnomexLite.jsp");
-}
-
-task makeMySQL <<{
+task makeMySQL << {
     replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "SQLServerDialect", "MySQLDialect")
 }
 
-task makeSQLServer <<{
+task makeSQLServer << {
     replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "MySQLDialect", "SQLServerDialect")
-
 }
-
 
 jar {
     archiveName = jarName
     manifest {
         attributes(
-                'Class-Path':'log4j.jar'
+                'Class-Path': 'log4j.jar'
         )
         attributes([
-                'Built-By': ant.properties['user.name'],
+                'Built-By'              : ant.properties['user.name'],
                 'Implementation-Version': "${gnomex_version}    (${formattedDate})"
-        ],'gnomex')
+        ], 'gnomex')
     }
 }
 
-task clientJar (type: Jar) {
+task clientJar(type: Jar) {
     println buildDir.getAbsolutePath()
     from buildDir.getAbsolutePath() + "/classes/main/"
     include "hci/gnomex/httpclient/*.class"
@@ -143,27 +152,9 @@ task clientJar (type: Jar) {
 
     manifest {
         attributes([
-                'Built-By': ant.properties['user.name'],
+                'Built-By'              : ant.properties['user.name'],
                 'Implementation-Version': gnomex_version
-        ],'gnomexClient')
-    }
-}
-
-task realmJar (type: Jar) {
-    archiveName = realmJarName
-    from sourceSets.main.output.classesDir
-    include 'hci/gnomex/utility/Util.class'
-    include 'hci/gnomex/utility/TomcatCatalinaProperties.class'
-    include 'hci/gnomex/security/ActiveDirectory.class'
-    include 'hci/gnomex/security/EncrypterService.class'
-    include 'hci/gnomex/security/EncryptionUtility.class'
-    include 'hci/gnomex/security/tomcat/*.class'
-
-    manifest {
-        attributes([
-                'Built-By': ant.properties['user.name'],
-                'Implementation-Version': gnomex_version
-        ],'gnomexRealm')
+        ], 'gnomexClient')
     }
 }
 
@@ -179,22 +170,15 @@ task copyScripts {
     }
 }
 
-task opensourceWar (type: War) {
+task opensourceWar(type: War) {
     archiveName = warName
     classpath = classpath - sourceSets.main.output
 
-    from(buildDir.getAbsolutePath()) {
-        include '*.swf'
-        include '*.html'
-        include '*.jsp'
-        include '*.js'
-        include 'assets/*.*'
-    }
-
-    exclude 'gnomexlite'
+    // Need to depend on the child project build tasks in order to build their products into the war
+    dependsOn 'gnomex_ng:webpack'
 
     manifest {
-        attributes (
+        attributes(
                 'Built-By': ant.properties['user.name'],
                 'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         )
@@ -208,13 +192,13 @@ task opensourceWar (type: War) {
         into 'scripts'
     }
 
-    from(buildDir.getAbsolutePath() + "/libs"){
+    from(buildDir.getAbsolutePath() + "/libs") {
         include jarName
         include clientJarName
         into 'WEB-INF/lib'
     }
 
-    from("${baseDir}/META-INF") {
+    from("$projectDir/META-INF") {
         include "context_opensource.xml"
         into 'META-INF'
         rename('context_opensource.xml', 'context.xml')
@@ -230,113 +214,56 @@ task opensourceWar (type: War) {
         into 'WEB-INF/classes'
     }
 
-    from(baseDir) {
+    from("$projectDir") {
         include "UCSCExecutables/**"
     }
 
-    from("${baseDir}/src/main/webapp"){
+    from("$projectDir/src/main/webapp") {
         include "getXML.jsp"
         include "getHTML.jsp"
         into 'WEB-INF/classes'
     }
 
-}
-
-task opensourceSecureWar (type: War) {
-    archiveName = opensourceSecureWarName
-    classpath = classpath - sourceSets.main.output
-
-    from(buildDir.getAbsolutePath()) {
-        include '*.swf'
-        include '*.html'
-        include '*.jsp'
-        include '*.js'
-        include 'assets/*.*'
-    }
-
-    exclude 'gnomexlite'
-
-    manifest {
-        attributes (
-                'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
-        )
-    }
-
-    //use UNIX eol convention
-    from("${buildDir}/scripts") {
-        include "*.sh"
-        filter(FixCrLfFilter.class,
-                eol: FixCrLfFilter.CrLf.newInstance("lf"))
-        into 'scripts'
-    }
-
-    from(buildDir.getAbsolutePath() + "/libs"){
-        include jarName
-        include clientJarName
-        into 'WEB-INF/lib'
-    }
-
-    from("${baseDir}/META-INF") {
-        include "context_opensource.xml"
-        into 'META-INF'
-        rename('context_opensource.xml', 'context.xml')
-    }
-
-    from(rescDir) {
-        include '*.*'
-        into 'WEB-INF/classes'
-    }
-
-    from("${rescDir}/hci/gnomex") {
-        include 'Dictionaries.xml'
-        into 'WEB-INF/classes'
-    }
-
-    from(baseDir) {
-        include "UCSCExecutables/**"
-    }
-
-    from("${baseDir}/src/main/webapp"){
-        include "getXML.jsp"
-        include "getHTML.jsp"
-        into 'WEB-INF/classes'
-    }
 }
 
 war {
     archiveName = warName
-    classpath = classpath - sourceSets.main.output
+    //classpath = classpath - sourceSets.main.output
 
-    from(buildDir.getAbsolutePath()) {
-        include '*.swf'
-        include '*.html'
-        include '*.jsp'
-        include '*.js'
-        include 'assets/*.*'
-    }
-
-    exclude 'gnomexlite'
+    // Need to depend on the child project build tasks in order to build their products into the war
+    dependsOn 'gnomex_ng:webpack'
 
     manifest {
-        attributes (
+        attributes(
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}    (${formattedDate})",
+                'Dependencies': 'org.dom4j, org.apache.log4j'
         )
     }
 
-    from(buildDir.getAbsolutePath() + "/libs"){
+    rootSpec.exclude("**/tomcat-annotations-api-7.0.68.jar")
+    rootSpec.exclude("**/tomcat-api-7.0.68.jar")
+    rootSpec.exclude("**/tomcat-catalina-7.0.68.jar")
+    rootSpec.exclude("**/tomcat-servlet-api-7.0.68.jar")
+    rootSpec.exclude("**/tomcat-util-7.0.68.jar")
+
+    // Look here for the product of the gulpBuild
+    from("gnomex_ng/dist") {
+        include "**/*"
+    }
+
+    from(buildDir.getAbsolutePath() + "/libs") {
         include jarName
         include clientJarName
         into 'WEB-INF/lib'
     }
 
-    from("${baseDir}/META-INF") {
+    from("$projectDir/META-INF") {
         include "context.xml"
         into 'META-INF'
     }
 
-    from("$buildDir/scripts"){
+    from("$buildDir/scripts") {
         into "scripts"
     }
     // move these files to src/main/resources file
@@ -350,290 +277,44 @@ war {
         into 'WEB-INF/classes'
     }
 
-    from(baseDir) {
+    from("$projectDir") {
         include "UCSCExecutables/**"
     }
 
-    from("${baseDir}/src/main/webapp"){
+    from("$projectDir/src/main/webapp") {
         include "getXML.jsp"
         include "getHTML.jsp"
         into 'WEB-INF/classes'
     }
-
-//    from("${baseDir}/src/main/webapp"){
-//        include "getXML.jsp"
-//        include "getHTML.jsp"
-//        into buildDir.getAbsolutePath() + "/tomcat"
-//    }
-}
-
-task gnomexLiteWar (type: War) {
-    archiveName = glWarName
-    classpath = classpath - sourceSets.main.output
-
-    from(buildDir.getAbsolutePath()) {
-        include '*.swf'
-        include '*.html'
-        include '*.jsp'
-        include '*.js'
-    }
-
-    exclude 'gnomexlite'
-
-    manifest {
-        attributes (
-                'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
-        )
-    }
-
-    from(buildDir.getAbsolutePath() + "/libs"){
-        include jarName
-        include clientJarName
-        into 'WEB-INF/lib'
-    }
-
-    from("${baseDir}/src/main/webapp"){
-        include "getXML.jsp"
-        include "getHTML.jsp"
-        into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/flex"){
-        include "assets/*.*"
-    }
-
-    from("${webrootDir}/gnomexlite"){
-        include "GNomExLite.properties"
-        into 'WEB-INF/classes'
-    }
-
-
-    from("${baseDir}/src/main/webapp/gnomexlite"){
-        include "gnomexLite.jsp"
-        into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/src/main/webapp/gnomexlite"){
-        include "gnomexLite.jsp"
-    }
-
-    from("${baseDir}/META-INF") {
-        include "context.xml"
-        into 'META-INF'
-    }
-
-    from("${baseDir}/scripts"){
-        into "scripts"
-    }
-
-    // move these files to src/main/resources file
-    from(rescDir) {
-        include '*.*'
-        into 'WEB-INF/classes'
-    }
-
-    from("${rescDir}/hci/gnomex") {
-        include 'Dictionaries.xml'
-        into 'WEB-INF/classes'
-    }
-
-    from(baseDir) {
-        include "UCSCExecutables/**"
-    }
-}
-
-task gnomexLiteOpenSourceWar (type: War) {
-    archiveName = glWarName
-    classpath = classpath - sourceSets.main.output
-
-    from(buildDir.getAbsolutePath()) {
-        include '*.swf'
-        include '*.html'
-        include '*.jsp'
-        include '*.js'
-    }
-
-    exclude 'gnomexlite'
-
-    manifest {
-        attributes (
-                'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}   (${formattedDate})"
-        )
-    }
-
-    from(buildDir.getAbsolutePath() + "/libs"){
-        include jarName
-        include clientJarName
-        into 'WEB-INF/lib'
-    }
-
-    from("${baseDir}/src/main/webapp"){
-        include "getXML.jsp"
-        include "getHTML.jsp"
-        into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/flex"){
-        include "assets/*.*"
-    }
-
-    from("${webrootDir}/gnomexlite"){
-        include "GNomExLite.properties"
-        into 'WEB-INF/classes'
-    }
-
-
-    from("${baseDir}/src/main/webapp/gnomexlite"){
-        include "gnomexLite.jsp"
-        into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/src/main/webapp/gnomexlite"){
-        include "gnomexLite.jsp"
-    }
-
-    from("${baseDir}/META-INF") {
-        include "context_opensource.xml"
-        into 'META-INF'
-        rename('context_opensource.xml', 'context.xml')
-    }
-
-//    from("${baseDir}/META-INF") {
-//        include "context.xml"
-//        into 'META-INF'
-//    }
-
-    from("${baseDir}/scripts"){
-        into "scripts"
-    }
-
-    // move these files to src/main/resources file
-    from(rescDir) {
-        include '*.*'
-        into 'WEB-INF/classes'
-    }
-
-    from("${rescDir}/hci/gnomex") {
-        include 'Dictionaries.xml'
-        into 'WEB-INF/classes'
-    }
-
-    from(baseDir) {
-        include "UCSCExecutables/**"
-    }
-}
-
-task gnomexLiteOpenSourceSecureWar (type: War) {
-    archiveName = opensourcegnomexLiteSecureName
-    classpath = classpath - sourceSets.main.output
-
-    from(buildDir.getAbsolutePath()) {
-        include '*.swf'
-        include '*.html'
-        include '*.jsp'
-        include '*.js'
-    }
-
-    exclude 'gnomexlite'
-
-    manifest {
-        attributes (
-                'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
-        )
-    }
-
-    from(buildDir.getAbsolutePath() + "/libs"){
-        include jarName
-        include clientJarName
-        into 'WEB-INF/lib'
-    }
-
-    from("${baseDir}/src/main/webapp"){
-        include "getXML.jsp"
-        include "getHTML.jsp"
-        into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/flex"){
-        include "assets/*.*"
-    }
-
-    from("${webrootDir}/gnomexlite"){
-        include "GNomExLite.properties"
-        into 'WEB-INF/classes'
-    }
-
-
-    from("${baseDir}/src/main/webapp/gnomexlite"){
-        include "gnomexLite.jsp"
-        into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/src/main/webapp/gnomexlite"){
-        include "gnomexLite.jsp"
-    }
-
-//    from("${baseDir}/META-INF") {
-//        include "context.xml"
-//        into 'META-INF'
-//    }
-
-    from("${baseDir}/META-INF") {
-        include "context_opensource.xml"
-        into 'META-INF'
-        rename('context_opensource.xml', 'context.xml')
-    }
-
-    from("${baseDir}/scripts"){
-        into "scripts"
-    }
-
-    // move these files to src/main/resources file
-    from(rescDir) {
-        include '*.*'
-        into 'WEB-INF/classes'
-    }
-
-    from("${rescDir}/hci/gnomex") {
-        include 'Dictionaries.xml'
-        into 'WEB-INF/classes'
-    }
-
-    from(baseDir) {
-        include "UCSCExecutables/**"
-    }
 }
 
 
-task createOpenSourceZip(type: Zip){
+task createOpenSourceZip(type: Zip) {
     archiveName = openSourceZipName
 
-    from(baseDir){
+    from("$projectDir") {
         include "README_INSTALL.txt"
         filter(FixCrLfFilter.class,
                 eol: FixCrLfFilter.CrLf.newInstance("lf"))
         into openSourceName
     }
 
-    from(baseDir) {
+    from("$projectDir") {
         include "README_UPGRADE.txt"
         into openSourceName
     }
 
-    from("${baseDir}"){
+    from("$projectDir") {
         include "LICENSE.txt"
         into openSourceName
     }
 
-    from("${baseDir}/config/tomcat_config") {
+    from("$projectDir/config/tomcat_config") {
         include "*.jar"
         into "${openSourceName}/server/tomcat/lib"
     }
 
-    from("${baseDir}/scripts") {
+    from("$projectDir/scripts") {
         include "*.*"
         into "${openSourceName}/scripts"
     }
@@ -641,41 +322,46 @@ task createOpenSourceZip(type: Zip){
     from(buildDir.getAbsolutePath() + "/libs") {
         include warName
         include clientJarName
-        include realmJarName
-        include glWarName
         into "${openSourceName}/gnomex/build"
     }
 
-    from(buildDir.getAbsolutePath() + "/libs") {
-        include "*secure*"
-        into "${openSourceName}/gnomex/build/secure"
+    from('gnomex_tomcat_support/build/libs') {
+        into "${openSourceName}/gnomex/build"
     }
 
-    from("${baseDir}/doc") {
+    from('gnomex_crypt/build/libs') {
+        into "${openSourceName}/gnomex/build"
+    }
+
+    from("$projectDir/doc") {
         include "*/**"
         into "${openSourceName}/gnomex/doc"
     }
 
-    from("${baseDir}/sql") {
+    from("$projectDir/sql") {
         include "*/**"
         into "${openSourceName}/gnomex/sql"
     }
 
 }
 
-task gnomex_deploy << {
-    copy {
-        from war
-        into "${serverHome}/${deployDir}"
-    }
+task gnomex_deploy {
+    dependsOn ':gnomex_tomcat_support:jar', ':gnomex_crypt:jar'
 
-    copy {
-        from gnomexLiteWar
-        into "${serverHome}/${deployDir}"
-    }
+    doLast {
+        copy {
+            from war
+            into "${gnomexServerHome}/${gnomexDeployDir}"
+        }
 
-    copy {
-        from realmJar
-        into "${serverHome}/lib"
+        copy {
+            from 'gnomex_tomcat_support/build/libs'
+            into "${gnomexServerHome}/lib"
+        }
+
+        copy {
+            from 'gnomex_crypt/build/libs'
+            into "${gnomexServerHome}/lib"
+        }
     }
 }
