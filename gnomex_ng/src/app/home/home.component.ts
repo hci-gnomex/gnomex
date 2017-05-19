@@ -11,5 +11,6 @@ import {Component} from "@angular/core";
 export class HomeComponent {
   constructor() {
     // Do instance configuration here
+
   }
 }

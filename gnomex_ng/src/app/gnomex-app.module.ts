@@ -9,7 +9,9 @@ import {APP_ROUTING} from "./gnomex-app.routes";
 import {HttpModule} from "@angular/http";
 import {HomeModule} from "./home/home.module";
 import {BROWSE_EXPERIMENTS_ENDPOINT, VIEW_EXPERIMENT_ENDPOINT} from "./experiments/experiments.service";
+import {CREATE_DICTIONARIES_ENDPOINT} from "./dictionary/dictionary.service";
 import {ExperimentsService} from "./experiments/experiments.service";
+import {DictionaryService} from "./dictionary/dictionary.service";
 import {ExperimentsModule} from "./experiments/experiments.module";
 import {RouterModule} from "@angular/router";
 import {FormsModule} from "@angular/forms";
@@ -56,6 +58,7 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
   providers: [
     {provide: BROWSE_EXPERIMENTS_ENDPOINT, useValue: "/gnomex/GetExperimentOverviewList.gx"},
     {provide: VIEW_EXPERIMENT_ENDPOINT, useValue: "/gnomex/GetRequest.gx"},
+    {provide: CREATE_DICTIONARIES_ENDPOINT, useValue: "/gnomex/ManageDictionaries.gx"},
     {provide: AUTHENTICATED_USER_ENDPOINT, useValue: "/gnomex/api/user/authenticated"},
     {provide: DEFAULT_SUCCESS_URL, useValue: ""},
     {provide: USER_SESSION_ENDPOINT, useValue: "/gnomex/api/user-session"},
@@ -66,6 +69,7 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
     {provide: LOGIN_ROUTE, useValue: "/login"},
     UserService,
     ExperimentsService,
+    DictionaryService,
     LocalStorageService,
     {provide: APP_INFO_SOURCE, useValue: "data/appInfo.json"}
   ]

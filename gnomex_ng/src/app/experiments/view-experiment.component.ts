@@ -5,48 +5,72 @@ import 'rxjs/add/operator/switchMap';
 import {Component, OnInit} from "@angular/core";
 import { ActivatedRoute, Params } from '@angular/router';
 import {ExperimentsService} from "./experiments.service";
+import { Experiment} from "./experiment"
+import {Request} from "@angular/http";
 
 @Component({
-    selector: "experiments",
+    selector: "experiment",
     template: `
-    <div>
-        <hci-grid class="w-100"
-                  [title]="'Experiement'"
-                  [inputData]="experiment"
-                  [pageSize]="10">
-            <column-def [name]="'Code'" [field]="'expCodeApp'"></column-def>
-            <column-def [name]="'Create Date'" [field]="'expCreateDate'"></column-def>
-            <column-def [name]="'Status'" [field]="'expStatus'"></column-def>
-            <column-def [name]="'Run Type'" [field]="'expSeqRunType'"></column-def>
-            <column-def [name]="'Lab Name'" [field]="'labFullName'"></column-def>
-        </hci-grid>
-    </div>
+        <div *ngIf="experiment" class="container-fluid" style="padding-top: 10px">
+        
+            <div class="row">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td width="15%">Name</td>
+                                <td width="30%">{{this.experiment.name}}</td>
+                                <td width="15%">Number</td>
+                                <td width="30%">{{experiment.number}}</td>
+                            </tr>
+                            <tr>
+                                <td width="15%">Experiment</td>
+                                <td width="30%">{{experiment.project}}</td>
+                                <td width="15%">Email</td>
+                                <td width="30%">{{experiment.requestor}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </div> <!-- end row -->
+        
+        
+        </div> <!--  end container -->
     `
 })
 
-export class ViewExperimentComponent implements OnInit{
+export class ViewExperimentComponent implements OnInit {
 
-    private experiment: Array<Object> = null;
+    experiment: any;
+
 
     constructor(private experimentsService: ExperimentsService,
-                private route:ActivatedRoute
-    ) {}
-
-    ngOnInit(): void {
-        this.route.params
-            .switchMap((params: Params) => this.experimentsService.getExperiment(params['id']))
-            .subscribe((response: Array<Object>) => {
-                this.experiment = response;
-            })
+                private route: ActivatedRoute) {
     }
 
     // ngOnInit(): void {
-    //     this.experimentsService
-    //         .getExperiment(this.route.snapshot.paramMap.get('id'))
-    //         .subscribe((response: Array<Object>) => {
-    //             this.experiment = response;
-    //         })
-    //
+    //     this.route.params
+    //         .switchMap((params: Params) => this.experimentsService.getExperiment(params['id']))
+    //         .subscribe(experiment =>
+    //             this.experiment = experiment);
     // }
-}
 
+
+
+    // ngOnInit(): void {
+    //     this.route.params
+    //         .switchMap((params: Params) => this.experimentsService.getExperiment(params['id']))
+    //         .subscribe((response: Object) => {
+    //             this.experiment = response;
+    //             console.log("in experiment");
+    //         })
+    // }
+    //
+    ngOnInit(): void {
+        this.experimentsService
+            .getExperiment(this.route.snapshot.paramMap.get('id'))
+            .subscribe((response: any) => {
+                this.experiment = response.Request;
+                console.log("in init "+this.experiment.number);
+            })
+
+    }
+}

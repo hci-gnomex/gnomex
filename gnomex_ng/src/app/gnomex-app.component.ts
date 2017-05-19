@@ -5,10 +5,13 @@ import {Component, ViewChild, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
 import {Http, Response} from "@angular/http";
 import {UserService} from "@hci/user";
+import {DictionaryService} from "./dictionary/dictionary.service";
 import {AppHeaderComponent} from "@hci/app-header";
 import {NavigationAction, NavigationItem, PrimaryNavigationItem, PrimaryNavigationItemGroup} from "@hci/navigation";
 import {AppFooterComponent} from "@hci/app-footer";
 import { Observable } from "rxjs/Observable";
+import 'rxjs/operator/finally';
+import {promise} from "selenium-webdriver";
 
 /**
  * The gnomex application component.
@@ -35,11 +38,13 @@ export class GnomexAppComponent implements OnInit {
   private _primaryNavEnabled: Observable<boolean>;
 
   constructor(private userService: UserService,
+              private dictionaryService: DictionaryService,
               private router: Router,
               private http: Http) {
   }
 
   ngOnInit() {
+    let isDone: boolean = false;
     console.log("GnomexAppComponent ngOnInit");
     this.setupHeaderComponent();
     this.setupFooterComponent();
@@ -51,19 +56,39 @@ export class GnomexAppComponent implements OnInit {
 
       this.createSecurityAdvisor().subscribe(response => {
         console.log("subscribe createSecurityAdvisor");
+        isDone = true;
         console.log(response);
       });
+
     }});
+
     this.userService.addLogoutCallback({onLogout: () => {
       this._primaryNavEnabled = Observable.of(false);
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
     }});
+
+
   }
 
   createSecurityAdvisor(): Observable<any> {
     console.log("createSecurityAdvisor");
     return this.http.get("/gnomex/CreateSecurityAdvisor.gx", {withCredentials: true}).map((response: Response) => {
       console.log("return createSecurityAdvisor");
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error("Error");
+      }
+    }).finally(() => this.getDictionaries().subscribe((response: Array<Object>) => {
+      console.log("subscribe createDictionaries");
+      console.log(response);
+    }));
+  }
+
+  getDictionaries(): Observable<any> {
+    console.log("getDictionaries");
+    return this.http.get("/gnomex/ManageDictionaries.gx?action=load", {withCredentials: true}).map((response: Response) => {
+      console.log("return getDictionaries");
       if (response.status === 200) {
         return response.json();
       } else {
