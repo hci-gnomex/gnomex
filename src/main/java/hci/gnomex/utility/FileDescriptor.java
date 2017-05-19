@@ -116,7 +116,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		// are there protected directories (for an analysis)?
 		protectedDir = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.PROTECTED_DIRECTORIES_ANALYSIS);
 		protectedDirA = protectedDir;
-//		System.out.println ("[FileDescriptor] protectedDir: " + protectedDir);
+//		System.out.println ("[FileDescriptor] protectedDir: " + protectedDir + " file: " + file);
 		theDirs = file.getAbsolutePath().replace("\\","/").split("/");
 		theDirsA = theDirs;
 		// are there protected directories (for an experiment)?
@@ -305,7 +305,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 				}
 			}
 			if (found) {
-				Double maxSize = Math.pow(2, 20) * 50;
+				Double maxSize = Math.pow(2, 20) * 50;			// ~ 52 MB
 				try {
 					maxSize = Math.pow(2, 20)
 							* Double.parseDouble(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.FILE_MAX_VIEWABLE_SIZE));
@@ -342,15 +342,47 @@ public class FileDescriptor extends DetailObject implements Serializable {
         }
 
 //        System.out.println ();
+
+		// if it's only a '/' everything is protected
+		if (protectedDir.equals("/")) {
+			isP = "Y";
+//			System.out.println ("[FileDescriptor:isProtected] set Y");
+			return isP;
+		}
+
+		// otherwise unless it starts with "/" don't match the top directory if it is the same as protectedDir
+		String myProtectedDir = protectedDir;
+		int firstDir = 0;
+		if (theDirs.length > 0) {
+			if (theDirs[0].indexOf(":") != -1 || theDirs[0].equals("")) {
+				// windows path ignore drive:
+				firstDir = 1;
+			}
+
+			// does the protected directory have a '/'?
+			if (protectedDir.indexOf("/") == 0) {
+				firstDir = -1;
+				myProtectedDir = protectedDir.substring(1);
+			}
+		}
         for (int ii = 0; ii < theDirs.length; ii++) {
-//		    System.out.println ("[FileDescriptor:isProtected] protectedDir: " + protectedDir + " ii: " + ii + " dir:" + theDirs[ii]);
-		    if (protectedDir.equals(theDirs[ii])) {
+//			System.out.println ("[FileDescriptor:isProtected] ii: " + ii + " theDirs[ii]: " + theDirs[ii] + " myProtectedDir: " + myProtectedDir + " firstDir: " + firstDir);
+		    if (firstDir != -1 && ii == firstDir) {
+		    	continue;
+			}
+
+			if (firstDir == 1 && ii == 0) {
+		    	continue;
+			}
+
+//        	System.out.println ("[FileDescriptor:isProtected] protectedDir: " + myProtectedDir + " ii: " + ii + " dir:" + theDirs[ii] + " firstDir: " + firstDir);
+		    if (myProtectedDir.equals(theDirs[ii])) {
 		        isP = "Y";
-//                System.out.println ("[FileDescriptor:isProtected] set Y");
+ //               System.out.println ("[FileDescriptor:isProtected] set Y");
 		        break;
             }
         }
-//        System.out.println ("[FileDescriptor:isProtected] returning: " + isP);
+ //       System.out.println ("[FileDescriptor:isProtected] returning: " + isP);
 		return isP;
 	}
 

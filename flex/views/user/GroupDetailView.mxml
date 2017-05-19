@@ -96,6 +96,7 @@
 		import flash.net.FileReference;
 
 		import mx.controls.CheckBox;
+
 		import hci.flex.controls.DropdownLabel;
 		import hci.flex.controls.TextInput;
 		import hci.flex.dictionary.DictionaryEditor;
@@ -969,7 +970,7 @@
 						break;
 					}
 				}
-				coreFacilityCheckbox[x].setStyle("fundWeight", coreFacilityCheckbox[x].selected ? "bold" : "normal");
+				coreFacilityCheckbox[x].setStyle("fontWeight", coreFacilityCheckbox[x].selected ? "bold" : "normal");
 				coreFacilityCheckbox[x].setStyle("fontStyle", coreFacilityCheckbox[x].selected ? "italic" : "normal");
 			}
 			activeSubmitters = new XMLListCollection(parentDocument.fullLab.activeSubmitters.AppUser.(@display != ''));
@@ -979,8 +980,10 @@
 			refreshBillingTab();
 
 			var bp:Object = billingPeriodUtil.getPreviousBillingPeriod();
-			var evt:BillingPeriodSelectEvent = new BillingPeriodSelectEvent(bp.@display);
-			invoiceBillingPeriodSelected(evt);
+			if (bp != null && bp.hasOwnProperty("@display")) {
+				var evt:BillingPeriodSelectEvent = new BillingPeriodSelectEvent(bp.@display);
+				invoiceBillingPeriodSelected(evt);
+			}
 		}
 
 		private function addApprovedBillingAccountUsers(billingAccountList:XMLListCollection):void {

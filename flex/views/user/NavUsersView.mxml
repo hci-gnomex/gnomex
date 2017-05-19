@@ -547,7 +547,7 @@
 					this.labsGrid.selectedItem = labItem[0];  
 					callLater(scrollToLab);
 					this.labRowSelected();          	
-            	  } else if (item != null) {
+            	  } else if (labItem != null) {
             	  	this.labsGrid.selectedItem = labItem;
 					labRowSelected();          	
             	  }

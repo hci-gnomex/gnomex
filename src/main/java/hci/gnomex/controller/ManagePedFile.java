@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.PropertyDictionary;
@@ -339,10 +340,11 @@ private String[] makePedEntry(String sample_id, String bamfile, String vcffile) 
 	pedEntry[1] = sample_id;
 	pedEntry[2] = "0";
 	pedEntry[3] = "0";
-	pedEntry[4] = "0";
+	pedEntry[4] = "U";
 	pedEntry[5] = "-9";
-	pedEntry[6] = bamfile;
-	pedEntry[7] = vcffile;
+	pedEntry[6] = "";
+	pedEntry[7] = bamfile;
+	pedEntry[8] = vcffile;
 	return pedEntry;
 }
 
@@ -508,6 +510,7 @@ public static Document getVCFIds(String VCFpathName) {
 	ArrayList theIds = new ArrayList();
 	String lastline = "";
 
+/*
 	String[] cmd = { "tabix", "-H", "" };
 	cmd[2] = VCFpathName;
 
@@ -529,7 +532,9 @@ public static Document getVCFIds(String VCFpathName) {
 		LOG.error("ManagePedFile error procing tabix", e);
 		System.out.println("[getVCFIds] tabix proc error: " + e);
 	}
+*/
 
+	lastline = Util.getVCFHeader (VCFpathName);
 	vcfIds = new Document(new Element("VCFIdList"));
 
 	// parse the ids out of the last line

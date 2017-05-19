@@ -697,7 +697,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
         if (bamPath != null && !bamPath.equals("")) {
             bamFile = new File(analysisDirectory + "/" + bamPath);
         }
-        if (bamPath == null || !bamFile.exists()) {
+        if (bamPath == null || bamFile == null || !bamFile.exists()) {
             if (bfirstError) {
                 bstatus = bstatusStart + "proband";
                 bfirstError = false;
@@ -804,6 +804,9 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 
         System.out.println("[validatePedFile] returning theStatus: " + theStatus);
 
+        if (theStatus.equals("")) {
+            theStatus = null;
+        }
         return theStatus;
     }
 
@@ -841,12 +844,12 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
             }
 
             // must have a bam file
-            if (value[BAM] == null || value[BAM].equals("")) {
+            if (value.length < BAM+1 || value[BAM] == null || value[BAM].equals("")) {
                 continue;
             }
 
             // must have a vcf file
-            if (value[VCF] == null || value[VCF].equals("")) {
+            if (value.length < VCF+1 || value[VCF] == null || value[VCF].equals("")) {
                 continue;
             }
 
@@ -885,6 +888,10 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
         boolean hasBAMVCF = false;
 
         String[] value = peopleMap.get(sampleId);
+
+        if (value == null || value.length < BAM+1 || value.length < VCF+1) {
+            return hasBAMVCF;
+        }
 
         if (value != null && value[BAM] != null && !value[BAM].equals("") && value[VCF] != null && !value[VCF].equals("")) {
             hasBAMVCF = true;
@@ -982,8 +989,8 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
         }
 
         ArrayList theIds = new ArrayList();
-        String lastline = "";
-
+        String lastline = Util.getVCFHeader(VCFpathName1);
+/*
         String[] cmd = {"tabix", "-H", ""};
         cmd[2] = VCFpathName1;
 
@@ -1005,7 +1012,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
             LOG.error("MakeGeneURL error procing tabix", e);
             System.out.println("[addVCFIds] tabix proc error: " + e);
         }
-
+*/
         // parse the ids out of the last line
         String[] pieces = lastline.split("\t");
         int numids = 0;
@@ -1028,7 +1035,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
             }
         }
 
-        System.out.println("[addVCFIds] numids: " + numids);
+        System.out.println("[MakeGeneURL:addVCFIds] numids: " + numids);
 
     }
 
