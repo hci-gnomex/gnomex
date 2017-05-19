@@ -97,32 +97,24 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
 			}
 
 		} catch (UnknownPermissionException e) {
-			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowRequestDownloadFormForGuest ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (NamingException e) {
-			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowRequestDownloadFormForGuest ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (SQLException e) {
-			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowRequestDownloadFormForGuest ", e);
 
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowRequestDownloadFormForGuest ", e);
 
 			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				if (sess != null) {
-					//closeHibernateSession;
-				}
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
-			}
 		}
 
 		return this;
@@ -132,7 +124,6 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
 	 * The callback method called after the loadCommand, and execute methods, this method allows you to manipulate the HttpServletResponse object prior to
 	 * forwarding to the result JSP (add a cookie, etc.)
 	 *
-	 * @param request
 	 *            The HttpServletResponse for the command
 	 * @return The processed response
 	 */

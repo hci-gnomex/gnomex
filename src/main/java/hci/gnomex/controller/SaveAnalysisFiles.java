@@ -118,18 +118,11 @@ public class SaveAnalysisFiles extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      LOG.error("An exception has occurred in SaveAnalysisFiles ", e);
-
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveAnalysisFiles ", e);
       throw new RollBackCommandException(e.getMessage());
         
-    } finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
-    
+
     return this;
   }
   

@@ -71,7 +71,7 @@ public Command execute() throws RollBackCommandException {
 			this.setResponsePage(this.ERROR_JSP);
 		}
 	} catch (Exception e) {
-		LOG.error("An exception has occurred in SaveProductLedgerEntryList", e);
+		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveProductLedgerEntryList ", e);
 
 		throw new GNomExRollbackException(e.getMessage(), true,
 				"An error occurred saving the product ledger entry list");

@@ -300,7 +300,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in SaveSelfRegisteredAppUser ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveSelfRegisteredAppUser ", e);
 
       throw new RollBackCommandException(e.getMessage());
 

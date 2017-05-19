@@ -136,16 +136,9 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      LOG.error("An exception has occurred in SaveLab ", e);
-
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveGroupMembership ", e);
       throw new RollBackCommandException(e.getMessage());
         
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
     
     return this;

@@ -138,14 +138,8 @@ public class VerifyDas2Refresh extends GNomExCommand implements Serializable {
       this.xmlResult = "<SUCCESS message=\"" + confirmMessage.toString() + "\"/>";
       setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e) {
-      LOG.error("An exception has occurred in VerifyDas2Refresh ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in VerifyDas2Refresh ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
     
     return this;

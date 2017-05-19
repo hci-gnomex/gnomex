@@ -180,7 +180,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 			this.xmlResult = doc.asXML();
 
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in ShowDataTrackInfo ", e);
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in ShowDataTrackInfo ", e);
 
 			Document doc = DocumentHelper.createDocument();
 
@@ -195,14 +195,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 
 			this.xmlResult = doc.asXML();
 
-		} finally {
-			try {
-				//closeHibernateSession;
-			} catch (Exception ex) {
-				LOG.error("Unable to close session in ShowDataTrackInfo");
-			}
 		}
-
 		return this;
 	}
 

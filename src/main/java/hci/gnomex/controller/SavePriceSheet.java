@@ -7,7 +7,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PriceSheetCategoryParser;
-
+import hci.gnomex.utility.Util;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.*;
@@ -125,16 +125,9 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      LOG.error("An exception has occurred in SavePriceSheet ", e);
-
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SavePriceSheet ", e);
       throw new RollBackCommandException(e.getMessage());
         
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
     
     return this;

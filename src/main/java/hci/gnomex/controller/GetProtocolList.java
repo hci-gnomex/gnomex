@@ -146,7 +146,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
       this.validate();
 
     }  catch (Exception e) {
-      LOG.error("An exception occurred in GetProtocolList ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception occurred in GetProtocolList ", e);
       throw new RollBackCommandException();
     }
 

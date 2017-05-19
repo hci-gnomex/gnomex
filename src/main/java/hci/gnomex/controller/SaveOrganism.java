@@ -211,16 +211,9 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in SaveOrganism ", e);
-
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveOrganism ", e);
       throw new RollBackCommandException(e.getMessage());
 
-    } finally {
-      try {
-        //closeHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in SaveOrganism ", e);
-      }
     }
 
     return this;

@@ -280,6 +280,12 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                             }
                             File sourceFile = new File(fileName);
 
+                            // if sourceFile does not exist, it was probably already moved/renamed when its
+                            // parent directory was moved/renamed, so don't report the error
+                            if (!sourceFile.exists()) {
+                                continue;
+                            }
+
                             if (baseDir.contains(directoryName)
                                     || baseDir.contains(directoryName.subSequence(0, directoryName.length() - 1))) {
                                 targetDirName = baseDir + Constants.FILE_SEPARATOR;

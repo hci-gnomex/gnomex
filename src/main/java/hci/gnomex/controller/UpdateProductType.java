@@ -62,17 +62,10 @@ public class UpdateProductType extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in UpdateProductType ", e);
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in UpdateProductType ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in UpdateProductType ", e);
-      }
     }
-
     return this;
   }
 

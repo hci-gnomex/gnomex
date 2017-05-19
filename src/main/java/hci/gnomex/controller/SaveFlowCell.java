@@ -340,19 +340,10 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
 
     }
     catch (Exception e) {
-      LOG.error("An exception has occurred in SaveFlowCell ", e);
-
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveFlowCell ", e);
       throw new RollBackCommandException(e.getMessage());
     }
-    finally {
-      try {
-        //closeHibernateSession;
-      } 
-      catch (Exception e) {
-        LOG.error("An exception has occurred in SaveFlowCell ", e);
 
-      }
-    }
     return this;
   }
   // flowCell is loaded from database. fc is from the HttpRequest. Here we update flowCell with any new values from fc.

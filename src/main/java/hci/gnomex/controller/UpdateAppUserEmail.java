@@ -73,15 +73,8 @@ public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      LOG.error("An exception has occurred in UpdateAppUserEmail ", e);
-    } finally {
-      try {
-        //closeHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in UpdateAppUserEmail ", e);
-      }
+      this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in UpdateAppUserEmail ", e);
     }
-
     return this;
   }
 

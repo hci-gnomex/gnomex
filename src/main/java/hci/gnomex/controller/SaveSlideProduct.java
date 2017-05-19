@@ -91,28 +91,19 @@ public Command execute() throws RollBackCommandException {
 			setResponsePage(this.ERROR_JSP);
 		}
 	} catch (HibernateException e) {
-		LOG.error(e.getClass().toString() + ": " + e, e);
+		this.errorDetails = Util.GNLOG(LOG,e.getClass().toString() + ": " + e, e);
 		throw new RollBackCommandException();
 	} catch (NamingException e) {
-		LOG.error(e.getClass().toString() + ": " + e, e);
+		this.errorDetails = Util.GNLOG(LOG,e.getClass().toString() + ": " + e, e);
 		throw new RollBackCommandException();
 	} catch (SQLException e) {
-		LOG.error(e.getClass().toString() + ": " + e, e);
+		this.errorDetails = Util.GNLOG(LOG,e.getClass().toString() + ": " + e, e);
 		throw new RollBackCommandException();
 	} catch (Exception e) {
-		LOG.error(e.getClass().toString() + ": " + e, e);
+		this.errorDetails = Util.GNLOG(LOG,e.getClass().toString() + ": " + e, e);
 		throw new RollBackCommandException();
-	} finally {
-		try {
-			// closeHibernateSession;
-		} catch (HibernateException e) {
-			LOG.error(e.getClass().toString() + ": " + e, e);
-			throw new RollBackCommandException();
-		}
-		/*
-		 * catch (SQLException e) { LOG.error(e.getClass().toString() + ": " + e, e); throw new RollBackCommandException(); }
-		 */
 	}
+
 	return this;
 }
 

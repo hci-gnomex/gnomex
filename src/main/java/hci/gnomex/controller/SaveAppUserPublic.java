@@ -102,17 +102,8 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 			}
 
 		} catch (Exception e) {
-			LOG.error("An exception has occurred in SaveAppUserPublic ", e);
-
+			this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveAppUserPublic ", e);
 			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				if (sess != null) {
-					//closeHibernateSession;
-				}
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in SaveAppUserPublic ", e);
-			}
 		}
 
 		return this;
