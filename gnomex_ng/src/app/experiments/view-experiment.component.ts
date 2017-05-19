@@ -5,7 +5,6 @@ import 'rxjs/add/operator/switchMap';
 import {Component, OnInit} from "@angular/core";
 import { ActivatedRoute, Params } from '@angular/router';
 import {ExperimentsService} from "./experiments.service";
-import { Experiment} from "./experiment"
 import {Request} from "@angular/http";
 
 @Component({
