@@ -4242,7 +4242,7 @@
 
 		public function redirectToSmallScreen():void {
 			var urlBase:String = this.url.slice(0, this.url.lastIndexOf("/") + 1);
-			navigateToURL(new URLRequest(urlBase + "gnomexFlex_lowResolution.jsp"), "_self");
+			navigateToURL(new URLRequest(urlBase + "gnomex_smallscreen.jsp"), "_self");
 		}
 		]]>
 	</mx:Script>
