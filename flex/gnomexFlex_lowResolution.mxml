@@ -23,6 +23,7 @@
 				xmlns:dashboard="views.dashboard.*"
 				xmlns:product="views.product.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"
+				initialize="systemManager.stage.scaleMode = StageScaleMode.NO_BORDER;"
 				creationComplete="init()"
 				applicationComplete="applicationCompleteHandler(event); resizeApplicationIfNecessary();"
 				backgroundColor="#FFFFFF" visible="true" >
@@ -1280,24 +1281,24 @@
 
 			// At time of writing, GNomEx is minimum 1520 pixels wide.
 
-			if(systemManager.stage.width < 1520) {
+//			if(systemManager.stage.width < 1520) {
 //				Application.application.width = 1520;
 //				Application.application.height = 750;
 
-				Application.application.width = 200;
-				Application.application.height = 100;
+//				Application.application.width = 200;
+//				Application.application.height = 100;
 
-				systemManager.stage.scaleMode = StageScaleMode.EXACT_FIT;
+//				systemManager.stage.scaleMode = StageScaleMode.EXACT_FIT;
 
-				systemManager.stage.invalidate();
-			}
-			else {
+//				systemManager.stage.invalidate();
+//			}
+//			else {
 //				Application.application.width  = "100%";
 //				Application.application.height = "100%";
 
 
 //				setTimeout(setScaleMode_NO_SCALE, 5000);
-			}
+//			}
 		}
 
 		private function setScaleMode_NO_SCALE():void {
@@ -4269,6 +4270,11 @@
 			this.analysisAddWindow.parentView = callingView;
 			this.analysisAddWindow.initializeData(idLab, idAnalysisGroup, idOrganism);
 		}
+
+		public function redirectToStandardGNomEx():void {
+			var urlBase:String = this.url.slice(0, this.url.lastIndexOf("/") + 1);
+			navigateToURL(new URLRequest(urlBase), "_self");
+		}
 		]]>
 	</mx:Script>
 	
@@ -4773,7 +4779,11 @@
 						<mx:HBox  paddingTop="12">
 							<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView; refreshNotificationHub();}"/> 
 						</mx:HBox>
-						<mx:Spacer width="100%"/>
+						<mx:Spacer width="10%"/>
+						<mx:HBox verticalAlign="bottom" height="40">
+							<mx:LinkButton label="Return to GNomEx Standard Version" click="{redirectToStandardGNomEx()}" textDecoration="underline" color="0x0000FF" />
+						</mx:HBox>
+						<mx:Spacer width="50%"/>
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							<mx:TextInput id="requestNumber"
 										  text="Lookup by #" fontStyle="italic" color="0x666666"
