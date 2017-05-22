@@ -25,7 +25,7 @@
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"
 				initialize="systemManager.stage.scaleMode = StageScaleMode.NO_BORDER;"
 				creationComplete="init()"
-				applicationComplete="applicationCompleteHandler(event); resizeApplicationIfNecessary();"
+				applicationComplete="applicationCompleteHandler(event);"
 				backgroundColor="#FFFFFF" visible="true" >
 	
 	
@@ -1275,30 +1275,6 @@
 			var parms:Object = new Object();
 			parms.idCoreFacility = idCoreFacility;
 			getLaunchProperties.send(parms);
-		}
-
-		private function resizeApplicationIfNecessary():void {
-
-			// At time of writing, GNomEx is minimum 1520 pixels wide.
-
-//			if(systemManager.stage.width < 1520) {
-//				Application.application.width = 1520;
-//				Application.application.height = 750;
-
-//				Application.application.width = 200;
-//				Application.application.height = 100;
-
-//				systemManager.stage.scaleMode = StageScaleMode.EXACT_FIT;
-
-//				systemManager.stage.invalidate();
-//			}
-//			else {
-//				Application.application.width  = "100%";
-//				Application.application.height = "100%";
-
-
-//				setTimeout(setScaleMode_NO_SCALE, 5000);
-//			}
 		}
 
 		private function setScaleMode_NO_SCALE():void {
