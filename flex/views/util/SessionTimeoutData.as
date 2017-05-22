@@ -25,13 +25,13 @@ package views.util
 		private static var alertPopupOpen:Boolean = false;
 		
 		[Bindable]
-		public static var flexApplication:gnomexFlex;
-		
+		public static var flexApplication:Application;
+
 		public function SessionTimeoutData():void
 		{
 		}
 		
-		public static function setThisApplication(ap:gnomexFlex, sessionTimeout:int):void {
+		public static function setThisApplication(ap:Application, sessionTimeout:int):void {
 			flexApplication = ap;
 			// Subtract a minute from the systemTimeout just to make sure timeout doesn't
 			// happen before the countdown is finished.

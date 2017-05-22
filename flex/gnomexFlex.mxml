@@ -4239,6 +4239,11 @@
 			this.analysisAddWindow.parentView = callingView;
 			this.analysisAddWindow.initializeData(idLab, idAnalysisGroup, idOrganism);
 		}
+
+		public function redirectToSmallScreen():void {
+			var urlBase:String = this.url.slice(0, this.url.lastIndexOf("/") + 1);
+			navigateToURL(new URLRequest(urlBase + "gnomex_smallscreen.jsp"), "_self");
+		}
 		]]>
 	</mx:Script>
 	
@@ -4743,7 +4748,11 @@
 						<mx:HBox  paddingTop="12">
 							<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView; refreshNotificationHub();}"/> 
 						</mx:HBox>
-						<mx:Spacer width="100%"/>
+						<mx:Spacer width="10%"/>
+						<mx:HBox verticalAlign="bottom" height="40">
+							<mx:LinkButton label="GNomEx SmallScreen BETA" click="{redirectToSmallScreen()}" textDecoration="underline" color="0x0000FF" toolTip="GNomEx re-rendered for screen resolutions below 1600x900" />
+						</mx:HBox>
+						<mx:Spacer width="60%"/>
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							<mx:TextInput id="requestNumber"
 										  text="Lookup by #" fontStyle="italic" color="0x666666"
