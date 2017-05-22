@@ -46,13 +46,14 @@ export class ViewExperimentComponent implements OnInit {
     }
 
     // ngOnInit(): void {
-    //     this.route.params
-    //         .switchMap((params: Params) => this.experimentsService.getExperiment(params['id']))
-    //         .subscribe(experiment =>
-    //             this.experiment = experiment);
+    //     this.experimentsService
+    //         .getExperiment(this.route.snapshot.paramMap.get('id'))
+    //         .subscribe((response:any) => {
+    //             this.experiment = response.Request;
+    //             console.log("in init "+this.experiment.number);
+    //         })
+    //
     // }
-
-
 
     // ngOnInit(): void {
     //     this.route.params
@@ -66,7 +67,7 @@ export class ViewExperimentComponent implements OnInit {
     ngOnInit(): void {
         this.experimentsService
             .getExperiment(this.route.snapshot.paramMap.get('id'))
-            .subscribe((response: any) => {
+            .subscribe((response) => {
                 this.experiment = response.Request;
                 console.log("in init "+this.experiment.number);
             })

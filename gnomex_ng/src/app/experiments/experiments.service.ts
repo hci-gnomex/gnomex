@@ -20,7 +20,7 @@ export class ExperimentsService {
         });
     }
 
-    getExperiment(id: string): Observable<Object> {
+    getExperiment(id: string): Observable<any> {
         return this._http.get("/gnomex/GetRequest.gx?requestNumber="+id, {withCredentials: true}).map((response: Response) => {
             if (response.status === 200) {
                 return response.json();

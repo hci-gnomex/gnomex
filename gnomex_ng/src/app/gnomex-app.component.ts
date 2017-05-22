@@ -5,7 +5,6 @@ import {Component, ViewChild, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
 import {Http, Response} from "@angular/http";
 import {UserService} from "@hci/user";
-import {DictionaryService} from "./dictionary/dictionary.service";
 import {AppHeaderComponent} from "@hci/app-header";
 import {NavigationAction, NavigationItem, PrimaryNavigationItem, PrimaryNavigationItemGroup} from "@hci/navigation";
 import {AppFooterComponent} from "@hci/app-footer";
@@ -38,7 +37,6 @@ export class GnomexAppComponent implements OnInit {
   private _primaryNavEnabled: Observable<boolean>;
 
   constructor(private userService: UserService,
-              private dictionaryService: DictionaryService,
               private router: Router,
               private http: Http) {
   }
@@ -53,7 +51,6 @@ export class GnomexAppComponent implements OnInit {
       console.log("GnomexAppComponent onLogin");
       this._primaryNavEnabled = Observable.of(true);
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
-
       this.createSecurityAdvisor().subscribe(response => {
         console.log("subscribe createSecurityAdvisor");
         isDone = true;
@@ -79,13 +76,38 @@ export class GnomexAppComponent implements OnInit {
       } else {
         throw new Error("Error");
       }
-    }).finally(() => this.getDictionaries().subscribe((response: Array<Object>) => {
-      console.log("subscribe createDictionaries");
-      console.log(response);
+    }).flatMap(() => this.http.get("/gnomex/ManageDictionaries.gx?action=load", {withCredentials: true}).map((response: Response) => {
+      console.log("return getDictionaries");
     }));
+        // this.getDictionaries().subscribe((response: Array<Object>) => {
+        //   console.log("subscribe createDictionaries");
+        //   console.log(response);
+        // }));
   }
 
-  getDictionaries(): Observable<any> {
+  searchFn(): (keywords: string) => void {
+    return (keywords) => {
+      window.location.href = "http://localhost/gnomex/GetRequest.gx?requestNumber="+keywords;
+    };
+  }
+
+  // createSecurityAdvisor(): Observable<any> {
+  //   console.log("createSecurityAdvisor");
+  //   return this.http.get("/gnomex/CreateSecurityAdvisor.gx", {withCredentials: true}).map((response: Response) => {
+  //     console.log("return createSecurityAdvisor");
+  //     if (response.status === 200) {
+  //       return response.json();
+  //     } else {
+  //       throw new Error("Error");
+  //     }
+  //   }).do(() => this.getDictionaries().subscribe((response: Array<Object>) => {
+  //     console.log("subscribe createDictionaries");
+  //     console.log(response);
+  //   }));
+  // }
+
+
+getDictionaries(): Observable<any> {
     console.log("getDictionaries");
     return this.http.get("/gnomex/ManageDictionaries.gx?action=load", {withCredentials: true}).map((response: Response) => {
       console.log("return getDictionaries");
@@ -193,7 +215,7 @@ export class GnomexAppComponent implements OnInit {
     this._appHdrCmpt.homeRoute = "/";
     this._appHdrCmpt.navbarClasses = "bg-faded";
 
-
+    this._appHdrCmpt.searchFn = this.searchFn();
     // Currently no roles guard these menus, but they can be configure
     // Only show the menus if authenticated, are there menure that should be shown if not authenticated?
     this._appHdrCmpt.primaryMenuGroups = [
