@@ -333,7 +333,7 @@ private String createPedFile(Map<Integer, String> headerMap, Map<String, String[
 }
 
 private String[] makePedEntry(String sample_id, String bamfile, String vcffile) {
-	String[] pedEntry = new String[8];
+	String[] pedEntry = new String[9];
 
 	// since we are making the pedentry we already know the order of the column
 	pedEntry[0] = "";
