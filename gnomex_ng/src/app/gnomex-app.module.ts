@@ -56,7 +56,6 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
   providers: [
     {provide: BROWSE_EXPERIMENTS_ENDPOINT, useValue: "/gnomex/GetExperimentOverviewList.gx"},
     {provide: VIEW_EXPERIMENT_ENDPOINT, useValue: "/gnomex/GetRequest.gx"},
-    {provide: CREATE_DICTIONARIES_ENDPOINT, useValue: "/gnomex/ManageDictionaries.gx"},
     {provide: AUTHENTICATED_USER_ENDPOINT, useValue: "/gnomex/api/user/authenticated"},
     {provide: DEFAULT_SUCCESS_URL, useValue: ""},
     {provide: USER_SESSION_ENDPOINT, useValue: "/gnomex/api/user-session"},
@@ -67,7 +66,6 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
     {provide: LOGIN_ROUTE, useValue: "/login"},
     UserService,
     ExperimentsService,
-    DictionaryService,
     LocalStorageService,
     {provide: APP_INFO_SOURCE, useValue: "data/appInfo.json"}
   ]
