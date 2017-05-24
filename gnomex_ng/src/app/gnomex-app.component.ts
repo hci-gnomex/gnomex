@@ -87,7 +87,7 @@ export class GnomexAppComponent implements OnInit {
 
   searchFn(): (keywords: string) => void {
     return (keywords) => {
-      window.location.href = "http://localhost/gnomex/GetRequest.gx?requestNumber="+keywords;
+      window.location.href = "http://localhost/gnomex/experiments/"+keywords;
     };
   }
 
