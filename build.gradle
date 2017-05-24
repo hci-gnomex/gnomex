@@ -172,7 +172,7 @@ task copyScripts {
 
 task opensourceWar(type: War) {
     archiveName = warName
-    classpath = classpath - sourceSets.main.output
+    //classpath = classpath - sourceSets.main.output
 
     // Need to depend on the child project build tasks in order to build their products into the war
     dependsOn 'gnomex_ng:webpack'
@@ -228,7 +228,7 @@ task opensourceWar(type: War) {
 
 war {
     archiveName = warName
-    //classpath = classpath - sourceSets.main.output
+    classpath = classpath - sourceSets.main.output
 
     // Need to depend on the child project build tasks in order to build their products into the war
     dependsOn 'gnomex_ng:webpack'
