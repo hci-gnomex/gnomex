@@ -838,13 +838,13 @@
                         var fileDescript:XML = draggedItems[i];
                         var droppedFileName:String = fileDescript.@displayName.replace(/_/gi, "");
                         droppedFileName = droppedFileName.replace(/-/gi, "");
-                        droppedFileName = droppedFileName.substring(0, droppedFileName.indexOf(".") - 1);
+                        droppedFileName = droppedFileName.substring(0, droppedFileName.lastIndexOf(".") - 1);
                         var isMatch:Boolean = false;
 
                         for each(var file:XML in dropNode.children().children()) {
                             var currentFileName:String = file.@displayName.replace(/_/gi, "");
                             currentFileName = currentFileName.replace(/-/gi, "");
-                            currentFileName = currentFileName.substring(0, currentFileName.indexOf(".") - 1);
+                            currentFileName = currentFileName.substring(0, currentFileName.lastIndexOf(".") - 1);
 
                             if (droppedFileName == currentFileName) {
                                 if (file.parent().children().length() < 2) {
