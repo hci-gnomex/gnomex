@@ -87,7 +87,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			} else if (part.isFile()) {
 				FilePart filePart = (FilePart) part;
 				String fileName = filePart.getFileName();
-				fileType = fileName.substring(fileName.indexOf("."));
+				fileType = fileName.substring(fileName.lastIndexOf("."));
 
 				if (fileName != null) {
 					file = new File(directoryName + fileName);
