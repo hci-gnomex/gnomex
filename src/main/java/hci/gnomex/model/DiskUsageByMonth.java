@@ -27,7 +27,8 @@ public class DiskUsageByMonth extends HibernateDetailObject {
   private Integer        idBillingPeriod;
   private Integer        idBillingAccount;
   private Integer        idCoreFacility;
-  private Set            billingItems;  
+  private Set            billingItems;
+  private Lab            lab;
 
   public Integer getIdDiskUsageByMonth() {
     return idDiskUsageByMonth;
@@ -135,5 +136,12 @@ public class DiskUsageByMonth extends HibernateDetailObject {
   }
   public void setBillingItems(Set billingItems) {
     this.billingItems = billingItems;
+  }
+
+  public Lab getLab() {
+    return lab;
+  }
+  public void setLab( Lab lab ) {
+    this.lab = lab;
   }
 }

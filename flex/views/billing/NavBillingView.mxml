@@ -111,7 +111,53 @@
 		method="POST"
 		useProxy="false"> 
 	</mx:HTTPService>
-	
+
+	<mx:HTTPService
+			id="getBillingRequestList"
+			url="GetBillingRequestListNEW.gx"
+			concurrency="multiple"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onGetBillingRequestList(event)"
+			fault="parentApplication.onFailHttpRequest('Unable to get billing request list', event)"
+			method="POST"
+			useProxy="false">
+		<mx:request>
+			<idBillingPeriod>{lastSelectedBillingPeriod.@value}</idBillingPeriod>
+			<idLab>{labCombo.selectedItem.@idLab}</idLab>
+			<idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
+			<excludeInactiveBillingTemplates>{"Y"}</excludeInactiveBillingTemplates>
+			<deepSortResults>{"Y"}</deepSortResults>
+		</mx:request>
+	</mx:HTTPService >
+
+	<mx:HTTPService
+			id="getBillingItemList"
+			url="GetBillingItemListNEW.gx"
+			concurrency="multiple"
+			showBusyCursor="true"
+			resultFormat="e4x"
+			result="onGetBillingItemList(event)"
+			fault="parentApplication.onFailHttpRequest('Unable to get billing item list', event)"
+			method="POST"
+			useProxy="false">
+		<mx:request>
+			<showOtherBillingItems>{spanOtherCheckbox.selected ? 'Y' : 'N'}</showOtherBillingItems>
+			<requestNumber>{requestNumberText.text}</requestNumber>
+			<invoiceLookupNumber>{invoiceNumberLookupText.text}</invoiceLookupNumber>
+			<idBillingPeriod>{requestNumberText.text == "" ? lastSelectedBillingPeriod.@value : ""}</idBillingPeriod>
+			<idLab>{requestNumberText.text == "" &amp;&amp; invoiceNumberLookupText.text == "" ? labCombo.selectedItem.@idLab : ""}</idLab>
+			<idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
+			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
+			<excludeInactiveBillingTemplates>{"Y"}</excludeInactiveBillingTemplates>
+			<sortResults>{"N"}</sortResults>
+		</mx:request>
+	</mx:HTTPService >
+
+	<!-- TODO remove eventually if there are no problems with the new billing controllers
 	<mx:HTTPService 
 		id="getBillingRequestList" 
 		url="GetBillingRequestList.gx"
@@ -129,7 +175,7 @@
 			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>
 			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
-	</mx:HTTPService >  
+	</mx:HTTPService >
 	
 	<mx:HTTPService 
 		id="getBillingItemList" 
@@ -150,7 +196,8 @@
 			<idBillingAccount>{requestNumberText.text == "" ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
 			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp;parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_EXCLUDE_NEW_REQUESTS) == "Y" ? 'Y' : 'N'}</excludeNewRequests>
 		</mx:request>
-	</mx:HTTPService >          
+	</mx:HTTPService >
+	-->
 	
 	<mx:HTTPService 
 		id="getBillingInvoiceList" 

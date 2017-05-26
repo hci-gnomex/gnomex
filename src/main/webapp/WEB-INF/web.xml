@@ -724,6 +724,8 @@
 			<url-pattern>/DeleteSlideSet.gx</url-pattern>
 			<url-pattern>/DeleteWorkItem.gx</url-pattern>
 			<url-pattern>/DuplicateDataTrack.gx</url-pattern>
+			<url-pattern>/GetBillingItemListNEW.gx</url-pattern>
+			<url-pattern>/GetBillingRequestListNEW.gx</url-pattern>
 			<url-pattern>/ImportSegments.gx</url-pattern>
 			<url-pattern>/MoveDataTrack.gx</url-pattern>
 			<url-pattern>/MoveDataTrackFolder.gx</url-pattern>

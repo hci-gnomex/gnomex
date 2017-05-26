@@ -2538,6 +2538,8 @@
         <property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
         <property name="idBillingAccount" column="idBillingAccount" type="integer"/>
         <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+        <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab" cascade="none" insert="false"
+                     update="false"/>
         <set name="billingItems" table="BillingItem" lazy="false" cascade="all-delete-orphan" order-by="idBillingItem">
             <key column="idDiskUsageByMonth"/>
             <one-to-many class="hci.gnomex.model.BillingItem"/>
