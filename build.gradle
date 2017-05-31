@@ -21,6 +21,7 @@ dependencies {
     compile fileTree (dir: 'libEnv', include: 'HCIReport.jar')
     //have to use extremely old jdom b/c the hci framework is using a very old jdom
     compile fileTree (dir: 'libEnv', include: 'jdom.jar')
+    compile fileTree (dir: 'libEnv', include: 'jdom-2.0.6.jar')
 
 
     //Realm stuff

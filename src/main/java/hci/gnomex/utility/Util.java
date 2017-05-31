@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.framework.control.Command;
 import org.hibernate.Session;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,8 @@ import java.io.Reader;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 import java.io.*;
+
+import static java.lang.Integer.parseInt;
 
 public class Util {
 
@@ -343,6 +346,51 @@ public class Util {
 
     public static boolean isParameterFalse(String requestParameter) {
         return requestParameter.equalsIgnoreCase("N") || requestParameter.equalsIgnoreCase("false");
+    }
+
+    public static boolean isParameterNonEmpty(String requestParameter) {
+        return requestParameter != null && !requestParameter.trim().equals("");
+    }
+
+    public static Integer retrieveRequestIntegerParameter(HttpServletRequest request, String parameterName, Command command) {
+        String parameter = request.getParameter(parameterName);
+        Integer result = null;
+        if (isParameterNonEmpty(parameter)) {
+            try {
+                result = parseInt(parameter);
+            } catch (NumberFormatException e) {
+                command.addInvalidField(parameterName, parameterName + " must be an integer");
+            }
+        }
+        return result;
+    }
+
+    public static Boolean retrieveRequestBooleanParameter(HttpServletRequest request, String parameterName, Command command) {
+        return retrieveRequestBooleanParameter(request, parameterName, command, null);
+    }
+
+    public static Boolean retrieveRequestBooleanParameter(HttpServletRequest request, String parameterName, Command command, Boolean defaultValue) {
+        String parameter = request.getParameter(parameterName);
+        Boolean result = defaultValue;
+        if (isParameterNonEmpty(parameter)) {
+            if (isParameterTrue(parameter)) {
+                result = true;
+            } else if (isParameterFalse(parameter)) {
+                result = false;
+            } else {
+                command.addInvalidField(parameterName, parameterName + " must be a boolean");
+            }
+        }
+        return result;
+    }
+
+    public static String retrieveRequestStringParameter(HttpServletRequest request, String parameterName) {
+        String parameter = request.getParameter(parameterName);
+        String result = null;
+        if (isParameterNonEmpty(parameter)) {
+            result = parameter;
+        }
+        return result;
     }
 
     public static void sendErrorReport(org.hibernate.Session sess, String softwareTestEmail, String fromAddress, String userName, String errorMessage, StringBuilder requestDump) {
