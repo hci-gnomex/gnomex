@@ -1200,7 +1200,7 @@
 		} else if(baseFileName.toUpperCase().indexOf("_MINUS") > 0){
 			baseFileName = baseFileName.substr(0, baseFileName.toUpperCase().indexOf("_MINUS"));
 		} else{
-			baseFileName = baseFileName.substr(0, baseFileName.indexOf("."));
+			baseFileName = baseFileName.substr(0, baseFileName.lastIndexOf("."));
 		}
 		
 		var baseFileNameCount:int = 0;
