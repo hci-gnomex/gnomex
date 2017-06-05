@@ -25,7 +25,6 @@ public class ProductOrderFilter extends DetailObject {
   private String quoteReceived = "N";
 
   private StringBuffer queryBuf;
-  private boolean addWhere = true;
 
   private SecurityAdvisor secAdvisor;
 
@@ -41,18 +40,19 @@ public class ProductOrderFilter extends DetailObject {
   }
 
   public StringBuffer getProductOrderQuery() {
-    addWhere = true;
     queryBuf = new StringBuffer();
 
     queryBuf.append("SELECT po.idProductOrder, po.productOrderNumber, lab.idLab FROM ProductOrder po JOIN po.lab as lab");
+
+    this.addWhereClause();
     this.addPOCriteria();
     this.addSecurityCriteria("po");
+
     return queryBuf;
 
   }
 
   public StringBuffer getProductOrderDetailsQuery() {
-    addWhere = true;
     queryBuf = new StringBuffer();
     queryBuf.append("SELECT product.name, au.firstName, au.lastName, po.submitDate, po.quoteReceivedDate, po.quoteNumber, pli.qty ");
     queryBuf.append(" FROM ProductOrder as po ");
@@ -60,6 +60,7 @@ public class ProductOrderFilter extends DetailObject {
     queryBuf.append(" JOIN po.submitter as au ");
     queryBuf.append(" JOIN pli.product as product ");
 
+    this.addWhereClause();
     this.addPOCriteria();
     this.addSecurityCriteria("po");
 
@@ -67,7 +68,6 @@ public class ProductOrderFilter extends DetailObject {
   }
 
   public StringBuffer getLineItemQuery() {
-    addWhere = true;
     queryBuf = new StringBuffer();
 
     queryBuf.append(" SELECT DISTINCT ");
@@ -78,73 +78,58 @@ public class ProductOrderFilter extends DetailObject {
     queryBuf.append(" pli.idProductLineItem, ");
     queryBuf.append(" pli.codeProductOrderStatus ");
 
-    getLineItemQueryBody(queryBuf);
+    queryBuf.append(" FROM        ProductOrder as po ");
+    queryBuf.append(" JOIN        po.productLineItems as pli ");
+    queryBuf.append(" JOIN        pli.product as product ");
+
+    this.addWhereClause();
+    addPOCriteria();
+    addLineItemCriteria();
+    addSecurityCriteria("po");
 
     return queryBuf;
 
   }
 
-  public void getLineItemQueryBody(StringBuffer queryBuf) {
-
-    queryBuf.append(" FROM        ProductOrder as po ");
-    queryBuf.append(" JOIN        po.productLineItems as pli ");
-    queryBuf.append(" JOIN        pli.product as product ");
-
-    addPOCriteria();
-    addLineItemCriteria();
-    addSecurityCriteria("po");
-
-    // queryBuf.append(" group by po.idProductOrder ");
-  }
-
   public StringBuffer getFilesQuery() {
-    addWhere = true;
     queryBuf = new StringBuffer();
 
     queryBuf.append(" SELECT DISTINCT ");
     queryBuf.append(" po.idProductOrder, ");
     queryBuf.append(" file ");
 
-    getFilesQueryBody(queryBuf);
-
-    return queryBuf;
-
-  }
-
-  public void getFilesQueryBody(StringBuffer queryBuf) {
-
     queryBuf.append(" FROM        ProductOrder as po ");
     queryBuf.append(" JOIN        po.files as file ");
 
+    this.addWhereClause();
     addPOCriteria();
     addSecurityCriteria("po");
+
+    return queryBuf;
+
   }
 
   private void addPOCriteria() {
 
     // Search by lab
     if (idLab != null) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.idLab =");
+      queryBuf.append(" AND po.idLab =");
       queryBuf.append(idLab);
     }
     // Search by user
     if (idAppUser != null) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.idAppUser = ");
+      queryBuf.append(" AND po.idAppUser = ");
       queryBuf.append(idAppUser);
     }
     // Search by submit date from
     if (submitDateFrom != null) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.submitDate >= '");
+      queryBuf.append(" AND po.submitDate >= '");
       queryBuf.append(this.formatDate(submitDateFrom, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
     // Search by submit date to
     if (submitDateTo != null) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.submitDate <= '");
+      queryBuf.append(" AND po.submitDate <= '");
       queryBuf.append(this.formatDate(submitDateTo, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
     }
@@ -155,22 +140,18 @@ public class ProductOrderFilter extends DetailObject {
     }
     // Search by product order type
     if (idProductType != null && idProductType != 0) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.idProductType like '");
+      queryBuf.append(" AND po.idProductType = ");
       queryBuf.append(idProductType);
-      queryBuf.append("%'");
     }
     // Search by core facility
     if (idCoreFacility != null) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.idCoreFacility = ");
+      queryBuf.append(" AND po.idCoreFacility = ");
       queryBuf.append(idCoreFacility);
     }
 
     // Search by idProductOrder
     if (idProductOrder != null) {
-      this.addWhereOrAnd();
-      queryBuf.append(" po.idProductOrder = ");
+      queryBuf.append(" AND po.idProductOrder = ");
       queryBuf.append(idProductOrder);
     }
   }
@@ -179,8 +160,7 @@ public class ProductOrderFilter extends DetailObject {
 
     // Search by product order status
     if (codeProductOrderStatus != null && !codeProductOrderStatus.equals("")) {
-      this.addWhereOrAnd();
-      queryBuf.append(" pli.codeProductOrderStatus like '");
+      queryBuf.append(" AND pli.codeProductOrderStatus like '");
       queryBuf.append(codeProductOrderStatus);
       queryBuf.append("%'");
     }
@@ -197,14 +177,11 @@ public class ProductOrderFilter extends DetailObject {
 
   }
 
-  protected boolean addWhereOrAnd() {
-    if (addWhere) {
-      queryBuf.append(" WHERE ");
-      addWhere = false;
-    } else {
-      queryBuf.append(" AND ");
-    }
-    return addWhere;
+  /**
+   * Adds a simple where clause to the query so that subsequent criteria can always be appended with "AND"
+   */
+  private void addWhereClause() {
+    queryBuf.append(" WHERE 1 = 1 ");
   }
 
   public Integer getIdBillingPeriod() {
