@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <util:ResizableTitleWindow
-	xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:util="views.util.*"
-	layout="vertical"
-	
-	closeable="true"
-	close="onClose()" 
-	
-	creationComplete="initializeData()" 
-	width="900" 
-	height="500" 
-	title="Dictionary Editor" 
-	 fontWeight="normal">
-	 
+		xmlns:mx="http://www.adobe.com/2006/mxml"
+		xmlns:util="views.util.*"
+		layout="vertical"
 
-	
-	
+		closeable="true"
+		close="onClose()"
+
+		creationComplete="initializeData()"
+		width="900"
+		height="500"
+		title="Dictionary Editor"
+		fontWeight="normal">
+
+
+
+
 	<mx:Script>
 		<![CDATA[
 		import hci.flex.util.DictionaryManager;
@@ -75,11 +75,6 @@
 
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionaryLoaded);
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_METADATA_LOADED, onDictionaryMetadataLoaded);
-			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_SAVED, onDictionarySaved);
-			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_ADDED, onDictionaryAdded);
-
-			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_DELETED, onDictionaryDeleted);
-
 
 			initDictionaryTree();
 
@@ -114,14 +109,6 @@
 			callLater(this.reselectTree);
 		}
 
-		public function onDictionaryAdded(event:Event):void {
-			this.reloadDictionaries();
-		}
-
-		public function onDictionaryDeleted(event:Event):void {
-			this.reloadDictionaries();
-		}
-
 		public function onDictionaryMetadataLoaded(event:Event):void {
 			showDictionaryEntriesForSelectedDict();
 			callLater(this.reselectTree);
@@ -139,11 +126,6 @@
 			var selectEvent:Event = new Event(DictionaryEvent.DICTIONARY_WINDOW_DICTIONARY_SELECTED);
 			dispatchEvent(selectEvent);
 		}
-
-		public function onDictionarySaved(event:Event):void {
-			this.reloadDictionaries();
-		}
-
 
 		public function reselectTree():void {
 			if (selectedDictionary != null) {
@@ -656,7 +638,6 @@
 		private function onClose():void {
 			dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionaryLoaded);
 			dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_METADATA_LOADED, onDictionaryMetadataLoaded);
-			dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_ENTRY_SAVED, onDictionarySaved);
 
 			PopUpManager.removePopUp(this);
 		}
@@ -770,58 +751,58 @@
 		}
 		]]>
 	</mx:Script>
-	
-				
-				<mx:HDividedBox id="mainBox"  width="100%" height="100%">				        
-				        <mx:VBox height="100%" width="300" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" borderStyle="none"  verticalGap="2">
-					        	<mx:HBox width="100%" height="22">
-									<mx:Label text="Dictionaries" width="100%" fontWeight="normal"/>
-									<mx:Button id="add" icon="@Embed('../../../assets/add.png')" disabledIcon="@Embed(source='../../../assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" enabled="false" click="selectedDictionaryEntry=null;theViews.selectedIndex=1;saveMode='insert';currentDictAction='add';buildEditorWindow(event);" toolTip="Add"/>
-									<mx:Button id="del"  icon="@Embed(source='../../../assets/delete.png')" disabledIcon="@Embed(source='../../../assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" enabled="false" click="currentDictAction='delete';deleteDictionaryEntry(event);" toolTip="Delete"/>
-					        	</mx:HBox>
-							<mx:Label x="6" y="2" text="Search Dictionaries:"/>
-							<mx:TextInput id="searchText" change="onChange()" backgroundColor="#FFFFFF" backgroundAlpha="1.0" right="4" y="0" left="90" width="100%"/>
 
-								<mx:Tree id="treeDictionary" width="100%" height="100%"
-								    labelFunction="getTreeLabel"
-										 dataDescriptor="{new hci.flex.util.FilteredTreeDataDescriptor(filterTree)}"
-										 showRoot="false"
-								    itemClick="onSelectDictionary()"
-								     />
 
-						        	
-					    </mx:VBox>
-				        <mx:VBox  height="100%" width="100%"   borderStyle="none" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="4">
-				            <mx:Label text="{selectedDictDisplayName}" width="100%" fontWeight="normal"/>
-					        <mx:ViewStack id="theViews" width="100%" height="100%" >
-					        	<mx:VBox height="100%" width="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
-									<mx:DataGrid id="dataGridDictionary" doubleClickEnabled="true" 
-											click="{selectDictionaryEntry(dataGridDictionary.selectedItem)}" 
-											height="100%" width="100%"> 
-									</mx:DataGrid>
-		
-						        </mx:VBox>
-						        
-						       <mx:VBox id="dgEditor" 
-								        verticalGap="8"  
-								        horizontalGap="10"
-								       width="100%"  height="100%"  paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" backgroundColor="#FFFFFF">
-								</mx:VBox>
+	<mx:HDividedBox id="mainBox"  width="100%" height="100%">
+		<mx:VBox height="100%" width="300" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" borderStyle="none"  verticalGap="2">
+			<mx:HBox width="100%" height="22">
+				<mx:Label text="Dictionaries" width="100%" fontWeight="normal"/>
+				<mx:Button id="add" icon="@Embed('../../../assets/add.png')" disabledIcon="@Embed(source='../../../assets/add_disable.png')" color="#008000" fontSize="10" width="23" cornerRadius="2" enabled="false" click="selectedDictionaryEntry=null;theViews.selectedIndex=1;saveMode='insert';currentDictAction='add';buildEditorWindow(event);" toolTip="Add"/>
+				<mx:Button id="del"  icon="@Embed(source='../../../assets/delete.png')" disabledIcon="@Embed(source='../../../assets/delete_disable.png')" color="#ff0000" fontSize="10" width="23" cornerRadius="2" enabled="false" click="currentDictAction='delete';deleteDictionaryEntry(event);" toolTip="Delete"/>
+			</mx:HBox>
+			<mx:Label x="6" y="2" text="Search Dictionaries:"/>
+			<mx:TextInput id="searchText" change="onChange()" backgroundColor="#FFFFFF" backgroundAlpha="1.0" right="4" y="0" left="90" width="100%"/>
 
-									
-					        </mx:ViewStack>
-				        </mx:VBox>
+			<mx:Tree id="treeDictionary" width="100%" height="100%"
+					 labelFunction="getTreeLabel"
+					 dataDescriptor="{new hci.flex.util.FilteredTreeDataDescriptor(filterTree)}"
+					 showRoot="false"
+					 itemClick="onSelectDictionary()"
+			/>
 
-						
-				</mx:HDividedBox>
-							<mx:ControlBar width="100%"  horizontalAlign="left">
-									<mx:LinkButton id="reload"  label="Refresh" icon="@Embed('../../../assets/refresh.png')" disabledIcon="@Embed('../../../assets/refresh_disable.png')"  enabled="true" click="reloadDictionaries();" toolTip="Reload" fontWeight="normal" textDecoration="underline"/>
-									<mx:Spacer width="100%"/>
-									<mx:Text id="mode"   height="18" textAlign="right" width="100%"/>
-									<mx:Button label="Save" id="save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())"  icon="@Embed(source='../../../assets/save.png')" disabledIcon="@Embed(source='../../../assets/save_disable.png')" toolTip="Save"/>
-									<mx:Button label="Close" id="close" toolTip="Close" click="onClose()"/>
-					        </mx:ControlBar>
 
-		
+		</mx:VBox>
+		<mx:VBox  height="100%" width="100%"   borderStyle="none" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="4">
+			<mx:Label text="{selectedDictDisplayName}" width="100%" fontWeight="normal"/>
+			<mx:ViewStack id="theViews" width="100%" height="100%" >
+				<mx:VBox height="100%" width="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+					<mx:DataGrid id="dataGridDictionary" doubleClickEnabled="true"
+								 click="{selectDictionaryEntry(dataGridDictionary.selectedItem)}"
+								 height="100%" width="100%">
+					</mx:DataGrid>
+
+				</mx:VBox>
+
+				<mx:VBox id="dgEditor"
+						 verticalGap="8"
+						 horizontalGap="10"
+						 width="100%"  height="100%"  paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" backgroundColor="#FFFFFF">
+				</mx:VBox>
+
+
+			</mx:ViewStack>
+		</mx:VBox>
+
+
+	</mx:HDividedBox>
+	<mx:ControlBar width="100%"  horizontalAlign="left">
+		<mx:LinkButton id="reload"  label="Refresh" icon="@Embed('../../../assets/refresh.png')" disabledIcon="@Embed('../../../assets/refresh_disable.png')"  enabled="true" click="reloadDictionaries();" toolTip="Reload" fontWeight="normal" textDecoration="underline"/>
+		<mx:Spacer width="100%"/>
+		<mx:Text id="mode"   height="18" textAlign="right" width="100%"/>
+		<mx:Button label="Save" id="save" cornerRadius="2" enabled="false" click="saveDictionaryForm(event,collectFormData())"  icon="@Embed(source='../../../assets/save.png')" disabledIcon="@Embed(source='../../../assets/save_disable.png')" toolTip="Save"/>
+		<mx:Button label="Close" id="close" toolTip="Close" click="onClose()"/>
+	</mx:ControlBar>
+
+
 
 </util:ResizableTitleWindow>
