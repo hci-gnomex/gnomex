@@ -2813,7 +2813,7 @@
 					this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) == 'Y') {
 				this.isPublicVisibility = false;
 			} else {
-				this.isFDTSupported = true;
+				this.isPublicVisibility = true;
 			}
 
 			if (this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) != null &&
