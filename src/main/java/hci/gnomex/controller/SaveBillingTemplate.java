@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.constants.Constants;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
@@ -213,6 +214,13 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 
 			BigDecimal percentSplit = templateItem.getPercentSplit();
 			BigDecimal dollarAmountBalance = templateItem.getDollarAmountBalance();
+
+			// Set split type on billing item
+			if (percentSplit != null) {
+				billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
+			} else if (dollarAmountBalance != null) {
+				billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_AMOUNT_CODE);
+			}
 
 			if (templateItem.isAcceptingBalance()) {
 				billingItem.setInvoicePrice(masterBillingItem.getTotalPrice().subtract(amountAccountedFor));

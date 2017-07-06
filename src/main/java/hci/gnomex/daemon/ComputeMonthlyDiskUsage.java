@@ -626,7 +626,7 @@ public class ComputeMonthlyDiskUsage {
     bi.setIdBillingAccount(ba.getIdBillingAccount());
     bi.setIdLab(lab.getIdLab());
     bi.setCompleteDate(new java.sql.Date(runDate.getTime()));
-    bi.setSplitType("%");
+    bi.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
     bi.setIdCoreFacility(ba.getIdCoreFacility());
     if (invoice != null) {
       bi.setIdInvoice(invoice.getIdInvoice());
