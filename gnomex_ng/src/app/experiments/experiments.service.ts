@@ -20,6 +20,16 @@ export class ExperimentsService {
         });
     }
 
+    getExperimentOrders(): Observable<Object> {
+        return this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true}).map((response: Response) => {
+            if (response.status === 200) {
+                return response.json().Request;
+            } else {
+                throw new Error("Error");
+            }
+        });
+    }
+
     getExperiment(id: string): Observable<any> {
         return this._http.get("/gnomex/GetRequest.gx?requestNumber="+id, {withCredentials: true}).map((response: Response) => {
             if (response.status === 200) {

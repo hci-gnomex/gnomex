@@ -8,6 +8,7 @@ import {BrowseExperimentsComponent} from "./browse-experiments.component";
 import {ViewExperimentComponent} from "./view-experiment.component";
 
 import { GridModule } from "hci-ng-grid/index";
+import {ExperimentOrdersComponent} from "./experiment-orders.component";
 
 /**
  * @author mbyrne
@@ -15,7 +16,11 @@ import { GridModule } from "hci-ng-grid/index";
  */
 @NgModule({
     imports: [ EXPERIMENTS_ROUTING, CommonModule, GridModule ],
-    declarations: [ BrowseExperimentsComponent, ViewExperimentComponent ]
+    declarations: [
+        BrowseExperimentsComponent,
+        ViewExperimentComponent,
+        ExperimentOrdersComponent
+    ]
 })
 export class ExperimentsModule {
 }
