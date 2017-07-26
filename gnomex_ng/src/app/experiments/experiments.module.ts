@@ -6,9 +6,8 @@ import {EXPERIMENTS_ROUTING} from "./experiments.routes";
 import {CommonModule} from "@angular/common";
 import {BrowseExperimentsComponent} from "./browse-experiments.component";
 import {ViewExperimentComponent} from "./view-experiment.component";
+
 import { jqxTreeComponent } from 'jqwidgets-framework';
-//import { TreeModule } from '../../modules/tree.module';
-//import { ExpanderModule } from '../../modules/expander.module';
 import { jqxExpanderComponent } from 'jqwidgets-framework';
 
 
