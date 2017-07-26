@@ -36,10 +36,11 @@
     "core-js": "^2.4.1",
     "font-awesome": "^4.7.0",
     "hci-ng-grid": "1.0.0-alpha.7",
+    "jqwidgets-framework": "^4.6.4",
     "ng2-bootstrap": "1.4.2",
     "reflect-metadata": "^0.1.10",
     "rxjs": "5.0.1",
-    "zone.js": "^0.8.5"
+    "zone.js": "0.8.12"
   },
   "devDependencies": {
     "@angular/compiler-cli": "2.4.6",
