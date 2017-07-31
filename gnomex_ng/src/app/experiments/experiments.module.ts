@@ -6,6 +6,9 @@ import {EXPERIMENTS_ROUTING} from "./experiments.routes";
 import {CommonModule} from "@angular/common";
 import {BrowseExperimentsComponent} from "./browse-experiments.component";
 import {ViewExperimentComponent} from "./view-experiment.component";
+import { TreeModule } from '../../modules/tree.module';
+import { ExpanderModule } from '../../modules/expander.module';
+
 
 import { GridModule } from "hci-ng-grid/index";
 import {ExperimentOrdersComponent} from "./experiment-orders.component";
@@ -15,7 +18,13 @@ import {ExperimentOrdersComponent} from "./experiment-orders.component";
  * @since 12/19/16
  */
 @NgModule({
-    imports: [ EXPERIMENTS_ROUTING, CommonModule, GridModule ],
+    imports: [
+        EXPERIMENTS_ROUTING,
+        CommonModule,
+        GridModule,
+        TreeModule,
+        ExpanderModule
+    ],
     declarations: [
         BrowseExperimentsComponent,
         ViewExperimentComponent,
