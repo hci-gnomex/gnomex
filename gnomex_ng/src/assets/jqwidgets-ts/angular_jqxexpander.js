@@ -1,9 +1,11 @@
-"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 /*
 jQWidgets v4.5.4 (2017-June)
@@ -11,16 +13,16 @@ Copyright (c) 2011-2017 jQWidgets.
 License: http://jqwidgets.com/license/
 */
 /// <reference path="jqwidgets.d.ts" />
-var core_1 = require("@angular/core");
+import { Component, Input, Output, EventEmitter, ElementRef } from '@angular/core';
 var jqxExpanderComponent = (function () {
     function jqxExpanderComponent(containerElement) {
         this.autoCreate = true;
         this.properties = ['animationType', 'arrowPosition', 'collapseAnimationDuration', 'disabled', 'expanded', 'expandAnimationDuration', 'height', 'headerPosition', 'initContent', 'rtl', 'showArrow', 'theme', 'toggleMode', 'width'];
         // jqxExpanderComponent events
-        this.onCollapsing = new core_1.EventEmitter();
-        this.onCollapsed = new core_1.EventEmitter();
-        this.onExpanding = new core_1.EventEmitter();
-        this.onExpanded = new core_1.EventEmitter();
+        this.onCollapsing = new EventEmitter();
+        this.onCollapsed = new EventEmitter();
+        this.onExpanding = new EventEmitter();
+        this.onExpanded = new EventEmitter();
         this.elementRef = containerElement;
     }
     jqxExpanderComponent.prototype.ngOnInit = function () {
@@ -257,66 +259,87 @@ var jqxExpanderComponent = (function () {
     return jqxExpanderComponent;
 }()); //jqxExpanderComponent
 __decorate([
-    core_1.Input('animationType')
+    Input('animationType'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrAnimationType", void 0);
 __decorate([
-    core_1.Input('arrowPosition')
+    Input('arrowPosition'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrArrowPosition", void 0);
 __decorate([
-    core_1.Input('collapseAnimationDuration')
+    Input('collapseAnimationDuration'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrCollapseAnimationDuration", void 0);
 __decorate([
-    core_1.Input('disabled')
+    Input('disabled'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrDisabled", void 0);
 __decorate([
-    core_1.Input('expanded')
+    Input('expanded'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrExpanded", void 0);
 __decorate([
-    core_1.Input('expandAnimationDuration')
+    Input('expandAnimationDuration'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrExpandAnimationDuration", void 0);
 __decorate([
-    core_1.Input('headerPosition')
+    Input('headerPosition'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrHeaderPosition", void 0);
 __decorate([
-    core_1.Input('initContent')
+    Input('initContent'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrInitContent", void 0);
 __decorate([
-    core_1.Input('rtl')
+    Input('rtl'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrRtl", void 0);
 __decorate([
-    core_1.Input('showArrow')
+    Input('showArrow'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrShowArrow", void 0);
 __decorate([
-    core_1.Input('theme')
+    Input('theme'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrTheme", void 0);
 __decorate([
-    core_1.Input('toggleMode')
+    Input('toggleMode'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrToggleMode", void 0);
 __decorate([
-    core_1.Input('width')
+    Input('width'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrWidth", void 0);
 __decorate([
-    core_1.Input('height')
+    Input('height'),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "attrHeight", void 0);
 __decorate([
-    core_1.Input('auto-create')
+    Input('auto-create'),
+    __metadata("design:type", Boolean)
 ], jqxExpanderComponent.prototype, "autoCreate", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "onCollapsing", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "onCollapsed", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "onExpanding", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxExpanderComponent.prototype, "onExpanded", void 0);
 jqxExpanderComponent = __decorate([
-    core_1.Component({
+    Component({
         selector: 'jqxExpander',
         template: '<div><ng-content></ng-content></div>'
-    })
+    }),
+    __metadata("design:paramtypes", [ElementRef])
 ], jqxExpanderComponent);
-exports.jqxExpanderComponent = jqxExpanderComponent;
+export { jqxExpanderComponent };
+//# sourceMappingURL=angular_jqxexpander.js.map
