@@ -9,7 +9,7 @@ export let VIEW_EXPERIMENT_ENDPOINT: OpaqueToken = new OpaqueToken("view_experim
 @Injectable()
 export class ExperimentsService {
 
-	private experimentOrders: Observable<any>;
+	private experimentOrders: any[];
 
 	private haveLoadedExperimentOrders: boolean = false;
 
@@ -27,19 +27,18 @@ export class ExperimentsService {
 
 	getExperimentOrders(): Observable<any> {
 		if (this.haveLoadedExperimentOrders) {
-			return this.experimentOrders;
+			return Observable.of(this.experimentOrders);
 		} else {
 			this.haveLoadedExperimentOrders = true;
 
-			this.experimentOrders = this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true}).map((response: Response) => {
+			return this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true}).map((response: Response) => {
 				if (response.status === 200) {
+					this.experimentOrders = response.json().Request;
 					return response.json().Request;
 				} else {
 					throw new Error("Error");
 				}
 			});
-
-			return this.experimentOrders;
 		}
 	}
 
