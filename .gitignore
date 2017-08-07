@@ -15,3 +15,7 @@ dist/
 out/
 glsave/
 classes/
+
+node_modules/
+**.js
+**.js.map

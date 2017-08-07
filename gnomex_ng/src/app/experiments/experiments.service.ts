@@ -10,7 +10,7 @@ export class ExperimentsService {
 
     constructor(private _http: Http, @Inject(BROWSE_EXPERIMENTS_ENDPOINT) private _browseExperimentsUrl: string) {}
     getExperiments() {
-        return this._http.get("/gnomex/GetProjectRequestList.gx?idLab=1500", {withCredentials: true}).map((response: Response) => {
+        return this._http.get("/gnomex/GetProjectRequestList.gx?idLab=1302", {withCredentials: true}).map((response: Response) => {
             if (response.status === 200) {
                 return response.json().Lab;
             } else {

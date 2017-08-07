@@ -1,0 +1,65 @@
+<button *ngIf="!isGuestState" (click)="toggleAdminState()">Switch Admin and User Modes</button>
+<button (click)="toggleGuestState()">Switch Normal and Guest Modes</button>
+<div class="filter" *ngIf="isAdminState && !isGuestState">
+    <label>Experiments</label>
+    <input [(ngModel)]="allFlag" id="allCheckbox" type="checkbox">
+    <label for="allCheckbox">All</label>
+    <label>Group</label>
+    <jqxComboBox class="inlineComboBox" [width]="200" [height]="25" [placeHolder]="'Select a lab...'"
+                 [source]="labList" [displayMember]="'name'" [valueMember]="'idLab'"
+                 (onSelect)="onLabSelect($event)" (onUnselect)="onLabUnselect($event)">
+    </jqxComboBox>
+    <label>Owner/Submitter</label>
+    <jqxComboBox class="inlineComboBox" [width]="200" [height]="25" [placeHolder]="'Select an Owner...'"
+                 [source]="ownerList" [displayMember]="'displayName'" [valueMember]="'idAppUser'"
+                 (onSelect)="onOwnerSelect($event)" (onUnselect)="onOwnerUnselect($event)">
+    </jqxComboBox>
+    <jqxCalendar class="inlineCalendar" [width]="220" [height]="220"
+                 [selectionMode]="'range'" [value]="value"
+                 (onChange)="onCalendarChange($event)">
+    </jqxCalendar>
+    <date-range-picker-custom></date-range-picker-custom>
+    <button *ngIf="!showMore" class="showHideButton" (click)="toggleShowMore()">More...</button>
+    <button (click)="find()">Find</button>
+</div>
+<div class="filter" *ngIf="!isAdminState && !isGuestState">
+    <label>Experiments</label>
+    <input [(ngModel)]="radioString" id="myExperimentsRadio" value="myExperiments" type="radio" name="radioFilter">
+    <label for="myExperimentsRadio">My experiments</label>
+    <input [(ngModel)]="radioString" id="myLabRadio" value="myLab" type="radio" name="radioFilter">
+    <label for="myLabRadio">My lab</label>
+    <input [(ngModel)]="radioString" id="myCollaborationsRadio" value="myCollaborations" type="radio" name="radioFilter">
+    <label for="myCollaborationsRadio">My collaborations</label>
+    <input [(ngModel)]="radioString" id="publicDataRadio" value="publicData" type="radio" name="radioFilter">
+    <label for="publicDataRadio">Public data</label>
+    <input [(ngModel)]="radioString" id="allRadio" value="all" type="radio" name="radioFilter">
+    <label for="allRadio">All</label>
+    <button *ngIf="!showMore" class="showHideButton" (click)="toggleShowMore()">More...</button>
+    <button (click)="find()">Find</button>
+</div>
+<div class="filter" *ngIf="isGuestState">
+    <label>Experiments</label>
+    <button (click)="find()">Find</button>
+</div>
+<div *ngIf="showMore && !isGuestState">
+    <input [(ngModel)]="externalExperimentsFlag" id="externalExperimentsCheckbox" type="checkbox">
+    <label for="externalExperimentsCheckbox">External Experiments</label>
+    <label for="ccNumberInput">CC Number</label>
+    <input [(ngModel)]="ccNumberString" id="ccNumberInput" type="text">
+    <button class="showHideButton" (click)="toggleShowMore()">Less...</button>
+</div>
+<div>
+    <input [(ngModel)]="showEmptyFoldersFlag" id="showEmptyFoldersCheckbox" type="checkbox">
+    <label for="showEmptyFoldersCheckbox">Show Empty Folders</label>
+</div>
+<div>
+    <label>CC Number: {{ccNumberString}}</label><br>
+    <label>All: {{allFlag}}</label><br>
+    <label>Show Empty Folders: {{showEmptyFoldersFlag}}</label><br>
+    <label>External Experiments: {{externalExperimentsFlag}}</label><br>
+    <label>Radio Option: {{radioString}}</label><br>
+    <label>Selected idLab: {{idLabString}}</label><br>
+    <label>Selected idAppUser: {{idAppUserString}}</label><br>
+    <label>Create Date From: {{createDateFromString}}</label><br>
+    <label>Create Date To: {{createDateToString}}</label>
+</div>
