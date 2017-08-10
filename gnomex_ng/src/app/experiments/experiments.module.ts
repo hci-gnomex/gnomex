@@ -11,7 +11,9 @@ import { ExpanderModule } from '../../modules/expander.module';
 
 
 import { GridModule } from "hci-ng-grid/index";
+import { jqxGridComponent } from "../../assets/jqwidgets-ts/angular_jqxgrid";
 import {ExperimentOrdersComponent} from "./experiment-orders.component";
+import {FormsModule} from "@angular/forms";
 
 /**
  * @author mbyrne
@@ -23,12 +25,14 @@ import {ExperimentOrdersComponent} from "./experiment-orders.component";
         CommonModule,
         GridModule,
         TreeModule,
-        ExpanderModule
+        ExpanderModule,
+        FormsModule
     ],
     declarations: [
         BrowseExperimentsComponent,
         ViewExperimentComponent,
-        ExperimentOrdersComponent
+        ExperimentOrdersComponent,
+        jqxGridComponent
     ]
 })
 export class ExperimentsModule {

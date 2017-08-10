@@ -1,7 +1,6 @@
 import {Inject, Injectable, OpaqueToken} from "@angular/core";
-import {Http, Response} from "@angular/http";
+import {Http, Response, URLSearchParams} from "@angular/http";
 import {Observable} from "rxjs/Observable";
-import {Subject} from "rxjs/Subject";
 
 export let BROWSE_EXPERIMENTS_ENDPOINT: OpaqueToken = new OpaqueToken("browse_experiments_url");
 export let VIEW_EXPERIMENT_ENDPOINT: OpaqueToken = new OpaqueToken("view_experiment_url");
@@ -12,6 +11,7 @@ export class ExperimentsService {
 	private experimentOrders: any[];
 
 	private haveLoadedExperimentOrders: boolean = false;
+	private previousURLParams: URLSearchParams = null;
 
 	constructor(private _http: Http, @Inject(BROWSE_EXPERIMENTS_ENDPOINT) private _browseExperimentsUrl: string) { }
 
@@ -25,13 +25,14 @@ export class ExperimentsService {
 		});
 	}
 
-	getExperimentOrders(): Observable<any> {
-		if (this.haveLoadedExperimentOrders) {
+	getExperimentOrders(params: URLSearchParams): Observable<any> {
+		if (this.haveLoadedExperimentOrders && this.previousURLParams === params) {
 			return Observable.of(this.experimentOrders);
 		} else {
 			this.haveLoadedExperimentOrders = true;
+			this.previousURLParams = params;
 
-			return this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true}).map((response: Response) => {
+			return this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true, search: params}).map((response: Response) => {
 				if (response.status === 200) {
 					this.experimentOrders = response.json().Request;
 					return response.json().Request;
