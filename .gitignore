@@ -1,6 +1,7 @@
 #eclipse
 .classpath
 .project
+.settings
 
 #IntelliJ
 .idea/
@@ -15,3 +16,5 @@ dist/
 out/
 glsave/
 classes/
+/build-eclipse/
+/node_modules/
