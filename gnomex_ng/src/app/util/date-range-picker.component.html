@@ -1,0 +1,9 @@
+<button *ngIf="!showCalendar" (click)="toggleShowCalendar()">Filter by date</button>
+<div *ngIf="showCalendar" class="inlineDiv">
+    <button (click)="toggleShowCalendar()">Close</button>
+    <jqxCalendar #calendar [width]="200" [height]="200"
+                 [selectionMode]="'range'" [value]="value"
+                 (onChange)="onCalendarChange($event)">
+    </jqxCalendar>
+    <button (click)="clear()">Clear</button>
+</div>

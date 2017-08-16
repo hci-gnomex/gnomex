@@ -8,16 +8,18 @@ import {BrowseExperimentsComponent} from "./browse-experiments.component";
 import {ViewExperimentComponent} from "./view-experiment.component";
 import { TreeModule } from '../../modules/tree.module';
 import { ExpanderModule } from '../../modules/expander.module';
+import {UtilModule} from "../util/util.module";
 
 
 import { GridModule } from "hci-ng-grid/index";
+import {ServicesModule} from "../services/services.module";
 
 /**
  * @author mbyrne
  * @since 12/19/16
  */
 @NgModule({
-    imports: [ EXPERIMENTS_ROUTING, CommonModule, GridModule, TreeModule, ExpanderModule],
+    imports: [ EXPERIMENTS_ROUTING, CommonModule, GridModule, TreeModule, ExpanderModule, UtilModule, ServicesModule],
     declarations: [ BrowseExperimentsComponent, ViewExperimentComponent ]
 })
 export class ExperimentsModule {
