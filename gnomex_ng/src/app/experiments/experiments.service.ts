@@ -1,5 +1,5 @@
 import {Inject, Injectable, OpaqueToken} from "@angular/core";
-import {Http, Response} from "@angular/http";
+import {Http, Response, URLSearchParams} from "@angular/http";
 import {Observable} from "rxjs/Observable";
 
 export let BROWSE_EXPERIMENTS_ENDPOINT: OpaqueToken = new OpaqueToken("browse_experiments_url");
@@ -29,5 +29,14 @@ export class ExperimentsService {
         });
     }
 
+    getProjectRequestList(params: URLSearchParams): Observable<any> {
+        return this._http.get("/gnomex/GetProjectRequestList.gx", {search: params}).map((response: Response) => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                throw new Error("Error");
+            }
+        });
+    }
 
 }

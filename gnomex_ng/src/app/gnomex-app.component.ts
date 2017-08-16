@@ -11,6 +11,7 @@ import {AppFooterComponent} from "@hci/app-footer";
 import { Observable } from "rxjs/Observable";
 import 'rxjs/operator/finally';
 import {promise} from "selenium-webdriver";
+import {CreateSecurityAdvisorService} from "./services/create-security-advisor.service";
 
 /**
  * The gnomex application component.
@@ -37,6 +38,7 @@ export class GnomexAppComponent implements OnInit {
     private _primaryNavEnabled: Observable<boolean>;
 
     constructor(private userService: UserService,
+                private createSecurityAdvisorService: CreateSecurityAdvisorService,
                 private router: Router,
                 private http: Http) {
     }
@@ -51,12 +53,11 @@ export class GnomexAppComponent implements OnInit {
             console.log("GnomexAppComponent onLogin");
             this._primaryNavEnabled = Observable.of(true);
             this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
-            this.createSecurityAdvisor().subscribe(response => {
+            this.createSecurityAdvisorService.createSecurityAdvisor().subscribe(response => {
                 console.log("subscribe createSecurityAdvisor");
                 isDone = true;
                 console.log(response);
             });
-
         }});
 
         this.userService.addLogoutCallback({onLogout: () => {
@@ -65,24 +66,6 @@ export class GnomexAppComponent implements OnInit {
         }});
 
 
-    }
-
-    createSecurityAdvisor(): Observable<any> {
-        console.log("createSecurityAdvisor");
-        return this.http.get("/gnomex/CreateSecurityAdvisor.gx", {withCredentials: true}).map((response: Response) => {
-            console.log("return createSecurityAdvisor");
-            if (response.status === 200) {
-                return response.json();
-            } else {
-                throw new Error("Error");
-            }
-        }).flatMap(() => this.http.get("/gnomex/ManageDictionaries.gx?action=load", {withCredentials: true}).map((response: Response) => {
-            console.log("return getDictionaries");
-        }));
-        // this.getDictionaries().subscribe((response: Array<Object>) => {
-        //   console.log("subscribe createDictionaries");
-        //   console.log(response);
-        // }));
     }
 
     searchFn(): (keywords: string) => void {
