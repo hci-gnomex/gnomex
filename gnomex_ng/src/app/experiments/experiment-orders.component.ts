@@ -13,32 +13,54 @@ import {NgModel} from "@angular/forms"
 	template: `
       <div class="background">
           <div class="filter-bar">
-              <div class="title">Orders</div>
-              <div class="radiogroup">
-                  <input id="newRadioButton" value="new" type="radio" name="radioFilter"
-                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                  <label for="newRadioButton">New</label>
-                  <input id="submittedRadioButton" value="submitted" type="radio" name="radioFilter"
-                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                  <label for="submittedRadioButton">Submitted</label>
-                  <input id="processingRadioButton" value="processing" type="radio"
-                         name="radioFilter" (change)="onRadioButtonClick()"
-                         [(ngModel)]="radioString_workflowState">
-                  <label for="processingRadioButton">Processing</label>
-                  <input id="completeRadioButton" value="complete" type="radio" name="radioFilter"
-                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                  <label for="completeRadioButton">Complete</label>
-                  <input id="FailedRadioButton" value="failed" type="radio" name="radioFilter"
-                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                  <label for="FailedRadioButton">Failed</label>
-              </div>
-              <span class="menu-spacer"></span>
-              <div>
-                  <input id="redosCheckbox" name="redos" type="checkbox" (change)="rebuildFilter()"
-                         [(ngModel)]="redosEnabled"/>
-                  <label for="redosCheckbox">Redos</label>
-              </div>
-              <span class="menu-spacer"></span>
+							<table>
+									<tr>
+											<td class="title">Orders</td>
+                      <td>
+                          <div class="vertical-aligned radioGroup">
+															<div>
+																	<input id="newRadioButton" value="new" type="radio" name="radioFilter"
+																				 (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
+																	<label for="newRadioButton">New</label>
+															</div>
+															<div>
+																	<input id="submittedRadioButton" value="submitted" type="radio" name="radioFilter"
+																				 (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
+																	<label for="submittedRadioButton">Submitted</label>
+															</div>
+															<div>
+																	<input id="processingRadioButton" value="processing" type="radio"
+																				 name="radioFilter" (change)="onRadioButtonClick()"
+																				 [(ngModel)]="radioString_workflowState">
+																	<label for="processingRadioButton">Processing</label>
+															</div>
+															<div>
+																	<input id="completeRadioButton" value="complete" type="radio" name="radioFilter"
+																				 (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
+																	<label for="completeRadioButton">Complete</label>
+															</div>
+															<div>
+																	<input id="FailedRadioButton" value="failed" type="radio" name="radioFilter"
+																				 (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
+																	<label for="FailedRadioButton">Failed</label>
+															</div>
+                          </div>
+                      </td>
+                      <td>
+													<span class="menu-spacer"></span>
+                      </td>
+                      <td>
+													<div class="vertical-aligned">
+															<input id="redosCheckbox" name="redos" type="checkbox" (change)="rebuildFilter()"
+																		 [(ngModel)]="redosEnabled"/>
+															<label style="margin-left: 0.3rem" for="redosCheckbox">Redos</label>
+													</div>
+                      </td>
+                      <td>
+													<span class="menu-spacer"></span>
+                      </td>
+                  </tr>
+              </table>
           </div>
           <!--<div>-->
           <!--<h5>radioString_workflowState value :</h5>-->
@@ -46,41 +68,58 @@ import {NgModel} from "@angular/forms"
           <!--<h5>redosEnabled value :</h5>-->
           <!--<p>{{redosEnabled}}</p>-->
           <!--</div>-->
-          <div class="grid-container">
-							<jqxGrid 
-											[width]="'100%'"
-											[height]="'100%'"
-											[source]="dataAdapter"
-											[pageable]="false"
-											[autoheight]="false"
-											[editable]="true"
-											[sortable]="true"
-											[columns]="columns"
-											[selectionmode]='"multiplecellsadvanced"'
-											#gridReference>
-							</jqxGrid>
+          <div class="lower-panel">
+							<div class="grid-container">
+									<jqxGrid 
+													[width]="'100%'"
+													[height]="'100%'"
+													[source]="dataAdapter"
+													[pageable]="false"
+													[autoheight]="false"
+													[editable]="true"
+													[sortable]="true"
+													[columns]="columns"
+													[selectionmode]='"multiplecellsadvanced"'
+													#gridReference>
+									</jqxGrid>
+              </div>
+							
+							<table class="status-change-control">
+									<tr style="width: 100%">
+											<td style="vertical-align: middle">
+													<table>
+															<tr>
+																	<td>
+                                      <div class="title">{{numberSelected}} selected</div>
+																	</td>
+                                  <td>
+                                      <jqxDropDownList></jqxDropDownList>
+                                  </td>
+                                  <td>
+                                      <button>
+                                          <a>Go</a>
+                                      </button>
+                                  </td>
+                                  <td>
+                                      <button>
+                                          <a>Delete</a>
+                                      </button>
+                                  </td>
+                                  <td>
+                                      <button>
+                                          <a>Email</a>
+                                      </button>
+                                  </td>
+															</tr>
+													</table>
+											</td>
+                      <td style="text-align: right">
+                          <div>({{rows}} orders)</div>
+											</td>
+									</tr>
+							</table>
+							
           </div>
-          <div class="status-change-control">
-							<div class="label">{{numberSelected}} selected</div>
-							<div>
-									<jqxDropDownList></jqxDropDownList>
-              </div>
-							<div>
-									<button>
-											<a>Go</a>
-									</button>
-              </div>
-							<div>
-									<button>
-											<a>Delete</a>
-									</button>
-              </div>
-          		<div>
-									<button>
-											<a>Email</a>
-									</button>
-              </div>
-					</div>
       </div>
 	`,
 	styles: [`
@@ -91,71 +130,64 @@ import {NgModel} from "@angular/forms"
           padding: 0.3em;
           border-radius: 0.3em;
           border: 1px solid darkgrey;
+					position: relative;
 					display: flex;
 					flex-direction: column;
       }
 
       div.filter-bar {
           width: 100%;
-          overflow: hidden;
           vertical-align: center;
           border: 1px solid darkgrey;
           background-color: white;
-          padding-left: 0.8em;
+					padding: 0.3em 0.8em;
           margin-bottom: 0.3em;
-      }
-
-      div.filter-bar div {
-          float: left;
-          vertical-align: center;
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
-      }
-
-      div.filter-bar span {
-          float: left;
-          vertical-align: center;
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
       }
 
       div.filter-bar label {
           margin-bottom: 0;
       }
 			
+			div.vertical-aligned {
+					display: table;
+			}
+			
+			div.vertical-aligned div {
+					display: table-cell;
+					vertical-align: middle;
+			}
+			
+      div.vertical-aligned button {
+					margin-left: 0.7rem;
+			}
+			
+      div.vertical-aligned input {
+          display: table-cell;
+          vertical-align: middle;
+      }
+			
+			div.radioGroup input {
+					margin-left: 0.7rem;
+			}
+			
       div.status-change-control {
-          width: 100%;
-          overflow: hidden;
-          vertical-align: center;
-          border: 1px solid darkgrey;
+					float: left;
           background-color: white;
-          padding-left: 0.8em;
           margin-top: 0.3em;
 					bottom: 0;
       }
-			
+
       div.status-change-control div {
-          float: left;
-          vertical-align: center;
-					margin-left: 1.0rem;
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
-      }
-			
-      div.status-change-control span {
-          float: left;
-          vertical-align: center;
-          margin-top: 0.5rem;
-          margin-bottom: 0.5rem;
+          margin-left: 0.7rem;
       }
 
-      div.status-change-control label {
-          margin-bottom: 0;
+      td {
+          font-size: small;
       }
-      
-			div.title {
-          font-size: large;
-          width: 16%;
+			
+			.title {
+          font-size: medium;
+          width: 12em;
       }
 
       div.radiogroup input {
@@ -164,23 +196,45 @@ import {NgModel} from "@angular/forms"
 
       span.menu-spacer {
           display: block;
+					float: left;
           width: 2px;
           height: 1.5em;
           background: lightgrey;
-          margin-left: 1.5em;
-          margin-right: 1.5em;
+          margin-left: 0.7rem;
+          margin-right: 0.7rem;
       }
 
-      div.grid-container {
+      div.lower-panel{
           width: 100%;
-          flex:1;
           border: 1px solid darkgrey;
           background-color: white;
           padding: 0.3em;
+					flex: 1;
+					display: flex;
+					flex-direction: column;
       }
-			
-			button a {
+
+      div.grid-container {
+					flex: 1;
+          margin-bottom: 0.4em;
+			}
+
+      button a {
 					font-size: small;
+			}
+			
+			div.container {
+					display: block;
+					background: white;
+					overflow: hidden;
+			}
+      
+			.jqx-grid-cell-alt {
+					background-color: #EEEEEE;
+			}
+
+      table.status-change-control {
+					width: 100%;
 			}
 	`]
 })
@@ -217,7 +271,7 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 	private redosEnabled: boolean = false;
 
 	private numberSelected: number = 0;
-
+	private rows: number = 0;
 
 	constructor(private experimentsService: ExperimentsService) {
 	}
