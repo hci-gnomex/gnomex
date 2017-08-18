@@ -14,8 +14,7 @@ import {LabUsersComponent} from "./getLabUsers.component";
  */
 const ROUTES: Routes = [
     { path: "experiments", component: BrowseExperimentsComponent },
-    { path: "experiments/:id", component:ViewExperimentComponent},
-    { path: "labusers/:id", component:LabUsersComponent}
+    { path: "experiments/:id", component:ViewExperimentComponent}
 ];
 
 export const EXPERIMENTS_ROUTING = RouterModule.forChild(ROUTES);
