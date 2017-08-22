@@ -10,6 +10,7 @@ import {Component} from "@angular/core";
 })
 export class HomeComponent {
   constructor() {
+    // sdfjasdfkjasd
     // Do instance configuration here
 
   }
