@@ -58,7 +58,6 @@ public class UserSessionResource {
     }
 
     UsernamePasswordToken token = new UsernamePasswordToken(userSessionDTO.getUsername(), userSessionDTO.getPassword());
-    token.setRememberMe(true);
 
     try {
       SecurityUtils.getSubject().login(token);
@@ -89,32 +88,6 @@ public class UserSessionResource {
     }
 
     return Response.status(Response.Status.NO_CONTENT).build();
-  }
-
-  /**
-   * An end point to retrieve the active user session. This request currently returns no data about the session itself
-   * and only serves to declare that an active session exists.
-   *
-   * @return a {@code Response} describing the result of this request. Expected response codes:
-   * <ul>
-   * <li>204 if an active user session exists.</li>
-   * <li>404 if the active user session does not exist.</li>
-   * </ul>
-   */
-  @GET
-  @Path("/active")
-  public Response getActiveUserSession() {
-    if (getSubject().isAuthenticated()) {
-      return Response.status(Response.Status.NO_CONTENT).build();
-    } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-  }
-  
-  @GET
-  @Path("/test")
-  public Response testRest() {
-    return Response.status(Response.Status.OK).build();
   }
 
   private Subject getSubject() {

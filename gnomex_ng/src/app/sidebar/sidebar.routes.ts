@@ -4,7 +4,7 @@ import { SidebarDemoComponent } from "./sidebar-demo.component";
 import { SidebarContent1Component } from "./sidebar-content1.component";
 import { SidebarContent2Component } from "./sidebar-content2.component";
 import { SidebarContent3Component } from "./sidebar-content3.component";
-import {RouteGuardService} from "@hci/user";
+import {RouteGuardService} from "@hci/authentication";
 
 const ROUTES: Routes = [{
   path: "", component: SidebarDemoComponent, canActivate: [RouteGuardService],

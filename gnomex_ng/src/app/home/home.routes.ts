@@ -3,7 +3,7 @@
  */
 import {Routes, RouterModule} from "@angular/router";
 import {HomeComponent} from "./home.component";
-import {RouteGuardService} from "@hci/user";
+import {RouteGuardService} from "@hci/authentication";
 
 /**
  * A file defining and exporting the router configuration for the home module.

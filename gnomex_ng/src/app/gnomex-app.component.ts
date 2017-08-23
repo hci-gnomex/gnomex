@@ -5,10 +5,11 @@ import {Component, ViewChild, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
 import {Http, Response} from "@angular/http";
 import {UserService} from "@hci/user";
+import {AuthenticationService} from "@hci/authentication";
 import {AppHeaderComponent} from "@hci/app-header";
 import {NavigationAction, NavigationItem, PrimaryNavigationItem, PrimaryNavigationItemGroup} from "@hci/navigation";
 import {AppFooterComponent} from "@hci/app-footer";
-import { Observable } from "rxjs/Observable";
+import {Observable} from "rxjs/Observable";
 import 'rxjs/operator/finally';
 import {promise} from "selenium-webdriver";
 
@@ -37,6 +38,7 @@ export class GnomexAppComponent implements OnInit {
     private _primaryNavEnabled: Observable<boolean>;
 
     constructor(private userService: UserService,
+                private authenticationService: AuthenticationService,
                 private router: Router,
                 private http: Http) {
     }
@@ -47,24 +49,15 @@ export class GnomexAppComponent implements OnInit {
         this.setupHeaderComponent();
         this.setupFooterComponent();
 
-        this.userService.addLoginCallback({onLogin: () => {
-            console.log("GnomexAppComponent onLogin");
-            this._primaryNavEnabled = Observable.of(true);
-            this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
+        this.authenticationService.isAuthenticated().subscribe((authenticated: boolean) => {
+          if (authenticated) {
             this.createSecurityAdvisor().subscribe(response => {
                 console.log("subscribe createSecurityAdvisor");
                 isDone = true;
                 console.log(response);
             });
-
-        }});
-
-        this.userService.addLogoutCallback({onLogout: () => {
-            this._primaryNavEnabled = Observable.of(false);
-            this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
-        }});
-
-
+          }
+        });
     }
 
     createSecurityAdvisor(): Observable<any> {
@@ -272,9 +265,7 @@ export class GnomexAppComponent implements OnInit {
             {
                 name: "Logout",
                 action: () => {
-                    if (this.userService.logout()) {
-                        this.router.navigate(["/login"]);
-                    }
+                  this.authenticationService.logout();
                 }
             })];
 

@@ -16,11 +16,11 @@
     <param-name>public-paths</param-name>
     <param-value>/api/user-session*</param-value>
   </context-param>
-
+"src/main/webapp/WEB-INF/shiro.ini"
 	<context-param>
 		<param-name>html5-push-state-filter-target</param-name>
 		<param-value>/index.html</param-value>
-	</context-param>
+	</context-param>"src/main/webapp/WEB-INF/shiro.ini"
 
 	<context-param>
 		<param-name>html5-push-state-filter-pass-through-patterns</param-name>
@@ -653,14 +653,15 @@
   </filter-mapping>
 
 	<!-- Session timeout set to 4 hours -->
-	<session-config>
-		<session-timeout>240</session-timeout>
-    <cookie-config>
-      <path>/</path>
-      <secure/>
-    </cookie-config>
-    <tracking-mode>COOKIE</tracking-mode>
-	</session-config>
+   	<session-config>
+			<session-timeout>240</session-timeout>
+			<cookie-config>
+				<path>/gnomex</path>
+				<secure>false</secure>
+				<http-only>true</http-only>
+			</cookie-config>
+			<tracking-mode>COOKIE</tracking-mode>
+		</session-config>
 
 
 	<welcome-file-list>

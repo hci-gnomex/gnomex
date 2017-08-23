@@ -15,9 +15,13 @@ import {RouterModule} from "@angular/router";
 import {FormsModule} from "@angular/forms";
 import {DropdownModule, CollapseModule} from "ng2-bootstrap";
 import {
-  LOGOUT_PATH, LOGIN_PATH, SERVER_URL, LOGIN_ROUTE, DEFAULT_SUCCESS_URL,
-  USER_SESSION_ENDPOINT, AUTHENTICATED_USER_ENDPOINT, ACTIVE_SESSION_ENDPOINT, UserModule, UserService
+  AUTHENTICATED_USER_ENDPOINT, UserModule, UserService
 } from "@hci/user";
+import {
+  AuthenticationModule, AuthenticationService,
+  AUTHENTICATION_LOGOUT_PATH, AUTHENTICATION_ROUTE,
+  AUTHENTICATION_TOKEN_KEY, AUTHENTICATION_TOKEN_ENDPOINT, AUTHENTICATION_DIRECT_ENDPOINT
+} from "@hci/authentication";
 import {AppHeaderModule} from "@hci/app-header";
 import {NavigationModule} from "@hci/navigation";
 import {LocalStorageModule, LocalStorageService, ILocalStorageServiceConfig} from "angular-2-local-storage";
@@ -31,8 +35,7 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
 };
 
 /**
- * @author brandony <brandon.youkstetter@hci.utah.edu>
- * @since 8/25/16
+ * @since 1.0.0
  */
 @NgModule({
   imports: [
@@ -46,6 +49,7 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
     CollapseModule.forRoot(),
     AppHeaderModule,
     UserModule,
+    AuthenticationModule,
     NavigationModule,
     AppFooterModule,
     ExperimentsModule,
@@ -57,14 +61,13 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
     {provide: BROWSE_EXPERIMENTS_ENDPOINT, useValue: "/gnomex/GetExperimentOverviewList.gx"},
     {provide: VIEW_EXPERIMENT_ENDPOINT, useValue: "/gnomex/GetRequest.gx"},
     {provide: AUTHENTICATED_USER_ENDPOINT, useValue: "/gnomex/api/user/authenticated"},
-    {provide: DEFAULT_SUCCESS_URL, useValue: ""},
-    {provide: USER_SESSION_ENDPOINT, useValue: "/gnomex/api/user-session"},
-    {provide: ACTIVE_SESSION_ENDPOINT, useValue: "/gnomex/api/user-session/active"},
-    {provide: SERVER_URL, useValue: null},
-    {provide: LOGIN_PATH, useValue: null},
-    {provide: LOGOUT_PATH, useValue: null},
-    {provide: LOGIN_ROUTE, useValue: "/login"},
+    {provide: AUTHENTICATION_DIRECT_ENDPOINT, useValue: "/gnomex/api/user-session"},
+    {provide: AUTHENTICATION_TOKEN_ENDPOINT, useValue: "/gnomex/api/token"},
+    {provide: AUTHENTICATION_LOGOUT_PATH, useValue: "/gnomex/logout"},
+    {provide: AUTHENTICATION_ROUTE, useValue: "/authenticate"},
+    {provide: AUTHENTICATION_TOKEN_KEY, useValue: "gnomex-jwt"},
     UserService,
+    AuthenticationService,
     ExperimentsService,
     LocalStorageService,
     {provide: APP_INFO_SOURCE, useValue: "data/appInfo.json"}
