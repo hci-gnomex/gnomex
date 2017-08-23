@@ -16,11 +16,11 @@
     <param-name>public-paths</param-name>
     <param-value>/api/user-session*</param-value>
   </context-param>
-"src/main/webapp/WEB-INF/shiro.ini"
+
 	<context-param>
 		<param-name>html5-push-state-filter-target</param-name>
 		<param-value>/index.html</param-value>
-	</context-param>"src/main/webapp/WEB-INF/shiro.ini"
+	</context-param>
 
 	<context-param>
 		<param-name>html5-push-state-filter-pass-through-patterns</param-name>
