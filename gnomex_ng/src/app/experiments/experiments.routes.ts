@@ -4,7 +4,7 @@
 import { Routes, RouterModule } from "@angular/router";
 import { BrowseExperimentsComponent } from "./browse-experiments.component";
 import { ViewExperimentComponent } from "./view-experiment.component";
-import { ExperimentOrdersComponent } from "./experiment-orders.component";
+import { ExperimentOrdersComponent } from "./orders/experiment-orders.component";
 
 /**
  * A file defining and exporting the router configuration for the experiments module.

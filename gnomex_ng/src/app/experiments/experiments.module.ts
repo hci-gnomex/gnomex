@@ -12,8 +12,8 @@ import { ExpanderModule } from '../../modules/expander.module';
 
 import { GridModule } from "hci-ng-grid/index";
 import { jqxGridComponent } from "../../assets/jqwidgets-ts/angular_jqxgrid";
-import { jqxDropDownListComponent } from "../../assets/jqwidgets-ts/angular_jqxdropdownlist";
-import {ExperimentOrdersComponent} from "./experiment-orders.component";
+import { jqxComboBoxComponent } from "../../assets/jqwidgets-ts/angular_jqxcombobox";
+import { ExperimentOrdersComponent } from "./orders/experiment-orders.component";
 import {FormsModule} from "@angular/forms";
 
 /**
@@ -34,7 +34,7 @@ import {FormsModule} from "@angular/forms";
         ViewExperimentComponent,
         ExperimentOrdersComponent,
         jqxGridComponent,
-        jqxDropDownListComponent
+        jqxComboBoxComponent
     ]
 })
 export class ExperimentsModule {
