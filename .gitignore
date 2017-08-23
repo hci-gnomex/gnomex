@@ -18,3 +18,5 @@ glsave/
 classes/
 /build-eclipse/
 /node_modules/
+**.map
+**.js

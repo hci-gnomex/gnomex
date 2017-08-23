@@ -6,13 +6,14 @@ import {BrowserModule} from "@angular/platform-browser";
 import {NgModule} from "@angular/core";
 
 import {APP_ROUTING} from "./gnomex-app.routes";
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {HttpModule} from "@angular/http";
 import {HomeModule} from "./home/home.module";
 import {BROWSE_EXPERIMENTS_ENDPOINT, VIEW_EXPERIMENT_ENDPOINT} from "./experiments/experiments.service";
 import {ExperimentsService} from "./experiments/experiments.service";
 import {ExperimentsModule} from "./experiments/experiments.module";
 import {RouterModule} from "@angular/router";
-import {FormsModule} from "@angular/forms";
+import {FormsModule,ReactiveFormsModule} from "@angular/forms";
 import {UtilModule} from "./util/util.module";
 import {DropdownModule, CollapseModule} from "ng2-bootstrap";
 import {
@@ -43,6 +44,7 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
         HttpModule,
         RouterModule,
         FormsModule,
+        ReactiveFormsModule,
         HomeModule,
         UtilModule,
         DropdownModule.forRoot(),
