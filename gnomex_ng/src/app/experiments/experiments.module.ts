@@ -8,13 +8,13 @@ import {BrowseExperimentsComponent} from "./browse-experiments.component";
 import {ViewExperimentComponent} from "./view-experiment.component";
 import { TreeModule } from '../../modules/tree.module';
 import { ExpanderModule } from '../../modules/expander.module';
+import {UtilModule} from "../util/util.module";
 
-
-import { GridModule } from "hci-ng-grid/index";
 import { jqxGridComponent } from "../../assets/jqwidgets-ts/angular_jqxgrid";
 import { jqxComboBoxComponent } from "../../assets/jqwidgets-ts/angular_jqxcombobox";
 import { ExperimentOrdersComponent } from "./orders/experiment-orders.component";
 import {FormsModule} from "@angular/forms";
+import {ServicesModule} from "../services/services.module";
 
 /**
  * @author mbyrne
@@ -24,10 +24,11 @@ import {FormsModule} from "@angular/forms";
     imports: [
         EXPERIMENTS_ROUTING,
         CommonModule,
-        GridModule,
         TreeModule,
         ExpanderModule,
-        FormsModule
+        FormsModule,
+        UtilModule,
+        ServicesModule
     ],
     declarations: [
         BrowseExperimentsComponent,

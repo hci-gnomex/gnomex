@@ -63,5 +63,24 @@ export class ExperimentsService {
 		});
 	}
 
+    getProjectRequestList(params: URLSearchParams): Observable<any> {
+        return this._http.get("/gnomex/GetProjectRequestList.gx", {search: params}).map((response: Response) => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                throw new Error("Error");
+            }
+        });
+    }
+
+    getRequestList(params: URLSearchParams): Observable<any> {
+        return this._http.get("/gnomex/GetRequestList.gx", {search: params}).map((response: Response) => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                throw new Error("Error");
+            }
+        });
+    }
 
 }

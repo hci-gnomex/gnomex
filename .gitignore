@@ -1,6 +1,7 @@
 #eclipse
 .classpath
 .project
+.settings
 
 #IntelliJ
 .idea/
@@ -15,4 +16,5 @@ dist/
 out/
 glsave/
 classes/
-gnomex_ng/node_modules/
+/build-eclipse/
+/node_modules/

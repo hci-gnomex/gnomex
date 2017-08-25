@@ -1,0 +1,96 @@
+<div class="filter">
+    <div>
+        <div class="labelAndIcon" *ngIf="showLabelAndIcon">
+            <img src="{{iconSource}}" alt="{{iconAlt}}">
+            <label>{{label}}</label>
+        </div>
+        <div class="inlineDiv" *ngIf="showWorkflowStateRadioGroup">
+            <input [(ngModel)]="workflowStateString" id="newStateRadio" value="NEW" type="radio" name="workflowStateRadio">
+            <label for="newStateRadio">New</label>
+            <input [(ngModel)]="workflowStateString" id="submittedStateRadio" value="SUBMITTED" type="radio" name="workflowStateRadio">
+            <label for="submittedStateRadio">Submitted</label>
+            <input [(ngModel)]="workflowStateString" id="processingStateRadio" value="PROCESSING" type="radio" name="workflowStateRadio">
+            <label for="processingStateRadio">Processing</label>
+            <input [(ngModel)]="workflowStateString" id="completeStateRadio" value="COMPLETE" type="radio" name="workflowStateRadio">
+            <label for="completeStateRadio">Complete</label>
+            <input [(ngModel)]="workflowStateString" id="failedStateRadio" value="FAILED" type="radio" name="workflowStateRadio">
+            <label for="failedStateRadio">Failed</label>
+        </div>
+        <div class="divider" *ngIf="showWorkflowStateRadioGroup && showRedosCheckbox"></div>
+        <div class="inlineDiv" *ngIf="showRedosCheckbox">
+            <input [(ngModel)]="redosFlag" id="redosCheckbox" type="checkbox">
+            <label for="redosCheckbox">Redos</label>
+        </div>
+        <div class="divider" *ngIf="showRedosCheckbox && showDateRangePicker"></div>
+        <div class="inlineDiv" *ngIf="showExperimentsRadioGroup">
+            <input [(ngModel)]="experimentsRadioString" id="myExperimentsRadio" value="myExperiments" type="radio" name="radioFilter" (change)="onExperimentsRadioGroupChange()">
+            <label for="myExperimentsRadio">My experiments</label>
+            <input [(ngModel)]="experimentsRadioString" id="myLabRadio" value="myLab" type="radio" name="radioFilter" (change)="onExperimentsRadioGroupChange()">
+            <label for="myLabRadio">My lab</label>
+            <input [(ngModel)]="experimentsRadioString" id="myCollaborationsRadio" value="myCollaborations" type="radio" name="radioFilter" (change)="onExperimentsRadioGroupChange()">
+            <label for="myCollaborationsRadio">My collaborations</label>
+            <input [(ngModel)]="experimentsRadioString" id="publicDataRadio" value="publicData" type="radio" name="radioFilter" (change)="onExperimentsRadioGroupChange()">
+            <label for="publicDataRadio">Public data</label>
+            <input [(ngModel)]="experimentsRadioString" id="allRadio" value="all" type="radio" name="radioFilter" (change)="onExperimentsRadioGroupChange()">
+            <label for="allRadio">All</label>
+        </div>
+        <div class="inlineDiv" *ngIf="showAllCheckbox">
+            <input [(ngModel)]="allFlag" id="allCheckbox" type="checkbox">
+            <label for="allCheckbox">All</label>
+        </div>
+        <div class="inlineDiv" *ngIf="showLabComboBox">
+            <label>Group</label>
+            <jqxComboBox class="inlineComboBox" [width]="170" [height]="20" [placeHolder]="'Select a lab...'"
+                         [source]="labList" [displayMember]="'name'" [valueMember]="'idLab'"
+                         (onSelect)="onLabSelect($event)" (onUnselect)="onLabUnselect()">
+            </jqxComboBox>
+            <div class="inlineDiv" *ngIf="showLabComboBox && showOwnerComboBox && !(idLabString === '')">
+                <label>Owner/Submitter</label>
+                <jqxComboBox class="inlineComboBox" [width]="170" [height]="20" [placeHolder]="'Select an Owner...'"
+                             [source]="ownerList" [displayMember]="'displayName'" [valueMember]="'idAppUser'"
+                             (onSelect)="onAppUserSelect($event)" (onUnselect)="onAppUserUnselect()">
+                </jqxComboBox>
+            </div>
+        </div>
+        <date-range-picker-custom *ngIf="showDateRangePicker" [(from)]="dateFromString" [(to)]="dateToString"></date-range-picker-custom>
+        <div class="divider" *ngIf="showDateRangePicker && showOrderNumberInput"></div>
+        <div class="inlineDiv" *ngIf="showOrderNumberInput">
+            <label for="orderNumberInput">Order #</label>
+            <input class="filterTextInput" [(ngModel)]="orderNumberString" id="orderNumberInput">
+        </div>
+        <button *ngIf="showMoreSwitch && !showMore" class="showHideButton" (click)="toggleShowMore()"><img src="../../assets/arrow_down.gif" alt="">More...</button>
+        <button class="searchButton" (click)="search()"><img src="../../assets/magnifier.png" alt="">Search</button>
+    </div>
+    <div *ngIf="showMoreSwitch && showMore" class="indentedDiv">
+        <div class="inlineDiv" *ngIf="showExternalExperimentsCheckbox">
+            <input [(ngModel)]="externalExperimentsFlag" id="externalExperimentsCheckbox" type="checkbox">
+            <label for="externalExperimentsCheckbox">External Experiments</label>
+        </div>
+        <jqxComboBox *ngIf="showExperimentsRadioGroup && showLabMembersComboBox && experimentsRadioString == 'myLab'"
+                     class="inlineComboBox" [width]="170" [height]="20" [placeHolder]="'Filter by lab member...'"
+                     [source]="labMembersList" [displayMember]="'displayName'" [valueMember]="'idAppUser'"
+                     (onSelect)="onAppUserSelect($event)" (onUnselect)="onAppUserUnselect()">
+        </jqxComboBox>
+        <jqxComboBox *ngIf="showCoreFacilityComboBox"
+                     class="inlineComboBox" [width]="170" [height]="20" [placeHolder]="'Core facility...'"
+                     [source]="coreFacilityList" [displayMember]="'displayName'" [valueMember]="'idCoreFacility'"
+                     (onSelect)="onCoreFacilitySelect($event)" (onUnselect)="onCoreFacilityUnselect()">
+        </jqxComboBox>
+        <jqxComboBox *ngIf="showCoreFacilityComboBox && showRequestCategoryComboBox && !(idCoreFacilityString === '')"
+                     class="inlineComboBox" [width]="170" [height]="20" [placeHolder]="'Experiment type...'"
+                     [source]="requestCategoryList" [displayMember]="'displayName'" [valueMember]="'codeRequestCategory'"
+                     (onSelect)="onRequestCategorySelect($event)" (onUnselect)="onRequestCategoryUnselect()">
+        </jqxComboBox>
+        <div class="inlineDiv" *ngIf="showCCNumberInput">
+            <label for="ccNumberInput">CC Number</label>
+            <input class="filterTextInput" [(ngModel)]="ccNumberString" id="ccNumberInput">
+        </div>
+        <button class="showHideButton" (click)="toggleShowMore()"><img src="../../assets/arrow_up.gif" alt="">Less...</button>
+    </div>
+    <div class="indentedDiv" *ngIf="showEmptyFoldersCheckbox">
+        <div *ngIf="showEmptyFoldersCheckbox" class="inlineDiv">
+            <input [(ngModel)]="showEmptyFoldersFlag" id="showEmptyFoldersCheckbox" type="checkbox">
+            <label for="showEmptyFoldersCheckbox">Show Empty Folders</label>
+        </div>
+    </div>
+</div>
