@@ -1,3 +1,5 @@
 #npm
+**.js
+**.js.map
 package-lock.json
 /node_modules/

@@ -12,6 +12,8 @@ import {UtilModule} from "../util/util.module";
 
 import { ComboBoxModule } from "../../modules/combobox.module";
 
+import { GridModule } from "hci-ng-grid/index";
+import { jqxButtonComponent } from "../../assets/jqwidgets-ts/angular_jqxbuttons";
 import { jqxGridComponent } from "../../assets/jqwidgets-ts/angular_jqxgrid";
 import { ExperimentOrdersComponent } from "./orders/experiment-orders.component";
 import {FormsModule} from "@angular/forms";
@@ -36,7 +38,13 @@ import {ServicesModule} from "../services/services.module";
         BrowseExperimentsComponent,
         ViewExperimentComponent,
         ExperimentOrdersComponent,
+<<<<<<< Updated upstream
         jqxGridComponent
+=======
+        jqxButtonComponent,
+        jqxGridComponent,
+        jqxComboBoxComponent
+>>>>>>> Stashed changes
     ]
 })
 export class ExperimentsModule {

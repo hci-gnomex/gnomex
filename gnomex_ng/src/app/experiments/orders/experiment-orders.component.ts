@@ -3,6 +3,7 @@ import {Component, OnDestroy, OnInit} from "@angular/core";
 import {ExperimentsService} from "../experiments.service";
 import {Subscription} from "rxjs/Subscription";
 import {NgModel} from "@angular/forms"
+import {URLSearchParams} from "@angular/http";
 /**
  *
  * @author u0556399
@@ -86,7 +87,8 @@ import {NgModel} from "@angular/forms"
                                                   [sortable]="true"
                                                   [columns]="columns"
                                                   [altrows]="true"
-                                                  [selectionmode]='"multiplecellsadvanced"'
+                                                  [selectionmode]='"checkbox"'
+																									[columnsresize]="true"
                                                   #gridReference>
                                           </jqxGrid>
 																			</div>
@@ -107,9 +109,12 @@ import {NgModel} from "@angular/forms"
                                                                   <jqxComboBox></jqxComboBox>
                                                               </div>
                                                               <div class="td">
-                                                                  <button>
-                                                                      <a>Go</a>
-                                                                  </button>
+                                                                  <jqxButton 
+																																					[template]="'link'"
+																																					[imgSrc]="'assets/arrow_right.gif'"
+																																					[imgPosition]="'center'"
+																																					[textImageRelation]="'imageBeforeText'"
+																																					(onClick)="goButtonClicked">Go</jqxButton>
                                                               </div>
                                                               <div class="td">
                                                                   <button>
@@ -208,8 +213,12 @@ import {NgModel} from "@angular/forms"
       }
 			
       .jqx-grid-cell-alt {
-          background-color: #EEEEEE;
+          background-color: #cccccc;
       }
+			
+			.jqx-button:hover {
+					background-color: #0b97c4;
+			}
 			
       div.grid-footer {
 					display: block;
@@ -227,25 +236,45 @@ import {NgModel} from "@angular/forms"
 export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 
 	private orders: Array<any>;
+
+	private editViewRenderer = (row:number, column: any, value: any): any => {
+		return `<div style="display: inline-block; width: 100%; height:100%; text-align: center;">
+							<a style="padding: 0em 1em">Edit!</a>
+							<a style="padding: 0em 1em">View!</a>
+						</div>`;
+	};
+
 	private columns: any[] = [
-		{text: "Checkbox"},
-		{text: "Experiment Name", datafield: "name"},
-		{text: "Request Number", datafield: "requestNumber"},
-		{text: "Request Status", datafield: "codeRequestStatus"}
-	];
-	private columnGroups: any[] = [
-		{text: "Group 1", name: "Request Stuff"}
+		{ text: "# ", datafield: "requestNumber", width: "4%" },
+		{ text: "Name", datafield: "name", width: "14%" },
+		{ text: "Action", width: "9%", cellsrenderer: this.editViewRenderer },
+		{ text: "Samples", datafield: "numberOfSamples", width: "4%"},
+		{ text: "Status", datafield: "requestStatus", width: "6%" },
+		{ text: "Type", width: "8%" },
+		{ text: "Submitted on", datafield: "createDate", width: "10%" },
+		{ text: "Container", datafield: "container", width: "6%" },
+		{ text: "Submitter", datafield: "ownerName", width: "13%" },
+		{ text: "Lab", datafield: "labName" }
 	];
 
 	private source = {
 		datatype: "json",
 		localdata: [
-			{name: "Hello", requestNumber: "World", codeRequestStatus: "Good to see you!"}
+			{ name: "Hello",
+				requestNumber: "World",
+				requestStatus: "Good to see you!",
+				isSelected: "N"
+			}
 		],
 		datafields: [
-			{name: "name", type: "string"},
-			{name: "requestNumber", type: "string"},
-			{name: "codeRequestStatus", type: "string"}
+			{ name: "name", type: "string"},
+			{ name: "requestNumber", type: "string"},
+			{ name: "requestStatus", type: "string"},
+			{ name: "container", type: "string" },
+			{ name: "ownerName", type: "string" },
+			{ name: "labName", type: "string" },
+			{ name: "createDate", type: "string" },
+			{ name: "numberOfSamples", type: "string" }
 		]
 	};
 
@@ -258,6 +287,8 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 
 	private numberSelected: number = 0;
 
+	private params: URLSearchParams = null;
+
 	constructor(private experimentsService: ExperimentsService) {
 	}
 
@@ -267,8 +298,8 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 		this.subscription.unsubscribe();
 	}
 
-	rebuildFilter(): void {
-
+	goButtonClicked(): void {
+		alert("You clicked \"Go\"!");
 	}
 
 	updateGridData(data: Array<any>) {
@@ -277,7 +308,10 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.subscription = this.experimentsService.getExperimentOrders(null)
+		this.params = new URLSearchParams();
+		this.params.append("status", "SUBMITTED");
+
+		this.subscription = this.experimentsService.getExperimentOrders(this.params)
 				.subscribe((response) => {
 					this.orders = response;
 					this.updateGridData(response);
