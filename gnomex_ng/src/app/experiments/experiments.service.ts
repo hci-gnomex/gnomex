@@ -39,4 +39,14 @@ export class ExperimentsService {
         });
     }
 
+    getRequestList(params: URLSearchParams): Observable<any> {
+        return this._http.get("/gnomex/GetRequestList.gx", {search: params}).map((response: Response) => {
+            if (response.status === 200) {
+                return response.json();
+            } else {
+                throw new Error("Error");
+            }
+        });
+    }
+
 }

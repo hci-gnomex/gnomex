@@ -37,12 +37,12 @@ export class BrowseFilterComponent implements OnInit {
     private externalExperimentsFlag: boolean;
 
     private showCoreFacilityComboBox: boolean = false;
-    private coreFacilityList: any[];
+    private coreFacilityList: any[] = [];
     private idCoreFacilityString: string;
 
     private showRequestCategoryComboBox: boolean = false;
     private codeRequestCategoryString: string;
-    private requestCategoryList: any[];
+    private requestCategoryList: any[] = [];
 
     private showCCNumberInput: boolean = false;
     private ccNumberString: string;
@@ -50,13 +50,22 @@ export class BrowseFilterComponent implements OnInit {
     private showExperimentsRadioGroup: boolean = false;
     private experimentsRadioString: string;
 
+    private showWorkflowStateRadioGroup: boolean = false;
+    private workflowStateString: string;
+
+    private showRedosCheckbox: boolean = false;
+    private redosFlag: boolean;
+
+    private showOrderNumberInput: boolean = false;
+    private orderNumberString: string;
+
     private showLabComboBox: boolean = false;
-    private labList: any[];
+    private labList: any[] = [];
     private idLabString: string;
-    private ownerList: any[];
+    private ownerList: any[] = [];
     private showOwnerComboBox: boolean = false;
     private showLabMembersComboBox: boolean = false;
-    private labMembersList: any[];
+    private labMembersList: any[] = [];
     private idAppUserString: string;
 
     private showEmptyFoldersCheckbox: boolean = false;
@@ -106,12 +115,39 @@ export class BrowseFilterComponent implements OnInit {
                 });
             }
             this.coreFacilityList = this.createSecurityAdvisorService.myCoreFacilities;
+        } else if (this.mode === "orderBrowse") {
+            if (isAdminState) {
+                this.showWorkflowStateRadioGroup = true;
+                this.showRedosCheckbox = true;
+                this.showDateRangePicker = true;
+                this.showOrderNumberInput = true;
+                this.showMoreSwitch = true;
+                this.showCoreFacilityComboBox = true;
+                this.showRequestCategoryComboBox = true;
+
+                this.showMore = true;
+            }
+        } else if (this.mode === "analysisBrowse") {
+            if (isAdminState) {
+                // TODO
+                this.showAllCheckbox = true;
+                this.showDateRangePicker = true;
+            } else if (isGuestState) {
+                // TODO
+                this.showDateRangePicker = true;
+            } else {
+                // TODO
+                this.showDateRangePicker = true;
+            }
         }
     }
 
     resetFields(): void {
         this.allFlag = false;
         this.experimentsRadioString = "myLab";
+        this.workflowStateString = "SUBMITTED";
+        this.redosFlag = false;
+        this.orderNumberString = "";
         this.idLabString = "";
         this.ownerList = [];
         this.idAppUserString = "";
@@ -261,12 +297,62 @@ export class BrowseFilterComponent implements OnInit {
         return params;
     }
 
-    find(): void {
+    getOrderBrowseParameters(): URLSearchParams {
+        let params: URLSearchParams = new URLSearchParams();
+
+        params.set("includeSampleInfo", "Y");
+
+        if (this.showDateRangePicker && !(this.dateFromString === "") && !(this.dateToString === "")) {
+            params.set("createDateFrom", this.dateFromString);
+            params.set("createDateTo", this.dateToString);
+        }
+
+        if (this.showOrderNumberInput && !(this.orderNumberString === "")) {
+            params.set("number", this.orderNumberString);
+            this.workflowStateString = "";
+        }
+
+        if (this.showWorkflowStateRadioGroup && !(this.workflowStateString === "")) {
+            params.set("status", this.workflowStateString);
+        }
+
+        if (this.showRedosCheckbox && this.redosFlag) {
+            params.set("hasRedo", "Y");
+        }
+
+        if (this.showCoreFacilityComboBox && !(this.idCoreFacilityString === "")) {
+            params.set("idCoreFacility", this.idCoreFacilityString);
+
+            if (this.showRequestCategoryComboBox && !(this.codeRequestCategoryString === "")) {
+                params.set("codeRequestCategory", this.codeRequestCategoryString);
+            }
+        }
+
+        return params;
+    }
+
+    getAnalysisBrowseParameters(): URLSearchParams {
+        let params: URLSearchParams = new URLSearchParams();
+
+        // TODO
+
+        return params;
+    }
+
+    search(): void {
         if (this.mode === "experimentBrowse") {
             let params: URLSearchParams = this.getExperimentBrowseParameters();
             this.experimentsService.getProjectRequestList(params).subscribe((response: any) => {
                 console.log("GetProjectRequestList called");
             });
+        } else if (this.mode === "orderBrowse") {
+            let params: URLSearchParams = this.getOrderBrowseParameters();
+            this.experimentsService.getRequestList(params).subscribe((response: any) => {
+                console.log("GetRequestList called");
+            });
+        } else if (this.mode === "analysisBrowse") {
+            let params: URLSearchParams = this.getAnalysisBrowseParameters();
+            // TODO
         }
     }
 }
