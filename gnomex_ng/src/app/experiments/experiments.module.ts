@@ -10,8 +10,9 @@ import { TreeModule } from '../../modules/tree.module';
 import { ExpanderModule } from '../../modules/expander.module';
 import {UtilModule} from "../util/util.module";
 
+import { ComboBoxModule } from "../../modules/combobox.module";
+
 import { jqxGridComponent } from "../../assets/jqwidgets-ts/angular_jqxgrid";
-import { jqxComboBoxComponent } from "../../assets/jqwidgets-ts/angular_jqxcombobox";
 import { ExperimentOrdersComponent } from "./orders/experiment-orders.component";
 import {FormsModule} from "@angular/forms";
 import {ServicesModule} from "../services/services.module";
@@ -23,6 +24,7 @@ import {ServicesModule} from "../services/services.module";
 @NgModule({
     imports: [
         EXPERIMENTS_ROUTING,
+        ComboBoxModule,
         CommonModule,
         TreeModule,
         ExpanderModule,
@@ -34,8 +36,7 @@ import {ServicesModule} from "../services/services.module";
         BrowseExperimentsComponent,
         ViewExperimentComponent,
         ExperimentOrdersComponent,
-        jqxGridComponent,
-        jqxComboBoxComponent
+        jqxGridComponent
     ]
 })
 export class ExperimentsModule {
