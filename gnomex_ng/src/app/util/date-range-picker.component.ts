@@ -12,12 +12,16 @@ export class DateRangePickerComponent {
     @ViewChild('calendar') calendar: jqxCalendarComponent;
 
     private showCalendar: boolean;
+    private label: string;
 
     private fromValue: string;
     private toValue: string;
 
     @Output() fromChange = new EventEmitter();
     @Output() toChange = new EventEmitter();
+
+    private fromDate: any;
+    private toDate: any;
 
     @Input()
     get from(): string {
@@ -42,18 +46,23 @@ export class DateRangePickerComponent {
     constructor() {
         this.showCalendar = false;
         this.reset();
+        this.determineLabel();
     }
 
     reset(): void {
         this.from = "";
+        this.fromDate = null;
         this.to = "";
+        this.toDate = null;
     }
 
     onCalendarChange(event: any): void {
         let range = event.args.range;
         if (range.from != null && range.to != null) {
             this.from = range.from.toLocaleDateString();
+            this.fromDate = range.from;
             this.to = range.to.toLocaleDateString();
+            this.toDate = range.to;
         } else {
             this.reset();
         }
@@ -65,8 +74,19 @@ export class DateRangePickerComponent {
 
     toggleShowCalendar(): void {
         this.showCalendar = !this.showCalendar;
-        if (!this.showCalendar) {
-            this.reset();
+        this.determineLabel();
+        if (this.showCalendar && !(this.fromDate === null) && !(this.toDate === null)) {
+            setTimeout(() => {
+                this.calendar.setRange(this.fromDate, this.toDate);
+            });
+        }
+    }
+
+    determineLabel(): void {
+        if (!(this.from === "") && !(this.to === "")) {
+            this.label = this.from + " - " + this.to;
+        } else {
+            this.label = "Filter by date";
         }
     }
 
