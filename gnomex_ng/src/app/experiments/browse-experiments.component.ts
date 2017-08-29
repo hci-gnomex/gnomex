@@ -7,7 +7,6 @@ import { URLSearchParams } from "@angular/http";
 import { Routes, RouterModule, Router } from "@angular/router";
 
 import {ExperimentsService} from "./experiments.service";
-import { jqxTreeComponent } from 'jqwidgets-framework';
 import { jqxWindowComponent } from 'jqwidgets-framework';
 import { jqxButtonComponent } from 'jqwidgets-framework';
 import { jqxComboBoxComponent } from 'jqwidgets-framework';
@@ -15,11 +14,10 @@ import { jqxNotificationComponent  } from 'jqwidgets-framework';
 import { jqxCheckBoxComponent } from 'jqwidgets-framework';
 import { jqxInputComponent } from 'jqwidgets-framework';
 import { jqxToggleButtonComponent } from 'jqwidgets-framework';
-import {jqxPanelComponent} from "jqwidgets-framework";
 import {jqxLoaderComponent} from "jqwidgets-framework";
+import {TreeComponent, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions, TreeNode, TreeModel} from "angular-tree-component";
 
 import * as _ from "lodash";
-import * as $ from "jquery";
 
 @Component({
     selector: "experiments",
@@ -35,32 +33,21 @@ import * as $ from "jquery";
             display: block;
             flex-direction: column;
         }
-        div.filter-bar {
-            width: 100%;
-            overflow: hidden;
-            vertical-align: center;
-            border: 1px solid darkgrey;
-            background-color: white;
-            padding-left: 0.8em;
-            margin-bottom: 0.3em;
-        }
 `, require("./browse-experiments-component.less").toString()],
     encapsulation: ViewEncapsulation.None
 
 })
 export class BrowseExperimentsComponent {
 
-    @ViewChild('treeReference') tree: jqxTreeComponent;
-    @ViewChild('jqxWidget') jqxWidget: ElementRef;
+    @ViewChild('tree') treeComponent: TreeComponent;
     @ViewChild('reassignWindow') reassignWindow: jqxWindowComponent;
-    @ViewChild('reassignComboBox') reassignComboBox: jqxComboBoxComponent;
-    @ViewChild('billingComboBox') billingComboBox: jqxComboBoxComponent;
+    @ViewChild('responseMsgWindow') responseMsgWindow: jqxWindowComponent;
     @ViewChild('msgSelectOwner') msgSelectOwner: jqxNotificationComponent;
     @ViewChild('msgSelectBilling') msgSelectBilling: jqxNotificationComponent;
     @ViewChild('msgNoAuthUsersForLab') msgNoAuthUsersForLab: jqxNotificationComponent;
     @ViewChild('msgEnterProjectName') msgEnterProjectName: jqxNotificationComponent;
     @ViewChild('msgDragDropHint') msgDragDropHint: jqxNotificationComponent;
-    @ViewChild('msgLoading') msgLoading: jqxNotificationComponent;
+    @ViewChild('msgEnterLab') msgEnterLab: jqxNotificationComponent;
     @ViewChild('newProjectWindow') newProjectWindow: jqxWindowComponent;
     @ViewChild('deleteProjectWindow') deleteProjectWindow: jqxWindowComponent;
     @ViewChild('toggleButton') toggleButton: jqxButtonComponent;
@@ -72,75 +59,89 @@ export class BrowseExperimentsComponent {
     @ViewChild('yesButtonDeleteProject') yesButtonDeleteProject: jqxButtonComponent;
     @ViewChild('deleteProjectNoButtonClicked') deleteProjectNoButton: jqxButtonComponent;
     @ViewChild('jqxLoader') jqxLoader: jqxLoaderComponent;
+    @ViewChild('jqxConstructorLoader') jqxConstructorLoader: jqxLoaderComponent;
 
-    currentItem: any;
-    targetItem: any;
-    dropItem: any;
-    it: any;
-    projectDescription: string;
-    projectName: string;
-    source: any;
-    source1: any;
-    experimentService: ExperimentsService;
-    users: any[];
-    labMembers: any;
-    billingAccounts: any;
-    dragEndItems: any;
-    sourceLab: any;
-    selectedItem: any;
-    selectedIndex: number = -1;
-    selectedBillingItem: string;
-    selectedBillingIndex: number = -1;
-    selectedProjectLabItem: any;
-    selectedProjectLabIndex: number = -1;
-    parentNode: any;
-    dragEndLab: any;
-    idCoreFacility: string = "3";
-    icon: string;
-    response: any;
-    showBillingCombo: boolean = false;
-    dataAdapter: any;
-    records: any;
-    items2: any;
-    items: any;
-    labs: any;
-    experimentCount: number;
+    ngOnInit() {
+        this.treeModel = this.treeComponent.treeModel;
+    }
+
+    private treeModel:TreeModel;
+    /*
+    angular2-tree options
+     */
+    private options: ITreeOptions = {
+        displayField: 'label',
+        childrenField: 'items',
+        useVirtualScroll: true,
+        nodeHeight: 22,
+        nodeClass: (node:TreeNode) => {
+            return 'icon-' + node.data.icon;
+        },
+        allowDrop: (element, { parent, index }) => {
+            this.dragEndItems = _.cloneDeep(this.items);
+            if (parent.data.labName) {
+                return false;
+            } else {
+                return true;
+            }
+        },
+
+        allowDrag: (node) => node.isLeaf,
+    };
+    private items: any;
+    private labs: any;
+    private isClose = true;
+    private responseMsg: string = "";
+    private currentItem: any;
+    private targetItem: any;
+    private projectDescription: string = "";
+    private projectName: string = "";
+    private projectLabName: string = "";
+    private experimentService: ExperimentsService;
+    private labMembers: any;
+    private billingAccounts: any;
+    private dragEndItems: any;
+    private selectedItem: any;
+    private selectedIndex: number = -1;
+    private selectedBillingItem: string;
+    private selectedBillingIndex: number = -1;
+    private selectedProjectLabItem: any;
+    private selectedProjectLabIndex: number = -1;
+    private idCoreFacility: string = "3";
+    private showBillingCombo: boolean = false;
+    private experimentCount: number;
 
     constructor(private experimentsService: ExperimentsService) {
         this.experimentService = experimentsService;
 
         this.experimentsService.getExperiments().subscribe(response => {
-            // this.buildTree(response);
-            this.response = response;
             this.buildTree(response);
+            //this.thisResponse = response;
         })
-        const folder = "assets/folder.png"
-
-        this.users = [];
-        this.items2 = [];
         this.items = [];
         this.dragEndItems = [];
         this.labMembers = [];
         this.billingAccounts = [];
-        this.records = [];
         this.labs = [];
+
+    }
+
+    go(event: any) {
+        console.log("event "+event);
     }
     /*
-        Build tree from getExperiments.
-        @param response
-    */
+    Build the tree data
+    @param
+        what
+     */
     buildTree(response: any[]) {
-        this.jqxLoader.open();
         this.experimentCount = 0;
-        this.items2 = [];
         if (!this.isArray(response)) {
             this.items = [response];
         } else {
             this.items = response;
         }
         this.labs = this.labs.concat(this.items);
-        this.items.label = "root";
-        //this.items2 = this.items2.concat(this.items);
         for( var l of this.items) {
             if (!this.isArray(l.Project)) {
                 l.items = [l.Project];
@@ -151,47 +152,71 @@ export class BrowseExperimentsComponent {
             l.parentid = -1;
 
             l.icon = "assets/group.png"
-            this.items2 = this.items2.concat(l)
             for( var p of l.items) {
                 p.icon = "assets/folder.png"
                 p.labId = l.labId;
                 p.id = p.idProject;
                 p.parentid = l.id;
-                if (!this.isArray(p.Request)) {
-                    p.items = [p.Request];
-                } else {
-                    p.items = p.Request;
-                }
-                this.items2 = this.items2.concat(p);
-                for (var r of p.items) {
-                    if (r) {
-                        this.experimentCount ++;
-                        r.id = r.idRequest;
-                        r.parentid = p.id;
-                        this.items2 = this.items2.concat(r);
+                if (p.Request) {
+                    if (!this.isArray(p.Request)) {
+                        p.items = [p.Request];
+                    } else {
+                        p.items = p.Request;
                     }
+                    for (var r of p.items) {
+                        if (r) {
+                            if (r.label) {
+                                var shortLabel = r.label.substring(0, (r.label.lastIndexOf("-")));
+                                var shorterLabel = shortLabel.substring(0, shortLabel.lastIndexOf("-"));
+                                r.label = shorterLabel;
+                                this.experimentCount++;
+                                r.id = r.idRequest;
+                                r.parentid = p.id;
+                                if (this.experimentCount % 100 == 0) {
+                                    console.log("experiment count " + this.experimentCount);
+                                }
+                            } else {
+                                console.log("label not defined");
+                            }
+                        } else {
+                            console.log("r is undefined");
+                        }
+                    }
+                } else {
+                    console.log("")
                 }
-
             }
         }
-        this.source1 = {
-            datatype: 'json',
-            datafields: [
-                { name: 'id' },
-                { name: 'parentid' },
-                { name: 'label' },
-                { name: 'icon' },
-                { name: 'idAppUser'},
-                { name: 'isExternal'}
-            ],
-            id: 'id',
-            localdata: this.items2
-        };
-        this.dataAdapter = new $.jqx.dataAdapter(this.source1, { autoBind: true });
-        this.records = this.dataAdapter.getRecordsHierarchy('id', 'parentid', 'items');
-        this.tree.expandAll();
         this.jqxLoader.close();
+        this.jqxConstructorLoader.close();
     };
+
+/*
+
+Start of Ng2 tree
+ */
+
+    onMoveNode($event) {
+        console.log(
+            "Moved",
+            $event.node.name,
+            "to",
+            $event.to.parent.name,
+            "at index",
+            $event.to.index);
+        this.currentItem = $event.node;
+        this.targetItem = $event.to.parent;
+        this.getLabUsers($event);
+    }
+
+    onActiveChangedEvent($event) {
+        console.log("event is "+event);
+
+    }
+
+    onDragEnd1($event) {
+        console.log("event is "+event);
+    }
 
     /*
         Determine if the object is an array
@@ -207,94 +232,41 @@ export class BrowseExperimentsComponent {
         };
     }
 
-    onDragStart = (event) => {
-        console.log("ondragstart");
-    };
-
-    onDragEnd = (event) => {
-
-        this.dragEndItems = _.cloneDeep(this.records);
-
-        //this.dragEndItems = Object.assign(this.dragEndItems, this.items);
-        if (event.args.label) {
-            this.currentItem = this.tree.getItem(event.owner.it.element);
-
-            this.targetItem = this.tree.getItem(event.owner.dropItem.element);
-            if (this.targetItem.level == 0) {
-                this.resetTree();
-            } else {
-                this.getSourceLab();
-
-                if (this.targetItem && this.targetItem.level != 0) {
-                    if (this.targetItem.level == 2) {
-                        this.targetItem = this.tree.getItem(this.targetItem.parentElement);
-                        // this.currentItem.parentid = this.targetItem.id;
-                        // this.currentItem.parentElement = this.targetItem.element;
-                    }
-                    this.currentItem.parentid = this.targetItem.id;
-                    this.getRecord(this.currentItem.id);
-
-                    this.dragEndLab = this.tree.getItem(this.targetItem.parentElement);
-                    // let temp = _.cloneDeep(this.records);
-                    // this.records = temp;
-                    // var root: any = this;
-                    // this.tree.refresh();
-                    this.getLabUsers();
-                }
-            }
-        }
-    };
-
-    getRecord(id: any): any{
-        for (var item of this.items2) {
-            if (item.id == id && item.idRequest == id) {
-                item.parentid = this.targetItem.id;
-                this.source1.localdata = this.items2;
-                this.dataAdapter.dataBind();
-                this.records = this.dataAdapter.getRecordsHierarchy('id', 'parentid', 'items');
-                break;
-            }
-        }
-        return item;
-    }
-
-    getSourceLab() {
-        var folderElement = this.tree.getItem(this.currentItem.parentElement);
-        this.sourceLab = this.tree.getItem(folderElement.parentElement);
-    }
-
     showReassignWindow() {
-        //this.reassignComboBox.source(this.labMembers);
-        //this.billingComboBox.source(this.billingAccounts);
-        if (this.targetItem) {
-            if (this.targetItem.isExternal == "N" || this.sourceLab.id == this.dragEndLab.id) {
-                this.showBillingCombo = false;
-            } else {
-                this.showBillingCombo = true;
-            }
-        }
         this.reassignWindow.open();
-
     }
 
-    getLabUsers() {
+    /**
+     * Get the target lab users. Set showBillingCombo.
+     * @param event
+     */
+    getLabUsers(event: any) {
+        if (event.node.isExternal ==="N" && event.node.idLab === event.to.parent.idLab) {
+            this.showBillingCombo = false;
+        } else {
+            this.showBillingCombo = true;
+        }
         let params: URLSearchParams = new URLSearchParams();
-        params.set("idLab", this.dragEndLab.id);
+        params.set("idLab", event.to.parent.idLab);
 
         var lPromise = this.experimentService.getLab(params).toPromise();
         lPromise.then(response => {
-            this.buildLabMembers(response);
+            this.buildLabMembers(response, event);
         })
 
     }
 
-    buildLabMembers(response: any) {
-        //this.isNewLab = this.dragEndLab.label != this.dragStartLab.label;
+    /**
+     * Build the users that are in the reassign Labs.
+     * @param response
+     * @param event
+     */
+    buildLabMembers(response: any, event: any) {
         this.labMembers = [];
         this.billingAccounts = [];
         var i: number = 0;
         for (let u of response.members) {
-            if (u.isActive == 'Y') {
+            if (u.isActive === 'Y') {
                 this.labMembers[i] = u;
                 u.label = u.firstLastDisplayName;
                 i++;
@@ -303,7 +275,7 @@ export class BrowseExperimentsComponent {
 
         for (let b of response.authorizedBillingAccounts) {
             if (b.idCoreFacility === this.idCoreFacility &&
-                b.isApproved == "Y" && b.isActive=="Y") {
+                b.isApproved === "Y" && b.isActive === "Y") {
                 b.label = b.accountName;
                 this.billingAccounts.push(b);
             }
@@ -320,7 +292,7 @@ export class BrowseExperimentsComponent {
 
             }
             if (!found) {
-                if(u.isActive=='Y') {
+                if(u.isActive === "Y") {
                     u.label = u.firstLastDisplayName;
                     this.labMembers.push(u);
                 }
@@ -335,51 +307,44 @@ export class BrowseExperimentsComponent {
 
     }
 
+    /**
+     * Reset the tree to the initial state.
+     */
     resetTree() {
-        this.records = this.dragEndItems;
+        this.items = this.dragEndItems;
     }
 
-    saveProjectRequest(params: URLSearchParams) {
-        var lPromise = this.experimentService.saveProjectRequest(params).toPromise();
+    /**
+     * Save the project request created in the reassign dialog
+     * @param {URLSearchParams} params
+     */
+    saveRequestProject(params: URLSearchParams) {
+        var lPromise = this.experimentService.saveRequestProject(params).toPromise();
         lPromise.then(response => {
+            // if (response.text().indexOf("billingAccountMessage") !== -1) {
+            //     this.responseMsg = response.text().substring(response.text().indexOf("billingAccountMessage")+"billingAccountMessage".length+4, response.text().indexOf("}")-2);
+            //     this.responseMsgWindow.show();
+            // }
             console.log("saveprojectrequest "+response);
             this.resetComboBoxes();
-            this.reassignWindow.close();
+
         })
 
     }
 
-    dragStartTree(event: any): void {
-        this.onDragStart(event);
-    };
-
-    dragEndTree(event: any): void {
-        this.onDragEnd(event);
-    };
-
-    dragEnd(item, dropItem, args, dropPosition, tree): boolean {
-        if (dropItem ) {
-            this.dropItem = dropItem;
-            this.it = item;
-        }
-        return true;
-    };
-
-
-    dragStart(item): boolean {
-        console.log("item "+item);
-        return true;
-    };
-
+    /**
+     * Yes button clicked on the reassign.
+     */
     yesButtonClicked(): void {
         if (this.selectedIndex === -1) {
             this.msgSelectOwner.open();
             this.reassignWindow.close();
-        } else if (this.selectedBillingIndex == -1 && this.showBillingCombo) {
+        } else if (this.selectedBillingIndex === -1 && this.showBillingCombo) {
             this.msgSelectBilling.open();
             this.reassignWindow.close();
         }
         else {
+            this.isClose = false;
             this.selectedIndex = -1;
             let params: URLSearchParams = new URLSearchParams();
             params.set("idRequest", this.currentItem.id);
@@ -388,21 +353,36 @@ export class BrowseExperimentsComponent {
             params.set("idAppUser", appUserId);
             var idBillingAccount = this.getBillingAccountId(this.selectedBillingItem);
             params.set("idBillingAccount", idBillingAccount);
-            this.saveProjectRequest(params);
+            this.saveRequestProject(params);
         }
     }
 
+    /**
+     * Reset the data for the reassign window.
+     */
     resetComboBoxes () {
         this.labMembers = [];
         this.billingAccounts = [];
+        //this.treeModel.update();
+        //this.refreshProjectRequestList();
+        this.reassignWindow.close();
     }
 
+    /**
+     * The no button was selected in the reassign dialog.
+     */
     noButtonClicked(): void {
-        this.records = this.dragEndItems;
+        this.isClose = true;
+        // this.resetTree();
         this.reassignWindow.close();
 
     }
 
+    /**
+     * Return the idAppUser
+     * @param {string} userName
+     * @returns {any}
+     */
     getAppUserId(userName: string): any {
         for (var l of this.labMembers) {
             if (l.firstLastDisplayName === userName) {
@@ -413,6 +393,11 @@ export class BrowseExperimentsComponent {
         return null;
     }
 
+    /**
+     * Return the billing account id.
+     * @param {string} accountName
+     * @returns {any}
+     */
     getBillingAccountId(accountName: string): any {
         for (var b of this.billingAccounts) {
             if (b.accountName === accountName) {
@@ -422,49 +407,57 @@ export class BrowseExperimentsComponent {
         return null;
     }
 
+    /**
+     * On select of the owner combo box of the reassign window.
+     * @param event
+     */
     onOwnerSelect(event: any): void {
         let args = event.args;
-        if (args != undefined) {
+        if (args != undefined && event.args.item) {
             this.selectedItem = event.args.item.value;
             this.selectedIndex = event.args.index;
         }
     }
 
-    eventWindowClose(event: any): void {
-        console.log("donne");
-
+    /**
+     * Reassign window close event. If the 'x' reset the tree.
+     * @param event
+     */
+    reassignWindowClose(event: any): void {
+        if (this.isClose) {
+            this.resetTree();
+        }
+        this.isClose = true;
     }
 
-    eventWindowOpen(event: any): void {
-        console.log("donne");
-
-    }
-
-    clickReassign(event: any) {
-        this.items = this.dragEndItems;
+    /**
+     * Start over. Data is missing.
+     * @param event
+     */
+    resetReassign(event: any) {
+        this.isClose = true;
+        this.resetTree();
         this.reassignWindow.open();
-
     }
 
-    clickNoProject(event: any) {
-        this.newProjectWindow.show();
-    }
-
-    clickNewProject(event: any) {
-        this.items = this.dragEndItems;
-        this.newProjectWindow.open();
-    }
-
+    /**
+     * When the ShowEmptyFolders checkbox is selected.
+     * @param event
+     */
     showEmptyFoldersChange(event: any): void {
+        this.jqxLoader.open();
+
         let checked = event.args.checked;
         let params: URLSearchParams = new URLSearchParams();
+        //TODO
+        // When merged with the filter this will change
+        params.set("showCategory", 'N');
+        params.set("allExperiments", 'Y');
+        params.set("showSamples", 'N');
+        params.set("idCoreFacility", '3');
 
         if (checked) {
-            params.set("showCategory", 'N');
             params.set("showEmptyProjectFolders", 'Y');
-            params.set("allExperiments", 'Y');
-            params.set("showSamples", 'N');
-            params.set("idCoreFacility", '3');
 
             var lPromise = this.experimentService.getProjectRequestList(params).toPromise();
 
@@ -472,37 +465,64 @@ export class BrowseExperimentsComponent {
                 this.buildTree(response);            })
         }
         else {
-            params.set("showCategory", 'N');
             params.set("showEmptyProjectFolders", 'N');
-            params.set("allExperiments", 'Y');
-            params.set("showSamples", 'N');
-            params.set("idCoreFacility", '3');
 
             var lPromise = this.experimentService.getProjectRequestList(params).toPromise();
 
             lPromise.then(response => {
                 this.buildTree(response);            })
         }
+        console.log("end");
     }
 
-
+    /**
+     * The new project link is selected.
+     * @param event
+     */
     newProjectClicked(event: any) {
+        this.setLabName(event);
         this.newProjectWindow.open();
     }
 
+    /**
+     * Select the lab in the new project window.
+     * @param event
+     */
+    setLabName(event: any) {
+        // Lab
+        if (this.selectedItem.level === 1) {
+            this.labComboBox.selectItem(this.selectedItem.data.label)
+            // Project
+        } else if (this.selectedItem.level === 2) {
+            this.labComboBox.selectItem(this.selectedItem.parent.data.label);
+        }
+    }
+
+    /**
+     * The no button was select in the new project window.
+     */
     noProjectButtonClicked() {
         this.newProjectWindow.close();
     }
 
+    /**
+     * The delete project link was selected.
+     * @param event
+     */
     deleteProjectClicked(event: any) {
         this.deleteProjectWindow.open();
-
     }
 
+    /**
+     * The no button was selected in the delete project window.
+     */
     deleteProjectNoButtonClicked() {
         this.deleteProjectWindow.close();
     }
 
+    /**
+     * The yes button was selected in the delete project window.
+     */
     deleteProjectYesButtonClicked() {
         let params: URLSearchParams = new URLSearchParams();
         params.set("idProject", this.selectedItem.id);
@@ -512,10 +532,11 @@ export class BrowseExperimentsComponent {
             this.deleteProjectWindow.close();
             this.refreshProjectRequestList();
         })
-
-
     }
 
+    /**
+     * Refresh the tree.
+     */
     refreshProjectRequestList() {
 
         var lPromise = this.experimentsService.getExperiments().toPromise();
@@ -525,13 +546,18 @@ export class BrowseExperimentsComponent {
         })
     }
 
+    /**
+     * Save the new project.
+     * @param project
+     */
     saveProject(project: any) {
         let params: URLSearchParams = new URLSearchParams();
 
 
         project.name = this.projectName;
         project.projectDescription = this.projectDescription;
-
+        //TODO
+        // Need to get idAppUser. Flex did this like: parentApplication.getIdAppUser();
         params.set("projectXMLString", project);
         params.set("parseEntries", "Y");
         if (!this.projectName) {
@@ -547,32 +573,42 @@ export class BrowseExperimentsComponent {
 
     }
 
+    /**
+     * Get the project.
+     */
     getProject() {
-        let projectId:any = 0;
-        let item: any;
-        let project: any = 0;
+        let idProject:any = 0;
 
         let params: URLSearchParams = new URLSearchParams();
-        params.set("idLab", this.selectedProjectLabItem.idLab);
-        params.set("idProject", projectId);
+        if (!this.selectedProjectLabItem) {
+            this.msgEnterLab.open();
+        } else {
+            var mylab = this.projectLabName;
+            params.set("idLab", this.selectedProjectLabItem.idLab);
+            params.set("idProject", idProject);
 
-        var lPromise = this.experimentService.getProject(params).toPromise();
-        lPromise.then(response => {
-            this.saveProject(response.Project);
-        })
-
-
+            var lPromise = this.experimentService.getProject(params).toPromise();
+            lPromise.then(response => {
+                this.saveProject(response.Project);
+            })
+        }
     }
 
-
+    /**
+     * Initiate the save project from the selection of the save button selected
+     * in the new project window.
+     */
     saveProjectButtonClicked() {
-
         this.getProject();
     }
 
+    /**
+     * On selection of the billing account combobox in the reassign window.
+     * @param event
+     */
     onBillingSelect(event: any): void {
         let args = event.args;
-        if (args != undefined) {
+        if (args != undefined && event.args.item) {
             this.selectedBillingItem = event.args.item.value;
             this.selectedBillingIndex = event.args.index;
         }
@@ -586,47 +622,60 @@ export class BrowseExperimentsComponent {
         }
     }
 
-
+    /**
+     * A node is selected in the tree.
+     * @param event
+     */
     treeOnSelect(event: any) {
         console.log("event");
         let args = event.args;
-        this.selectedItem = this.tree.getItem(args.element);
+        this.selectedItem = event.node;
 
-        if (this.selectedItem.level == 0) {
-            this.newProject.disabled(true);
+        //Lab
+        if (this.selectedItem.level === 1) {
+            this.newProject.disabled(false);
             this.deleteProject.disabled(true);
-        } else if (this.selectedItem.level == 1) {
+            //Project
+        } else if (this.selectedItem.level === 2) {
             this.newProject.disabled(false);
             this.deleteProject.disabled(false);
+            //Experiment
         } else {
             this.newProject.disabled(true);
             this.deleteProject.disabled(true);
         }
     }
 
+    /**
+     * The expand collapse toggle is selected.
+     */
     expandCollapseClicked(): void {
         setTimeout(_ => {
             let toggled = this.toggleButton.toggled();
 
-            if (toggled) {
-                this.toggleButton.val('Expand');
-                this.tree.collapseAll();
+            if (!toggled) {
+                this.toggleButton.val('Expand Projects');
+                this.treeModel.collapseAll();
             }
             else {
-                this.toggleButton.val('Collapse');
-                this.tree.expandAll();
+                this.toggleButton.val('Collapse Projects');
+                this.treeModel.expandAll();
             }
         });
     };
 
+    /**
+     * Show the drag-drop hint.
+     */
     dragDropHintClicked() {
         this.msgDragDropHint.open();
     }
 
-    treeOnInitialized() {
-        // this.tree.expandAll();
-        // this.deleteProject.disabled(true);
-        // this.newProject.disabled(true);
-        //this.msgLoading.open();
+    /**
+     * Show the response from the back end.
+     */
+    responseMsgNoButtonClicked() {
+        this.responseMsg = "";
+        this.responseMsgWindow.close();
     }
 }

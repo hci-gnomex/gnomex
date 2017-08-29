@@ -1,215 +1,425 @@
-<div style="display: block">
-    <jqxExpander [width]="300" [height]="550"
-                 [showArrow]="false" [toggleMode]="'none'">
-        <div style="font-size:10px">
-            {{experimentCount}} experiments
-            <span  class="hintLink" style="float: right; width: 400px">
-
-                <jqxButton #newProject [template]="'link'"
-                           [imgPosition]="'left'" [imgWidth]="14" [imgHeight]="14" [imgSrc]='"../../assets/jqwidgets/images/help.png"'
-                           (onClick)="dragDropHintClicked()">Drag-and-drop hint</jqxButton>
-            </span>
-
+<div class="background" style="width: 25%">
+    <div class="t">
+        <div class="tr">
+            <div class="td">
+                <div style="font-size:small">
+                    <div class="t">
+                        <div class="tr" style="vertical-align: middle">
+                            <div class="td" style="text-align: left;vertical-align: middle">
+                                {{experimentCount}} experiments
+                            </div>
+                            <div class="td" style="text-align: right">
+                                <jqxButton #dragDropHint [template]="'link'" (onClick)="dragDropHintClicked()"
+                                           [imgSrc]="'assets/information.png'" [imgPosition]="'center'"
+                                           [textImageRelation]="'imageBeforeText'">Drag-and-drop hint</jqxButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="overflow: hidden;">
-            <jqxTree #treeReference
-                     (onDragStart)="dragStartTree($event)"
-                     (onDragEnd)="dragEndTree($event)"
-                     (onSelect)="treeOnSelect($event)"
-                     (onInitialized)="treeOnInitialized()"
-                     [width]="'100%'" [height]="'100%'" [source]="records"
-                     [allowDrag]="true"
-                     [allowDrop]="true"
-                     [dragEnd]="dragEnd">
-            </jqxTree>
+    </div>
+    <br>
+    <div style="height: 80%;width: 100%">
+        <tree-root #tree (moveNode)="onMoveNode($event)"
+                   (dragEnd)="onDragEnd1($event)"
+                   (activate)="treeOnSelect($event)"
+                    [nodes]="items" [options]="options">
+            <ng-template #treeNodeTemplate let-node let-index="index">
+                <img src="{{node.data.icon}}" height="16" width="16">
+                <span>{{ node.data.label }}</span>
+            </ng-template>
+        </tree-root>
+    </div>
+    <br>
+    <div class="t">
+        <div class="tr">
+            <div class="td">
+                <div style="font-size:small">
+                    <div class="t">
+                        <div class="tr" style="vertical-align: middle">
+                            <div class="td" style="text-align: left">
+                                <jqxToggleButton #toggleButton [template]="'link'" (onClick)="expandCollapseClicked()">Expand Projects</jqxToggleButton>
+                            </div>
+                            <div class="td" style="text-align: left">
+                                <jqxCheckBox #showEmptyCheckBox (onChange)="showEmptyFoldersChange($event)"
+                                             [checked]='false'>
+                                    Show Empty Folders
+                                </jqxCheckBox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </jqxExpander>
+        <div class="tr">
+            <div class="td">
+                <div style="font-size:small">
+                    <div class="t">
+                        <div class="tr" style="vertical-align: middle">
+                            <div class="td" style="text-align: left">
+                                <jqxButton #newProject [template]="'link'" [disabled]="true" (onClick)="newProjectClicked()" [imgSrc]="'assets/folder_add.png'" [imgPosition]="'center'" [textImageRelation]="'imageBeforeText'">New Project
+                                </jqxButton>
+                            </div>
+                            <div class="td" style="text-align: left">
+                                <jqxButton #deleteProject [template]="'link'" [disabled]="true" (onClick)="deleteProjectClicked()" [imgSrc]="'assets/folder_delete.png'" [imgPosition]="'center'" [textImageRelation]="'imageBeforeText'">Delete Project
+                                </jqxButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<div style="display: block">
-    <jqxToggleButton #toggleButton [template]="'link'" [width]="80" style="float: left" (onClick)="expandCollapseClicked()">Collapse</jqxToggleButton>
-
-    <jqxCheckBox #showEmptyCheckBox (onChange)="showEmptyFoldersChange($event)" style='margin-left: 10px; float: left;'
-                 [width]='120' [height]='25' [checked]='false'>
-        Show Empty Folders
-    </jqxCheckBox>
-</div>
-<div style= 'display: inline-block; width: 400px;'>
-    <jqxButton #newProject [template]="'link'" [width]="80" (onClick)="newProjectClicked()">New Project</jqxButton>
-    <jqxButton #deleteProject [template]="'link'" [width]="80" (onClick)="deleteProjectClicked()">Delete Project</jqxButton>
-</div>
-
+<div>
 <jqxWindow #reassignWindow
            [width]="600"
-           [height]="300"
+           [height]="220"
            [maxHeight]="400" [maxWidth]="700" [minHeight]="30" [minWidth]="250"
            [isModal]="true" [modalOpacity]="0.3"
            [autoOpen]="false"
-           (onOpen)="eventWindowOpen($event)"
-           (onClose)="eventWindowClose($event)"
+           (onClose)="reassignWindowClose($event)"
            (onTreeSelect) = "treeOnSelect($event)"
            [cancelButton]="'.cancel'" [okButton]="'.ok'" [resizable]="false"
 >
-    <div>
-        <img width="14" height="14" src="../../assets/jqwidgets/images/help.png" alt="" />
-        Reassignment
+    <div style="width: 100%; background-color: #4cae4c">
+        <div>
+            <img width="14" height="14" src="../../assets/jqwidgets/images/help.png" alt=""/>
+            Reassignment
+        </div>
     </div>
 
     <div>
+        <div class="t" style="height: 100%">
+            <div class="tr">
+                <div class="t">
+                    <div *ngIf="currentItem" class="tr" style="width: 100%;height: 100%">
+                        Reassign experiment {{currentItem.label}} to project {{targetItem.label}}
+                    </div>
+                </div>
+            </div>
+            <div class="tr">
 
-        <div>
-            Reassign experiment {{source}} to project {{target}}
-        </div>
-        <div>
-            <label>
-                Owner
-            </label>
-            <jqxComboBox #reassignComboBox class="inlineComboBox"
-                         [width]="200" height="25" [source]="labMembers" [selectedIndex]="-1"
-                         (onSelect)="onOwnerSelect($event)"
-            >
-            </jqxComboBox>
-        </div>
-        <div *ngIf="showBillingCombo">
-            <label>
-            Billing Account
-            </label>
-            <jqxComboBox #billingComboBox class="inlineComboBox"
-                         [width]="200" height="25" [source]="billingAccounts" [selectedIndex]="-1"
-                         (onSelect)="onBillingSelect($event)"
-            >
-            </jqxComboBox>
-        </div>
-        <div style="float: right; margin-top: 15px;">
-            <div style="float: right;">
-                <jqxButton #yesButton class="Yes"
-                           style="display: inline-block; margin-right: 10px;"
-                           [width]="80"
-                           (onClick)="yesButtonClicked()"
-                >
-                    Yes
-                </jqxButton>
-                <jqxButton #noButton class="No"
-                           style="display: inline-block;"
-                           [width]="80"
-                           (onClick)="noButtonClicked()"
+            </div>
+            <div class="tr">
+                <div class="td">
+                    <div style="font-size:small">
+                        <div class="t">
+                            <div class="tr" style="vertical-align: middle">
+                                <div class="td">
+                                    <label style="text-align: center;vertical-align: center">
+                                        Owner
+                                    </label>
+                                </div>
+                                <div class="td" style="width: 100%">
+                                    <div style="width: 100%">
+                                        <jqxComboBox #reassignComboBox
+                                                     [width]="'100%'" height="25" [source]="labMembers" [selectedIndex]="-1"
+                                                     (onSelect)="onOwnerSelect($event)"
+                                        >
+                                        </jqxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tr"  *ngIf="showBillingCombo">
+                <div class="td">
+                    <div style="font-size:small">
+                        <div class="t">
+                            <div class="tr" style="vertical-align: middle">
+                                <div class="td">
+                                    <label style="text-align: center;vertical-align: center">
+                                        Account
+                                    </label>
+                                </div>
+                                <div class="td" style="width: 100%">
+                                    <div style="width: 100%">
+                                        <jqxComboBox #billingComboBox
+                                                     [width]="'100%'"height="25" [source]="billingAccounts" [selectedIndex]="-1"
+                                                     (onSelect)="onBillingSelect($event)"
+                                        >
+                                        </jqxComboBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                >
-                    No
-                </jqxButton>
+            <div class="tr">
+                <div class="td">
+                        <div class="t">
+                            <div class="tr" style="vertical-align: middle">
+                                <div class="td" style="float: right;">
+                                    <jqxButton #yesButton class="Yes"
+                                               style="display: inline-block"
+                                               [width]="80"
+                                               (onClick)="yesButtonClicked()"
+                                    >
+                                        Yes
+                                    </jqxButton>
+                                    <jqxButton #noButton class="No"
+                                               style="display: inline-block;"
+                                               [width]="80"
+                                               (onClick)="noButtonClicked()"
+
+                                    >
+                                        No
+                                    </jqxButton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-    </div>
-
-</jqxWindow>
-
+    </jqxWindow>
+</div>
+<div>
 <jqxWindow #newProjectWindow
            [width]="600"
-           [height]="800"
-           [maxHeight]="1000" [maxWidth]="700" [minHeight]="30" [minWidth]="250"
+           [height]="400"
+           [maxHeight]="500" [maxWidth]="700" [minHeight]="30" [minWidth]="250"
            [isModal]="true" [modalOpacity]="0.3"
            [autoOpen]="false"
-           [cancelButton]="'.cancel'" [okButton]="'.ok'" [resizable]="false"
+           [resizable]="false"
 >
 
-    <div>
-        <img width="14" height="14" src="../../assets/jqwidgets/images/add.png" alt="" />
-        New Project
+    <div style="width: 60%; background-color: #4cae4c">
+        <div>
+            <img width="14" height="14" src="../../assets/jqwidgets/images/help.png" alt=""/>
+            New Project
+        </div>
     </div>
-    <div>
-        <div>
-            <label>
-                Lab
-            </label>
+    <div class="background">
+        <div class="t" style="height: 100%">
+            <div class="tr">
+                <div class="td">
+                    <div class="t">
+                        <div class="tr" style="vertical-align: middle">
+                            <div class="td" style="width: 100%">
+                                <div style="width: 100%">
+                                    <jqxComboBox [(ngModel)]="projectLabName" #labComboBox
+                                                 [width]="'100%'" height="25" [source]="labs" [selectedIndex]="-1"
+                                                 (onSelect)="onProjectLabSelect($event)"
+                                    >
+                                    </jqxComboBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tr">
+                <div class="td">
+                    <div style="font-size:small">
+                        <div class="t">
+                            <div class="tr" style="vertical-align: middle">
+                                <div class="td">
+                                    <label style="text-align: center;vertical-align: center">
+                                        Project Name
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="tr">
+                                <div class="td" style="width: 100%">
+                                    <jqxInput [(ngModel)]="projectName"
+                                              [height]="25"
+                                              [minLength]="1" [placeHolder]="'Project Name'">
+                                    </jqxInput>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tr">
+                <div class="td">
+                    <div style="font-size:small">
+                        <div class="t">
+                            <div class="tr" style="vertical-align: middle">
+                                <div class="td" style="vertical-align: center">
+                                    <label style="text-align: center;vertical-align: center">
+                                        Project Description
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="tr">
+                                <div class="td" style="width: 100%">
+                                    <jqxTextArea [(ngModel)]="projectDescription"
+                                                 [height]="130"
+                                                 [minLength]="1" [placeHolder]="'Enter description'">
+                                    </jqxTextArea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tr">
+                <div class="td">
+                    <div style="font-size:small">
+                        <div class="t">
+                            <div class="tr" style="vertical-align: middle">
+                                <div class="td" style="vertical-align: center;float: right">
+                                    <jqxButton #yesButton class="Yes"
+                                               style="display: inline-block"
+                                               [width]="80"
+                                               (onClick)="saveProjectButtonClicked()"
+                                    >
+                                        Save
+                                    </jqxButton>
+                                    <jqxButton #noButton class="No"
+                                               style="display: inline-block"
+                                               [width]="80"
+                                               (onClick)="noProjectButtonClicked()"
 
-            <jqxComboBox #labComboBox class="inlineComboBox"
-                         [width]="200" height="25" [source]="labs" [selectedIndex]="-1"
-                         (onSelect)="onProjectLabSelect($event)"
-            >
-            </jqxComboBox>
-        </div>
-        <div>
-            <label>
-                Project Name
-            </label>
-            <jqxInput [(ngModel)]="projectName"
-                      [width]="200" [height]="25"
-                      [minLength]="1" [placeHolder]="'Project Name'">
-            </jqxInput>
-        </div>
-        <div>
-            <label>
-                Project Description
-            </label>
-
-            <jqxTextArea [(ngModel)]="projectDescription"
-                         [width]="300" [height]="90"
-                         [minLength]="1" [placeHolder]="'Enter description'">
-            </jqxTextArea>
-        </div>
-
-        <div style="float: right; margin-top: 15px;">
-            <div style="float: right;">
-                <jqxButton #yesButton class="Save"
-                           style="display: inline-block; margin-right: 10px;"
-                           [width]="80"
-                           (onClick)="saveProjectButtonClicked()"
-                >
-                    Save
-                </jqxButton>
-                <jqxButton #noButton class="Cancel"
-                           style="display: inline-block;"
-                           [width]="80"
-                           (onClick)="noProjectButtonClicked()"
-
-                >
-                    Cancel
-                </jqxButton>
+                                    >
+                                        Cancel
+                                    </jqxButton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </jqxWindow>
-
-<jqxWindow #deleteProjectWindow
-           [width]="200"
-           [height]="200"
-           [maxHeight]="400" [maxWidth]="700" [minHeight]="30" [minWidth]="250"
-           [isModal]="true" [modalOpacity]="0.3"
-           [autoOpen]="false"
-           [cancelButton]="'.cancel'" [okButton]="'.ok'" [resizable]="false"
->
+</div>
 
     <div>
-        <img width="14" height="14" src="../../assets/delete.png" alt="" />
-        Delete Project
-    </div>
-    <div>
+        <jqxWindow #deleteProjectWindow
+                   [width]="250"
+                   [height]="100"
+                   [maxHeight]="200" [maxWidth]="300" [minHeight]="30" [minWidth]="100"
+                   [isModal]="true" [modalOpacity]="0.3"
+                   [autoOpen]="false"
+                   [cancelButton]="'.cancel'" [okButton]="'.ok'" [resizable]="false"
+        >
 
-        <div style="margin-top: 15px;">
-            <div style="float: right;">
-                <jqxButton #yesButtonDeleteProject class="Save"
-                           style="display: inline-block; margin-right: 10px;"
-                           [width]="80"
-                           (onClick)="deleteProjectYesButtonClicked()"
-                >
-                    Yes
-                </jqxButton>
-                <jqxButton #noButtonDeleteProject class="Cancel"
-                           style="display: inline-block;"
-                           [width]="80"
-                           (onClick)="deleteProjectNoButtonClicked()"
-
-                >
-                    No
-                </jqxButton>
+            <div style="width: 100%; background-color: #4cae4c">
+                <div>
+                    <img width="14" height="14" src="../../assets/jqwidgets/images/help.png" alt=""/>
+                    Delete Project
+                </div>
             </div>
-        </div>
-    </div>
-</jqxWindow>
+            <div class="background">
+                <div class="t">
+                    <div class="tr">
+                        <div class="td">
+                            <div class="t">
+                                <div class="tr" style="vertical-align: middle">
+                                    <div class="td" style="width: 100%">
+                                        <div style="width: 100%">
+                                            <div *ngIf="selectedItem" class="tr" style="text-align: center">
+                                                Delete project {{selectedItem.data.label}}?
+                                                <!--Delete project-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="tr">
+                        <div class="td">
+                            <div style="font-size:small">
+                                <div class="t">
+                                    <div class="tr" style="vertical-align: middle">
+                                        <div class="td" style="float: right">
+                                            <jqxButton #yesButtonDeleteProject class="Yes"
+                                                       style="display: inline-block"
+                                                       [width]="80"
+                                                       (onClick)="deleteProjectYesButtonClicked()"
+                                            >
+                                                Yes
+                                            </jqxButton>
+                                            <jqxButton #noButtonDeleteProject class="No"
+                                                       style="display: inline-block"
+                                                       [width]="80"
+                                                       (onClick)="deleteProjectNoButtonClicked()"
+
+                                            >
+                                                No
+                                            </jqxButton>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </jqxWindow>
+    </div>
+    <div>
+        <jqxWindow #responseMsgWindow
+                   [width]="250"
+                   [height]="100"
+                   [maxHeight]="200" [maxWidth]="300" [minHeight]="30" [minWidth]="100"
+                   [isModal]="true" [modalOpacity]="0.3"
+                   [autoOpen]="false"
+                   [cancelButton]="'.cancel'" [okButton]="'.ok'" [resizable]="false"
+        >
+
+            <div style="width: 100%; background-color: #4cae4c">
+                <div>
+                    <img width="14" height="14" src="../../assets/jqwidgets/images/help.png" alt=""/>
+                    Delete Project
+                </div>
+            </div>
+            <div class="background">
+                <div class="t">
+                    <div class="tr">
+                        <div class="td">
+                            <div class="t">
+                                <div class="tr" style="vertical-align: middle">
+                                    <div class="td" style="width: 100%">
+                                        <div style="width: 100%">
+                                            <div *ngIf="responseMsg" class="tr" style="text-align: center">
+                                                {{responseMsg}}
+                                                Delete project
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tr">
+                        <div class="td">
+                            <div style="font-size:small">
+                                <div class="t">
+                                    <div class="tr" style="vertical-align: middle">
+                                        <div class="td">
+                                            <jqxButton #noButtonDeleteProject class="No"
+                                                       style="display: inline-block"
+                                                       [width]="80"
+                                                       (onClick)="responseMsgNoButtonClicked()"
+
+                                            >
+                                                No
+                                            </jqxButton>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </jqxWindow>
+    </div>
 <jqxNotification #msgSelectOwner
-                 [width]="450" [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true" (onClick)="clickReassign($event)"
+                 [width]="450" [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true" (onClick)="resetReassign($event)"
 >
     <div>
         Please select the experiment owner.
@@ -217,7 +427,7 @@
 </jqxNotification>
 
 <jqxNotification #msgSelectBilling
-                 [width]="450"  [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true" (onClick)="clickReassign($event)"
+                 [width]="450"  [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true" (onClick)="resetReassign($event)"
 >
     <div>
         Please select the experiment billing account.
@@ -225,10 +435,18 @@
 </jqxNotification>
 
 <jqxNotification #msgEnterProjectName
-                 [width]="450" [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true" (onClick)="clickNoProject($event)"
+                 [width]="450" [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true" (onClick)="resetReassign($event)"
 >
     <div>
         Please enter a project name.
+    </div>
+</jqxNotification>
+
+<jqxNotification #msgEnterLab
+                 [width]="450" [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true" (onClick)="clickNoProject($event)"
+>
+    <div>
+        Please select a lab.
     </div>
 </jqxNotification>
 
@@ -241,23 +459,30 @@
 </jqxNotification>
 
 <jqxNotification #msgDragDropHint
-                 [width]="450" [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true"
+                 [width]="'80%'" [position]="'top-left'"  [opacity]="0.9" [autoOpen]="false" [template]="'info'" [autoClose]="false" [closeOnClick]="true"
 >
     <div>
         Drag-and-drop experiment to move to another project.
     </div>
 </jqxNotification>
 
-<jqxNotification #msgNoAuthUsersForLab
-                 [width]="auto" [position]="'top-left'" [opacity]="0.9" [autoOpen]="false" [template]="'warning'" [autoClose]="false" [closeOnClick]="true" (onClick)="clickNoOwners($event)"
-                >
-    <div>
-        Sorry, in order to reassign this experiment you must change its owner to a member of the new lab group. However, you do not have permission to access the member list for this lab. Please contact an administrator.
-    </div>
-</jqxNotification>
+    <jqxNotification #msgNoAuthUsersForLab
+                     [width]="'80%'" [height]="50" [position]="'top-left'" [opacity]="0.9" [autoOpen]="false" [template]="'warning'" [autoClose]="false" [closeOnClick]="true" (onClick)="clickNoOwners($event)"
+    >
+        <div>
+            Sorry, in order to reassign this experiment you must change its owner to a member of the new lab group. However, you do not have permission to access the member list for this lab. Please contact an administrator.
+        </div>
+    </jqxNotification>
 <jqxLoader #jqxLoader
+           [isModal]="false"
            [imagePosition]="'top'"
            [width]="100"
            [height]="60">
 </jqxLoader>
-
+<jqxLoader #jqxConstructorLoader
+           [autoOpen]="true"
+           [isModal]="false"
+           [imagePosition]="'top'"
+           [width]="100"
+           [height]="60">
+</jqxLoader>

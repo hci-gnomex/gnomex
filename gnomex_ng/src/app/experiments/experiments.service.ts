@@ -11,7 +11,9 @@ export class ExperimentsService {
     constructor(private _http: Http, @Inject(BROWSE_EXPERIMENTS_ENDPOINT) private _browseExperimentsUrl: string) {}
     getExperiments() {
        //return this._http.get("/gnomex/GetProjectRequestList.gx?idLab=1500&showCategory='N'", {withCredentials: true}).map((response: Response) => {
-         return this._http.get("/gnomex/GetProjectRequestList.gx?showEmptyProjectFolders=N&allExperiments=Y&showSamples=N&showCategory=N&idCoreFacility=3&showEmptyProjectFolders=N", {withCredentials: true}).map((response: Response) => {
+           //return this._http.get("/gnomex/GetProjectRequestList.gx?showEmptyProjectFolders=N&allExperiments=Y&showSamples=N&showCategory=N", {withCredentials: true}).map((response: Response) => {
+
+           return this._http.get("/gnomex/GetProjectRequestList.gx?showEmptyProjectFolders=N&allExperiments=Y&showSamples=N&showCategory=N&idCoreFacility=3&showEmptyProjectFolders=N", {withCredentials: true}).map((response: Response) => {
             if (response.status === 200) {
                 return response.json().Lab;
             } else {
@@ -33,7 +35,6 @@ export class ExperimentsService {
     getLab(params: URLSearchParams): Observable<any>{
         return this._http.get("/gnomex/GetLab.gx", {search: params}).map((response: Response) => {
             if (response.status === 200) {
-                console.log("&&&&&&&&&&&&&&&&&& getLab "+response);
                 return response.json().Lab;
             } else {
                 throw new Error("Error");
@@ -42,10 +43,9 @@ export class ExperimentsService {
 
     }
 
-    saveProjectRequest(params: URLSearchParams):  Observable<any> {
+    saveRequestProject(params: URLSearchParams):  Observable<any> {
         return this._http.get("/gnomex/SaveRequestProject.gx", {search: params}).map((response: Response) => {
             if (response.status === 200) {
-                console.log("&&&&&&&&&&&&&&&&&& setProjectRequest "+response);
                 return response;
             } else {
                 throw new Error("Error");
@@ -69,7 +69,6 @@ export class ExperimentsService {
     saveProject(params: URLSearchParams):  Observable<any> {
         return this._http.get("/gnomex/SaveProject.gx", {search: params}).map((response: Response) => {
             if (response.status === 200) {
-                console.log("&&&&&&&&&&&&&&&&&& getProject "+response);
                 return response;
             } else {
                 throw new Error("Error");
@@ -81,7 +80,6 @@ export class ExperimentsService {
     deleteProject(params: URLSearchParams):  Observable<any> {
         return this._http.get("/gnomex/DeleteProject.gx", {search: params}).map((response: Response) => {
             if (response.status === 200) {
-                console.log("&&&&&&&&&&&&&&&&&& deleteProject "+response);
                 return response;
             } else {
                 throw new Error("Error");
