@@ -1,9 +1,11 @@
-"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 /*
 jQWidgets v4.5.4 (2017-June)
@@ -11,22 +13,22 @@ Copyright (c) 2011-2017 jQWidgets.
 License: http://jqwidgets.com/license/
 */
 /// <reference path="jqwidgets.d.ts" />
-var core_1 = require("@angular/core");
+import { Component, Input, Output, EventEmitter, ElementRef } from '@angular/core';
 var jqxTreeComponent = (function () {
     function jqxTreeComponent(containerElement) {
         this.autoCreate = true;
         this.properties = ['animationShowDuration', 'animationHideDuration', 'allowDrag', 'allowDrop', 'checkboxes', 'dragStart', 'dragEnd', 'disabled', 'easing', 'enableHover', 'height', 'hasThreeStates', 'incrementalSearch', 'keyboardNavigation', 'rtl', 'selectedItem', 'source', 'toggleIndicatorSize', 'toggleMode', 'theme', 'width'];
         // jqxTreeComponent events
-        this.onAdded = new core_1.EventEmitter();
-        this.onCheckChange = new core_1.EventEmitter();
-        this.onCollapse = new core_1.EventEmitter();
-        this.onDragStart = new core_1.EventEmitter();
-        this.onDragEnd = new core_1.EventEmitter();
-        this.onExpand = new core_1.EventEmitter();
-        this.onInitialized = new core_1.EventEmitter();
-        this.onItemClick = new core_1.EventEmitter();
-        this.onRemoved = new core_1.EventEmitter();
-        this.onSelect = new core_1.EventEmitter();
+        this.onAdded = new EventEmitter();
+        this.onCheckChange = new EventEmitter();
+        this.onCollapse = new EventEmitter();
+        this.onDragStart = new EventEmitter();
+        this.onDragEnd = new EventEmitter();
+        this.onExpand = new EventEmitter();
+        this.onInitialized = new EventEmitter();
+        this.onItemClick = new EventEmitter();
+        this.onRemoved = new EventEmitter();
+        this.onSelect = new EventEmitter();
         this.elementRef = containerElement;
     }
     jqxTreeComponent.prototype.ngOnInit = function () {
@@ -388,105 +390,139 @@ var jqxTreeComponent = (function () {
     return jqxTreeComponent;
 }()); //jqxTreeComponent
 __decorate([
-    core_1.Input('animationShowDuration')
+    Input('animationShowDuration'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrAnimationShowDuration", void 0);
 __decorate([
-    core_1.Input('animationHideDuration')
+    Input('animationHideDuration'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrAnimationHideDuration", void 0);
 __decorate([
-    core_1.Input('allowDrag')
+    Input('allowDrag'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrAllowDrag", void 0);
 __decorate([
-    core_1.Input('allowDrop')
+    Input('allowDrop'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrAllowDrop", void 0);
 __decorate([
-    core_1.Input('checkboxes')
+    Input('checkboxes'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrCheckboxes", void 0);
 __decorate([
-    core_1.Input('dragStart')
+    Input('dragStart'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrDragStart", void 0);
 __decorate([
-    core_1.Input('dragEnd')
+    Input('dragEnd'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrDragEnd", void 0);
 __decorate([
-    core_1.Input('disabled')
+    Input('disabled'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrDisabled", void 0);
 __decorate([
-    core_1.Input('easing')
+    Input('easing'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrEasing", void 0);
 __decorate([
-    core_1.Input('enableHover')
+    Input('enableHover'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrEnableHover", void 0);
 __decorate([
-    core_1.Input('hasThreeStates')
+    Input('hasThreeStates'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrHasThreeStates", void 0);
 __decorate([
-    core_1.Input('incrementalSearch')
+    Input('incrementalSearch'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrIncrementalSearch", void 0);
 __decorate([
-    core_1.Input('keyboardNavigation')
+    Input('keyboardNavigation'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrKeyboardNavigation", void 0);
 __decorate([
-    core_1.Input('rtl')
+    Input('rtl'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrRtl", void 0);
 __decorate([
-    core_1.Input('selectedItem')
+    Input('selectedItem'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrSelectedItem", void 0);
 __decorate([
-    core_1.Input('source')
+    Input('source'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrSource", void 0);
 __decorate([
-    core_1.Input('toggleIndicatorSize')
+    Input('toggleIndicatorSize'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrToggleIndicatorSize", void 0);
 __decorate([
-    core_1.Input('toggleMode')
+    Input('toggleMode'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrToggleMode", void 0);
 __decorate([
-    core_1.Input('theme')
+    Input('theme'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrTheme", void 0);
 __decorate([
-    core_1.Input('width')
+    Input('width'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrWidth", void 0);
 __decorate([
-    core_1.Input('height')
+    Input('height'),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "attrHeight", void 0);
 __decorate([
-    core_1.Input('auto-create')
+    Input('auto-create'),
+    __metadata("design:type", Boolean)
 ], jqxTreeComponent.prototype, "autoCreate", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onAdded", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onCheckChange", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onCollapse", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onDragStart", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onDragEnd", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onExpand", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onInitialized", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onItemClick", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onRemoved", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxTreeComponent.prototype, "onSelect", void 0);
 jqxTreeComponent = __decorate([
-    core_1.Component({
+    Component({
         selector: 'jqxTree',
         template: '<div><ng-content></ng-content></div>'
-    })
+    }),
+    __metadata("design:paramtypes", [ElementRef])
 ], jqxTreeComponent);
-exports.jqxTreeComponent = jqxTreeComponent;
+export { jqxTreeComponent };
+//# sourceMappingURL=angular_jqxtree.js.map

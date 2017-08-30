@@ -1,9 +1,11 @@
-"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 /*
 jQWidgets v4.5.4 (2017-June)
@@ -11,16 +13,16 @@ Copyright (c) 2011-2017 jQWidgets.
 License: http://jqwidgets.com/license/
 */
 /// <reference path="jqwidgets.d.ts" />
-var core_1 = require("@angular/core");
+import { Component, Input, Output, EventEmitter, ElementRef } from '@angular/core';
 var jqxLayoutComponent = (function () {
     function jqxLayoutComponent(containerElement) {
         this.autoCreate = true;
         this.properties = ['contextMenu', 'height', 'layout', 'minGroupHeight', 'minGroupWidth', 'resizable', 'rtl', 'theme', 'width'];
         // jqxLayoutComponent events
-        this.onCreate = new core_1.EventEmitter();
-        this.onPin = new core_1.EventEmitter();
-        this.onResize = new core_1.EventEmitter();
-        this.onUnpin = new core_1.EventEmitter();
+        this.onCreate = new EventEmitter();
+        this.onPin = new EventEmitter();
+        this.onResize = new EventEmitter();
+        this.onUnpin = new EventEmitter();
         this.elementRef = containerElement;
     }
     jqxLayoutComponent.prototype.ngOnInit = function () {
@@ -193,51 +195,67 @@ var jqxLayoutComponent = (function () {
     return jqxLayoutComponent;
 }()); //jqxLayoutComponent
 __decorate([
-    core_1.Input('contextMenu')
+    Input('contextMenu'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrContextMenu", void 0);
 __decorate([
-    core_1.Input('layout')
+    Input('layout'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrLayout", void 0);
 __decorate([
-    core_1.Input('minGroupHeight')
+    Input('minGroupHeight'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrMinGroupHeight", void 0);
 __decorate([
-    core_1.Input('minGroupWidth')
+    Input('minGroupWidth'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrMinGroupWidth", void 0);
 __decorate([
-    core_1.Input('resizable')
+    Input('resizable'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrResizable", void 0);
 __decorate([
-    core_1.Input('rtl')
+    Input('rtl'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrRtl", void 0);
 __decorate([
-    core_1.Input('theme')
+    Input('theme'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrTheme", void 0);
 __decorate([
-    core_1.Input('width')
+    Input('width'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrWidth", void 0);
 __decorate([
-    core_1.Input('height')
+    Input('height'),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "attrHeight", void 0);
 __decorate([
-    core_1.Input('auto-create')
+    Input('auto-create'),
+    __metadata("design:type", Boolean)
 ], jqxLayoutComponent.prototype, "autoCreate", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "onCreate", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "onPin", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "onResize", void 0);
 __decorate([
-    core_1.Output()
+    Output(),
+    __metadata("design:type", Object)
 ], jqxLayoutComponent.prototype, "onUnpin", void 0);
 jqxLayoutComponent = __decorate([
-    core_1.Component({
+    Component({
         selector: 'jqxLayout',
         template: '<div><ng-content></ng-content></div>'
-    })
+    }),
+    __metadata("design:paramtypes", [ElementRef])
 ], jqxLayoutComponent);
-exports.jqxLayoutComponent = jqxLayoutComponent;
+export { jqxLayoutComponent };
+//# sourceMappingURL=angular_jqxlayout.js.map
