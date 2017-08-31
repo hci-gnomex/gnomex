@@ -11,9 +11,9 @@ import { ExpanderModule } from '../../modules/expander.module';
 import { UtilModule } from "../util/util.module";
 
 import { ComboBoxModule } from "../../modules/combobox.module";
+import { JqxGridModule } from "../../modules/jqxgrid.module";
+import { JqxButtonModule } from "../../modules/jqxbutton.module";
 
-import { jqxButtonComponent } from "../../assets/jqwidgets-ts/angular_jqxbuttons";
-import { jqxGridComponent } from "../../assets/jqwidgets-ts/angular_jqxgrid";
 import { ExperimentOrdersComponent } from "./orders/experiment-orders.component";
 import { FormsModule } from "@angular/forms";
 import { ServicesModule } from "../services/services.module";
@@ -31,14 +31,14 @@ import { ServicesModule } from "../services/services.module";
         ExpanderModule,
         FormsModule,
         UtilModule,
-        ServicesModule
+        ServicesModule,
+        JqxGridModule,
+        JqxButtonModule
     ],
     declarations: [
         BrowseExperimentsComponent,
         ViewExperimentComponent,
-        ExperimentOrdersComponent,
-        jqxGridComponent,
-        jqxButtonComponent
+        ExperimentOrdersComponent
     ]
 })
 export class ExperimentsModule {
