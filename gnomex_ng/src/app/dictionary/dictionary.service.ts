@@ -47,9 +47,9 @@ export class DictionaryService {
     getAllDictionaries(): Observable<any[]> {
         return this.getDictionaries().flatMap((response) => {
             let dictionaries: any[] = response;
-//            for (let dictionary of dictionaries) {
-//                delete dictionary.DictionaryEntry;
-//            }
+            for (let dictionary of dictionaries) {
+                delete dictionary.DictionaryEntry;
+            }
             dictionaries = dictionaries.sort((o1, o2) => {
                 if (o1.displayName < o2.displayName) {
                     return -1;
@@ -94,7 +94,7 @@ export class DictionaryService {
      * @param {string} className
      * @returns {Observable<any[]>}
      */
-    getDictionaryEntriesIncludingBlank(className: string): Observable<any[]> {
+    getEntries(className: string): Observable<any[]> {
         return this.getDictionaries().flatMap((response) => {
             let dictionaries: any[] = response;
             let entries = [];
@@ -121,8 +121,8 @@ export class DictionaryService {
      * @param {string} className
      * @returns {Observable<any[]>}
      */
-    getDictionaryEntries(className: string): Observable<any[]> {
-        return this.getDictionaryEntriesIncludingBlank(className).flatMap((response) => {
+    getEntriesExcludeBlank(className: string): Observable<any[]> {
+        return this.getEntries(className).flatMap((response) => {
             let entries: any[] = response;
             entries = entries.filter((value) => value.value != "");
             return Observable.of(entries);
@@ -134,7 +134,7 @@ export class DictionaryService {
      * @returns {Observable<any[]>}
      */
     coreFacilities(): Observable<any[]> {
-        return this.getDictionaryEntries(DictionaryService.CORE_FACILITY);
+        return this.getEntries(DictionaryService.CORE_FACILITY);
     }
 
 }

@@ -28,7 +28,7 @@
 </p>
 <p>
     <button (click)="loadCoreFacilities();">Load Core Facilities</button>
-    <button (click)="loadCoreFacilitiesWithBlank();">Load Core Facilities With Blanks</button>
+    <button (click)="loadCoreFacilitiesExcludeBlank();">Load Core Facilities Exclude Blank</button>
 </p>
 <p>
     <jqxComboBox #coreFacility *ngIf="coreFacilities; else emptyCombobox"

@@ -71,8 +71,9 @@ export class DictionaryDemoComponent {
     loadEntries(): void {
         this.entries = null;
         this.selectedEntry = null;
+        this.selectedJson = "";
         if (this.selectedType) {
-            this.dictionaryService.getDictionaryEntries(this.selectedType.className).subscribe((response) => {
+            this.dictionaryService.getEntries(this.selectedType.className).subscribe((response) => {
                 this.entries = response;
             });
         }
@@ -85,9 +86,9 @@ export class DictionaryDemoComponent {
         });
     }
 
-    loadCoreFacilitiesWithBlank(): void {
+    loadCoreFacilitiesExcludeBlank(): void {
         this.coreFacilities = null;
-        this.dictionaryService.getDictionaryEntriesIncludingBlank(DictionaryService.CORE_FACILITY).subscribe((response) => {
+        this.dictionaryService.getEntriesExcludeBlank(DictionaryService.CORE_FACILITY).subscribe((response) => {
             this.coreFacilities = response;
         });
     }
