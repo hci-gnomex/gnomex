@@ -1,0 +1,42 @@
+<h1>Dictionary Demo</h1>
+<p>
+    <button (click)="loadAllTypes();">Load All Types</button>
+    <button (click)="loadEditableTypes();">Load Editable Types</button>
+    <button (click)="invalidateCache();">Invalidate Cache</button>
+</p>
+<p>
+    <jqxComboBox #type *ngIf="types; else emptyCombobox"
+                 class="inlineComboBox" [placeHolder]="'Choose a type...'"
+                 [source]="types" [displayMember]="'displayName'" [valueMember]="'className'"
+                 (onChange)="onSelectType()"
+                 (onSelect)="onSelectType()"
+                 (onUnSelect)="onSelectType()">
+    </jqxComboBox>
+    {{selectedType ? selectedType.className : ""}}
+</p>
+<p>
+    <jqxComboBox #entry *ngIf="entries; else emptyCombobox"
+                 class="inlineComboBox" [placeHolder]="'Choose an entry...'"
+                 [source]="entries" [displayMember]="'display'" [valueMember]="'value'"
+                 (onChange)="onSelectEntry()"
+                 (onSelect)="onSelectEntry()"
+                 (onUnSelect)="onSelectEntry()">
+    </jqxComboBox>
+</p>
+<p>
+    {{selectedJson}}
+</p>
+<p>
+    <button (click)="loadCoreFacilities();">Load Core Facilities</button>
+    <button (click)="loadCoreFacilitiesWithBlank();">Load Core Facilities With Blanks</button>
+</p>
+<p>
+    <jqxComboBox #coreFacility *ngIf="coreFacilities; else emptyCombobox"
+                 class="inlineComboBox" [placeHolder]="'Choose a core facility...'"
+                 [source]="coreFacilities" [displayMember]="'display'" [valueMember]="'value'">
+    </jqxComboBox>
+</p>
+<ng-template #emptyCombobox>
+    <jqxComboBox class="inlineComboBox" [placeHolder]="'* NO DATA *'">
+    </jqxComboBox>
+</ng-template>
