@@ -1,6 +1,8 @@
 import {Inject, Injectable, OpaqueToken} from "@angular/core";
 import {Http, Response, URLSearchParams} from "@angular/http";
 import {Observable} from "rxjs/Observable";
+import {Subject} from "rxjs/Subject";
+import {Observer} from "rxjs/Observer";
 
 export let BROWSE_EXPERIMENTS_ENDPOINT: OpaqueToken = new OpaqueToken("browse_experiments_url");
 export let VIEW_EXPERIMENT_ENDPOINT: OpaqueToken = new OpaqueToken("view_experiment_url");
@@ -9,6 +11,7 @@ export let VIEW_EXPERIMENT_ENDPOINT: OpaqueToken = new OpaqueToken("view_experim
 export class ExperimentsService {
 
 	private experimentOrders: any[];
+	private experimentOrdersSubject: Subject<any[]> = new Subject();
 
 	private haveLoadedExperimentOrders: boolean = false;
 	private previousURLParams: URLSearchParams = null;
@@ -25,17 +28,30 @@ export class ExperimentsService {
 		});
 	}
 
-	getExperimentOrders(params: URLSearchParams): Observable<any> {
+	getExperimentOrdersObservable(): Observable<any> {
+		return this.experimentOrdersSubject.asObservable();
+	}
+
+	private emitExperimentOrders(): void {
+		this.experimentOrdersSubject.next(this.experimentOrders);
+	}
+
+	getExperimentOrders_fromBackend(params: URLSearchParams): void {
 		if (this.haveLoadedExperimentOrders && this.previousURLParams === params) {
-			return Observable.of(this.experimentOrders);
+			// do nothing
+			console.log("Experiment Orders already loaded");
+			// return Observable.of(this.experimentOrders);
 		} else {
 			this.haveLoadedExperimentOrders = true;
 			this.previousURLParams = params;
 
-			return this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true, search: params}).map((response: Response) => {
+			this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true, search: params}).subscribe((response: Response) => {
+				console.log("GetRequestList called");
+
 				if (response.status === 200) {
 					this.experimentOrders = response.json().Request;
-					return response.json().Request;
+					this.emitExperimentOrders();
+					//return response.json().Request;
 				} else {
 					throw new Error("Error");
 				}

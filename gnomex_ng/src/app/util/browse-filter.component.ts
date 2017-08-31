@@ -347,9 +347,7 @@ export class BrowseFilterComponent implements OnInit {
             });
         } else if (this.mode === "orderBrowse") {
             let params: URLSearchParams = this.getOrderBrowseParameters();
-            this.experimentsService.getRequestList(params).subscribe((response: any) => {
-                console.log("GetRequestList called");
-            });
+            this.experimentsService.getExperimentOrders_fromBackend(params);
         } else if (this.mode === "analysisBrowse") {
             let params: URLSearchParams = this.getAnalysisBrowseParameters();
             // TODO

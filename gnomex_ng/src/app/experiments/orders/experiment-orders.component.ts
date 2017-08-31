@@ -1,9 +1,10 @@
-import {Component, OnDestroy, OnInit} from "@angular/core";
+import {Component, OnDestroy, OnInit, ViewChild} from "@angular/core";
 
-import {ExperimentsService} from "../experiments.service";
-import {Subscription} from "rxjs/Subscription";
-import {NgModel} from "@angular/forms"
-import {URLSearchParams} from "@angular/http";
+import { ExperimentsService } from "../experiments.service";
+import { Subscription } from "rxjs/Subscription";
+import { NgModel } from "@angular/forms"
+import { URLSearchParams } from "@angular/http";
+import { BrowseFilterComponent } from "../../util/browse-filter.component";
 /**
  *
  * @author u0556399
@@ -15,59 +16,10 @@ import {URLSearchParams} from "@angular/http";
       <div class="background">
 					<div class="t" style="height: 100%; width: 100%;">
 							<div class="tr" style="width: 100%;">
-									<div class="td" style="width: 100%">
-                      <div class="filter-bar">
-                          <div class="t">
-                              <div class="tr">
-                                  <div class="td">
-                                      <div class="title">Orders</div>
-                                  </div>
-                                  <div class="td">
-                                      <div class="t">
-                                          <div class="tr radioGroup">
-                                              <div class="td">
-                                                  <input id="newRadioButton" value="new" type="radio" name="radioFilter"
-                                                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                                                  <label for="newRadioButton">New</label>
-                                              </div>
-                                              <div class="td">
-                                                  <input id="submittedRadioButton" value="submitted" type="radio" name="radioFilter"
-                                                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                                                  <label for="submittedRadioButton">Submitted</label>
-                                              </div>
-                                              <div class="td">
-                                                  <input id="processingRadioButton" value="processing" type="radio"
-                                                         name="radioFilter" (change)="onRadioButtonClick()"
-                                                         [(ngModel)]="radioString_workflowState">
-                                                  <label for="processingRadioButton">Processing</label>
-                                              </div>
-                                              <div class="td">
-                                                  <input id="completeRadioButton" value="complete" type="radio" name="radioFilter"
-                                                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                                                  <label for="completeRadioButton">Complete</label>
-                                              </div>
-                                              <div class="td">
-                                                  <input id="FailedRadioButton" value="failed" type="radio" name="radioFilter"
-                                                         (change)="onRadioButtonClick()" [(ngModel)]="radioString_workflowState">
-                                                  <label for="FailedRadioButton">Failed</label>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <div class="td">
-                                      <span class="menu-spacer"></span>
-                                  </div>
-                                  <div class="td">
-                                      <input id="redosCheckbox" name="redos" type="checkbox" (change)="rebuildFilter()"
-                                             [(ngModel)]="redosEnabled"/>
-                                      <label style="margin-left: 0.3rem" for="redosCheckbox">Redos</label>
-                                  </div>
-                                  <div class="td">
-                                      <span class="menu-spacer"></span>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
+									<div class="td" style="width: 100%;">
+											<div style="margin-bottom: 0.3em;">
+                          <browse-filter [label]="'Orders'" [iconSource]="'assets/review.png'" [mode]="'orderBrowse'"></browse-filter>
+											</div>
 									</div>
 							</div>
 							<div class="tr" style="width: 100%;">
@@ -114,23 +66,29 @@ import {URLSearchParams} from "@angular/http";
 																																					[imgSrc]="'assets/arrow_right.gif'"
 																																					[imgPosition]="'center'"
 																																					[textImageRelation]="'imageBeforeText'"
-																																					(onClick)="goButtonClicked">Go</jqxButton>
+																																					(onClick)="goButtonClicked()">Go</jqxButton>
                                                               </div>
                                                               <div class="td">
-                                                                  <button>
-                                                                      <a>Delete</a>
-                                                                  </button>
+                                                                  <jqxButton
+                                                                          [template]="'link'"
+                                                                          [imgSrc]="'assets/delete.png'"
+                                                                          [imgPosition]="'center'"
+                                                                          [textImageRelation]="'imageBeforeText'"
+                                                                          (onClick)="deleteButtonClicked()">Delete</jqxButton>
                                                               </div>
                                                               <div class="td">
-                                                                  <button>
-                                                                      <a>Email</a>
-                                                                  </button>
+                                                                  <jqxButton
+                                                                          [template]="'link'"
+                                                                          [imgSrc]="'assets/email_go.png'"
+                                                                          [imgPosition]="'center'"
+                                                                          [textImageRelation]="'imageBeforeText'"
+                                                                          (onClick)="emailButtonClicked()">Email</jqxButton>
                                                               </div>
                                                           </div>
                                                       </div>
                                                   </div>
                                                   <td style="text-align: right">
-                                                      <div>({{source.localdata.length}} orders)</div>
+                                                      <div>({{(source.localdata.length === null) ? 0 : source.localdata.length}} orders)</div>
                                                   </td>
                                               </div>
                                           </div>
@@ -215,9 +173,9 @@ import {URLSearchParams} from "@angular/http";
       .jqx-grid-cell-alt {
           background-color: #cccccc;
       }
-			
-			.jqx-button:hover {
-					background-color: #0b97c4;
+
+      .jqx-fill-state-hover {
+					background-color: deepskyblue;
 			}
 			
       div.grid-footer {
@@ -289,6 +247,9 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 
 	private params: URLSearchParams = null;
 
+	@ViewChild(BrowseFilterComponent)
+	private _browseFilterComponent: BrowseFilterComponent;
+
 	constructor(private experimentsService: ExperimentsService) {
 	}
 
@@ -299,7 +260,15 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 	}
 
 	goButtonClicked(): void {
-		alert("You clicked \"Go\"!");
+		console.log("You clicked \"Go\"!");
+	}
+
+	deleteButtonClicked(): void {
+		console.log("You clicked \"Delete\"!");
+	}
+
+	emailButtonClicked(): void {
+		console.log("You clicked \"Email\"!");
 	}
 
 	updateGridData(data: Array<any>) {
@@ -311,11 +280,13 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 		this.params = new URLSearchParams();
 		this.params.append("status", "SUBMITTED");
 
-		this.subscription = this.experimentsService.getExperimentOrders(this.params)
+		this.subscription = this.experimentsService.getExperimentOrdersObservable()
 				.subscribe((response) => {
 					this.orders = response;
 					this.updateGridData(response);
 				});
+
+		this.experimentsService.getExperimentOrders_fromBackend(this.params);
 	}
 
 	ngOnDestroy(): void {
