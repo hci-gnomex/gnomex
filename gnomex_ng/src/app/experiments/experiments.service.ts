@@ -13,6 +13,8 @@ export class ExperimentsService {
 	private experimentOrders: any[];
 	private experimentOrdersSubject: Subject<any[]> = new Subject();
 
+	private changeStatusSubject: Subject<any> = new Subject();
+
 	private haveLoadedExperimentOrders: boolean = false;
 	private previousURLParams: URLSearchParams = null;
 
@@ -28,25 +30,21 @@ export class ExperimentsService {
 		});
 	}
 
-	getExperimentOrdersObservable(): Observable<any> {
+	getExperimentsObservable(): Observable<any> {
 		return this.experimentOrdersSubject.asObservable();
 	}
 
-	private emitExperimentOrders(): void {
-		this.experimentOrdersSubject.next(this.experimentOrders);
-	}
-
-	getExperimentOrders_fromBackend(params: URLSearchParams): void {
-		if (this.haveLoadedExperimentOrders && this.previousURLParams === params) {
+	getExperiments_fromBackend(parameters: URLSearchParams): void {
+		if (this.haveLoadedExperimentOrders && this.previousURLParams === parameters) {
 			// do nothing
 			console.log("Experiment Orders already loaded");
 			// return Observable.of(this.experimentOrders);
 		} else {
 			this.haveLoadedExperimentOrders = true;
-			this.previousURLParams = params;
+			this.previousURLParams = parameters;
 
-			this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true, search: params}).subscribe((response: Response) => {
-				console.log("GetRequestList called");
+			this._http.get("/gnomex/GetRequestList.gx", {withCredentials: true, search: parameters}).subscribe((response: Response) => {
+				// console.log("GetRequestList called");
 
 				if (response.status === 200) {
 					this.experimentOrders = response.json().Request;
@@ -57,6 +55,37 @@ export class ExperimentsService {
 				}
 			});
 		}
+	}
+
+	repeatGetExperiments_fromBackend(): void {
+		this.haveLoadedExperimentOrders = false;
+		this.getExperiments_fromBackend(this.previousURLParams);
+	}
+
+	getChangeExperimentStatusObservable(): Observable<any> {
+		return this.changeStatusSubject.asObservable();
+	}
+
+	changeExperimentStatus(idRequest: string, codeRequestStatus: string): void {
+
+		let parameters: URLSearchParams = new URLSearchParams;
+		parameters.set("idRequest", idRequest);
+		parameters.set("codeRequestStatus", codeRequestStatus);
+
+		// console.log("Changing Experiment numbers: " + parameters.get("idRequest") + " status to " + parameters.get("codeRequestStatus"));
+
+		this._http.get("/gnomex/ChangeRequestStatus.gx", {withCredentials: true, search: parameters}).subscribe((response: Response) => {
+			if (response.status === 200) {
+				this.changeStatusSubject.next(response.json());
+				//return response.json().Request;
+			} else {
+				throw new Error("Error");
+			}
+		});
+	}
+
+	private emitExperimentOrders(): void {
+		this.experimentOrdersSubject.next(this.experimentOrders);
 	}
 
 	// refreshExperimentOrders(): void {

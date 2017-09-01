@@ -5,6 +5,8 @@ import { Subscription } from "rxjs/Subscription";
 import { NgModel } from "@angular/forms"
 import { URLSearchParams } from "@angular/http";
 import { BrowseFilterComponent } from "../../util/browse-filter.component";
+import { jqxGridComponent } from "../../../assets/jqwidgets-ts/angular_jqxgrid";
+import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcombobox";
 /**
  *
  * @author u0556399
@@ -29,7 +31,7 @@ import { BrowseFilterComponent } from "../../util/browse-filter.component";
 															<div class="tr" style="width: 100%;">
 																	<div class="td" style="width: 100%; height: 100%;">
 																			<div style="display: block; width: 100%; height: 100%; padding: 0.1em;">
-                                          <jqxGrid
+                                          <jqxGrid #myGrid
                                                   [width]="'100%'"
                                                   [height]="'100%'"
                                                   [source]="dataAdapter"
@@ -39,7 +41,7 @@ import { BrowseFilterComponent } from "../../util/browse-filter.component";
                                                   [sortable]="true"
                                                   [columns]="columns"
                                                   [altrows]="true"
-                                                  [selectionmode]='"checkbox"'
+                                                  [selectionmode]="'checkbox'"
 																									[columnsresize]="true"
                                                   #gridReference>
                                           </jqxGrid>
@@ -55,10 +57,12 @@ import { BrowseFilterComponent } from "../../util/browse-filter.component";
                                                       <div class="t">
                                                           <div class="tr">
                                                               <div class="td">
-                                                                  <div class="title">{{numberSelected}} selected</div>
+                                                                  <div class="title">{{myGrid.getselectedrowindexes().length}} selected</div>
                                                               </div>
                                                               <div class="td">
-                                                                  <jqxComboBox></jqxComboBox>
+                                                                  <jqxComboBox #statusComboBox
+																																					[source]="dropdownChoices" [selectedIndex]="0" 
+																																					[dropDownVerticalAlignment]="'top'" [autoDropDownHeight]="true"></jqxComboBox>
                                                               </div>
                                                               <div class="td">
                                                                   <jqxButton 
@@ -88,7 +92,7 @@ import { BrowseFilterComponent } from "../../util/browse-filter.component";
                                                       </div>
                                                   </div>
                                                   <td style="text-align: right">
-                                                      <div>({{(source.localdata.length === null) ? 0 : source.localdata.length}} orders)</div>
+                                                      <div>({{(source.localdata.length === null) ? 0 : source.localdata.length + (source.localdata.length > 1 ? " orders" : " order")}})</div>
                                                   </td>
                                               </div>
                                           </div>
@@ -193,6 +197,9 @@ import { BrowseFilterComponent } from "../../util/browse-filter.component";
 })
 export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 
+	@ViewChild('myGrid') myGrid: jqxGridComponent;
+	@ViewChild('statusComboBox') statusCombobox: jqxComboBoxComponent;
+
 	private orders: Array<any>;
 
 	private editViewRenderer = (row:number, column: any, value: any): any => {
@@ -201,6 +208,15 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 							<a style="padding: 0em 1em">View!</a>
 						</div>`;
 	};
+
+	private dropdownChoices: any[] = [
+		{ value: "", 						label: "" },
+		{ value: "COMPLETE", 		label: "COMPLETE" },
+		{ value: "FAILED", 			label: "FAILED" },
+		{ value: "NEW", 				label: "NEW"},
+		{ value: "PROCESSING", 	label: "PROCESSING" },
+		{ value: "SUBMITTED", 	label: "SUBMITTED" }
+	];
 
 	private columns: any[] = [
 		{ text: "# ", datafield: "requestNumber", width: "4%" },
@@ -238,29 +254,39 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 
 	private dataAdapter: any = new jqx.dataAdapter(this.source);
 
-	private subscription: Subscription;
+	private experimentsSubscription: Subscription;
+	private statusChangeSubscription: Subscription;
 
 	private radioString_workflowState: String = 'submitted';
 	private redosEnabled: boolean = false;
 
 	private numberSelected: number = 0;
 
-	private params: URLSearchParams = null;
-
 	@ViewChild(BrowseFilterComponent)
 	private _browseFilterComponent: BrowseFilterComponent;
+
+	private selectedRequestNumbers: string[];
+	private changeStatusResponsesRecieved: number;
 
 	constructor(private experimentsService: ExperimentsService) {
 	}
 
-	onRadioButtonClick(): void {
-		// this.experimentsService.refreshExperimentOrders();
-
-		this.subscription.unsubscribe();
-	}
-
 	goButtonClicked(): void {
-		console.log("You clicked \"Go\"!");
+		// console.log("You clicked \"Go\"!");
+		let gridSelectedIndexes: Array<Number> = this.myGrid.getselectedrowindexes();
+		let statusSelectedIndex: number = this.statusCombobox.getSelectedIndex();
+
+		this.selectedRequestNumbers = [];
+		this.changeStatusResponsesRecieved = 0;
+
+		for (let i: number = 0; i < gridSelectedIndexes.length; i++) {
+		//	console.log("Changing Experiment numbers: " + this.myGrid.getcell(gridSelectedIndexes[i].valueOf(), "requestNumber").value + " status to " + this.statusCombobox.getSelectedItem().value);
+			let idRequest: string = "" + this.myGrid.getcell(gridSelectedIndexes[i].valueOf(), "requestNumber").value;
+			let cleanedIdRequest: string = idRequest.slice(0, idRequest.indexOf("R") >= 0 ? idRequest.indexOf("R") : idRequest.length);
+			this.selectedRequestNumbers.push(cleanedIdRequest);
+
+			this.experimentsService.changeExperimentStatus(cleanedIdRequest, this.statusCombobox.getSelectedItem().value)
+		}
 	}
 
 	deleteButtonClicked(): void {
@@ -272,24 +298,42 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 	}
 
 	updateGridData(data: Array<any>) {
-		this.source.localdata = data;
+		this.source.localdata = Array.isArray(data) ? data : [data];
 		this.dataAdapter = new jqx.dataAdapter(this.source);
+		this.myGrid.selectedrowindexes([]);
 	}
 
 	ngOnInit(): void {
-		this.params = new URLSearchParams();
-		this.params.append("status", "SUBMITTED");
-
-		this.subscription = this.experimentsService.getExperimentOrdersObservable()
+		this.experimentsSubscription = this.experimentsService.getExperimentsObservable()
 				.subscribe((response) => {
 					this.orders = response;
 					this.updateGridData(response);
 				});
 
-		this.experimentsService.getExperimentOrders_fromBackend(this.params);
+		this.statusChangeSubscription = this.experimentsService.getChangeExperimentStatusObservable().subscribe((response) => {
+			for(let i:number = 0; i < this.selectedRequestNumbers.length; i++) {
+				// console.log("SelectedGridValues: " + this.selectedRequestNumbers[i] + "    idRequest: " + response.idRequest);
+
+				if(this.selectedRequestNumbers[i] === response.idRequest) {
+					this.changeStatusResponsesRecieved++;
+
+					if(this.changeStatusResponsesRecieved === this.selectedRequestNumbers.length) {
+						this.experimentsService.repeatGetExperiments_fromBackend();
+					}
+
+					break;
+				}
+			}
+		});
+
+		let params: URLSearchParams = new URLSearchParams();
+		params.append("status", "SUBMITTED");
+
+		this.experimentsService.getExperiments_fromBackend(params);
 	}
 
 	ngOnDestroy(): void {
-		this.subscription.unsubscribe();
+		this.experimentsSubscription.unsubscribe();
+		this.statusChangeSubscription.unsubscribe();
 	}
 }
