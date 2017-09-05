@@ -19,10 +19,10 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 					<div class="t" style="height: 100%; width: 100%;">
 							<div class="tr" style="width: 100%;">
 									<div class="td" style="width: 100%;">
-											<div style="margin-bottom: 0.3em;">
-                          <browse-filter [label]="'Orders'" [iconSource]="'assets/review.png'" [mode]="'orderBrowse'"></browse-filter>
-											</div>
+											<browse-filter [label]="'Orders'" [iconSource]="'assets/review.png'" [mode]="'orderBrowse'"></browse-filter>
 									</div>
+							</div>
+							<div class="tr" style="height:0.3em; width:0;"> 
 							</div>
 							<div class="tr" style="width: 100%;">
 									<div class="td" style="width: 100%; height: 100%">
@@ -37,7 +37,7 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
                                                   [source]="dataAdapter"
                                                   [pageable]="false"
                                                   [autoheight]="false"
-                                                  [editable]="true"
+                                                  [editable]="false"
                                                   [sortable]="true"
                                                   [columns]="columns"
                                                   [altrows]="true"
@@ -60,33 +60,41 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
                                                                   <div class="title">{{myGrid.getselectedrowindexes().length}} selected</div>
                                                               </div>
                                                               <div class="td">
-                                                                  <jqxComboBox #statusComboBox
-																																					[source]="dropdownChoices" [selectedIndex]="0" 
-																																					[dropDownVerticalAlignment]="'top'" [autoDropDownHeight]="true"></jqxComboBox>
+                                                                  <jqxComboBox #statusComboBox 
+																																					[source]="dropdownChoices" 
+																																					[placeHolder]="'- Change Status -'" 
+																																					[dropDownVerticalAlignment]="'top'" 
+																																					[autoDropDownHeight]="true"></jqxComboBox>
                                                               </div>
-                                                              <div class="td">
-                                                                  <jqxButton 
+                                                              <div class="td button-container">
+                                                                  <jqxButton
+                                                                          [disabled]="myGrid.getselectedrowindexes().length === 0 || this.statusCombobox.getSelectedItem().value === ''"
 																																					[template]="'link'"
-																																					[imgSrc]="'assets/arrow_right.gif'"
-																																					[imgPosition]="'center'"
-																																					[textImageRelation]="'imageBeforeText'"
-																																					(onClick)="goButtonClicked()">Go</jqxButton>
+																																					(onClick)="goButtonClicked()">
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length  != 0 && this.statusCombobox.getSelectedItem().value  != ''" src="assets/bullet_go.png" alt="" style="margin-right:0.2em;"/>
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length === 0 || this.statusCombobox.getSelectedItem().value === ''" src="assets/bullet_go_disable.png" alt="" style="margin-right:0.2em;"/>
+																																			Go
+																																	</jqxButton>
                                                               </div>
-                                                              <div class="td">
+                                                              <div class="td button-container">
                                                                   <jqxButton
+                                                                          [disabled]="myGrid.getselectedrowindexes().length === 0"
                                                                           [template]="'link'"
-                                                                          [imgSrc]="'assets/delete.png'"
-                                                                          [imgPosition]="'center'"
-                                                                          [textImageRelation]="'imageBeforeText'"
-                                                                          (onClick)="deleteButtonClicked()">Delete</jqxButton>
+                                                                          (onClick)="deleteButtonClicked()">
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length != 0" src="assets/delete.png" alt="" style="margin-right:0.2em;"/>
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length === 0" src="assets/delete_disable.png" alt="" style="margin-right:0.2em;"/>
+																																			Delete
+																																	</jqxButton>
                                                               </div>
-                                                              <div class="td">
+                                                              <div class="td button-container">
                                                                   <jqxButton
+																																					[disabled]="myGrid.getselectedrowindexes().length === 0"
                                                                           [template]="'link'"
-                                                                          [imgSrc]="'assets/email_go.png'"
-                                                                          [imgPosition]="'center'"
-                                                                          [textImageRelation]="'imageBeforeText'"
-                                                                          (onClick)="emailButtonClicked()">Email</jqxButton>
+                                                                          (onClick)="emailButtonClicked()">
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length != 0" src="assets/email_go.png" alt="" style="margin-right:0.2em;"/>
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length === 0" src="assets/email_go_disable.png" alt="" style="margin-right:0.2em;"/>
+																																			Email
+																																	</jqxButton>
                                                               </div>
                                                           </div>
                                                       </div>
@@ -132,14 +140,6 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 					display: flex;
 					flex-direction: column;
       }
-
-      div.filter-bar {
-          width: 100%;
-          border: 1px solid darkgrey;
-          background-color: white;
-					padding: 0.3em 0.8em;
-          margin-bottom: 0.3em;
-      }
 			
       .title {
           text-align: left;
@@ -154,16 +154,6 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 			div.radioGroup input {
 					margin-left: 0.7rem;
 			}
-      
-			span.menu-spacer {
-          display: block;
-          float: left;
-          width: 2px;
-          height: 1.5em;
-          background: lightgrey;
-          margin-left: 0.7rem;
-          margin-right: 0.7rem;
-      }
 
       div.lower-panel{
           height: 100%;
@@ -174,14 +164,6 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
           display: block;
       }
 			
-      .jqx-grid-cell-alt {
-          background-color: #cccccc;
-      }
-
-      .jqx-fill-state-hover {
-					background-color: deepskyblue;
-			}
-			
       div.grid-footer {
 					display: block;
 					width: 100%;
@@ -189,10 +171,9 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 					padding: 0em 0.8em;
       }
 			
-      button a {
-					font-size: small;
+      div.button-container {
+					padding: 0.2em 0em 0.2em 0.6em;
 			}
-      
 	`]
 })
 export class ExperimentOrdersComponent implements OnInit, OnDestroy {
@@ -203,9 +184,9 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 	private orders: Array<any>;
 
 	private editViewRenderer = (row:number, column: any, value: any): any => {
-		return `<div style="display: inline-block; width: 100%; height:100%; text-align: center;">
-							<a style="padding: 0em 1em">Edit!</a>
-							<a style="padding: 0em 1em">View!</a>
+		return `<div style="display: table; width: 100%; height:100%; text-align: center;">
+							<a style="display: table-cell; padding: 0em 0.5em 0em 1em; width: 50%; height: 100%; vertical-align: middle;">Edit!</a>
+							<a style="display: table-cell; padding: 0em 1em 0em 0.5em; width: 50%; height: 100%; vertical-align: middle;">View!</a>
 						</div>`;
 	};
 
@@ -233,13 +214,7 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 
 	private source = {
 		datatype: "json",
-		localdata: [
-			{ name: "Hello",
-				requestNumber: "World",
-				requestStatus: "Good to see you!",
-				isSelected: "N"
-			}
-		],
+		localdata: [],
 		datafields: [
 			{ name: "name", type: "string"},
 			{ name: "requestNumber", type: "string"},
@@ -272,6 +247,11 @@ export class ExperimentOrdersComponent implements OnInit, OnDestroy {
 	}
 
 	goButtonClicked(): void {
+
+		if(this.statusCombobox.getSelectedItem().value === "") {
+			return;
+		}
+
 		// console.log("You clicked \"Go\"!");
 		let gridSelectedIndexes: Array<Number> = this.myGrid.getselectedrowindexes();
 		let statusSelectedIndex: number = this.statusCombobox.getSelectedIndex();

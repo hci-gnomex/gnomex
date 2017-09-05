@@ -59,11 +59,11 @@ body > .container {
 
 main {
   padding-top: 64px;
-  padding-right: 10px;
-  padding-left: 10px;
+  padding-right: 0.3em;
+  padding-left: 0.3em;
   position: relative;
   height: 100%;
-  padding-bottom: 50px;
+  padding-bottom: 44px;
 }
 
 .navbar {
