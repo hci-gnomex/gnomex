@@ -1,44 +1,60 @@
 /*
  * Copyright (c) 2016 Huntsman Cancer Institute at the University of Utah, Confidential and Proprietary
  */
-import { NgModule } from "@angular/core";
+import { NgModule }            from "@angular/core";
+import { CommonModule }        from "@angular/common";
+import { FormsModule }         from "@angular/forms";
+
 import { EXPERIMENTS_ROUTING } from "./experiments.routes";
-import { CommonModule } from "@angular/common";
-import { BrowseExperimentsComponent } from "./browse-experiments.component";
-import { ViewExperimentComponent } from "./view-experiment.component";
-import { TreeModule } from '../../modules/tree.module';
-import { ExpanderModule } from '../../modules/expander.module';
-import { UtilModule } from "../util/util.module";
 
-import { ComboBoxModule } from "../../modules/combobox.module";
-import { JqxGridModule } from "../../modules/jqxgrid.module";
-import { JqxButtonModule } from "../../modules/jqxbutton.module";
+import { TreeModule }         from 'angular-tree-component';
 
-import { ExperimentOrdersComponent } from "./orders/experiment-orders.component";
-import { FormsModule } from "@angular/forms";
+import { ButtonModule }       from "../../modules/button.module";
+import { CheckBoxModule }     from "../../modules/checkbox.module";
+import { ComboBoxModule }     from "../../modules/combobox.module";
+import { ExpanderModule }     from '../../modules/expander.module';
+import { InputModule }        from "../../modules/input.module";
+import { JqxGridModule }      from "../../modules/jqxgrid.module";
+import { LoaderModule }       from "../../modules/loader.module";
+import { NotificationModule } from "../../modules/notification.module";
+import { TextAreaModule }     from "../../modules/textarea.module";
+import { ToggleButtonModule } from "../../modules/togglebutton.module";
+import { WindowModule }       from "../../modules/window.module"
+
 import { ServicesModule } from "../services/services.module";
+import { UtilModule }     from "../util/util.module";
 
+import { BrowseExperimentsComponent } from "./browse-experiments.component";
+import { ExperimentOrdersComponent }  from "./orders/experiment-orders.component";
+import { ViewExperimentComponent }    from "./view-experiment.component";
 /**
  * @author mbyrne
  * @since 12/19/16
  */
 @NgModule({
     imports: [
-        EXPERIMENTS_ROUTING,
-        ComboBoxModule,
-        CommonModule,
-        TreeModule,
-        ExpanderModule,
-        FormsModule,
-        UtilModule,
-        ServicesModule,
-        JqxGridModule,
-        JqxButtonModule
+      EXPERIMENTS_ROUTING,
+      ButtonModule,
+      CheckBoxModule,
+      ComboBoxModule,
+      CommonModule,
+      ExpanderModule,
+      FormsModule,
+      InputModule,
+      JqxGridModule,
+      LoaderModule,
+      NotificationModule,
+      ServicesModule,
+      TextAreaModule,
+      ToggleButtonModule,
+      TreeModule,
+      UtilModule,
+      WindowModule
     ],
     declarations: [
-        BrowseExperimentsComponent,
-        ViewExperimentComponent,
-        ExperimentOrdersComponent
+      BrowseExperimentsComponent,
+      ExperimentOrdersComponent,
+      ViewExperimentComponent
     ]
 })
 export class ExperimentsModule {

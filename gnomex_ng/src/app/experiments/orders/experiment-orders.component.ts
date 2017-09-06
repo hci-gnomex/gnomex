@@ -6,7 +6,7 @@ import { NgModel } from "@angular/forms"
 import { URLSearchParams } from "@angular/http";
 import { BrowseFilterComponent } from "../../util/browse-filter.component";
 import { jqxGridComponent } from "../../../assets/jqwidgets-ts/angular_jqxgrid";
-import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcombobox";
+import { jqxComboBoxComponent } from "../../../assets/jqwidgets-ts/angular_jqxcombobox";
 /**
  *
  * @author u0556399
@@ -16,40 +16,40 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 	selector: "ExperimentOrders",
 	template: `
       <div class="background">
-					<div class="t" style="height: 100%; width: 100%;">
-							<div class="tr" style="width: 100%;">
-									<div class="td" style="width: 100%;">
-											<browse-filter [label]="'Orders'" [iconSource]="'assets/review.png'" [mode]="'orderBrowse'"></browse-filter>
-									</div>
-							</div>
-							<div class="tr" style="height:0.3em; width:0;"> 
-							</div>
-							<div class="tr" style="width: 100%;">
-									<div class="td" style="width: 100%; height: 100%">
-											<div class="lower-panel">
+          <div class="t" style="height: 100%; width: 100%;">
+              <div class="tr" style="width: 100%;">
+                  <div class="td" style="width: 100%;">
+                      <browse-filter [label]="'Orders'" [iconSource]="'assets/review.png'" [mode]="'orderBrowse'"></browse-filter>
+                  </div>
+              </div>
+              <div class="tr" style="height:0.3em; width:0;">
+              </div>
+              <div class="tr" style="width: 100%;">
+                  <div class="td" style="width: 100%; height: 100%">
+                      <div class="lower-panel">
                           <div class="t" style="height: 100%; width: 100%;">
-															<div class="tr" style="width: 100%;">
-																	<div class="td" style="width: 100%; height: 100%;">
-																			<div style="display: block; width: 100%; height: 100%; padding: 0.1em;">
+                              <div class="tr" style="width: 100%;">
+                                  <div class="td" style="width: 100%; height: 100%;">
+                                      <div style="display: block; width: 100%; height: 100%; padding: 0.1em;">
                                           <jqxGrid #myGrid
-                                                  [width]="'100%'"
-                                                  [height]="'100%'"
-                                                  [source]="dataAdapter"
-                                                  [pageable]="false"
-                                                  [autoheight]="false"
-                                                  [editable]="false"
-                                                  [sortable]="true"
-                                                  [columns]="columns"
-                                                  [altrows]="true"
-                                                  [selectionmode]="'checkbox'"
-																									[columnsresize]="true"
-                                                  #gridReference>
+                                                   [width]="'100%'"
+                                                   [height]="'100%'"
+                                                   [source]="dataAdapter"
+                                                   [pageable]="false"
+                                                   [autoheight]="false"
+                                                   [editable]="false"
+                                                   [sortable]="true"
+                                                   [columns]="columns"
+                                                   [altrows]="true"
+                                                   [selectionmode]="'checkbox'"
+                                                   [columnsresize]="true"
+                                                   #gridReference>
                                           </jqxGrid>
-																			</div>
-																	</div>
-															</div>
-															<div class="tr" style="width:100%">
-																	<div class="td" style="width: 100%">
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="tr" style="width:100%">
+                                  <div class="td" style="width: 100%">
                                       <div class="grid-footer">
                                           <div class="t" style="width: 100%">
                                               <div class="tr" style="width:100%">
@@ -60,21 +60,21 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
                                                                   <div class="title">{{myGrid.getselectedrowindexes().length}} selected</div>
                                                               </div>
                                                               <div class="td">
-                                                                  <jqxComboBox #statusComboBox 
-																																					[source]="dropdownChoices" 
-																																					[placeHolder]="'- Change Status -'" 
-																																					[dropDownVerticalAlignment]="'top'" 
-																																					[autoDropDownHeight]="true"></jqxComboBox>
+                                                                  <jqxComboBox #statusComboBox
+                                                                               [source]="dropdownChoices"
+                                                                               [placeHolder]="'- Change Status -'"
+                                                                               [dropDownVerticalAlignment]="'top'"
+                                                                               [autoDropDownHeight]="true"></jqxComboBox>
                                                               </div>
                                                               <div class="td button-container">
                                                                   <jqxButton
                                                                           [disabled]="myGrid.getselectedrowindexes().length === 0 || this.statusCombobox.getSelectedItem().value === ''"
-																																					[template]="'link'"
-																																					(onClick)="goButtonClicked()">
+                                                                          [template]="'link'"
+                                                                          (onClick)="goButtonClicked()">
                                                                       <img *ngIf="myGrid.getselectedrowindexes().length  != 0 && this.statusCombobox.getSelectedItem().value  != ''" src="assets/bullet_go.png" alt="" style="margin-right:0.2em;"/>
                                                                       <img *ngIf="myGrid.getselectedrowindexes().length === 0 || this.statusCombobox.getSelectedItem().value === ''" src="assets/bullet_go_disable.png" alt="" style="margin-right:0.2em;"/>
-																																			Go
-																																	</jqxButton>
+                                                                      Go
+                                                                  </jqxButton>
                                                               </div>
                                                               <div class="td button-container">
                                                                   <jqxButton
@@ -83,18 +83,18 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
                                                                           (onClick)="deleteButtonClicked()">
                                                                       <img *ngIf="myGrid.getselectedrowindexes().length != 0" src="assets/delete.png" alt="" style="margin-right:0.2em;"/>
                                                                       <img *ngIf="myGrid.getselectedrowindexes().length === 0" src="assets/delete_disable.png" alt="" style="margin-right:0.2em;"/>
-																																			Delete
-																																	</jqxButton>
+                                                                      Delete
+                                                                  </jqxButton>
                                                               </div>
                                                               <div class="td button-container">
                                                                   <jqxButton
-																																					[disabled]="myGrid.getselectedrowindexes().length === 0"
+                                                                          [disabled]="myGrid.getselectedrowindexes().length === 0"
                                                                           [template]="'link'"
                                                                           (onClick)="emailButtonClicked()">
                                                                       <img *ngIf="myGrid.getselectedrowindexes().length != 0" src="assets/email_go.png" alt="" style="margin-right:0.2em;"/>
                                                                       <img *ngIf="myGrid.getselectedrowindexes().length === 0" src="assets/email_go_disable.png" alt="" style="margin-right:0.2em;"/>
-																																			Email
-																																	</jqxButton>
+                                                                      Email
+                                                                  </jqxButton>
                                                               </div>
                                                           </div>
                                                       </div>
@@ -104,14 +104,14 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
                                                   </td>
                                               </div>
                                           </div>
-																			</div>
-																	</div>
-															</div>
-													</div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
-									</div>
-							</div>
-					</div>
+                  </div>
+              </div>
+          </div>
       </div>
 	`,
 	styles: [`
