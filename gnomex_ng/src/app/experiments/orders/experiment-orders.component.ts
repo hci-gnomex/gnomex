@@ -90,12 +90,8 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 																			[disabled]="myGrid.getselectedrowindexes().length === 0"
 																			[template]="'link'"
 																			(onClick)="deleteButtonClicked()">
-																		<img *ngIf="myGrid.getselectedrowindexes().length != 0"
-																				 src="assets/delete.png" alt=""
-																				 style="margin-right:0.2em;"/>
-																		<img *ngIf="myGrid.getselectedrowindexes().length === 0"
-																				 src="assets/delete_disable.png" alt=""
-																				 style="margin-right:0.2em;"/>
+																		<img *ngIf="myGrid.getselectedrowindexes().length != 0" src="assets/delete.png" alt="" style="margin-right:0.2em;"/>
+																		<img *ngIf="myGrid.getselectedrowindexes().length === 0" src="assets/delete_disable.png" alt="" style="margin-right:0.2em;"/>
 																		Delete
 																	</jqxButton>
 																</div>
@@ -104,12 +100,8 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 																			[disabled]="myGrid.getselectedrowindexes().length === 0"
 																			[template]="'link'"
 																			(onClick)="emailButtonClicked()">
-																		<img *ngIf="myGrid.getselectedrowindexes().length != 0"
-																				 src="assets/email_go.png" alt=""
-																				 style="margin-right:0.2em;"/>
-																		<img *ngIf="myGrid.getselectedrowindexes().length === 0"
-																				 src="assets/email_go_disable.png" alt=""
-																				 style="margin-right:0.2em;"/>
+																		<img *ngIf="myGrid.getselectedrowindexes().length != 0" src="assets/email_go.png" alt="" style="margin-right:0.2em;"/>
+																		<img *ngIf="myGrid.getselectedrowindexes().length === 0" src="assets/email_go_disable.png" alt="" style="margin-right:0.2em;"/>
 																		Email
 																	</jqxButton>
 																</div>
@@ -117,10 +109,7 @@ import {jqxComboBoxComponent} from "../../../assets/jqwidgets-ts/angular_jqxcomb
 														</div>
 													</div>
 													<td style="text-align: right">
-														<div>({{(source.localdata.length === null) ? 0 : source.localdata.length
-																																						 + (source.localdata.length
-																																								!= 1 ? " orders"
-																																					 : " order")}})
+														<div>({{(source.localdata.length === null) ? 0 : source.localdata.length + (source.localdata.length != 1 ? " orders" : " order")}})
 														</div>
 													</td>
 												</div>
