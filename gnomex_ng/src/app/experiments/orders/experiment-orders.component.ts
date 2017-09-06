@@ -68,11 +68,11 @@ import { jqxComboBoxComponent } from "../../../assets/jqwidgets-ts/angular_jqxco
                                                               </div>
                                                               <div class="td button-container">
                                                                   <jqxButton
-                                                                          [disabled]="myGrid.getselectedrowindexes().length === 0 || this.statusCombobox.getSelectedItem().value === ''"
+                                                                          [disabled]="myGrid.getselectedrowindexes().length === 0 || (this.statusCombobox.getSelectedItem() === null || this.statusCombobox.getSelectedItem().value === '')"
                                                                           [template]="'link'"
                                                                           (onClick)="goButtonClicked()">
-                                                                      <img *ngIf="myGrid.getselectedrowindexes().length  != 0 && this.statusCombobox.getSelectedItem().value  != ''" src="assets/bullet_go.png" alt="" style="margin-right:0.2em;"/>
-                                                                      <img *ngIf="myGrid.getselectedrowindexes().length === 0 || this.statusCombobox.getSelectedItem().value === ''" src="assets/bullet_go_disable.png" alt="" style="margin-right:0.2em;"/>
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length  != 0 && (this.statusCombobox.getSelectedItem()  != null && this.statusCombobox.getSelectedItem().value  != '')" src="assets/bullet_go.png" alt="" style="margin-right:0.2em;"/>
+                                                                      <img *ngIf="myGrid.getselectedrowindexes().length === 0 || (this.statusCombobox.getSelectedItem() === null || this.statusCombobox.getSelectedItem().value === '')" src="assets/bullet_go_disable.png" alt="" style="margin-right:0.2em;"/>
                                                                       Go
                                                                   </jqxButton>
                                                               </div>
@@ -100,7 +100,7 @@ import { jqxComboBoxComponent } from "../../../assets/jqwidgets-ts/angular_jqxco
                                                       </div>
                                                   </div>
                                                   <td style="text-align: right">
-                                                      <div>({{(source.localdata.length === null) ? 0 : source.localdata.length + (source.localdata.length > 1 ? " orders" : " order")}})</div>
+                                                      <div>({{(source.localdata.length === null) ? 0 : source.localdata.length + (source.localdata.length != 1 ? " orders" : " order")}})</div>
                                                   </td>
                                               </div>
                                           </div>
