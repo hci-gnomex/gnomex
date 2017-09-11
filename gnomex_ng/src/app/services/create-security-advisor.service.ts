@@ -4,6 +4,7 @@ import {Observable} from "rxjs/Observable";
 
 import 'rxjs/add/operator/map';
 import {LabListService} from "./lab-list.service";
+import {DictionaryService} from "./dictionary.service";
 
 @Injectable()
 export class CreateSecurityAdvisorService {
@@ -64,32 +65,47 @@ export class CreateSecurityAdvisorService {
         return this.versionValue;
     }
 
-    private myCoreFacilitiesValue: any[];
+    private myCoreFacilitiesValue: string[];
     public get myCoreFacilities(): any[] {
         if (this.myCoreFacilitiesValue === null) {
             return [];
         }
-        return this.myCoreFacilitiesValue;
+        let index: number;
+        let result: any[] = [];
+        for (index = 0; index < this.myCoreFacilitiesValue.length; index++) {
+            result.push(JSON.parse(this.myCoreFacilitiesValue[index]));
+        }
+        return result;
     }
 
-    private coreFacilitiesICanManageValue: any[];
+    private coreFacilitiesICanManageValue: string[];
     public get coreFacilitiesICanManage(): any[] {
         if (this.coreFacilitiesICanManageValue === null) {
             return [];
         }
-        return this.coreFacilitiesICanManageValue;
+        let index: number;
+        let result: any[] = [];
+        for (index = 0; index < this.coreFacilitiesICanManageValue.length; index++) {
+            result.push(JSON.parse(this.coreFacilitiesICanManageValue[index]));
+        }
+        return result;
     }
 
-    private coreFacilitiesICanSubmitToValue: any[];
+    private coreFacilitiesICanSubmitToValue: string[];
     public get coreFacilitiesICanSubmitTo(): any[] {
         if (this.coreFacilitiesICanSubmitToValue === null) {
             return [];
         }
-        return this.coreFacilitiesICanSubmitToValue;
+        let index: number;
+        let result: any[] = [];
+        for (index = 0; index < this.coreFacilitiesICanSubmitToValue.length; index++) {
+            result.push(JSON.parse(this.coreFacilitiesICanSubmitToValue[index]));
+        }
+        return result;
     }
 
     constructor(private http: Http,
-                private labListService: LabListService) {
+                private labListService: LabListService, private dictionaryService: DictionaryService) {
     }
 
     public hasPermission(permission: string): boolean {
@@ -152,68 +168,49 @@ export class CreateSecurityAdvisorService {
     }
 
     determineUsersCoreFacilities(): void {
-        if (this.isGuest) {
-            this.myCoreFacilitiesValue = null;
-            this.coreFacilitiesICanManageValue = null;
-            this.coreFacilitiesICanSubmitToValue = null;
-        } else if (this.isSuperAdmin) {
-            // TODO
-            this.myCoreFacilitiesValue = null;
-            this.coreFacilitiesICanManageValue = null;
-            this.coreFacilitiesICanSubmitToValue = null;
-            //myCoreFacilities = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
-            //coreFacilitiesICanManage = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
-            //coreFacilitiesICanSubmitTo = dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility");
-        } else {
-            // TODO
-            this.myCoreFacilitiesValue = null;
-            this.coreFacilitiesICanManageValue = null;
-            this.coreFacilitiesICanSubmitToValue = null;
-            /*
-            myCoreFacilities = new XMLList();
-				for each (var core:Object in createSecurityAdvisor.lastResult..CoreFacility) {
+        this.myCoreFacilitiesValue = [];
+        this.coreFacilitiesICanManageValue = [];
+        this.coreFacilitiesICanSubmitToValue = [];
 
-					for each (var dcf:Object in coreFacilities) {
-						if (dcf.@idCoreFacility == core.@idCoreFacility) {
-							var found:Boolean = false;
-							for (var i:int = 0; i < myCoreFacilities.length(); i++) {
-								var core2:Object = myCoreFacilities[i];
-								if (core.@idCoreFacility == '') {
-									found = true;
-									break;
-								} else if (core.@idCoreFacility == core2.@idCoreFacility) {
-									found = true;
-									break;
-								}
-							}
-							if (!found) {
-								myCoreFacilities[myCoreFacilities.length()] = dcf;
-							}
-						}
-					}
-				}
-				//myCoreFacilities = new XMLList(temp.toXMLString());
-				//myCoreFacilities = createSecurityAdvisor.lastResult..CoreFacility;
-				coreFacilitiesICanManage = new XMLList();
-				for each(var entry:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
-					for each (var entry1:Object in createSecurityAdvisor.lastResult.coreFacilitiesIManage.CoreFacility) {
-						if (entry.@value == entry1.@value) {
-							coreFacilitiesICanManage[coreFacilitiesICanManage.length()] = entry;
-							break;
-						}
-					}
-				}
+        if (this.isSuperAdmin) {
+            this.dictionaryService.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility").subscribe((response) => {
+                let index: number;
+                for (index = 0; index < response.length; index++) {
+                    this.myCoreFacilitiesValue.push(JSON.stringify(response[index]));
+                    this.coreFacilitiesICanManageValue.push(JSON.stringify(response[index]));
+                    this.coreFacilitiesICanSubmitToValue.push(JSON.stringify(response[index]));
+                }
+            });
+        } else if (!this.isGuest) {
+            this.dictionaryService.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility").subscribe((response) => {
+                let myCoreFacilitiesSet: Set<string> = new Set<string>();
+                let coreFacilitiesICanManageSet: Set<string> = new Set<string>();
+                let coreFacilitiesICanSubmitToSet: Set<string> = new Set<string>();
+                let index: number;
+                for (index = 0; index < this.result.coreFacilitiesIManage.length; index++) {
+                    coreFacilitiesICanManageSet.add(this.result.coreFacilitiesIManage[index].idCoreFacility);
+                    myCoreFacilitiesSet.add(this.result.coreFacilitiesIManage[index].idCoreFacility);
+                }
+                for (index = 0; index < this.result.coreFacilitiesICanSubmitTo.length; index++) {
+                    coreFacilitiesICanSubmitToSet.add(this.result.coreFacilitiesICanSubmitTo[index].idCoreFacility);
+                    myCoreFacilitiesSet.add(this.result.coreFacilitiesICanSubmitTo[index].idCoreFacility);
+                }
+                for (index = 0; index < this.result.coreFacilitiesForMyLab.length; index++) {
+                    myCoreFacilitiesSet.add(this.result.coreFacilitiesForMyLab[index].idCoreFacility);
+                }
 
-				coreFacilitiesICanSubmitTo = new XMLList();
-				for each(var entry2:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
-					for each (var entry3:Object in createSecurityAdvisor.lastResult.coreFacilitiesICanSubmitTo.CoreFacility) {
-						if (entry2.@value == entry3.@value) {
-							coreFacilitiesICanSubmitTo[coreFacilitiesICanSubmitTo.length()] = entry2;
-							break;
-						}
-					}
-				}
-             */
+                for (index = 0; index < response.length; index++) {
+                    if (myCoreFacilitiesSet.has(response[index].idCoreFacility)) {
+                        this.myCoreFacilitiesValue.push(JSON.stringify(response[index]));
+                    }
+                    if (coreFacilitiesICanManageSet.has(response[index].idCoreFacility)) {
+                        this.coreFacilitiesICanManageValue.push(JSON.stringify(response[index]));
+                    }
+                    if (coreFacilitiesICanSubmitToSet.has(response[index].idCoreFacility)) {
+                        this.coreFacilitiesICanSubmitToValue.push(JSON.stringify(response[index]));
+                    }
+                }
+            });
         }
     }
 

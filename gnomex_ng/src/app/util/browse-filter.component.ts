@@ -8,6 +8,9 @@ import {jqxCalendar} from "jqwidgets-framework";
 import {AppUserListService} from "../services/app-user-list.service";
 import {CreateSecurityAdvisorService} from "../services/create-security-advisor.service";
 import {ExperimentsService} from "../experiments/experiments.service";
+import {AnalysisService} from "../services/analysis.service";
+import {DictionaryService} from "../services/dictionary.service";
+import {DataTrackService} from "../services/data-track.service";
 
 @Component({
     selector: 'browse-filter',
@@ -30,11 +33,17 @@ export class BrowseFilterComponent implements OnInit {
     private dateFromString: string;
     private dateToString: string;
 
+    private showSearchTextInput: boolean = false;
+    private searchText: string;
+
     private showMoreSwitch: boolean = false;
     private showMore: boolean;
 
     private showExternalExperimentsCheckbox: boolean = false;
     private externalExperimentsFlag: boolean;
+
+    private showPublicCheckbox: boolean = false;
+    private publicFlag: boolean;
 
     private showCoreFacilityComboBox: boolean = false;
     private coreFacilityList: any[] = [];
@@ -44,11 +53,22 @@ export class BrowseFilterComponent implements OnInit {
     private codeRequestCategoryString: string;
     private requestCategoryList: any[] = [];
 
+    private showOrganismComboBox: boolean = false;
+    private idOrganismString: string;
+    private organismList: any[] = [];
+
+    private showGenomeBuildComboBox: boolean = false;
+    private idGenomeBuildString: string;
+    private genomeBuildList: any[] = [];
+
     private showCCNumberInput: boolean = false;
     private ccNumberString: string;
 
     private showExperimentsRadioGroup: boolean = false;
     private experimentsRadioString: string;
+
+    private showAnalysesRadioGroup: boolean = false;
+    private analysesRadioString: string;
 
     private showWorkflowStateRadioGroup: boolean = false;
     private workflowStateString: string;
@@ -59,7 +79,15 @@ export class BrowseFilterComponent implements OnInit {
     private showOrderNumberInput: boolean = false;
     private orderNumberString: string;
 
+    private showVisibilityCheckboxes: boolean = false;
+    private visibilityOwnerFlag: boolean;
+    private visibilityInstitutionFlag: boolean;
+    private visibilityAllLabMembersFlag: boolean;
+    private visibilityPublicFlag: boolean;
+
     private showLabComboBox: boolean = false;
+    private showLabMultiSelectComboBox: boolean = false;
+    private multiSelectIdLabs: Set<string> = new Set<string>();
     private labList: any[] = [];
     private idLabString: string;
     private ownerList: any[] = [];
@@ -73,7 +101,8 @@ export class BrowseFilterComponent implements OnInit {
 
     constructor(private labListService: LabListService, private getLabService: GetLabService,
                 private appUserListService: AppUserListService, private createSecurityAdvisorService: CreateSecurityAdvisorService,
-                private experimentsService: ExperimentsService) {
+                private experimentsService: ExperimentsService, private analysisService: AnalysisService, private dataTrackService: DataTrackService,
+                private dictionaryService: DictionaryService) {
         this.showMore = false;
         this.resetFields();
     }
@@ -126,43 +155,107 @@ export class BrowseFilterComponent implements OnInit {
                 this.showRequestCategoryComboBox = true;
 
                 this.showMore = true;
+
+                this.coreFacilityList = this.createSecurityAdvisorService.myCoreFacilities;
             }
         } else if (this.mode === "analysisBrowse") {
             if (isAdminState) {
-                // TODO
+                this.showMoreSwitch = true;
                 this.showAllCheckbox = true;
                 this.showDateRangePicker = true;
+                this.showSearchTextInput = true;
+                this.showPublicCheckbox = true;
+                this.showLabMultiSelectComboBox = true;
+                this.showOrganismComboBox = true;
+                this.showGenomeBuildComboBox = true;
+
+                this.showMore = true;
+
+                this.labListService.getLabList().subscribe((response: any[]) => {
+                    this.labList = response;
+                });
             } else if (isGuestState) {
-                // TODO
                 this.showDateRangePicker = true;
+                this.showSearchTextInput = true;
+                this.showOrganismComboBox = true;
+                this.showGenomeBuildComboBox = true;
             } else {
-                // TODO
                 this.showDateRangePicker = true;
+                this.showSearchTextInput = true;
+                this.showAnalysesRadioGroup = true;
+                this.showOrganismComboBox = true;
+                this.showGenomeBuildComboBox = true;
+                this.showMoreSwitch = true;
+
+                this.showMore = true;
             }
+
+            this.dictionaryService.getEntriesExcludeBlank("hci.gnomex.model.OrganismLite").subscribe((response) => {
+                this.organismList = response;
+            });
+        } else if (this.mode === "dataTrackBrowse") {
+            if (isAdminState) {
+                this.showOrganismComboBox = true;
+                this.showGenomeBuildComboBox = true;
+                this.showLabComboBox = true;
+                this.showVisibilityCheckboxes = true;
+
+                this.labListService.getLabList().subscribe((response: any[]) => {
+                    this.labList = response;
+                });
+            } else if (isGuestState) {
+                this.showOrganismComboBox = true;
+                this.showGenomeBuildComboBox = true;
+            } else {
+                this.showOrganismComboBox = true;
+                this.showGenomeBuildComboBox = true;
+                this.showVisibilityCheckboxes = true;
+            }
+
+            this.dictionaryService.getEntriesExcludeBlank("hci.gnomex.model.OrganismLite").subscribe((response) => {
+                this.organismList = response;
+            });
         }
     }
 
     resetFields(): void {
         this.allFlag = false;
         this.experimentsRadioString = "myLab";
+        this.analysesRadioString = "myLab";
         this.workflowStateString = "SUBMITTED";
         this.redosFlag = false;
         this.orderNumberString = "";
         this.idLabString = "";
+        this.multiSelectIdLabs.clear();
         this.ownerList = [];
         this.idAppUserString = "";
         this.dateFromString = "";
         this.dateToString = "";
+        this.searchText = "";
         this.externalExperimentsFlag = false;
+        this.publicFlag = false;
         this.idCoreFacilityString = "";
         this.coreFacilityList = [];
         this.codeRequestCategoryString = "";
+        this.idOrganismString = "";
+        this.idGenomeBuildString = "";
         this.ccNumberString = "";
         this.showEmptyFoldersFlag = false;
+        this.visibilityOwnerFlag = true;
+        this.visibilityInstitutionFlag = true;
+        this.visibilityAllLabMembersFlag = true;
+        this.visibilityPublicFlag = true;
     }
 
     toggleShowMore(): void {
         this.showMore = !this.showMore;
+        if (!this.showMore) {
+            this.multiSelectIdLabs.clear();
+            this.resetCoreFacilitySelection();
+            if (this.showLabMembersComboBox) {
+                this.idAppUserString = "";
+            }
+        }
     }
 
     resetLabSelection(): void {
@@ -188,6 +281,18 @@ export class BrowseFilterComponent implements OnInit {
         this.resetLabSelection();
     }
 
+    onMultiLabSelect(event: any): void {
+        if (event.args != undefined && event.args.item != null && event.args.item.value != null) {
+            this.multiSelectIdLabs.add(event.args.item.value);
+        }
+    }
+
+    onMultiLabUnselect(event: any): void {
+        if (event.args != undefined && event.args.item != null && event.args.item.value != null) {
+            this.multiSelectIdLabs.delete(event.args.item.value);
+        }
+    }
+
     onAppUserSelect(event: any): void {
         if (event.args != undefined && event.args.item != null && event.args.item.value != null) {
             this.idAppUserString = event.args.item.value;
@@ -203,7 +308,16 @@ export class BrowseFilterComponent implements OnInit {
     onCoreFacilitySelect(event: any): void {
         if (event.args != undefined && event.args.item != null && event.args.item.value != null) {
             this.idCoreFacilityString = event.args.item.value;
-            // TODO Gather Request Category List
+            if (this.showRequestCategoryComboBox) {
+                this.dictionaryService.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory").subscribe((response) => {
+                    this.requestCategoryList = response.filter(cat => {
+                        if (cat.isActive === "Y" && !(cat.value === "") && cat.isInternal === "Y") {
+                            return cat.idCoreFacility === this.idCoreFacilityString;
+                        }
+                        return false;
+                    });
+                });
+            }
         } else {
             this.resetCoreFacilitySelection();
         }
@@ -217,6 +331,46 @@ export class BrowseFilterComponent implements OnInit {
         this.idCoreFacilityString = "";
         this.codeRequestCategoryString = "";
         this.requestCategoryList = [];
+    }
+
+    onOrganismSelect(event: any): void {
+        if (event.args != undefined && event.args.item != null && event.args.item.value != null) {
+            this.idOrganismString = event.args.item.value;
+            if (this.showGenomeBuildComboBox) {
+                this.dictionaryService.getEntriesExcludeBlank("hci.gnomex.model.GenomeBuildLite").subscribe((response) => {
+                    this.genomeBuildList = response.filter(gen => {
+                        if (gen.isActive === "Y" && !(gen.value === "")) {
+                            return gen.idOrganism === this.idOrganismString;
+                        }
+                        return false;
+                    });
+                });
+            }
+        } else {
+            this.resetOrganismSelection();
+        }
+    }
+
+    onOrganismUnselect(): void {
+        this.resetOrganismSelection();
+    }
+
+    resetOrganismSelection(): void {
+        this.idOrganismString = "";
+        this.idGenomeBuildString = "";
+        this.genomeBuildList = [];
+    }
+
+    onGenomeBuildSelect(event: any): void {
+        if (event.args != undefined && event.args.item != null && event.args.item.value != null) {
+            this.idGenomeBuildString = event.args.item.value;
+        } else {
+            this.idGenomeBuildString = "";
+        }
+    }
+
+    onGenomeBuildUnselect(): void {
+        this.idGenomeBuildString = "";
     }
 
     onRequestCategorySelect(event: any): void {
@@ -334,7 +488,77 @@ export class BrowseFilterComponent implements OnInit {
     getAnalysisBrowseParameters(): URLSearchParams {
         let params: URLSearchParams = new URLSearchParams();
 
-        // TODO
+        if (this.showAllCheckbox && this.allFlag) {
+            params.set("allAnalysis", "Y");
+        } else {
+            if (this.showAnalysesRadioGroup) {
+                if (this.analysesRadioString === "all") {
+                    params.set("allAnalysis", "Y");
+                } else if (this.analysesRadioString === "myAnalyses") {
+                    params.set("idAppUser", this.createSecurityAdvisorService.idAppUser.toString());
+                } else if (this.analysesRadioString === "otherLabs") {
+                    params.set("publicAnalysisOtherGroups", "Y");
+                }
+            }
+
+            params.set("showMyLabsAlways", this.createSecurityAdvisorService.isSuperAdmin || this.createSecurityAdvisorService.isAdmin ? "N" : "Y");
+
+            if (this.createSecurityAdvisorService.isGuest || (this.showPublicCheckbox && this.publicFlag)) {
+                params.set("publicProjects", "Y");
+            }
+
+            if (this.showDateRangePicker && !(this.dateFromString === "") && !(this.dateToString === "")) {
+                params.set("createDateFrom", this.dateFromString);
+                params.set("createDateTo", this.dateToString);
+            }
+
+            if (this.showSearchTextInput && !(this.searchText === "")) {
+                params.set("searchText", this.searchText);
+            }
+
+            if (this.showLabMultiSelectComboBox && this.multiSelectIdLabs.size > 0) {
+                let labKeys: string = "";
+                this.multiSelectIdLabs.forEach(function (lab: string) {
+                    if (labKeys === "") {
+                        labKeys = labKeys.concat(lab);
+                    } else {
+                        labKeys = labKeys.concat(":", lab);
+                    }
+                }, this);
+                params.set("labKeys", labKeys);
+            }
+
+            if (this.showOrganismComboBox && !(this.idOrganismString === "")) {
+                params.set("idOrganism", this.idOrganismString);
+                if (this.showGenomeBuildComboBox && !(this.idGenomeBuildString === "")) {
+                    params.set("idGenomeBuild", this.idGenomeBuildString);
+                }
+            }
+        }
+
+        return params;
+    }
+
+    getDataTrackBrowseParameters(): URLSearchParams {
+        let params: URLSearchParams = new URLSearchParams();
+
+        if (this.showLabComboBox && !(this.idLabString === "")) {
+            params.set("idLab", this.idLabString);
+        }
+
+        if (this.showOrganismComboBox && !(this.idOrganismString === "")) {
+            params.set("idOrganism", this.idOrganismString);
+            if (this.showGenomeBuildComboBox && !(this.idGenomeBuildString === "")) {
+                params.set("idGenomeBuild", this.idGenomeBuildString);
+            }
+        }
+
+        if (this.showVisibilityCheckboxes) {
+            params.set("isVisibilityPublic", this.visibilityPublicFlag ? "Y" : "N");
+            params.set("isVisibilityOwner", this.visibilityOwnerFlag ? "Y" : "N");
+            params.set("isVisibilityMembers", this.visibilityAllLabMembersFlag ? "Y" : "N");
+            params.set("isVisibilityInstitute", this.visibilityInstitutionFlag ? "Y" : "N");
+        }
 
         return params;
     }
@@ -352,7 +576,14 @@ export class BrowseFilterComponent implements OnInit {
             });
         } else if (this.mode === "analysisBrowse") {
             let params: URLSearchParams = this.getAnalysisBrowseParameters();
-            // TODO
+            this.analysisService.getAnalysisGroupList(params).subscribe((response: any) => {
+                console.log("GetAnalysisGroupList called");
+            });
+        } else if (this.mode === "dataTrackBrowse") {
+            let params: URLSearchParams = this.getDataTrackBrowseParameters();
+            this.dataTrackService.getDataTrackList(params).subscribe((response: any) => {
+                console.log("GetDataTrackList called");
+            });
         }
     }
 }
