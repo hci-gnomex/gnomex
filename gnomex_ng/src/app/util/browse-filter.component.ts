@@ -342,13 +342,10 @@ export class BrowseFilterComponent implements OnInit {
     search(): void {
         if (this.mode === "experimentBrowse") {
             let params: URLSearchParams = this.getExperimentBrowseParameters();
-            this.experimentsService.getProjectRequestList(params).subscribe((response: any) => {
-                console.log("GetProjectRequestList called");
-            });
+            this.experimentsService.getProjectRequestList_fromBackend(params);
         } else if (this.mode === "orderBrowse") {
             let params: URLSearchParams = this.getOrderBrowseParameters();
             this.experimentsService.getRequestList(params).subscribe((response: any) => {
-                console.log("GetRequestList called");
             });
         } else if (this.mode === "analysisBrowse") {
             let params: URLSearchParams = this.getAnalysisBrowseParameters();

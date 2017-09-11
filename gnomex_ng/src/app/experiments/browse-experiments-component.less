@@ -19,9 +19,58 @@
   transition: all .25s;
 }
 
-.container {
+.flex-column-container {
   display: flex;
-  min-height:100px;
+  flex-direction: column;
+  background-color: white;
+  height: 100%;
+}
+
+.flex-row-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.item-row {
+
+}
+.item-row-one {
+  flex-grow: 1;
+}
+
+.item-row-two {
+  flex-grow: 1;
+}
+
+.item {
+  flex: 1 1 auto;
+  font-size: small;
+}
+
+.one {
+  width: 100%;
+  flex-grow: .25
+}
+
+.two {
+  width: 20%;
+  flex-grow: .10;
+ }
+
+.three {
+  width: 20%;
+  height: 6em;
+  flex-grow: 8;
+}
+
+.four {
+  width: 20%;
+  flex-grow: .10;
+}
+
+.five {
+  width: 20%;
+  flex-grow: .10;
 }
 
 .t {
@@ -36,6 +85,15 @@
 
 .td {
   display: table-cell;
+}
+
+div.lower-panel{
+  height: 100%;
+  width: 100%;
+  border: 1px solid darkgrey;
+  background-color: white;
+  padding: 0.3em;
+  display: block;
 }
 
 .jqx-tree {

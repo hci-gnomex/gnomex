@@ -26,7 +26,3 @@ task webpack(type: Exec, dependsOn: npmInstall) {
     args = ["run", "build:prod"]
   }
 }
-
-clean {
-  delete "dist"
-}

@@ -13,8 +13,10 @@ import { jqxNotificationComponent  } from "jqwidgets-framework";
 import { jqxCheckBoxComponent } from "jqwidgets-framework";
 import {jqxLoaderComponent} from "jqwidgets-framework";
 import {TreeComponent, ITreeOptions, TreeNode, TreeModel} from "angular-tree-component";
-
+import { BrowseFilterComponent } from "../util/browse-filter.component";
+import { transaction } from 'mobx';
 import * as _ from "lodash";
+import {Subscription} from "rxjs/Subscription";
 
 @Component({
     selector: "experiments",
@@ -48,7 +50,6 @@ export class BrowseExperimentsComponent {
     @ViewChild("newProjectWindow") newProjectWindow: jqxWindowComponent;
     @ViewChild("deleteProjectWindow") deleteProjectWindow: jqxWindowComponent;
     @ViewChild("toggleButton") toggleButton: jqxButtonComponent;
-    @ViewChild("showEmptyCheckBox") showEmptyCheckBox: jqxCheckBoxComponent;
 
     @ViewChild("deleteProject") deleteProject: jqxButtonComponent;
     @ViewChild("newProject") newProject: jqxButtonComponent;
@@ -57,6 +58,8 @@ export class BrowseExperimentsComponent {
     @ViewChild("deleteProjectNoButtonClicked") deleteProjectNoButton: jqxButtonComponent;
     @ViewChild("jqxLoader") jqxLoader: jqxLoaderComponent;
     @ViewChild("jqxConstructorLoader") jqxConstructorLoader: jqxLoaderComponent;
+    @ViewChild(BrowseFilterComponent)
+    private _browseFilterComponent: BrowseFilterComponent;
 
     private treeModel: TreeModel;
     /*
@@ -90,7 +93,6 @@ export class BrowseExperimentsComponent {
     private targetItem: any;
     private projectDescription: string = "";
     private projectName: string = "";
-//    private projectLabName: string = "";
     private experimentService: ExperimentsService;
     private labMembers: any;
     private billingAccounts: any;
@@ -104,32 +106,42 @@ export class BrowseExperimentsComponent {
     private idCoreFacility: string = "3";
     private showBillingCombo: boolean = false;
     private experimentCount: number;
+    private subscription: Subscription;
 
     ngOnInit() {
         this.treeModel = this.treeComponent.treeModel;
+
     }
     constructor(private experimentsService: ExperimentsService) {
+
+
         this.experimentService = experimentsService;
 
         this.experimentsService.getExperiments().subscribe(response => {
             this.buildTree(response);
             //this.thisResponse = response;
-        });
+        })
         this.items = [];
         this.dragEndItems = [];
         this.labMembers = [];
         this.billingAccounts = [];
         this.labs = [];
 
+
+        this.experimentsService.getProjectRequestListObservable().subscribe(response => {
+            this.buildTree(response);
+            //this.thisResponse = response;
+        });
+
     }
 
     go(event: any) {
         console.log("event " + event);
     }
+
     /*
     Build the tree data
     @param
-        what
      */
     buildTree(response: any[]) {
         this.experimentCount = 0;
@@ -206,15 +218,6 @@ export class BrowseExperimentsComponent {
         this.getLabUsers($event);
     }
 
-    onActiveChangedEvent($event) {
-        console.log("event is " + event);
-
-    }
-
-    onDragEnd1($event) {
-        console.log("event is " + event);
-    }
-
     /*
         Determine if the object is an array
         @param what
@@ -243,7 +246,7 @@ export class BrowseExperimentsComponent {
         } else {
             this.showBillingCombo = true;
         }
-        let params: URLSearchParams = new URLSearchParams();
+        var params: URLSearchParams = new URLSearchParams();
         params.set("idLab", event.to.parent.idLab);
 
         var lPromise = this.experimentService.getLab(params).toPromise();
@@ -342,7 +345,7 @@ export class BrowseExperimentsComponent {
         } else {
             this.isClose = false;
             this.selectedIndex = -1;
-            let params: URLSearchParams = new URLSearchParams();
+            var params: URLSearchParams = new URLSearchParams();
             params.set("idRequest", this.currentItem.id);
             params.set("idProject", this.targetItem.id);
             var appUserId = this.getAppUserId(this.selectedItem);
@@ -408,7 +411,7 @@ export class BrowseExperimentsComponent {
      * @param event
      */
     onOwnerSelect(event: any): void {
-        let args = event.args;
+        var args = event.args;
         if (args !== undefined && event.args.item) {
             this.selectedItem = event.args.item.value;
             this.selectedIndex = event.args.index;
@@ -443,8 +446,8 @@ export class BrowseExperimentsComponent {
     showEmptyFoldersChange(event: any): void {
         this.jqxLoader.open();
 
-        let checked = event.args.checked;
-        let params: URLSearchParams = new URLSearchParams();
+        var checked = event.args.checked;
+        var params: URLSearchParams = new URLSearchParams();
         //TODO
         // When merged with the filter this will change
         params.set("showCategory", "N");
@@ -519,7 +522,7 @@ export class BrowseExperimentsComponent {
      * The yes button was selected in the delete project window.
      */
     deleteProjectYesButtonClicked() {
-        let params: URLSearchParams = new URLSearchParams();
+        var params: URLSearchParams = new URLSearchParams();
         params.set("idProject", this.selectedItem.id);
 
         var lPromise = this.experimentsService.deleteProject(params).toPromise();
@@ -535,7 +538,6 @@ export class BrowseExperimentsComponent {
     refreshProjectRequestList() {
 
         var lPromise = this.experimentsService.getExperiments().toPromise();
-        this.showEmptyCheckBox.checked(false);
         lPromise.then( response => {
             this.buildTree(response);
         });
@@ -546,7 +548,7 @@ export class BrowseExperimentsComponent {
      * @param project
      */
     saveProject(project: any) {
-        let params: URLSearchParams = new URLSearchParams();
+        var params: URLSearchParams = new URLSearchParams();
 
 
         project.name = this.projectName;
@@ -572,17 +574,16 @@ export class BrowseExperimentsComponent {
      * Get the project.
      */
     getProject() {
-        let idProject: any = 0;
+        var idProject: any = 0;
 
-        let params: URLSearchParams = new URLSearchParams();
+        var params: URLSearchParams = new URLSearchParams();
         if (!this.selectedProjectLabItem) {
             this.msgEnterLab.open();
         } else {
-//            let mylab = this.projectLabName;
             params.set("idLab", this.selectedProjectLabItem.idLab);
             params.set("idProject", idProject);
 
-            let lPromise = this.experimentService.getProject(params).toPromise();
+            var lPromise = this.experimentService.getProject(params).toPromise();
             lPromise.then(response => {
                 this.saveProject(response.Project);
             });
@@ -602,7 +603,7 @@ export class BrowseExperimentsComponent {
      * @param event
      */
     onBillingSelect(event: any): void {
-        let args = event.args;
+        var args = event.args;
         if (args !== undefined && event.args.item) {
             this.selectedBillingItem = event.args.item.value;
             this.selectedBillingIndex = event.args.index;
@@ -610,8 +611,8 @@ export class BrowseExperimentsComponent {
     }
 
     onProjectLabSelect(event: any): void {
-        let args = event.args;
-        if (args !== undefined) {
+        var args = event.args;
+        if (args !== undefined && event.args.item) {
             this.selectedProjectLabItem = event.args.item.originalItem;
             this.selectedProjectLabIndex = event.args.index;
         }
@@ -623,7 +624,6 @@ export class BrowseExperimentsComponent {
      */
     treeOnSelect(event: any) {
         console.log("event");
-//        let args = event.args;
         this.selectedItem = event.node;
 
         //Lab
@@ -646,12 +646,14 @@ export class BrowseExperimentsComponent {
      */
     expandCollapseClicked(): void {
         setTimeout(_ => {
-            let toggled = this.toggleButton.toggled();
+
+            var toggled = this.toggleButton.toggled();
 
             if (!toggled) {
                 this.toggleButton.val("Expand Projects");
                 this.treeModel.collapseAll();
             } else {
+
                 this.toggleButton.val("Collapse Projects");
                 this.treeModel.expandAll();
             }
