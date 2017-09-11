@@ -18,7 +18,7 @@ import { ToggleButtonModule } from "../../modules/togglebutton.module";
 import { TextAreaModule } from "../../modules/textarea.module";
 import { LoaderModule } from "../../modules/loader.module";
 import { ComboBoxModule } from "../../modules/combobox.module";
-
+import { UtilModule } from "../util/util.module";
 /**
  * @author mbyrne
  * @since 12/19/16
@@ -26,7 +26,7 @@ import { ComboBoxModule } from "../../modules/combobox.module";
 @NgModule({
     imports: [ EXPERIMENTS_ROUTING, CommonModule, GridModule, FormsModule, TreeModule, WindowModule, ButtonModule,
         NotificationModule, CheckBoxModule, InputModule, ToggleButtonModule, TextAreaModule, LoaderModule,
-        ComboBoxModule],
+        ComboBoxModule, UtilModule],
     declarations: [ BrowseExperimentsComponent,
         ViewExperimentComponent,
     ]

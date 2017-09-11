@@ -1,77 +1,53 @@
-<div class="background" style="width: 25%">
-    <div class="t">
-        <div class="tr">
-            <div class="td">
-                <div style="font-size:small">
-                    <div class="t">
-                        <div class="tr" style="vertical-align: middle">
-                            <div class="td" style="text-align: left;vertical-align: middle">
-                                {{experimentCount}} experiments
-                            </div>
-                            <div class="td" style="text-align: right">
-                                <jqxButton #dragDropHint [template]="'link'" (onClick)="dragDropHintClicked()"
-                                           [imgSrc]="'assets/information.png'" [imgPosition]="'center'"
-                                           [textImageRelation]="'imageBeforeText'">Drag-and-drop hint</jqxButton>
-                            </div>
-                        </div>
-                    </div>
+<div class="background">
+    <div class="flex-column-container">
+        <div class="item one">
+            <div style="margin-bottom: 0.3em;">
+                <browse-filter [label]="'Experiments'" [iconSource]="'assets/flask.png'" [mode]="'experimentBrowse'"></browse-filter>
+            </div>
+        </div>
+        <div class="item two">
+            <div class="flex-row-container">
+                <div class="item-row item-row-one">
+                    {{experimentCount}} experiments
+                </div>
+                <div class="item-row item-row-two">
+                    <jqxButton #dragDropHint [template]="'link'" (onClick)="dragDropHintClicked()"
+                               [imgSrc]="'assets/information.png'" [imgPosition]="'center'"
+                               [textImageRelation]="'imageBeforeText'">Drag-and-drop hint</jqxButton>
                 </div>
             </div>
         </div>
-    </div>
-    <br>
-    <div style="height: 80%;width: 100%">
-        <tree-root #tree (moveNode)="onMoveNode($event)"
-                   (dragEnd)="onDragEnd1($event)"
-                   (activate)="treeOnSelect($event)"
-                   [nodes]="items" [options]="options">
-            <ng-template #treeNodeTemplate let-node let-index="index">
-                <img src="{{node.data.icon}}" height="16" width="16">
-                <span>{{ node.data.label }}</span>
-            </ng-template>
-        </tree-root>
-    </div>
-    <br>
-    <div class="t">
-        <div class="tr">
-            <div class="td">
-                <div style="font-size:small">
-                    <div class="t">
-                        <div class="tr" style="vertical-align: middle">
-                            <div class="td" style="text-align: left">
-                                <jqxToggleButton #toggleButton [template]="'link'" (onClick)="expandCollapseClicked()">Expand Projects</jqxToggleButton>
-                            </div>
-                            <div class="td" style="text-align: left">
-                                <jqxCheckBox #showEmptyCheckBox (onChange)="showEmptyFoldersChange($event)"
-                                             [checked]='false'>
-                                    Show Empty Folders
-                                </jqxCheckBox>
-                            </div>
-                        </div>
-                    </div>
+        <div class="item three">
+            <tree-root #tree (moveNode)="onMoveNode($event)"
+                       (dragEnd)="onDragEnd1($event)"
+                       (activate)="treeOnSelect($event)"
+                       [nodes]="items" [options]="options">
+                <ng-template #treeNodeTemplate let-node let-index="index">
+                    <img src="{{node.data.icon}}" height="16" width="16">
+                    <span>{{ node.data.label }}</span>
+                </ng-template>
+            </tree-root>
+        </div>
+        <div class="item four">
+            <div class="flex-row-container">
+                <div class="item-row item-row-one">
+                    <jqxButton #newProject [template]="'link'" [disabled]="true" (onClick)="newProjectClicked()" [imgSrc]="'assets/folder_add.png'" [imgPosition]="'center'" [textImageRelation]="'imageBeforeText'">New Project
+                    </jqxButton>
+                </div>
+                <div class="item-row item-row-two">
+                    <jqxButton #deleteProject [template]="'link'" [disabled]="true" (onClick)="deleteProjectClicked()" [imgSrc]="'assets/folder_delete.png'" [imgPosition]="'center'" [textImageRelation]="'imageBeforeText'">Delete Project
+                    </jqxButton>
                 </div>
             </div>
         </div>
-        <div class="tr">
-            <div class="td">
-                <div style="font-size:small">
-                    <div class="t">
-                        <div class="tr" style="vertical-align: middle">
-                            <div class="td" style="text-align: left">
-                                <jqxButton #newProject [template]="'link'" [disabled]="true" (onClick)="newProjectClicked()" [imgSrc]="'assets/folder_add.png'" [imgPosition]="'center'" [textImageRelation]="'imageBeforeText'">New Project
-                                </jqxButton>
-                            </div>
-                            <div class="td" style="text-align: left">
-                                <jqxButton #deleteProject [template]="'link'" [disabled]="true" (onClick)="deleteProjectClicked()" [imgSrc]="'assets/folder_delete.png'" [imgPosition]="'center'" [textImageRelation]="'imageBeforeText'">Delete Project
-                                </jqxButton>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="item five">
+            <div class="item-row item-row-one">
+                <jqxToggleButton #toggleButton [template]="'link'" (onClick)="expandCollapseClicked()">Expand Projects</jqxToggleButton>
             </div>
         </div>
     </div>
 </div>
+
 <div>
     <jqxWindow #reassignWindow
                [width]="600"
@@ -190,7 +166,7 @@
                [resizable]="false"
     >
 
-        <div style="width: 60%; background-color: #4cae4c">
+        <div style="width: 60%; background-color: #9ec79e">
             <div>
                 <img width="14" height="14" src="../../assets/jqwidgets/images/help.png" alt=""/>
                 New Project
@@ -318,8 +294,8 @@
                                 <div class="td" style="width: 100%">
                                     <div style="width: 100%">
                                         <div *ngIf="selectedItem" class="tr" style="text-align: center">
-                                            Delete project {{selectedItem.data.label}}?
-                                            <!--Delete project-->
+                                            <!--Delete project {{selectedItem.data.label}}?-->
+                                            Delete project
                                         </div>
                                     </div>
                                 </div>
