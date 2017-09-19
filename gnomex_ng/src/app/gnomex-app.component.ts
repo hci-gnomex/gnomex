@@ -3,9 +3,11 @@
  */
 import {Component, ViewChild, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
+import {AuthHttp} from "angular2-jwt";
 import {Http, Response} from "@angular/http";
+import {LocalStorageService} from "angular-2-local-storage";
 import {UserService} from "@hci/user";
-import {AuthenticationService} from "@hci/authentication";
+import {AuthenticationService, TimeoutNotificationComponent} from "@hci/authentication";
 import {AppHeaderComponent} from "@hci/app-header";
 import {NavigationAction, NavigationItem, PrimaryNavigationItem, PrimaryNavigationItemGroup} from "@hci/navigation";
 import {AppFooterComponent} from "@hci/app-footer";
@@ -37,10 +39,12 @@ export class GnomexAppComponent implements OnInit {
 
     private _primaryNavEnabled: Observable<boolean>;
 
-    constructor(private userService: UserService,
+    constructor(private authHttp: AuthHttp,
+                private userService: UserService,
                 private authenticationService: AuthenticationService,
                 private router: Router,
-                private http: Http) {
+                private http: Http,
+                private _localStorageService: LocalStorageService) {
     }
 
     ngOnInit() {

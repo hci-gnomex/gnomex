@@ -20,7 +20,7 @@ import {
 import {
   AuthenticationModule, AuthenticationService,
   AUTHENTICATION_LOGOUT_PATH, AUTHENTICATION_ROUTE,
-  AUTHENTICATION_TOKEN_KEY, AUTHENTICATION_TOKEN_ENDPOINT, AUTHENTICATION_DIRECT_ENDPOINT
+  AUTHENTICATION_TOKEN_KEY, AUTHENTICATION_TOKEN_ENDPOINT, AUTHENTICATION_DIRECT_ENDPOINT, AUTHENTICATION_MAX_INACTIVITY_MINUTES
 } from "@hci/authentication";
 import {AppHeaderModule} from "@hci/app-header";
 import {NavigationModule} from "@hci/navigation";
@@ -30,7 +30,7 @@ import "./gnomex-app.css";
 import {AppFooterModule, APP_INFO_SOURCE} from "@hci/app-footer";
 
 let localStorageServiceConfig: ILocalStorageServiceConfig = {
-  prefix: "hci-ri-core",
+  prefix: "gnomex",
   storageType: "localStorage"
 };
 
@@ -66,6 +66,7 @@ let localStorageServiceConfig: ILocalStorageServiceConfig = {
     {provide: AUTHENTICATION_LOGOUT_PATH, useValue: "/gnomex/logout"},
     {provide: AUTHENTICATION_ROUTE, useValue: "/authenticate"},
     {provide: AUTHENTICATION_TOKEN_KEY, useValue: "gnomex-jwt"},
+    {provide: AUTHENTICATION_MAX_INACTIVITY_MINUTES, useValue: 2},
     UserService,
     AuthenticationService,
     ExperimentsService,

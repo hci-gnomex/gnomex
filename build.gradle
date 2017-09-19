@@ -34,7 +34,7 @@ dependencies {
     runtime group: 'hci', name: 'hci-servlet-filter-cors', version: '1.+'
     runtime group: 'hci', name: 'hci-servlet-filter-pushstate', version: '1.+'
 
-    compile group: 'hci', name: 'auth-utils', version: '1.3+'
+    compile group: 'hci', name: 'auth-services', version: '1.+'
     compile group: 'hci', name: 'hci-bean-validation', version: '+'
 
     compile group: 'servlets.com', name: 'cos', version: '05Nov2002'
