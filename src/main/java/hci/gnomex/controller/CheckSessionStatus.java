@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
+
 public class CheckSessionStatus extends HttpServlet {
   private static Logger LOG = Logger.getLogger(CheckSessionStatus.class);
 

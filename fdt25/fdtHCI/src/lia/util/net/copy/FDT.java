@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
+//import lia.util.net.common.FDTCommandLine;
 
 import lia.util.net.common.AbstractFDTCloseable;
 import lia.util.net.common.Config;
@@ -44,7 +45,7 @@ public class FDT {
 
     private static String UPDATE_URL = "http://monalisa.cern.ch/FDT/lib/";
 
-    public static final String FDT_FULL_VERSION = "0.24.0-201512041353";
+    public static final String FDT_FULL_VERSION = "0.25.0-201704201353";
 
     String mlDestinations = "monalisa2.cern.ch:28884";
 

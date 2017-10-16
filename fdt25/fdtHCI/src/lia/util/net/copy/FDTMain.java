@@ -4,6 +4,7 @@
 package lia.util.net.copy;
 
 import java.lang.reflect.Method;
+//import lia.util.net.copy.FDT;
 
 /**
  * Just a wrapper to check for Java version.</br>

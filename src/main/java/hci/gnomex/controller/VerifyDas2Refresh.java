@@ -1,11 +1,9 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.*;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.GenomeBuild;
-import hci.gnomex.model.Organism;
-import hci.gnomex.model.Segment;
-import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.utility.DataTrackQuery;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.QualifiedDataTrack;
@@ -47,6 +45,12 @@ public class VerifyDas2Refresh extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+      String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+      if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+        analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+                PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+      }
+
       dataTrackBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
       
       

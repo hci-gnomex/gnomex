@@ -52,7 +52,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 	String fileName = null;
 
 	try {
-		sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+		sess = HibernateSession.currentSession((req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest"));
 
 		String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
@@ -65,7 +65,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 		if (secAdvisor == null) {
 			System.out
 					.println("UploadSequenceFileServlet:  Warning - unable to find existing session. Creating security advisor.");
-			secAdvisor = SecurityAdvisor.create(sess, req.getUserPrincipal().getName());
+			secAdvisor = SecurityAdvisor.create(sess, (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest"));
 		}
 
 		//

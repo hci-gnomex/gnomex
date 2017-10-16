@@ -72,7 +72,7 @@ protected SecurityAdvisor getSecurityAdvisor(UploadFileServletData data) throws 
 	SecurityAdvisor secAdvisor = (SecurityAdvisor) data.req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 	if (secAdvisor == null) {
 		System.out.println(this.getClass().getSimpleName() + ":  Warning - unable to find existing session. Creating security advisor.");
-		secAdvisor = SecurityAdvisor.create(data.sess, data.req.getUserPrincipal().getName());
+		secAdvisor = SecurityAdvisor.create(data.sess, data.req.getUserPrincipal() != null ? data.req.getUserPrincipal().getName() : "guest");
 	}
 	if (secAdvisor == null) {
 		System.out.println(this.getClass().getSimpleName() + ": Error - Unable to find or create security advisor.");
@@ -86,7 +86,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 	try {
 		data.req = req;
 		data.res = res;
-		data.sess = HibernateSession.currentSession(data.req.getUserPrincipal().getName());
+		data.sess = HibernateSession.currentSession(data.req.getUserPrincipal() != null ? data.req.getUserPrincipal().getName() : "guest");
 		setParentObjectName(data);
 		setIdFieldName(data);
 		setNumberFieldName(data);

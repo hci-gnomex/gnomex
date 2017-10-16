@@ -57,7 +57,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
 
         try {
 
-            userName = req.getUserPrincipal().getName();
+            userName = req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest";
 
             // Get security advisor
             secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);

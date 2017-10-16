@@ -66,6 +66,7 @@ public Command execute() throws RollBackCommandException {
 		String universityUserAuthorization = (PropertyDictionaryHelper.getInstance(sess).isUniversityUserAuthentication() ? "Y" : "N");
 		String siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
 		String siteSplash = PropertyDictionaryHelper.getSiteSplash(sess, idCoreFacility);
+		String experimentAlias = PropertyDictionaryHelper.getExperimentAlias(sess, idCoreFacility);
 
 		String baseURL = "";
 		if (serverPort == 80 || (serverPort == 443 && isSecure)) {
@@ -94,6 +95,11 @@ public Command execute() throws RollBackCommandException {
 		node = new Element("Property");
 		node.setAttribute("name", "site_splash");
 		node.setAttribute("value", siteSplash);
+		doc.getRootElement().addContent(node);
+
+		node = new Element("Property");
+		node.setAttribute("name", "experiment_alias");
+		node.setAttribute("value", experimentAlias);
 		doc.getRootElement().addContent(node);
 
 		getCoreFacilities(sess, doc);

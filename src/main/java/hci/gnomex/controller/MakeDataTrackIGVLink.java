@@ -64,12 +64,12 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 	Session sess = null;
 	String username = "";
 	try {
-		sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+		sess = HibernateSession.currentSession((req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest"));
 
 		// Get the dictionary helper
 		// DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
-		username = req.getUserPrincipal().getName();
+		username = (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
 		// Get security advisor
 		SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -168,6 +168,12 @@ public void execute(HttpServletResponse res, String serverName, SecurityAdvisor 
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 		String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+		String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+		if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+					PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,username);
+		}
+
 		String dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(
 				PropertyDictionary.DATATRACK_FILESERVER_URL);
 		String dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(
@@ -318,12 +324,14 @@ private String checkForIGVUserFolderExistence(File igvLinkDir, String username) 
 
 	String desiredDirectory = null;
 
-	for (File directory : directoryList) {
-		if (directory.getName().length() > 36) {
-			String parsedUsername = directory.getName().substring(36);
-			if (parsedUsername.equals(username)) {
-				desiredDirectory = directory.getName();
-				delete(directory);
+	if (directoryList != null) {
+		for (File directory : directoryList) {
+			if (directory.getName().length() > 36) {
+				String parsedUsername = directory.getName().substring(36);
+				if (parsedUsername.equals(username)) {
+					desiredDirectory = directory.getName();
+					delete(directory);
+				}
 			}
 		}
 	}

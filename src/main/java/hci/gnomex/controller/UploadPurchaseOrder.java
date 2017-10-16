@@ -35,7 +35,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	try {
-		Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+		Session sess = HibernateSession.currentSession((req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest"));
 
 		res.setContentType("text/html");
 		MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE);

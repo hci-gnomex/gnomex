@@ -256,7 +256,7 @@
 
 			for (var row:String in parentDocument.samples) {
 
-				var multiplex:XMLList = parentDocument.samples[row].(@multiplexGroupNumber != '');
+				var multiplex:XMLList = parentDocument.samples[row].(hasOwnProperty("@multiplexGroupNumber")&& @multiplexGroupNumber != '');
 				var volume:XMLList = parentDocument.samples[row].(hasOwnProperty("@sampleVolume")&& @sampleVolume != '');
 				var fragSizeTo:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeTo") && @qualFragmentSizeTo != '');
 				var fragSizeFrom:XMLList = parentDocument.samples[row].(hasOwnProperty("@qualFragmentSizeFrom") && @qualFragmentSizeFrom != '');
@@ -265,7 +265,7 @@
 
 
 				var msgMultiplex:String = validate.validateInteger(multiplex.length() > 0 ? multiplex.@multiplexGroupNumber : "", true);
-				if(msgMultiplex){
+				if(msgMultiplex && !isExternal){
 					errorDict["multiplex"] =  msgMultiplex +" in \"Multiplex\" column.\n";
 				}
 				var msgNumSeqLanes:String = validate.validateInteger(numSeqLanes.length() > 0 ? numSeqLanes.@numberSequencingLanes  : '', true);

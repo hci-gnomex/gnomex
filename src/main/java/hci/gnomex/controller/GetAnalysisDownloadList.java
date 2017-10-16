@@ -1,6 +1,8 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.model.FieldFormatter;
@@ -115,6 +117,13 @@ public Command execute() throws RollBackCommandException {
 		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 		baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+		String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+		if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+			baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+					PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+		}
+
+		System.out.println ("[GetAnalysisDownloadList] baseDir: " + baseDir + " use_altstr: " + use_altstr + " username: " + this.getUsername());
 
 		Analysis a = null;
 		if (idAnalysis != null && idAnalysis.intValue() == 0) {
@@ -187,6 +196,8 @@ public Command execute() throws RollBackCommandException {
 			Map directoryMap = new TreeMap();
 			Map fileMap = new HashMap(5000);
 			List analysisNumbers = new ArrayList<String>();
+			System.out.println ("[GetAnalysisDownloadList] baseDir: " + baseDir + " use_altstr: " + use_altstr + " username: " + this.getUsername());
+
 			GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, a.getKey(), analysisNumbers, analysisMap,
 					directoryMap, false);
 

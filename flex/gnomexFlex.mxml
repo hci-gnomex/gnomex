@@ -440,6 +440,10 @@
 		public var siteLogo:String = "";
 
 		[Bindable]
+		public var experimentAlias:String = "Experiment";
+
+
+		[Bindable]
 		[Embed(source="assets/gnomex_logo.png")]
 		public var iconLogo:Class;
 
@@ -1296,6 +1300,12 @@
 					welcomeSplash = getLaunchProperties.lastResult.Property.(@name == "site_splash").@value;
 				} else {
 					welcomeSplash = "assets/gnomex_splash_logo.png";
+				}
+
+				if (getLaunchProperties.lastResult.Property.(@name == "experiment_alias").@value != "") {
+					experimentAlias = getLaunchProperties.lastResult.Property.(@name == "experiment_alias").@value;
+				} else {
+					experimentAlias = "Experiment";
 				}
 				topMenuBar.visible = true;
 				loggedInInit();
@@ -4264,8 +4274,8 @@
 		
 		<menuitem label="Orders" icon="iconOrders" />
 		
-		<menuitem label="Experiments..."  icon="iconFlask" >
-			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+		<menuitem label="{'' + experimentAlias + 's...'}"  icon="iconFlask" >
+			<menuitem  label="{'Browse ' + experimentAlias + 's'}"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment" />
 			<menuitem  label="Add Additional Illumina Sequencing Lanes"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>

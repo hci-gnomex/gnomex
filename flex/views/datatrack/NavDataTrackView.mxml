@@ -1083,6 +1083,7 @@
 		public function createIOBIOLinks():void {
 
 			var params:Object = new Object();
+//			params.idAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
 			params.idDataTrack = browseTree.selectedItem.@idDataTrack;
 			params.requestType = "IOBIO";
 

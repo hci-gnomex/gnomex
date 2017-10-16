@@ -1,28 +1,11 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.*;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisCollaborator;
-import hci.gnomex.model.AnalysisExperimentItem;
-import hci.gnomex.model.AnalysisFile;
-import hci.gnomex.model.AnalysisGroup;
-import hci.gnomex.model.AnalysisType;
-import hci.gnomex.model.DataTrack;
-import hci.gnomex.model.DataTrackFile;
-import hci.gnomex.model.DataTrackFolder;
-import hci.gnomex.model.GenomeBuild;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Notification;
-import hci.gnomex.model.Organism;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.TransferLog;
-import hci.gnomex.model.UnloadDataTrack;
-import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisCollaboratorParser;
 import hci.gnomex.utility.AnalysisFileParser;
@@ -574,6 +557,11 @@ public Command execute() throws RollBackCommandException {
 			if (analysisFileParser != null) {
 				String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 						PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+				String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+				if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+					analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+							PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+				}
 
 				for (Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
 					String idAnalysisFileString = (String) i.next();
@@ -668,7 +656,14 @@ public Command execute() throws RollBackCommandException {
 			// Create the analysis directory
 			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 					PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+
+			String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+			if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+				baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+						PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+			}
 			String analysisDir = getAnalysisDirectory(baseDir, analysis);
+
 			File ad = new File(analysisDir);
 			if (!ad.exists()) {
 				ad.mkdirs();

@@ -693,6 +693,7 @@
 				
 				//send to server
 				var params:Object = new Object();
+				params.idAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
 				params.pathName = txt;
 				params.requestType = "IOBIO";
 								
@@ -704,7 +705,7 @@
 				
 				if (makeIOBIOLinks.lastResult.name() == "SUCCESS") {					
 					
-					navigateToURL(new URLRequest(makeIOBIOLinks.lastResult.@urlsToLink),"IOBIO");						
+					navigateToURL(new URLRequest(makeIOBIOLinks.lastResult.@urlsToLink),"_blank");
 				} else {
 					Alert.show("Check that the file exists and you have access then try again.",
 						"Unable to start the iobio.io viewer.");
@@ -731,7 +732,7 @@
 			private function onMakeGENELinks(event:ResultEvent):void {
 
 				if (makeGENELinks.lastResult.name() == "SUCCESS") {					
-					navigateToURL(new URLRequest(makeGENELinks.lastResult.@urlsToLink),"GENE");					
+					navigateToURL(new URLRequest(makeGENELinks.lastResult.@urlsToLink),"_blank");
 				}
 				
 				else {
@@ -792,7 +793,7 @@
 			
 			private function onMakeUCSCLinks(event:ResultEvent):void {
 				if (makeUCSCLinks.lastResult.name() == "SUCCESS") {
-					navigateToURL(new URLRequest(makeUCSCLinks.lastResult.@ucscURL1),"UCSC");
+					navigateToURL(new URLRequest(makeUCSCLinks.lastResult.@ucscURL1),"_blank");
 					//work around to flex bug
 					if (makeUCSCLinks.lastResult.@ucscURL2 != ""){
 						var txt:String = "Click to load second track after first completes:<br><br><a href='"+makeUCSCLinks.lastResult.@ucscURL2+"' target='UCSC'><b><u>Load Second Track</u></b></a>";

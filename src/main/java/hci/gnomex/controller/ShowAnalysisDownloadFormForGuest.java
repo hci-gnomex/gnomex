@@ -1,6 +1,8 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.Analysis;
@@ -84,6 +86,12 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
 
 					// Format an HTML page with the download links for this analysis
 					String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+					String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+					if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+						baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+								PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+					}
+
 					Document doc = ShowAnalysisDownloadForm.formatDownloadHTML(analysis, secAdvisor, baseDir, baseURL, emailAddress);
 
 					XMLOutputter out = new org.jdom.output.XMLOutputter();

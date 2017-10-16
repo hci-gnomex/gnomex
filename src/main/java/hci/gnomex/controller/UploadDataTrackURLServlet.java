@@ -44,7 +44,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 		//
 		//
 
-		sess = HibernateSession.currentReadOnlySession(req.getUserPrincipal().getName());
+		sess = HibernateSession.currentReadOnlySession((req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest"));
 		String portNumber = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.HTTP_PORT);
 		if (portNumber == null) {
 			portNumber = "";

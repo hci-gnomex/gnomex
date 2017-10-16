@@ -1,10 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisFile;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.TransferLog;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.GnomexFile;
@@ -77,6 +74,12 @@ protected void setBaseDirectory(UploadFileServletData data) {
 	Analysis analysis = (Analysis) data.parentObject;
 	String baseDir = PropertyDictionaryHelper.getInstance(data.sess).getDirectory(data.req.getServerName(), null,
 			PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+	String use_altstr = PropertyDictionaryHelper.getInstance(data.sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+	if (use_altstr != null &&use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+		baseDir = PropertyDictionaryHelper.getInstance(data.sess).getDirectory(data.req.getServerName(), null,
+				PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,data.req.getRemoteUser());
+	}
+
 	String createYear = new SimpleDateFormat("yyyy").format(analysis.getCreateDate());
 	data.baseDirectory = FileStringUtil.appendDirectory(baseDir, createYear);
 }

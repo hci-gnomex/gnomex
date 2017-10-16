@@ -42,7 +42,7 @@ public class DownloadFileServlet extends HttpServlet {
 
     String serverName = req.getServerName();
 
-    String username = req.getUserPrincipal().getName();
+    String username = req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest";
     ArchiveHelper archiveHelper = new ArchiveHelper();
 
     // Restrict commands to local host if request is not secure
@@ -112,14 +112,14 @@ public class DownloadFileServlet extends HttpServlet {
 
           // If we can't find the request in the database, just bypass it.
           if (request == null) {
-            LOG.error("Unable to find request " + requestNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Unable to find request " + requestNumber + ".  Bypassing download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
 
           // Check permissions - bypass this request if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(request)) {
-            LOG.error("Insufficient permissions to read request " + requestNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Insufficient permissions to read request " + requestNumber + ".  Bypassing download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
 

@@ -115,6 +115,11 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       baseDirDataTrack = propertyHelper.getDirectory(serverName, null, propertyHelper.getProperty(PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY));
       baseDirAnalysis = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+      String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+      if (use_altstr != null &&use_altstr.equalsIgnoreCase("yes")) {
+        baseDirAnalysis = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+                PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+      }
 
       analysisFile = (AnalysisFile)sess.load(AnalysisFile.class, idAnalysisFile);
 

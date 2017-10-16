@@ -80,6 +80,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
                 String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(serverName);
                 String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName)+uuid;
                 if (fdtJarLoc == null || fdtJarLoc.equals("")) {
+                    System.out.println ("[FDTUGJS] WARNING WARNING: fdtJarLoc is empty, servername: " + serverName);
                     fdtJarLoc = "http://hci-bio-app.hci.utah.edu/FDT/";
                 }
 

@@ -22,28 +22,35 @@ import org.apache.log4j.Logger;
 public class UploadDownloadHelper {
   private static Logger LOG = Logger.getLogger(UploadDownloadHelper.class);
 
-  public static void writeDownloadInfoFile(String baseDir, String emailAddress, SecurityAdvisor secAdvisor, HttpServletRequest req) {
+  public static void writeDownloadInfoFile(String baseDir, String emailAddress, SecurityAdvisor secAdvisor, HttpServletRequest req, String theidRequest, String theidLab, String theidAnalysis,String theTransferLogFile) throws IOException {
+
     if (!baseDir.endsWith(Constants.FILE_SEPARATOR)) {
       baseDir += Constants.FILE_SEPARATOR;
     }
     File info = new File(baseDir + Constants.FDT_DOWNLOAD_INFO_FILE_NAME);
-    try {
+//    try {
       if (!info.createNewFile()) {
-        LOG.error("Unable to create info file for FDT transfer.");
+        LOG.error("Unable to create info file: fdtDownloadInfoFile.txt for FDT transfer.");
       } else {
         FileWriter fw = new FileWriter(info);
         PrintWriter pw = new PrintWriter(fw);
         pw.println(emailAddress);
         pw.println(GNomExCommand.getRemoteIP(req));
         pw.println(secAdvisor.getIdAppUser().toString());
+        pw.println(theidRequest);
+        pw.println(theidLab);
+        pw.println(theidAnalysis);
+        pw.println(theTransferLogFile);
         pw.flush();
         pw.close();
       }
-    } catch(IOException ex) {
-      LOG.error("Unable to write info file for FDT Transfer", ex);
-    }
+//    } catch(IOException ex) {
+//      this.errorDetails = Util.GNLOG(LOG,"Unable to write fdtDownloadInfoFile for FDT Transfer ", ex);
+//    }
 
   }
+
+
 
   public static void getFileNamesToDownload(Session sess, String serverName, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag) {
     getFileNamesToDownload(sess, serverName, baseDirFlowCell, keysString, requestNumbers, requestMap, directoryMap, flowCellDirectoryFlag, false); 

@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.*;
@@ -101,7 +102,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         SecurityAdvisor secAdvisor = null;
         try {
 
-            username = req.getUserPrincipal().getName();
+            username = req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest";
 
             // Get security advisor
             secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
@@ -132,6 +133,11 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
 
                 baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+                String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+                if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+                    baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), null,
+                            PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,username);
+                }
 
 
                 Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);

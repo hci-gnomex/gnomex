@@ -10,6 +10,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +34,7 @@ import org.jdom.output.XMLOutputter;
 
 public class MakeGeneURL extends GNomExCommand implements Serializable {
 
-    private static Logger LOG = Logger.getLogger(MakeDataTrackLinks.class);
+    private static Logger LOG = Logger.getLogger(MakeGeneURL.class);
     private static int PEDFILE_MAXLENGTH = 1000;
     private String serverName;
     private String pedpath;
@@ -117,6 +118,12 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 
             baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
                     PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+            String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+            if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+                baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+                        PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+            }
+
 
             Map<Integer, String> headerMap = new HashMap<Integer, String>();
             Map<String, String[]> peopleMap = new HashMap<String, String[]>();
@@ -127,14 +134,21 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 
             Analysis a = (Analysis) sess.get(Analysis.class, idAnalysis);
             analysisDirectory = GetAnalysisDownloadList.getAnalysisDirectory(baseDir, a);
+            System.out.println ("[MakeGeneURL] baseDir: " + baseDir + " analysisDirectory: " + analysisDirectory);
 
             // genome build
-            Set<GenomeBuild> gbs = a.getGenomeBuilds();
-            GenomeBuild gb = gbs.iterator().next();
-            String genomeBuildName = gb.getGenomeBuildName(); //Just pull the first one, should only be one.
+            String gBN = null;
+            if (a != null) {
+                Set<GenomeBuild> gbs = a.getGenomeBuilds();
+                if (gbs != null) {
+                    GenomeBuild gb = gbs.iterator().next();
+                    if (gb != null) {
+                        String genomeBuildName = gb.getGenomeBuildName(); //Just pull the first one, should only be one.
 
-            String gBN = getGRCName(genomeBuildName);
-
+                        gBN = Util.getGRCName(genomeBuildName);
+                    }
+                }
+            }
             String[] theProbands = null;
 
             String status = null;
@@ -1178,15 +1192,17 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
                 }
 
                 // map sex and affection_status to something nice looking
-                if (columnNames[ii].equals("sex")) {
-                    pvalue = mapSex(1, pvalue);
-                }
-                if (columnNames[ii].equals("affection_status")) {
-                    pvalue = mapAffected(1, pvalue);
-                }
+                if (ii < columnNames.length) {
+                    if (columnNames[ii].equals("sex")) {
+                        pvalue = mapSex(1, pvalue);
+                    }
+                    if (columnNames[ii].equals("affection_status")) {
+                        pvalue = mapAffected(1, pvalue);
+                    }
 
 
-                pedEntry.setAttribute(columnNames[ii], pvalue);
+                    pedEntry.setAttribute(columnNames[ii], pvalue);
+                }
             }
             pedFile.addContent(pedEntry);
 

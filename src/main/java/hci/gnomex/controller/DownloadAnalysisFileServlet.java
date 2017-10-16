@@ -36,7 +36,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
     
-    String username = req.getUserPrincipal().getName();
+    String username = req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest";
     ArchiveHelper archiveHelper = new ArchiveHelper();
     // Restrict commands to local host if request is not secure
     if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -111,14 +111,14 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
           
           // If we can't find the analysis in the database, just bypass it.
           if (analysis == null) {
-            LOG.error("Unable to find analysis " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Unable to find analysis " + analysisNumber + ".  Bypassing download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
           
           // Check permissions - bypass this analysis if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(analysis)) {  
-            LOG.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
           
@@ -153,7 +153,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
             if (!analysisNumber.equalsIgnoreCase(fd.getNumber())) {
-              LOG.error("Analysis number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
+              LOG.error("Analysis number does not match directory for attempted download on " + fd.getFileName() + " for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".  Bypassing download." );
               continue;
             }
 

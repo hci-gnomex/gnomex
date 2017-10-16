@@ -110,7 +110,7 @@ public class DataTrackUtil {
 		try {
 			String[] cmd1 = { "rm", "-f", link.toString() };
 			Runtime.getRuntime().exec(cmd1);
-			String[] cmd = { "ln", "-s", realFile.getCanonicalPath(), link.toString() };
+			String[] cmd = { "ln", "-s", realFile.getAbsolutePath(), link.toString() };
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
@@ -124,7 +124,24 @@ public class DataTrackUtil {
 		try {
 			String[] cmd1 = { "rm", "-f", link };
 			Runtime.getRuntime().exec(cmd1);
-			String[] cmd = { "ln", "-s", realFile.getCanonicalPath(), link };
+			String[] cmd = { "ln", "-s", realFile.getAbsolutePath(), link };
+			Runtime.getRuntime().exec(cmd);
+			return true;
+		} catch (IOException e) {
+
+		}
+		return false;
+	}
+
+	/** Makes a soft link between the realFile and the linked File using the linux 'ln -s' command. */
+	public static boolean makeSoftLinkWithDirsViaUNIXCommandLine(File realFile, String link) {
+		try {
+
+
+
+			String[] cmd1 = { "rm", "-f", link };
+			Runtime.getRuntime().exec(cmd1);
+			String[] cmd = { "ln", "-s", realFile.getAbsolutePath(), link };
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {

@@ -1,24 +1,13 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.*;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisExperimentItem;
-import hci.gnomex.model.AnalysisFile;
-import hci.gnomex.model.AnalysisType;
-import hci.gnomex.model.DataTrack;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.Organism;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.Topic;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HybNumberComparator;
@@ -95,9 +84,12 @@ public Command execute() throws RollBackCommandException {
 		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 		baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
-		// baseDirDataTrack = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
-		// PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 
+		String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+		if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+			baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+					PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+		}
 		Analysis a = null;
 		if (idAnalysis != null && idAnalysis.intValue() == 0) {
 			a = new Analysis();

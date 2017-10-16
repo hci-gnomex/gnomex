@@ -72,7 +72,7 @@
 						this.noExpMessage.includeInLayout = false;
 					}
 				} else{
-					Alert.show( event.result..ERROR.@message.toString(), "Error getting orders" );
+					Alert.show( event.result..ERROR.@message.toString(), "Error getting RequestList" );
 				}
 			}
 			

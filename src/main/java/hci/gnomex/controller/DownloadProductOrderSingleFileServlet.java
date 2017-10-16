@@ -93,7 +93,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
 
         }
 
-        username = req.getUserPrincipal().getName();
+        username = req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest";
 
         InputStream in = null;
         SecurityAdvisor secAdvisor = null;

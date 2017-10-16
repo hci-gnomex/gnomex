@@ -89,7 +89,10 @@ public class Constants {
 
   public static final Pattern  HTML_BRACKETS                                  = Pattern.compile("<[^>]+>");
 
-  public static final String   FDT_DOWNLOAD_INFO_FILE_NAME                    = "fdtDownloadInfoFile.txt";
+  public static final String   FDT_DOWNLOAD_INFO_FILE_NAME                    = "fdtDownloadInfoFile";
+  public static final String   FDT_UPLOAD_INFO_FILE_NAME                      = "fdtUploadInfoFile";
+
+  public static final String EXPERIMENTALIAS = "experiment_alias";
 
   /* Keep lower case. */
   public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {

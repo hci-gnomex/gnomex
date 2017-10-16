@@ -1,12 +1,15 @@
 package hci.gnomex.utility;
 
 import hci.framework.control.Command;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Analysis;
 import org.hibernate.Session;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -479,4 +482,80 @@ public class Util {
 
         return "";
     }
+
+
+    public static String getGRCName(String genomeBuildName) {
+        String theName = null;
+
+        if (genomeBuildName == null || genomeBuildName.equals("")) {
+            return theName;
+        }
+
+        String[] name = genomeBuildName.split(";");
+
+        for (int ii = 0; ii < name.length; ii++) {
+            String thename = name[ii].trim();
+            if (thename.startsWith("GRC")) {
+                theName = thename;
+                break;
+            }
+        }
+
+        return theName;
+    }
+
+    public static void createTransferLogFile (String taskFileDir, String uuidStr, StringBuilder filesToTransfer ) {
+        String taskFileName = taskFileDir + "/" + "fdtDownloadTransferLog" + "_" + uuidStr;
+        File taskFile;
+        int numTries = 10;
+        while(true) {
+            taskFile = new File(taskFileName);
+            if(!taskFile.exists()) {
+                boolean success;
+                try {
+                    success = taskFile.createNewFile();
+                    if (!success) {
+                        System.out.println("[createTransferLogFile] Error: unable to create fdtDownloadTransferLog file. " + taskFileName);
+                        return;
+                    }
+                    break;
+                } catch (IOException e) {
+                    System.out.println("[createTransferLogFile] Error: unable to create fdtDownloadTransferLog file. " + taskFileName);
+                    return;
+                }
+            }
+            // If the file already exists then try again but don't try forever
+            numTries--;
+            if(numTries == 0) {
+                System.out.println("[createTransferLogFile] Error: Unable to create fdtDownloadTransferLog file: " + taskFileName);
+                return;
+            }
+        }
+
+
+        try {
+            BufferedWriter pw = new BufferedWriter(new FileWriter(taskFile));
+            pw.write(filesToTransfer.toString());
+            pw.flush();
+            pw.close();
+        } catch (IOException e) {
+            System.out.println("[createTransferLogFile] IOException: file " + taskFileName + " " + e.getMessage());
+            return;
+        }
+    }
+
+    public static String getAnalysisDirectory(String baseDir, Analysis analysis) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+        String createYear = formatter.format(analysis.getCreateDate());
+
+        if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+            baseDir += Constants.FILE_SEPARATOR;
+        }
+
+        String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + analysis.getNumber();
+        return directoryName;
+    }
+
 }
+
+

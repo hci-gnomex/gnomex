@@ -541,7 +541,7 @@
 				// Save the pdf
 				var bytesTemp:ByteArray = pdfPrintJob.save( Method.LOCAL );
 				var f:FileReference = new FileReference();
-				f.save(bytesTemp, 'Chromatogram_' + selectedIdChromatogram + ".pdf");
+//				f.save(bytesTemp, 'Chromatogram_' + selectedIdChromatogram + ".pdf");
 				
 				// Remove the print-specific control to free memory
 				removeChild(chromatPrintView);

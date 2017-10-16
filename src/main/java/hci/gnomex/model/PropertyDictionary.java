@@ -174,6 +174,12 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
 	public static final String PROTECTED_DIRECTORIES_EXPERIMENT = "protected_directories_experiment";
 	public static final String FAST_BROWSE_EXPERIMENTS = "fast_browse_experiments";
 
+	public static final String USE_ALT_REPOSITORY = "use_alternative_repository";
+	public static final String ANALYSIS_DIRECTORY_ALT = "analysis_directory_alternative";
+	public static final String ANALYSIS_ALTERNATIVE = "analysis_alternative";
+
+	public static final String EXPERIMENTALIAS = "experiment_alias";
+
 	private Integer idPropertyDictionary;
 	private String propertyName;
 	private String propertyValue;

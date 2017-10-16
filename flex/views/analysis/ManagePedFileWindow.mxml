@@ -207,7 +207,7 @@
 
         private function onMakeGeneURL(event:ResultEvent):void {
             if (makeGeneURL.lastResult.name() == "SUCCESS") {
-                navigateToURL(new URLRequest(makeGeneURL.lastResult.@urlsToLink), "GENE");
+                navigateToURL(new URLRequest(makeGeneURL.lastResult.@urlsToLink), "_blank");
             }
             else if (makeGeneURL.lastResult.name() == "PROBLEM") {
                 Alert.show(makeGeneURL.lastResult.@status, "Error launching gene.iobio.io");

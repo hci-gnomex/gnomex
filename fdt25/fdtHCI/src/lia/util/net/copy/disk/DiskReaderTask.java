@@ -20,6 +20,10 @@ import lia.util.net.copy.FDTReaderSession;
 import lia.util.net.copy.FileBlock;
 import lia.util.net.copy.FileSession;
 
+
+import java.text.SimpleDateFormat;
+
+
 /**
  *
  * This class will read the files for a specific partitionID
@@ -42,6 +46,8 @@ public class DiskReaderTask extends GenericDiskTask {
     private int addedFBS = 0;
     
     private final FDTReaderSession fdtSession;
+
+    private static final Config config = Config.getInstance();
     
     /**
      *
@@ -85,6 +91,40 @@ public class DiskReaderTask extends GenericDiskTask {
         }
     }
     
+    private void logToAppLogger(FileSession fileSession) {
+//      if (config.getAppLogger() != null && !config.getAppLogger().equals("")) {
+
+          // for testing just show what the command would have been
+          SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS a");
+          String cmd = "/bin/sh " + config.getAppLogger() + " -fileName " + fileSession.getFile().getAbsolutePath() +
+                  " -type " + "upload" + " -method " + "fdt" + " -startDateTime " +
+                  df.format(new java.util.Date(fileSession.startTimeMillis)) + " -endDateTime " + df.format(new java.util.Date(System.currentTimeMillis())) +
+                  " -fileSize " + Long.valueOf(fileSession.getFile().length()).toString();
+
+          System.out.println("\n[DiskReaderTask:logToAppLogger] " + cmd + "\n");
+/*
+        try {
+
+          df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS a");
+          Process process = Runtime.getRuntime().exec( new String[] { "/bin/sh", config.getAppLogger(),
+              "-fileName", fileSession.getFile().getAbsolutePath(), 
+              "-type", "download",
+              "-method", "fdt", 
+              "-startDateTime", df.format(new java.util.Date(fileSession.startTimeMillis)),
+              "-endDateTime",  df.format(new java.util.Date(System.currentTimeMillis())),
+              "-fileSize", Long.valueOf(fileSession.getFile().length()).toString()
+              });    
+          process.waitFor();
+          process.destroy();
+        } catch(Exception e) {
+          logger.log(Level.WARNING, " \n\n\n Cannot write to app logger " + config.getAppLogger() + " Cause: ", e);
+        }
+      }
+*/
+//      }
+    }
+
+    
     public void run() {
         
         
@@ -116,6 +156,14 @@ public class DiskReaderTask extends GenericDiskTask {
                     
                     if(fileSession.isClosed()) {
                         fdtSession.finishFileSession(fileSession.sessionID(), null);
+
+
+
+                        
+                        // If there is an app logger, log the file session info
+//                        if (FdtMain.isIsServerMode()) {
+                          logToAppLogger(fileSession);
+//                        }
                         continue;
                     }
                     
@@ -167,7 +215,11 @@ public class DiskReaderTask extends GenericDiskTask {
                             if(readBytes == -1) {//EOF
                                 if(fileSession.cProcessedBytes.get() == fileSession.sessionSize()) {
                                     fdtSession.finishFileSession(fileSession.sessionID(), null);
-                                } else {
+                                    // If there is an app logger, log the file session info
+//                                    if (FdtMain.isIsServerMode()) {
+                                      logToAppLogger(fileSession);
+//                                    }
+                               } else {
                                     if(!fdtSession.loop()) {
                                         StringBuilder sbEx = new StringBuilder();
                                         sbEx.append("FileSession: ( ").append(fileSession.sessionID()).append(" ): ").append(fileSession.fileName());
@@ -215,6 +267,11 @@ public class DiskReaderTask extends GenericDiskTask {
                             if(!fdtSession.isClosed()) {
                                 while(!fdtSession.fileBlockQueue.offer(fileBlock, 2, TimeUnit.SECONDS)) {
                                     if(fdtSession.isClosed()) {
+                                        // If there is an app logger, log the file session info
+//                                        if (FdtMain.isIsServerMode()) {
+                                          logToAppLogger(fileSession);
+ //                                       }
+
                                         return;
                                     }
                                 }
@@ -227,6 +284,10 @@ public class DiskReaderTask extends GenericDiskTask {
                                         bufferPool.put(fileBlock.buff);
                                         buff = null;
                                         fileBlock = null;
+                                        // If there is an app logger, log the file session info
+//                                        if (FdtMain.isIsServerMode()) {
+                                          logToAppLogger(fileSession);
+//                                        }
                                     }
                                     return;
                                 }catch(Throwable t1) {

@@ -79,6 +79,11 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
 
                 String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
                 String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+                String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+                if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+                    analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+                            PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
+                }
 
                 // Make sure the system is configured to run FDT
                 String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
@@ -222,7 +227,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     out.println("codebase=\""+codebase_param+"\">");
                     out.println("<!--");
                     out.println("");
-                    out.println("***** Please read, the directions have changed *****");
+                    out.println("***** Please read, the directions have changed (AGAIN) *****");
                     out.println("Command line download instructions:");
                     out.println("");
                     String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
@@ -236,7 +241,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     out.println("3) Execute the following on the command line after changing the path2xxx variables:");
                     out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
                     out.println("");
-                    out.println("java -jar path2YourLocalCopyOfFDT/fdtCommandLine.jar -noupdates -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+                    out.println("java -jar path2YourLocalCopyOfFDT/fdtCommandLine.jar -noupdates -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
                     out.println("");
                     out.println("-->");
                     out.println("<information>");

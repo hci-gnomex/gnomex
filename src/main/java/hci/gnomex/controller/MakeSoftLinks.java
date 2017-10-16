@@ -88,7 +88,11 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 		String softLinkPath = "";
 
 		// Create the users' soft link directory
-		File dir = new File(directory_bioinformatics_scratch, username);
+		String username1 = username;
+		if (username1 == null) {
+			username1 = "Guest";
+		}
+		File dir = new File(directory_bioinformatics_scratch, username1);
 		if (!dir.exists())
 			dir.mkdir();
 

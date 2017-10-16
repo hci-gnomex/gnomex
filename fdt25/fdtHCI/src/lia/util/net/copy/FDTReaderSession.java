@@ -120,6 +120,7 @@ public class FDTReaderSession extends FDTSession implements FileBlockProducer {
         readersMap = new TreeMap<Integer, ArrayList<DiskReaderTask>>();
 
         this.remoteDir = (String) ctrlChannel.remoteConf.get("-d");
+        System.out.println ("***************** [FDTReader] ************************** this.remoteDir: " + this.remoteDir);
         this.recursive = (ctrlChannel.remoteConf.get("-r") != null);
         this.isFileList = (ctrlChannel.remoteConf.get("-fl") != null);
 

@@ -110,14 +110,14 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
           
           // If we can't find the productOrder in the database, just bypass it.
           if (productOrder == null) {
-            LOG.error("Unable to find productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Unable to find productOrder " + idProductOrder + ".  Bypassing download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
           
           // Check permissions - bypass this productOrder if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(productOrder)) {  
-            LOG.error("Insufficient permissions to read productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Insufficient permissions to read productOrder " + idProductOrder + ".  Bypassing download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
           
@@ -152,7 +152,7 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
             if (!idProductOrder.equalsIgnoreCase(String.valueOf(fd.getId()))) {
-              LOG.error("ProductOrder id does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
+              LOG.error("ProductOrder id does not match directory for attempted download on " + fd.getFileName() + " for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".  Bypassing download." );
               continue;
             }
 

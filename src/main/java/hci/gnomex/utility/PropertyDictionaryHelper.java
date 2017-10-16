@@ -35,6 +35,10 @@ public class PropertyDictionaryHelper implements Serializable {
   public static final String PROPERTY_PRODUCT_ORDER_DIRECTORY = "directory_product_order";
   public static final String PROPERTY_RUNTIME_ERROR_SERVER_LIST = "runtime_error_server_list";
 
+  public static final String ANALYSIS_DIRECTORY_ALT = "analysis_directory_alternative";
+  public static final String ANALYSIS_ALTERNATIVE_USERS = "analysis_alternative_users";
+
+
   public PropertyDictionaryHelper() {
   }
 
@@ -252,7 +256,6 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
 
-
   public String getDirectory(String serverName, Integer idCoreFacility, String directoryProperty) {
     // First try to get property that is qualified by server name
     // and core facility. if not found, if not found, try by
@@ -272,6 +275,64 @@ public class PropertyDictionaryHelper implements Serializable {
 
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
+      if (!property.endsWith(Constants.FILE_SEPARATOR) && !property.endsWith("\\")) {
+        property = property + Constants.FILE_SEPARATOR;
+      }
+    }
+
+    return addFileSepIfNec(property);
+  }
+
+  /* If an alternative repository is being used make sure the user is allowed to see it
+   *   08/10/2017 tim
+   */
+  public String getDirectory(String serverName, Integer idCoreFacility, String directoryProperty, String username) {
+    // First try to get property that is qualified by server name
+    // and core facility. if not found, if not found, try by
+    // property name (not qualified) and id core facility. last,
+    // try by just plain property name.
+    String property = "";
+    property = this.getCoreFacilityProperty(idCoreFacility, directoryProperty + "_" + serverName);
+    if (property == null || property.equals("")) {
+      property = this.getCoreFacilityProperty(idCoreFacility, directoryProperty);
+    }
+    if (property == null || property.equals("")) {
+      property = this.getProperty(directoryProperty + "_" + serverName);
+    }
+    if (property == null || property.equals("")) {
+      property = this.getProperty(directoryProperty);
+    }
+
+    // Make sure the property ends with a directory separator
+    if (property != null && !property.equals("")) {
+
+      // should this be visible to this user?
+      System.out.println ("[PDH.getDirectory] directoryProperty: " + directoryProperty + " username: " + username);
+      if (directoryProperty.equals(PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT)) {
+        // is the alternative repository visible to this user?
+        if (username == null || username.equals("")) {
+          // nope
+          return getDirectory (serverName,idCoreFacility,PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+        }
+
+        String altUsers = this.getProperty(PropertyDictionaryHelper.ANALYSIS_ALTERNATIVE_USERS);
+        System.out.println ("[PDH.getDirectory] altUsers: " + altUsers + " username: " + username);
+        if (altUsers == null || altUsers.equals("")) {
+          // they didn't list any users that can see the alternative so no one can
+          return getDirectory (serverName,idCoreFacility,PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+        }
+
+        // are we one of the choosen few
+        if (altUsers.indexOf(username) < 0 && altUsers.indexOf("any") < 0) {
+          // no
+          System.out.println ("[PDH.getDirectory] NOT IN LIST altUsers: " + altUsers + " username: " + username);
+          return getDirectory (serverName,idCoreFacility,PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+        }
+
+        // return the alternative repository
+      }
+
+      System.out.println ("[PDH.getDirectory] property: " + property);
       if (!property.endsWith(Constants.FILE_SEPARATOR) && !property.endsWith("\\")) {
         property = property + Constants.FILE_SEPARATOR;
       }
@@ -464,6 +525,33 @@ public class PropertyDictionaryHelper implements Serializable {
     }
 
     return siteSplash;
+  }
+
+  // returns facility specific site logo. Note that this is static because it is
+  // called before
+  // properties are loaded.
+  public static String getExperimentAlias(Session sess, Integer idCoreFacility) {
+    String experimentAlias = "Experiment";
+
+    PropertyDictionary propexperimentAlias = null;
+    if (idCoreFacility != null) {
+      Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility = :idCoreFacility");
+      propSiteQuery.setParameter("propName", PropertyDictionary.EXPERIMENTALIAS);
+      propSiteQuery.setParameter("idCoreFacility", idCoreFacility);
+      propexperimentAlias = (PropertyDictionary) propSiteQuery.uniqueResult();
+    }
+    if (propexperimentAlias == null) {
+      Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility is null");
+      propSiteQuery.setParameter("propName", PropertyDictionary.EXPERIMENTALIAS);
+      propexperimentAlias = (PropertyDictionary) propSiteQuery.uniqueResult();
+      System.out.println ("[getExperimentAlias] " + propexperimentAlias.toString());
+    }
+
+      if (propexperimentAlias != null && !propexperimentAlias.getPropertyValue().equals("")) {
+          experimentAlias = propexperimentAlias.getPropertyValue();
+      }
+
+      return experimentAlias;
   }
 
 }

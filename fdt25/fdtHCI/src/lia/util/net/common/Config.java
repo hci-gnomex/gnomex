@@ -5,6 +5,7 @@ package lia.util.net.common;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.File;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 
 import lia.util.net.copy.PosixFSFileChannelProviderFactory;
 
+import java.io.IOException;
 /**
  * Configuration params for FDT
  * 
@@ -153,6 +155,38 @@ public class Config {
     private final boolean isGenTest;
     private final long keepAliveDelayNanos;
     private final FileChannelProviderFactory fileChannelProviderFactory;
+    
+    //for locking server to uploads and downloads to directories within the restricted transit directories
+    private File[] restrictedTransferDirectories = null;
+    
+    // for logging data transfers to a special application logger
+    private String appLogger = null;
+
+    
+	/**Checks to see if a file or directory is a child of the restrictedTransferDirectory. 
+     * Thus one must create a staging directory or file within the restrictedTransferDirectory before the
+     * server will be able to transfer files or folder into or out of the staging directory. Soft and hard links are OK.
+     * @author davidnix*/
+    public boolean authorizedTransfer(File toTransfer){
+      //has the restricted directory been set?
+      if (restrictedTransferDirectories == null) return true;
+
+      //look to see if they are trying something sneaky (ie /../../ to drop levels)
+      String path = toTransfer.getPath();
+      try {
+        if (toTransfer.getCanonicalPath().equals(path) == false) return false;
+      } catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
+      //look to see if it matches one of the restricted directories
+      for (File rtd : restrictedTransferDirectories){
+        //Match it
+        Pattern pat = Pattern.compile(rtd.getPath()+File.separatorChar+".+");
+        if (pat.matcher(path).matches()) return true;
+      }
+      return false;
+    }
 
     private static final int getMinMTU() {
         int retMTU = 1500;
@@ -524,6 +558,27 @@ public class Config {
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.INFO, "Local server will try to bind on port:{0}", portNo);
             }
+            //look to see if they want to restrict the FDT server's access to a particular directory
+            if (configMap.containsKey("-rtd")) {
+              //split on comma
+              String[] dirs = ((String)configMap.get("-rtd")).split(",");
+              restrictedTransferDirectories = new File[dirs.length];
+              StringBuilder message = new StringBuilder();
+              //check that each exist
+              for (int i=0; i< dirs.length; i++){
+                restrictedTransferDirectories[i] = new File (dirs[i]);
+                if (restrictedTransferDirectories[i] == null || restrictedTransferDirectories[i].exists() == false){
+                  throw new InvalidFDTParameterException("Cannot find your restricted transfer directory? -> "+dirs[i]);
+                }
+                else message.append(restrictedTransferDirectories[i]+ " ");
+              }
+              logger.log(Level.INFO, "Restricted Transfer Directories: "+message);
+            }
+            
+            // look to see if they want to call a special logger script
+            if (configMap.containsKey("-appLogger")) {
+              appLogger = (String)configMap.get("-appLogger");
+            }
         }
     }
 
@@ -875,4 +930,17 @@ public class Config {
     public FileChannelProviderFactory getFileChannelProviderFactory() {
         return this.fileChannelProviderFactory;
     }
+
+    public File[] getRestrictedTransferDirectories() {
+		return restrictedTransferDirectories;
+    }
+
+    public void setRestrictedTransferDirectories(File[] restrictedTransferDirectories) {
+		this.restrictedTransferDirectories = restrictedTransferDirectories;
+    }
+    
+    public String getAppLogger() {
+      return this.appLogger;
+    }
+   
 }

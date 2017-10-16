@@ -87,6 +87,12 @@ public Command execute() throws RollBackCommandException {
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 		analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+		String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+		if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+					PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+		}
+
 		dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(
 				PropertyDictionary.DATATRACK_FILESERVER_URL);
 		dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(

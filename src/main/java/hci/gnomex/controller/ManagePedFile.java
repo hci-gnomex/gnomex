@@ -130,6 +130,15 @@ public Command execute() throws RollBackCommandException {
 				PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 		analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
 				PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+		System.out.println ("[ManagePedFile] (1) analysisBaseDir:  " + analysisBaseDir );
+		String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+		System.out.println ("[ManagePedFile] use_altstr:  " + use_altstr );
+		if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+			System.out.println ("[ManagePedFile] username:  " + this.getSecAdvisor().getUsername() );
+			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+					PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+			System.out.println ("[ManagePedFile] (2) analysisBaseDir:  " + analysisBaseDir );
+		}
 
 		String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(
 				PropertyDictionary.HTTP_PORT, serverName);
@@ -141,6 +150,7 @@ public Command execute() throws RollBackCommandException {
 		Analysis a = sess.get(Analysis.class, idAnalysis);
 		String analysisDirectory = GetAnalysisDownloadList.getAnalysisDirectory(analysisBaseDir, a);
 
+		System.out.println ("[ManagePedFile] analysisDirectory:  " + analysisDirectory + "analysisBaseDir: " + analysisBaseDir );
 		if (VCFpathName != null) {
 			// parse the header and get the sample id's into XML
 			Document vcfIds = getVCFIds(VCFpathName);

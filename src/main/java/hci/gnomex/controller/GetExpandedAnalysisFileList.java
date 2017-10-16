@@ -1,6 +1,8 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
@@ -60,6 +62,11 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+      String use_altstr = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USE_ALT_REPOSITORY);
+      if (use_altstr != null && use_altstr.equalsIgnoreCase("yes")) {
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+                PropertyDictionaryHelper.ANALYSIS_DIRECTORY_ALT,this.getUsername());
+      }
 
       Map analysisMap = new TreeMap();
       Map directoryMap = new TreeMap();

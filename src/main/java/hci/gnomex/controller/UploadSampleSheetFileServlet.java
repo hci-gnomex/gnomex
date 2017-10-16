@@ -54,7 +54,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 	String fileName = null;
 
 	try {
-		Session sess = HibernateSession.currentReadOnlySession(req.getUserPrincipal().getName());
+		Session sess = HibernateSession.currentReadOnlySession((req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest"));
 
 		// Get the dictionary helper
 		DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -65,7 +65,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 		if (secAdvisor == null) {
 			System.out
 					.println("UploadSampleSheetFileServlet:  Warning - unable to find existing session. Creating security advisor.");
-			secAdvisor = SecurityAdvisor.create(sess, req.getUserPrincipal().getName());
+			secAdvisor = SecurityAdvisor.create(sess, (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest"));
 		}
 
 		//

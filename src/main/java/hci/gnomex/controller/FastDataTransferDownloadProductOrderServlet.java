@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.log4j.Logger;
 
+// ****************************************************************
+//      NOTE FDT is not currently available for Products
+// ****************************************************************
+
 public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
     /**
@@ -113,14 +117,14 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
                     // If we can't find the productOrder in the database, just bypass it.
                     if (productOrder == null) {
-                        LOG.error("Unable to find productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
+                        LOG.error("Unable to find productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
                         continue;
                     }
 
                     // Check permissions - bypass this productOrder if the user
                     // does not have  permission to read it.
                     if (!secAdvisor.canRead(productOrder)) {
-                        LOG.error("Insufficient permissions to read productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
+                        LOG.error("Insufficient permissions to read productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
                         continue;
                     }
 
@@ -143,7 +147,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                         // for this file.
                         productOrderNumberBase = fd.getNumber();
                         if (!productOrderNumber.equalsIgnoreCase(productOrderNumberBase)) {
-                            LOG.error("ProductOrder number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing fdt download." );
+                            LOG.error("ProductOrder number does not match directory for attempted download on " + fd.getFileName() + " for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".  Bypassing fdt download." );
                             continue;
                         }
 
@@ -159,7 +163,8 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                             }
 
                             // Write file with info for the TransferLoggerMain daemon
-                            UploadDownloadHelper.writeDownloadInfoFile(softlinks_dir, emailAddress, secAdvisor, req);
+                            String theFileTransferLogFile = "fdtDownloadTransferLog_" + uuid.toString();
+                            UploadDownloadHelper.writeDownloadInfoFile(softlinks_dir, emailAddress, secAdvisor, req, "", "","",theFileTransferLogFile);
 
                             // change ownership to HCI_fdt user
                             String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);

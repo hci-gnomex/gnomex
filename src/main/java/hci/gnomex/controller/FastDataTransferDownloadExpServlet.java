@@ -7,9 +7,7 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +18,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import hci.gnomex.utility.FileDescriptor;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 
@@ -93,6 +92,11 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           return;
         }
 
+        String theIdAnalysis = "";
+        String theRemoteIPAddress = GNomExCommand.getRemoteIP(req);
+        String theAppUser = secAdvisor.getIdAppUser().toString() ;
+        StringBuilder filesToDownload = new StringBuilder(8*10242000);
+
         parser.parse();
 
         String softlinks_dir = "";
@@ -100,6 +104,8 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
         UUID uuid = UUID.randomUUID();
 
         String requestNumberBase = "";
+        String theidRequest = "";
+        String theidLab = "";
 
         // For each request
         for(Iterator i = parser.getRequestNumbers().iterator(); i.hasNext();) {
@@ -109,7 +115,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
           // If we can't find the request in the database, just bypass it.
           if (request == null) {
-            LOG.error("Unable to find request " + requestNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Unable to find request " + requestNumber + ".  Bypassing fdt download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
 
@@ -121,9 +127,13 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           // Check permissions - bypass this request if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(request)) {  
-            LOG.error("Insufficient permissions to read request " + requestNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Insufficient permissions to read request " + requestNumber + ".  Bypassing fdt download for user " + (req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest") + ".");
             continue;
           }
+
+          // remember idRequest and idLab
+            theidRequest = "" + request.getIdRequest();
+          theidLab = "" + request.getIdLab();
 
           List fileDescriptors = parser.getFileDescriptors(requestNumber);
 
@@ -173,8 +183,9 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
                 System.out.println("Error. Unable to create softlinks directory.");
                 return;
               } 
-              
-              UploadDownloadHelper.writeDownloadInfoFile(softlinks_dir, emailAddress, secAdvisor, req);
+
+              String theFileTransferLogFile = "fdtDownloadTransferLog_" + uuid.toString();
+              UploadDownloadHelper.writeDownloadInfoFile(softlinks_dir, emailAddress, secAdvisor, req, theidRequest,theidLab,"",theFileTransferLogFile);
               
               // change ownership to HCI_fdt user
               String fdtUser = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_USER);
@@ -225,10 +236,20 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
             Process process = Runtime.getRuntime().exec( new String[] { "ln", "-s", fd.getFileName(), fileName } );					
             process.waitFor();
-            process.destroy();						
-          }     
-        }
+            process.destroy();
 
+            // keep track of the files being downloaded so we can update the TransferLog table
+            String theFileName = fd.getFileName();
+            String theFileSize = "" + fd.getFileSize();
+            filesToDownload.append("insert into TransferLog values (" + "0,'download','fdt',now(),now()," + "'" +
+                    theFileName + "'," + theFileSize + ",'Y'," + theIdAnalysis + ',' + theidRequest + ',' + theidLab + ',' +
+                    emailAddress + "','" + theRemoteIPAddress + "'," + theAppUser + ",null);\n");
+          } // end of for each file
+        } // end of for each request
+
+        // create the TransferLog file
+        String uuidStr = uuid.toString();
+        createTransferLogFile (softlinks_dir, uuidStr, filesToDownload );
         secAdvisor.closeReadOnlyHibernateSession();
         
         // clear out session variable
@@ -237,7 +258,8 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
         String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
         String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+ Constants.FILE_SEPARATOR+requestNumberBase;
         if (fdtJarLoc == null || fdtJarLoc.equals("")) {
-          fdtJarLoc = "http://hci-bio-app.hci.utah.edu/FDT/";
+            System.out.println ("[FDTDES] WARNING no fdtJarLoc, server: " + req.getServerName());
+          fdtJarLoc = "http://hci-bio-app.hci.utah.edu/fdt/";
         }
         
         if(showCommandLineInstructions != null && showCommandLineInstructions.equals("Y")) {
@@ -312,10 +334,50 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
 		} 					
 
-	}    
+	}
 
 
-	public static Request findRequest(Session sess, String requestNumber) {
+  public void createTransferLogFile (String taskFileDir, String uuidStr, StringBuilder filesToTransfer ) {
+    String taskFileName = taskFileDir + "/" + "fdtDownloadTransferLog" + "_" + uuidStr;
+    File taskFile;
+    int numTries = 10;
+    while(true) {
+      taskFile = new File(taskFileName);
+      if(!taskFile.exists()) {
+        boolean success;
+        try {
+          success = taskFile.createNewFile();
+          if (!success) {
+            System.out.println("[FastDataTransferUploadStart CTLF] Error: unable to create fdtDownloadTransferLog file. " + taskFileName);
+            return;
+          }
+          break;
+        } catch (IOException e) {
+          System.out.println("[FastDataTransferUploadStart CTLF] Error: unable to create fdtDownloadTransferLog file. " + taskFileName);
+          return;
+        }
+      }
+      // If the file already exists then try again but don't try forever
+      numTries--;
+      if(numTries == 0) {
+        System.out.println("[FastDataTransferUploadStart CTLF] Error: Unable to create fdtDownloadTransferLog file: " + taskFileName);
+        return;
+      }
+    }
+
+
+    try {
+      BufferedWriter pw = new BufferedWriter(new FileWriter(taskFile));
+      pw.write(filesToTransfer.toString());
+      pw.flush();
+      pw.close();
+    } catch (IOException e) {
+      System.out.println("[FastDataTransferUploadStart CTLF] IOException: file " + taskFileName + " " + e.getMessage());
+      return;
+    }
+  }
+
+  public static Request findRequest(Session sess, String requestNumber) {
 	  Request request = null;
 	  List requests = sess.createQuery("SELECT req from Request req where req.number = '" + requestNumber + "'").list();
 	  if (requests.size() == 1) {

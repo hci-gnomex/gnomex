@@ -152,6 +152,7 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" JOIN        req.samples as sample ");
     queryBuf.append(" JOIN        sample.wells as well ");
     queryBuf.append(" JOIN        well.plate as plate ");
+    queryBuf.append(" LEFT JOIN   req.collaborators as collab ");
 
     addRequestCriteria();
     addSourcePlateCriteria();

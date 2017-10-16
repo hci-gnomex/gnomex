@@ -3,6 +3,11 @@
  */
 package lia.util.net.copy.disk;
 
+//import gui.FdtMain;
+//import gui.GUIFileStatus;
+//import gui.Log;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -14,13 +19,15 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.text.SimpleDateFormat;
 
 import lia.util.net.common.Utils;
 import lia.util.net.copy.FDTSession;
 import lia.util.net.copy.FDTSessionManager;
 import lia.util.net.copy.FileBlock;
 import lia.util.net.copy.FileSession;
-
+import lia.util.net.common.Config;
+//import lia.util.net.copy.FDT;
 /**
  * per partition DiskWriterTask .... ( there may be more than one writer per
  * partition )
@@ -54,6 +61,8 @@ public class DiskWriterTask extends GenericDiskTask {
     public long dtFinishSession;
 
     public long dtTotal;
+
+    private static final Config config = Config.getInstance();
 
     final BlockingQueue<FileBlock> queue;
 
@@ -96,8 +105,40 @@ public class DiskWriterTask extends GenericDiskTask {
     public final int writerID() {
         return taskID;
     }
+    
+    private void logToAppLogger(FileSession fileSession) {
+//      if (config.getAppLogger() != null && !config.getAppLogger().equals("")) {
 
-    @Override
+          // for testing just show what the command would have been
+          SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS a");
+          String cmd = "/bin/sh " + config.getAppLogger() + " -fileName " + fileSession.getFile().getAbsolutePath() +
+                  " -type " + "upload" + " -method " + "fdt" + " -startDateTime " +
+                  df.format(new java.util.Date(fileSession.startTimeMillis)) + " -endDateTime " + df.format(new java.util.Date(System.currentTimeMillis())) +
+                  " -fileSize " + Long.valueOf(fileSession.getFile().length()).toString();
+
+          System.out.println("\n[DiskWriterTask:logToAppLogger] " + cmd + "\n");
+/*
+          try {
+          df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS a");
+          Process process = Runtime.getRuntime().exec( new String[] {"/bin/sh", config.getAppLogger(),
+              "-fileName", fileSession.getFile().getAbsolutePath(), 
+              "-type", "upload",
+              "-method", "fdt", 
+              "-startDateTime", df.format(new java.util.Date(fileSession.startTimeMillis)),
+              "-endDateTime", df.format(new java.util.Date(System.currentTimeMillis())),
+              "-fileSize", Long.valueOf(fileSession.getFile().length()).toString()
+              });          
+          process.waitFor();
+          process.destroy();
+
+        } catch(Exception e) {
+          logger.log(Level.WARNING, " \n\n\n Cannot write to app logger " + config.getAppLogger() + " Cause: ", e);
+        }
+      }
+*/
+ //     }
+    }
+    
     public void run() {
 
         final String cName = Thread.currentThread().getName();
@@ -309,10 +350,12 @@ public class DiskWriterTask extends GenericDiskTask {
                                     + " ) for [  ( " + fileSession.sessionID() + " ): " + fileSession.fileName()
                                     + " ] have been written ");
                         }
-
-                        if (!fdtSession.loop()) {
-                            fdtSession.finishFileSession(fileSession.sessionID(), null);
-                        }
+                        //
+                        // Plug-in point for application transfer logging
+                        //
+//                        if (FdtMain.isIsServerMode()) {
+                          logToAppLogger(fileSession);
+//                        }
 
                         fileSession.close(null, null);
 

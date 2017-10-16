@@ -114,6 +114,14 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
             }
 
             try {
+
+                // 01/26/2017 tim do the postprocessing here so the reader isn't notified of writer completion until after postprocessing
+                try {
+                    doPostProcessing();
+                } catch (Throwable t1) {
+                    logger.log(Level.WARNING, "[ FDTWriterSession ] [ finalCleanup  Got exception in postProcessing", t1);
+                }
+
                 controlChannel.sendCtrlMessage(
                         new CtrlMsg(CtrlMsg.END_SESSION, (downNotif == null) ? null : downNotif.toString()));
             } catch (Throwable t1) {
@@ -230,11 +238,11 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
                 }
             }
 
-            try {
-                doPostProcessing();
-            } catch (Throwable t1) {
-                logger.log(Level.WARNING, "[ FDTWriterSession ] [ finalCleanup  Got exception in postProcessing", t1);
-            }
+//            try {
+//                doPostProcessing();
+//            } catch (Throwable t1) {
+//                logger.log(Level.WARNING, "[ FDTWriterSession ] [ finalCleanup  Got exception in postProcessing", t1);
+//            }
 
             try {
                 if (transportProvider != null) {
@@ -651,6 +659,8 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
                     processorInfo.fileSessionMap = new HashMap<String, FileSession>(preprocMap);
 
                     processorInfo.destinationDir = this.destinationDir;
+
+    System.out.println ("*************** [FDTWriterSession] ************** destinationDir: " + this.destinationDir);
 
                     System.arraycopy(fileList, 0, processorInfo.fileList, 0, fileList.length);
 
