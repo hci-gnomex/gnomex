@@ -1,39 +1,22 @@
 package hci.gnomex.daemon;
 
 import hci.gnomex.controller.SaveRequest;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Application;
-import hci.gnomex.model.GenomeBuild;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Organism;
-import hci.gnomex.model.Project;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.PropertyType;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SampleType;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.RequestParser;
-import hci.gnomex.utility.SampleNumberComparator;
-import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.*;
 
 import java.io.File;
+import java.io.StringReader;
+import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.jdbc.ReturningWork;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -41,6 +24,9 @@ import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
+
+import static hci.gnomex.controller.SaveRequest.initSample;
 
 public class ImportExperiment {
 
@@ -83,6 +69,7 @@ public class ImportExperiment {
 	private String submitterLastName;
 	private Project project;
 	private Organism organism;
+	private boolean updateMode;
 	private Application application;
 	private HashMap<String, String> sourcePropertyOptionMap = new HashMap<String, String>(); // key is idProperty "-" idPropertyOption, value is option name
 	private HashMap<Integer, Property> sourceToTargetPropertyMap = new HashMap<Integer, Property>();
@@ -153,24 +140,49 @@ public class ImportExperiment {
 			initRequestNode();
 			initSampleNodes();
 			initSequenceLaneNodes();
+//			System.out.println("The request xml after init");
+
+//            XMLOutputter out = new org.jdom.output.XMLOutputter();
+//            String xmlResult = out.outputString(document);
+//			System.out.println(xmlResult);
+
 
 			// Set the annotation attributes so that the name contains the id of the property from the
 			// target gnomex db.
 			mapAnnotations();
 
 			// Use RequestParser to parse the XML to create a request instance
+			Integer updateIDRequest = requestToUpdate(sess,"Shadow ID");
+
+
+			updateMode = false; // update mode made for automation proccess, won't interfere with regular import.
+										//
+			if((requestNode.getAttributeValue("number").equals("0")
+					|| requestNode.getAttributeValue("number").equals(""))
+					&& updateIDRequest != null){
+				updateMode = true;
+			}
 			RequestCategory requestCategory = requestCategoryMap.get(requestNode.getAttributeValue("codeRequestCategory"));
 			requestParser = new RequestParser(requestNode, secAdvisor);
 			requestParser.parseForImport(sess, requestCategory);
 			request = requestParser.getRequest();
+			if (request == null) {
+				System.out.println ("[ImportExperiment] request is null THIS IS BAD");
+			}
 
 			// Save the experiment
-			System.out.println("[ImportExperiment] before SaveRequest.saveRequest");
-			SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"), true);
-			System.out.println("[ImportExperiment] after SaveRequest.saveRequest");
+			System.out.println("updateMode: " + updateMode);
+			if(!updateMode) {
+				System.out.println("[ImportExperiment] before SaveRequest.saveRequest " + request.getIdRequest());
+				SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"), true);
+				saveRequestProperties(requestNode, sess, requestParser, true);
+				System.out.println("[ImportExperiment] after SaveRequest.saveRequest " + request.getIdRequest());
+			}
 
 			// Save the samples
-			saveSamples();
+
+
+			saveSamples(updateIDRequest);
 			System.out.println("[ImportExperiment] after saveSamples()");
 
 			// Save the sequence lanes
@@ -201,6 +213,50 @@ public class ImportExperiment {
 		System.out.println("[ImportExperiment] at the very end");
 		System.exit(0);
 
+	}
+
+
+	private Integer requestToUpdate(Session sess, String queryWithPropEntry) throws Exception {
+		Integer updateReqId = null;
+		List<Element> reqProps = this.requestNode.getChild("RequestProperties").getChildren();
+		Element reqANNOTNode = null;
+		for(int i = 0; i <  reqProps.size(); i++){
+			if(reqProps.get(i).getAttributeValue("name").equals(queryWithPropEntry)){
+				reqANNOTNode = reqProps.get(i);
+				break;
+			}
+		}
+		//FROM Sample samp JOIN samp.request as req
+		if(reqANNOTNode != null){
+			System.out.println("Found the correct annotation!!!!!!!!!!!!!!!! ");
+			String reqANNOTValue = reqANNOTNode.getAttributeValue("value");
+			System.out.println(reqANNOTValue);
+			if(reqANNOTValue != null){ //:daysInFuture
+				String queryStr = "SELECT req.idRequest, req.number" +
+						"  FROM Request req" +
+						"  WHERE req.idRequest IN ( SELECT pe.idRequest FROM PropertyEntry pe" +
+						"  WHERE pe.value = :reqANNOTValue )";
+				Query q = sess.createQuery(queryStr).setParameter("reqANNOTValue", reqANNOTValue);
+				List reqSampleTable = q.list();
+				if(reqSampleTable.size()  == 1 ){
+					Object[] row = (Object[]) reqSampleTable.get(0);
+					updateReqId = (Integer)row[0];
+
+					System.out.println("idRequest from query of property entry: " + updateReqId);
+
+				}else if( reqSampleTable.size() == 0 ){
+					updateReqId = null;
+				}else {
+					throw new Exception("Multiple results for a unique entry");
+				}
+
+
+			}else{
+				updateReqId = null;
+			}
+		}
+
+		return updateReqId;
 	}
 
 	private void readExperimentXMLFile() throws Exception {
@@ -234,6 +290,7 @@ public class ImportExperiment {
 		StringBuffer queryBuf = new StringBuffer();
 		queryBuf.append("SELECT p from Property as p order by p.name");
 		List properties = sess.createQuery(queryBuf.toString()).list();
+		System.out.println("Loading annotation form the db ");
 		for (Iterator i = properties.iterator(); i.hasNext();) {
 			Property prop = (Property) i.next();
 			try {
@@ -243,7 +300,10 @@ public class ImportExperiment {
 			}
 			targetPropertyMap.put(prop.getName().toUpperCase(), prop);
 			targetIdToPropertyMap.put(prop.getIdProperty(), prop);
+			//System.out.println("db annot: " + prop.getName() + " idProperty: " + prop.getIdProperty() );
+
 		}
+		System.out.println("finished loading annotation form the db ");
 
 		// Load request categories
 		queryBuf = new StringBuffer();
@@ -371,29 +431,38 @@ public class ImportExperiment {
 
 			// Set the idSample to "Sample##", incrementing the number for each sample
 			String idSampleNew = "Sample" + x++;
+			System.out.println("old idSample: " + sampleNode.getAttributeValue("idSample"));
 			oldIdSampleMap.put(sampleNode.getAttributeValue("idSample"), idSampleNew);
 			sampleNode.setAttribute("idSample", idSampleNew);
+			System.out.println("new idSample: " + sampleNode.getAttribute("idSample").getValue());
+			System.out.println();
 
 			// Set the idOrganism on the sample node
+			System.out.println("organism Name: " + sampleNode.getAttributeValue("organism"));
 			String organismName = sampleNode.getAttributeValue("organism");
 			if (organismName != null && !organismName.equals("")) {
 				Organism organism = organismMap.get(organismName);
 				if (organismName == null) {
 					throw new Exception("Cannot find organism " + organismName + ".");
 				}
+
 				sampleNode.setAttribute("idOrganism", organism.getIdOrganism().toString());
+				System.out.println(" organism id: " + sampleNode.getAttribute("idOrganism").getValue());
 			} else {
 				sampleNode.setAttribute("idOrganism", "");
 			}
-
+			System.out.println();
 			// Set the idSampleType on the sample node
 			String sampleTypeName = sampleNode.getAttributeValue("sampleType");
+			System.out.println("sampleTypeName: " + sampleTypeName );
 			if (sampleTypeName != null && !sampleTypeName.equals("")) {
 				SampleType sampleType = sampleTypeMap.get(sampleTypeName);
 				if (sampleType == null) {
 					throw new Exception("Cannot find sample type " + sampleTypeName + ".");
 				}
 				sampleNode.setAttribute("idSampleType", sampleType.getIdSampleType().toString());
+				System.out.println("idSampleType: " + sampleType.getIdSampleType().toString() );
+
 			} else {
 				sampleNode.setAttribute("idSampleType", "");
 			}
@@ -449,8 +518,10 @@ public class ImportExperiment {
 
 		// Lookup the properties based on the property name. Then use the target db's idProperty in the
 		// XML for PropertyEntry.
+		System.out.println("Setting annotation from the xml file in property entry list");
 		for (Iterator i = requestNode.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i.hasNext();) {
 			Element propertyNode = (Element) i.next();
+
 
 			// Only map the attributes that are selected. In other words, only deal with the annotations that are actually
 			// present on the sample.
@@ -462,8 +533,12 @@ public class ImportExperiment {
 
 			Integer idPropertySource = Integer.parseInt(propertyNode.getAttributeValue("idProperty"));
 
+			System.out.println("idPropertySource: " + idPropertySource + " name: " + propertyName);
+
 			Property prop = targetPropertyMap.get(propertyName.toUpperCase());
 			if (prop == null) {
+				System.out.println("property doesn't exist in targetPropertyMap: " + prop.getName());
+
 
 				// we don't have this annotation, make it
 				prop = new Property();
@@ -493,6 +568,9 @@ public class ImportExperiment {
 
 			// keep track of incoming / current idProperty's
 			idPropertyMap.put(idPropertySource, prop.getIdProperty());
+			System.out.println("idPropertySource: " + idPropertySource + " idProperty: " + prop.getIdProperty());
+
+
 
 			propertyNode.setAttribute("idProperty", prop.getIdProperty().toString());
 
@@ -662,10 +740,22 @@ public class ImportExperiment {
 		sess.flush();
 	}
 
-	private void saveSamples() throws Exception {
-		getStartingNextSampleNumber();
+	private void saveSamples(Integer updateIDRequest) throws Exception {
+		//getStartingNextSampleNumber();
 
-		// save samples
+		if(updateMode){
+			Request r = requestParser.getRequest();
+			r.setIdRequest(updateIDRequest);
+			r.setNumber(r.getIdRequest() + "R");
+
+			Query q = sess.createQuery("SELECT s.idSample  FROM Sample s WHERE s.idRequest = :updateIDRequest")
+					.setParameter("updateIDRequest", updateIDRequest);
+			int length = q.list().size();
+			nextSampleNumber = length + 1;
+		}else{ // intial value is one if experiment doesn't already exist
+			this.nextSampleNumber = 1;
+		}
+
 		boolean hasNewSample = false;
 		for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
 			String idSampleString = (String) i.next();
@@ -675,14 +765,30 @@ public class ImportExperiment {
 			saveSample(idSampleString, sample, sess);
 		}
 
+
 	}
 
 	private void saveSample(String idSampleString, Sample sample, Session sess) throws Exception {
 		System.out.println("[saveSample] idSampleString: " + idSampleString);
+		//getStartingNextSampleNumber();
 
 		boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
 
-		sample.setIdRequest(request.getIdRequest());
+
+
+		if(isNewSample && (idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample") ) ){
+
+			isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
+
+			nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
+			System.out.println("sample number: " + sample.getNumber());
+			System.out.println("Sample Ids: " + requestParser.getSampleIds().toString());
+		}
+
+		sample.setIdRequest(requestParser.getRequest().getIdRequest());
+		System.out.println("Sample details: " + " idRequest: " +  sample.getIdRequest() + " Name: " + sample.getName() + " Number: " + sample.getNumber() + " idSample " + sample.getIdSample() );
+
+
 		sess.save(sample);
 
 		SaveRequest.setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample,
@@ -702,6 +808,8 @@ public class ImportExperiment {
 
 	private void getStartingNextSampleNumber() {
 		nextSampleNumber = 0;
+
+		//PriceCategory priceCategory = (PriceCategory)sess.load(PriceCategory.class, idPriceCategory);
 		for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
 			String idSampleString = (String) i.next();
 			Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
@@ -747,6 +855,49 @@ public class ImportExperiment {
 		}
 	}
 
+	protected Set saveRequestProperties(Element requestNode, Session sess, RequestParser requestParser, boolean saveToDB) throws org.jdom.JDOMException {
+		// This makes the assumption that you know the idProperty of the property  and that it already exists you are making the entry for.
+		Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
+		List<Element> reqPropEntries = requestNode.getChild("RequestProperties").getChildren();
+		System.out.println("This is the requestProperties: "  + reqPropEntries.toString());
+		System.out.println("Length of ReqPropertiesEntries: " + reqPropEntries.size());
+
+		if (reqPropEntries != null) {
+			if (saveToDB) {
+
+				for (Iterator<?> i = reqPropEntries.iterator(); i.hasNext();) {
+					Element node = (Element) i.next();
+					// Adding dataTracks
+					String idPropertyEntry = node.getAttributeValue("idPropertyEntry");
+
+					PropertyEntry pe = null;
+					if (idPropertyEntry == null || idPropertyEntry.equals("")) {
+						pe = new PropertyEntry();
+					}
+					pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
+					pe.setValue(node.getAttributeValue("value"));
+					pe.setIdRequest(requestParser.getRequest().getIdRequest());
+
+					if ((idPropertyEntry == null || idPropertyEntry.equals("")) && saveToDB) {
+						System.out.println("PropertyEntry was saved");
+						sess.save(pe);
+						sess.flush();
+					}
+
+
+					propertyEntries.add(pe);
+				}
+
+
+
+			}
+
+		}
+
+		return propertyEntries;
+	}
+
+
 	protected void printUsage() {
 
 		System.out.println("Import an experiment in an xml file to a gnomex db.");
@@ -760,3 +911,40 @@ public class ImportExperiment {
 	}
 
 }
+/*class MyReturnWork implements ReturningWork<ResultSet> {
+	private Integer idRequest;
+	private Set<String> sampleNames;
+	private Map<String, List<Integer>> duplicateSamples;
+
+	public MyReturnWork(Integer idRequest, Set<String> sampleNames) {
+		this.idRequest = idRequest;
+		this.sampleNames = sampleNames;
+		t
+	}
+
+	@Override
+	public ResultSet execute(Connection conn) throws SQLException {
+
+		PreparedStatement preStmt = null;
+		preStmt = conn.prepareStatement("SELECT idSample  FROM gnomex.sample WHERE idRequest = ? AND name = ? ");
+		for(int i = 0; i <  this.sampleNames.size(); i++){
+			String sampleName = sampleNames.get(i);
+			preStmt.setInt(1, this.idRequest);
+			preStmt.setString(2, sampleName);
+			ResultSet rs = preStmt.executeQuery();
+			if(rs.next()){
+				 throw new SQLException("duplicate sample entry");
+			}else{
+
+			}
+
+		}
+
+
+
+
+		return preStmt.executeQuery();
+
+	}
+
+}*/

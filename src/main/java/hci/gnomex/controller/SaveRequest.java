@@ -2,7 +2,8 @@ package hci.gnomex.controller;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import hci.framework.control.Command;import hci.gnomex.utility.Util;
+import hci.framework.control.Command;
+import hci.gnomex.utility.Util;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
@@ -169,7 +170,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		Request request = requestParser.getRequest();
 
 		request.setDescription(description);
-		sess.save(request);
+		if(requestParser.isNewRequest() && isImport &&
+				(request.getNumber().equals("")|| request.getNumber().equals("0")) ){
+			sess.save(request);
+			request.setNumber(request.getIdRequest() + "R");
+			request.setName(request.getIdRequest() + "");
+			request.setDescription("Person " +request.getIdRequest());
+			System.out.println("The newly generated request number: " + request.getNumber() );
+			//sess.save(request);
+			sess.flush();
+		}
+		else {
+			sess.save(request);
+		}
 
 		if (requestParser.isNewRequest() && !isImport) {
 			request.setNumber(getNextRequestNumber(requestParser, sess));

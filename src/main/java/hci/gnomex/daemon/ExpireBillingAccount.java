@@ -157,7 +157,7 @@ public class ExpireBillingAccount {
 
                     } else {// Oracle
                         System.out.println("sql Server");
-                        sendExpiredAccountEmails(strQuery,sqlServerQuery,idCoreFacility,cardType);
+                        sendExpiredAccountEmails(strQuery,mySQLQuery,idCoreFacility,cardType);
 
                     }
 
