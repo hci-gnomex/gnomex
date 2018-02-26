@@ -132,7 +132,7 @@ public class CreateAnalysisMain extends HttpClientBase {
   }
   
   protected void printUsage() {
-    System.out.println("java hci.gnomex.utility.CreateAnalysisMain " + "\n" +
+    System.out.println("java hci/gnomex/httpclient/CreateAnalysisMain " + "\n" +
         "[-debug] " + "\n" +
         "-properties <propertiesFileName> " + "\n" +
         "-server <serverName>" + "\n" +

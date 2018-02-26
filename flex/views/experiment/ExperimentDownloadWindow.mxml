@@ -535,6 +535,13 @@
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   toolTip="Download selected files"
 					   label="Download"/>
+			<mx:Button id="sftpdownload"
+					   enabled="{filesToDownload.length>0}"
+					   click="downloadView.sftpDownload(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
+					   icon="@Embed('../../assets/download.png')"
+					   disabledIcon="@Embed('../../assets/download_disable.png')"
+					   toolTip="Download files using sftp"
+					   label="sftp Download"/>
 			<mx:Button visible="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" id="fdtDownloadCommand"
 					   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}"
 					   enabled="{filesToDownload.length>0}"

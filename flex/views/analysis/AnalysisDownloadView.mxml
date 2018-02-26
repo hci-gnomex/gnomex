@@ -281,6 +281,12 @@
 				selectedFileList = new XMLListCollection(selectedFiles);
 				downloadFilesUsingFDTFromGlobalList();
 			}
+
+			public function downloadFilesUsingsFTP(selectedFiles:XMLList):void {
+				selectedFileList = new XMLListCollection(selectedFiles);
+				downloadFilesUsingFDTFromGlobalList();
+			}
+
 			
 			private function downloadFilesUsingFDTFromGlobalList():void {
 				if (selectedFileList.length == 0) {

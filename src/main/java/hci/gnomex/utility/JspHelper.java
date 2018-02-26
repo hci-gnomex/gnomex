@@ -22,4 +22,16 @@ public class JspHelper implements Serializable {
     
     return idCoreFacility;
   }
+
+  public static Integer getIdFacility(HttpServletRequest request) {
+    String idFacilityAsString = (String)((request.getParameter("idFacility") != null)?request.getParameter("idFacility"):"");
+    Integer idFacility = null;
+    try {
+      idFacility = Integer.valueOf(idFacilityAsString);
+    } catch(NumberFormatException ex) {
+      idFacility = null;
+    }
+
+    return idFacility;
+  }
 }

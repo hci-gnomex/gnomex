@@ -5320,6 +5320,15 @@
             uploadWindow.uploadFilesStack.selectedIndex = 1;
         }
 
+        public static function showExperimentUploadSFTPWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
+            var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+            experimentEditView.downloadView = experimentDownloadView;
+            uploadWindow.parentView = experimentEditView;
+            PopUpManager.centerPopUp(uploadWindow);
+            uploadWindow.init(request);
+            uploadWindow.uploadFilesStack.selectedIndex = 1;
+        }
+
         public function showSampleBarcodes():Boolean {
             var show:Boolean = false;
             if (this.isSolexaState()) {

@@ -157,7 +157,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       StringBuffer queryBuf = null;
       if (target.equals(TARGET_SAMPLE)) {
         queryBuf = sampleFilter.getQuery(secAdvisor, IS_CREATE_REPORT, customColumnList);
-        System.out.println ("[ShowAnnotationReport] queryBuf: " + queryBuf);
+//        System.out.println ("[ShowAnnotationReport] queryBuf: " + queryBuf);
       } else if (target.equals(TARGET_ANALYSIS)) {
         queryBuf = analysisFilter.getQuery(secAdvisor, IS_CREATE_REPORT);
       } else if (target.equals(TARGET_DATATRACK)) {
@@ -173,7 +173,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         // Get the annotations
         if (target.equals(TARGET_SAMPLE)) {
           queryBuf = sampleFilter.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
-          System.out.println ("[ShowAnnotationReport] (2) queryBuf: " + queryBuf);
+//          System.out.println ("[ShowAnnotationReport] (2) queryBuf: " + queryBuf);
         } else if (target.equals(TARGET_ANALYSIS)) {
           queryBuf = analysisFilter.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
         }  else if (target.equals(TARGET_DATATRACK)) {

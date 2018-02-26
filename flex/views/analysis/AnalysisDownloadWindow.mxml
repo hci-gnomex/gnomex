@@ -507,13 +507,8 @@
 		
 		<mx:HBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="right">
 			<mx:Spacer width="100%"/>
-						
-			<mx:LinkButton label="Troubleshooting Guide, Important info about Chrome Browser!"
-						   click="{showDownloadHelp()}"
-						   color="#1453E2" fontStyle="italic" fontWeight="bold"
-						   textDecoration="underline"/>
 
-			<mx:Button id="downloadExpandedFilesButton" 
+			<mx:Button id="downloadExpandedFilesButton"
 					   enabled="{filesToDownload.length>0}"
 					   click="downloadView.downloadExpandedFiles(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   icon="@Embed('../../assets/download.png')" 
@@ -534,6 +529,14 @@
 					   click="downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   label="FDT Download"  
 					   toolTip="Download large files using FDT"
+					   disabledIcon="@Embed('../../assets/download_disable.png')"
+					   icon="@Embed(source='../../assets/download_large.png')"/>
+			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="sftpDownload"
+					   includeInLayout="{true}"
+					   enabled="{filesToDownload.length>0}"
+					   click="downloadView.downloadFilesUsingsFTP(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
+					   label="sFTP Download"
+					   toolTip="Download files using sFTP"
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   icon="@Embed(source='../../assets/download_large.png')"/>
 			<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 

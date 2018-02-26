@@ -92,33 +92,100 @@ public class UsageReportd extends TimerTask {
   private int						weeklyTotalVisits			=0;
   private int						cumTotalVisits				=0;
 
+  private String startDay = null;
+  private String numberOfDays = null;
+  private String theYear = null;
+  private String theMonth = null;
+  private String theDay = null;
+  private int startYear = 0;
+  private int startMonth = 0;
+  private int mystartDay = 0;
+  private int numdays = 7;
+
   
   public UsageReportd(String[] args) {
-    for (int i = 0; i < args.length; i++) {
+      int i = 0;
+      while (i < args.length) {
       if (args[i].equals("-server")) {
-        serverName = args[++i];
-      } else if (args[i].equals("-wakeupHour")) {
-        wakeupHour = Integer.valueOf(args[++i]);
-      } else if (args[i].equals ("-runAsDaemon")) {
-        runAsDaemon = true;
-      } else if (args[i].equals ("-isTestMode")) {
-        isTestMode = true;
-      } else if (args[i].equals ("-baseURL")) {
-        baseURL = args[++i];
-      } else if (args[i].equals ("-orionPath")) {
-        orionPath = args[++i];
-      } else if (args[i].equals ("-bccTo")) {
-        bccTo = args[++i];
-      } else if (args[i].equals ("-schemaPath")) {
-        schemaPath = args[++i];
+        serverName = args[i+1];
+        i = i + 2;
+        continue;
       }
-    } 
-    
+      if (args[i].equals("-wakeupHour")) {
+        wakeupHour = Integer.valueOf(args[i+1]);
+        i = i + 2;
+        continue;
+      }
+      if (args[i].equals ("-runAsDaemon")) {
+        runAsDaemon = true;
+        i++;
+        continue;
+      }
+      if (args[i].equals ("-isTestMode")) {
+        isTestMode = true;
+        System.out.println ("[usaged] we are in test mode");
+        i++;
+        continue;
+      }
+      if (args[i].equals ("-baseURL")) {
+        baseURL = args[i+1];
+        i = i + 2;
+        continue;
+      }
+      if (args[i].equals ("-orionPath")) {
+        orionPath = args[i+1];
+        i = i + 2;
+        continue;
+      }
+      if (args[i].equals ("-bccTo")) {
+          bccTo = args[i+1];
+          i = i + 2;
+          continue;
+      }
+      if (args[i].equals ("-year")) {
+        theYear = args[i + 1];
+        System.out.println ("[usaged] theYear: " + theYear);
+        i = i + 2;
+        continue;
+      }
+          if (args[i].equals ("-month")) {
+              theMonth = args[i + 1];
+              System.out.println ("[usaged] theYear: " + theMonth);
+              i = i + 2;
+              continue;
+          }
+          if (args[i].equals ("-day")) {
+              theDay = args[i + 1];
+              System.out.println ("[usaged] theYear: " + theDay);
+              i = i + 2;
+              continue;
+          }
+
+      if (args[i].equals ("-numberOfDays")) {
+        numberOfDays = args[i+1];
+        System.out.println ("[usaged] numberOfDays: " + numberOfDays);
+        i = i + 2;
+        continue;
+      }
+      if (args[i].equals ("-schemaPath")) {
+        schemaPath = args[i+1];
+        i = i + 2;
+        continue;
+      }
+    } // end of while
+
+      // Properties mailProps = new Properties();
     try {
-      mailProps = new BatchMailer(orionPath).getMailProperties();
+          if (isTestMode) {
+              mailProps.put("mail.smtp.host", "hci-mail.hci.utah.edu");
+              mailProps.put("name","mail/MailSession");
+          }
+          else {
+              mailProps = new BatchMailer(orionPath).getMailProperties();
+          }
     } catch (Exception e){
       System.err.println("Cannot initialize mail properties");
-      System.exit(0);
+//      System.exit(0);
     }
   }
   
@@ -143,10 +210,24 @@ public class UsageReportd extends TimerTask {
     Calendar calendar = Calendar.getInstance();
     
     startDate = new GregorianCalendar();
-    startDate.add(Calendar.DAY_OF_YEAR, -7); //jfk change back to -7
-    endDate = new GregorianCalendar();
-    endDate.add(Calendar.DAY_OF_YEAR, 1);
 
+    if (numberOfDays != null) {
+        numdays = Integer.valueOf(numberOfDays);
+    }
+    if (theYear == null && theMonth == null && theDay == null) {
+        startDate.add(Calendar.DAY_OF_YEAR, -7); //jfk change back to -7
+        endDate = new GregorianCalendar();
+        endDate.add(Calendar.DAY_OF_YEAR, 1);
+    }
+    else {
+        startYear = Integer.valueOf(theYear);
+        startMonth = Integer.valueOf(theMonth);
+        mystartDay = Integer.valueOf(theDay);
+        startDate = new GregorianCalendar(startYear,startMonth,mystartDay);
+
+        endDate = new GregorianCalendar(startYear,startMonth,mystartDay);
+        endDate.add(Calendar.DAY_OF_YEAR, numdays);
+    }
     
     fFormat = new FieldFormatter();
     
@@ -159,6 +240,9 @@ public class UsageReportd extends TimerTask {
       
       propertyHelper = PropertyDictionaryHelper.getInstance(sess);
       String toList = propertyHelper.getQualifiedProperty(PropertyDictionary.USAGE_REPORT_EMAILS, serverName);
+      if (isTestMode) {
+          toList = null;
+      }
       if(toList == null) {} // property not set, use system.out for output
       else if(toList.equals("")) {toList=null;} // use system.out for output
       else if(toList.toLowerCase().equals("all")) {
@@ -191,12 +275,31 @@ public class UsageReportd extends TimerTask {
       } else {
         site_title = site_title + " ";
       }
-      
-      String subject = "GNomEx " + site_title + "Weekly Usage Report";
-      
-      SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
-      String todaysDate = sdf.format(new Date());
-      
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy");
+        startDate = new GregorianCalendar(2017,11,1,0,0,0);
+
+        Date date = startDate.getTime();
+        String todaysDate = sdf.format(date);
+        System.out.println ("todaysDate: " + todaysDate);
+
+
+        endDate = new GregorianCalendar(2017,11,31,0,0,0);
+        Date edate = endDate.getTime();
+
+        String theEndDate = sdf.format(edate);
+        System.out.println ("The end Date: " + theEndDate);
+
+        String subject = "";
+      if (theYear == null) {
+          subject = "GNomEx " + site_title + "Weekly Usage Report";
+      }
+      else {
+          subject = "GNomEx Usage Report " + todaysDate + " thru " + theEndDate;
+      }
+
+      System.out.println ("subject: " + subject);
+
       // Populate the LabStats in labInfo HashMap
       getUsageByLab(sess);
       
@@ -204,7 +307,7 @@ public class UsageReportd extends TimerTask {
       StringBuffer body = new StringBuffer("");
       
       body.append("<html>");
-      body.append("<head><title>GNomEx Usage Report</title><meta http-equiv='content-style-type' content='text/css'>");
+      body.append("<head><title>" + subject + "</title><meta http-equiv='content-style-type' content='text/css'>");
       body.append("<style>");
       body.append(" .fontClass{font-size:11px;color:#000000;font-family:verdana;text-decoration:none;} ");
       body.append(" .fontClassBold{font-size:11px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;} ");
@@ -251,8 +354,10 @@ public class UsageReportd extends TimerTask {
       body.append("</body></html>");
       
       if(isTestMode) {
-    	  MailUtilHelper helper = new MailUtilHelper(mailProps, bccTo, null, null, replyEmail, subject, body.toString(), null, true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
+          System.out.print(body.toString());
+          MailUtilHelper helper = new MailUtilHelper(mailProps, bccTo, null, null, replyEmail, subject, body.toString(), null, true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
     	  MailUtil.validateAndSendEmail(helper);
+
       } else {
     	  if(toList==null) {
     		  System.out.print(body.toString()); 
@@ -273,6 +378,7 @@ public class UsageReportd extends TimerTask {
   
   
   private StringBuffer buildUserUsageTable(String todaysDate) {	  
+    System.out.println ("[buildUserUsageTable] todaysDate: " + todaysDate);
 	  StringBuffer userUsageTable = new StringBuffer("");
       // Table Title      
 	  userUsageTable.append("<table class='table700'  cellpadding='5' cellspacing='0' border='1' bgcolor='#F5FAFE'>");
@@ -797,8 +903,7 @@ public class UsageReportd extends TimerTask {
 				String name = (String) row[3];
 				Integer userCount = ((Long) row[4]).intValue();
 				Integer downloadCount = ((Long) row[5]).intValue();
-				HashMap<String, AEGuestUsageStats> statsMap = ls
-						.getGuestUsageStatsList();
+				HashMap<String, AEGuestUsageStats> statsMap = ls.getGuestUsageStatsList();
 				AEGuestUsageStats stat = new AEGuestUsageStats();
 				stat.setAEnumber(number);
 				stat.setAEname(name);
@@ -1300,7 +1405,7 @@ public class UsageReportd extends TimerTask {
       cumulativeUploadCount = 0;
       cumulativeDownloadCount = 0;
       expAnalysisList = new TreeMap(new ExpAnalysisComparator());
-      guestUsageStatsList = new HashMap<String, AEGuestUsageStats>();
+      guestUsageStatsList = new HashMap<String, AEGuestUsageStats>(25000);
     }
     
     public int getCumulativeUploadCount() {

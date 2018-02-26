@@ -93,7 +93,10 @@
 
         <%
         Logger LOG = Logger.getLogger("register_user.jsp");
-        String idFacility = (String) ((request.getParameter("idFacility") != null)?request.getParameter("idFacility"):"");
+        //String idFacility = (String) ((request.getParameter("idFacility") != null)?request.getParameter("idFacility"):"");
+        Integer idFacilityint = JspHelper.getIdFacility(request);
+        String idFacility = idFacilityint == null?"":(idFacilityint.toString());
+
         Integer coreToPassThru = JspHelper.getIdCoreFacility(request);
         String idCoreParm = coreToPassThru == null?"":("?idCore=" + coreToPassThru.toString());
 

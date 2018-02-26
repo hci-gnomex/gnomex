@@ -156,7 +156,7 @@ public class ImportExperiment {
 
 
 			updateMode = false; // update mode made for automation proccess, won't interfere with regular import.
-										//
+			//
 			if((requestNode.getAttributeValue("number").equals("0")
 					|| requestNode.getAttributeValue("number").equals(""))
 					&& updateIDRequest != null){

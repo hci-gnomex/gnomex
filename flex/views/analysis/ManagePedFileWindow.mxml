@@ -343,7 +343,7 @@
                         columnLongText = pedfileGrid.columns[j].headerText + "  ";
                     }
 
-                    pedfileGrid.columns[j].width = measureText(columnLongText).width + 40 ;
+                    pedfileGrid.columns[j].width = measureText(columnLongText).width + 60 ;
                 }
             }
         }
@@ -388,7 +388,7 @@
     </mx:HBox>
 
     <mx:DataGrid id="pedfileGrid" width="100%" dataProvider="{this.pedEntry}" editable="true" sortableColumns="true" horizontalScrollPolicy="auto"
-                 maxWidth="851"
+                 maxWidth="951"
                  itemClick="{selectedProband = pedfileGrid.selectedItem}" allowMultipleSelection="false" itemEditEnd="isDirty(event)">
 
         <mx:columns>
@@ -434,7 +434,7 @@
 
     </mx:DataGrid>
 
-    <mx:ControlBar width="851" horizontalAlign="right">
+    <mx:ControlBar width="951" horizontalAlign="right">
         <mx:Button label="Next" id="nextButton" click="nextPedFile()" icon="@Embed(source='../../assets/iobio.png')"
                    enabled="{moreThanOne}" visible="{moreThanOne}" includeInLayout="{moreThanOne}"
                    disabledIcon="@Embed(source='../../assets/iobio_disable.png')"/>

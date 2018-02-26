@@ -8,6 +8,8 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.*;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -241,9 +243,26 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
             // keep track of the files being downloaded so we can update the TransferLog table
             String theFileName = fd.getFileName();
             String theFileSize = "" + fd.getFileSize();
-            filesToDownload.append("insert into TransferLog values (" + "0,'download','fdt',now(),now()," + "'" +
-                    theFileName + "'," + theFileSize + ",'Y'," + theIdAnalysis + ',' + theidRequest + ',' + theidLab + ',' +
-                    emailAddress + "','" + theRemoteIPAddress + "'," + theAppUser + ",null);\n");
+            filesToDownload.append("insert into TransferLog values (" +
+                    "0,'download','fdt'," +
+                    "'" + Util.getCurrentDateString() + "'," +
+                    "'" + Util.getCurrentDateString() + "','" +
+                    theFileName +
+                    "'," +
+                    theFileSize +
+                    ",'Y'," +
+                    theIdAnalysis +
+                    ',' +
+                    theidRequest +
+                    ',' +
+                    theidLab +
+                    ",'" +
+                    emailAddress +
+                    "','" +
+                    theRemoteIPAddress +
+                    "'," +
+                    theAppUser +
+                    ",null);\n");
           } // end of for each file
         } // end of for each request
 
@@ -264,13 +283,13 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
         
         if(showCommandLineInstructions != null && showCommandLineInstructions.equals("Y")) {
           response.setContentType("text/html");
-          response.getOutputStream().println("***** Please read, the directions have changed *****");
+          response.getOutputStream().println("***** Please read, the directions have changed (AGAIN) *****");
           response.getOutputStream().println("Complete the following steps to run FDT from the command line:");
           response.getOutputStream().println("1) Download the fdtCommandLine.jar app from " + fdtJarLoc);
           response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
           response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):");
           response.getOutputStream().println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Download Command Line link.");
-          response.getOutputStream().println("java -jar ./fdtCommandLine.jar -noupdates -ka 999999 -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
+          response.getOutputStream().println("java -jar ./fdtCommandLine.jar -noupdates -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
           response.getOutputStream().flush();
           return;
         }
@@ -295,7 +314,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           out.println("3) Execute the following on the command line after changing the path2xxx variables:");
           out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Download Command Line link.");
           out.println("");
-          out.println("java -jar path2YourLocalCopyOfFDT/fdtCommandLine.jar -noupdates -ka 999999 -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
+          out.println("java -jar path2YourLocalCopyOfFDT/fdtCommandLine.jar -noupdates -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
           out.println("");
           out.println("-->");	
           out.println("<information>");
@@ -386,4 +405,4 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 	  return request;    
 	}
 
-}
+ }

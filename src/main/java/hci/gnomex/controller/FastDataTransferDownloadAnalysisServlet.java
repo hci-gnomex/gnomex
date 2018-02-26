@@ -42,6 +42,8 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
   throws ServletException, IOException {
 
+    String theFileTransferLogFile = "";
+
     serverName = req.getServerName();
 
     String emailAddress = "";
@@ -131,13 +133,18 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
             continue;
           }
 
-          String theidRequest = "";
-          String theidLab = "";
-          String theidAnalysis = "";
+          String theidRequest = "null";
+          String theidLab = "null";
+          String theidAnalysis = "null";
 
           theidLab = "" + analysis.getIdLab();
           theidAnalysis = "" + analysis.getIdAnalysis();
-
+          if (theidLab.equals("")) {
+            theidLab = "null";
+          }
+          if (theidAnalysis.equals("")) {
+            theidAnalysis = "null";
+          }
           List fileDescriptors = parser.getFileDescriptors(analysisNumber);
 
           // For each file to be downloaded for the analysis
@@ -173,7 +180,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
               }
               
               // Write file with info for the TransferLoggerMain daemon
-              String theFileTransferLogFile = "fdtDownloadTransferLog_" + uuid.toString();
+              theFileTransferLogFile = "fdtDownloadTransferLog_" + uuid.toString();
               UploadDownloadHelper.writeDownloadInfoFile(softlinks_dir, emailAddress, secAdvisor, req, theidRequest, theidLab,theidAnalysis, theFileTransferLogFile);
               
               // change ownership to HCI_fdt user
@@ -231,8 +238,11 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
             // keep track of the files being downloaded so we can update the TransferLog table
             String theFileName = fd.getFileName();
             String theFileSize = "" + fd.getFileSize();
-            filesToDownload.append("insert into TransferLog values (" + "0,'download','fdt',now(),now()," + "'" +
-                    theFileName + "'," + theFileSize + ",'Y'," + theidAnalysis + ',' + theidRequest + ',' + theidLab + ',' +
+            filesToDownload.append("insert into TransferLog values (" +
+                    "0,'download','fdt','" +
+                    Util.getCurrentDateString() + "','" +
+                    Util.getCurrentDateString() + "','" +
+                    theFileName + "'," + theFileSize + ",'Y'," + theidAnalysis + ',' + theidRequest + ',' + theidLab + ",'" +
                     emailAddress + "','" + theRemoteIPAddress + "'," + theAppUser + ",null);\n");
 
 
@@ -243,7 +253,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
         // create the TransferLog file
         String uuidStr = uuid.toString();
-        Util.createTransferLogFile (softlinks_dir, uuidStr, filesToDownload );
+        Util.createTransferLogFile (softlinks_dir, uuidStr, filesToDownload, theFileTransferLogFile);
         secAdvisor.closeReadOnlyHibernateSession();
 
         

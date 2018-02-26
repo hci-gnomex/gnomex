@@ -528,6 +528,64 @@ public class BuildSearchIndex extends DetailObject {
         // Illumina experiments
         //
         buf = new StringBuilder();
+/*
+        buf.append ("select project0_.idProject as col_0_0_,");
+        buf.append ("requests1_.idRequest as col_1_0_,");
+        buf.append ("requests1_.number as col_2_0_,");
+        buf.append ("project0_.name as col_3_0_,");
+        buf.append ("project0_.description as col_4_0_,");
+        buf.append ("'' as col_5_0_,");
+        buf.append ("sample9_.name as col_6_0_,");
+        buf.append ("sample9_.description as col_7_0_,");
+        buf.append ("sample9_.idOrganism as col_8_0_,");
+        buf.append ("'' as col_9_0_,");
+        buf.append ("'' as col_10_0_,");
+        buf.append ("'' as col_11_0_,");
+        buf.append ("'' as col_12_0_,");
+        buf.append ("'' as col_13_0_,");
+        buf.append ("'' as col_14_0_,");
+        buf.append ("'' as col_15_0_,");
+        buf.append ("requests1_.codeRequestCategory as col_16_0_,");
+        buf.append ("project0_.idLab as col_17_0_,");
+        buf.append ("lab2_.lastName as col_18_0_,");
+        buf.append ("lab2_.firstName as col_19_0_,");
+        buf.append ("requests1_.idLab as col_20_0_,");
+        buf.append ("lab3_.lastName as col_21_0_,");
+        buf.append ("lab3_.firstName as col_22_0_,");
+        buf.append ("requests1_.codeApplication as col_23_0_,");
+        buf.append ("appuser6_.firstName as col_24_0_,");
+        buf.append ("appuser6_.lastName as col_25_0_,");
+        buf.append ("'' as col_26_0_,");
+        buf.append ("requests1_.codeVisibility as col_27_0_,");
+        buf.append ("requests1_.createDate as col_28_0_,");
+        buf.append ("sample9_.idSampleType as col_29_0_,");
+        buf.append ("'' as col_30_0_,");
+        buf.append ("requests1_.idAppUser as col_31_0_,");
+        buf.append ("'' as col_32_0_,");
+        buf.append ("sample9_.otherSamplePrepMethod as col_33_0_,");
+        buf.append ("'' as col_34_0_,");
+        buf.append ("'' as col_35_0_,");
+        buf.append ("requests1_.idInstitution as col_36_0_,");
+        buf.append ("requests1_.name as col_37_0_,");
+        buf.append ("sample9_.otherOrganism as col_38_0_,");
+        buf.append ("'' as col_39_0_,");
+        buf.append ("requests1_.idCoreFacility as col_40_0_,");
+        buf.append ("requests1_.idSubmitter as col_41_0_,");
+        buf.append ("appuser7_.firstName as col_42_0_,");
+        buf.append ("appuser7_.lastName as col_43_0_,");
+        buf.append ("requests1_.description as col_44_0_ ");
+        buf.append ("from Project project0_");
+        buf.append ("left outer join Request requests1_ on project0_.idProject=requests1_.idProject");
+        buf.append ("left outer join Lab lab3_ on requests1_.idLab=lab3_.idLab");
+        buf.append ("left outer join RequestCategory requestcat4_ on requests1_.codeRequestCategory=requestcat4_.codeRequestCategory");
+        buf.append ("left outer join RequestCategoryType requestcat5_ on requestcat4_.type=requestcat5_.codeRequestCategoryType");
+        buf.append ("left outer join AppUser appuser6_ on requests1_.idAppUser=appuser6_.idAppUser");
+        buf.append ("left outer join AppUser appuser7_ on requests1_.idSubmitter=appuser7_.idAppUser");
+        buf.append ("left outer join SequenceLane sequencela8_ on requests1_.idRequest=sequencela8_.idRequest");
+        buf.append ("left outer join Sample sample9_ on requests1_.idRequest=sample9_.idRequest");
+        buf.append ("left outer join Lab lab2_ on project0_.idLab=lab2_.idLab where requestcat5_.isIllumina='Y' and case when requestcat4_.isClinicalResearch is null then 'N' else requestcat4_.isClinicalResearch end='N' order by project0_.idProject,");
+        buf.append ("requests1_.idRequest;");
+*/
         buf.append(" SELECT proj.id ");
         buf.append("      , req.id ");
         buf.append("      , req.number ");
@@ -581,12 +639,11 @@ public class BuildSearchIndex extends DetailObject {
         buf.append("   LEFT JOIN reqCat.categoryType AS reqType ");
         buf.append("   LEFT JOIN req.appUser AS reqOwner ");
         buf.append("   LEFT JOIN req.submitter AS reqSubmitter ");
-        buf.append("   LEFT JOIN req.sequenceLanes AS lane ");
-        buf.append("   LEFT JOIN lane.sample AS s1 ");
+//        buf.append("   LEFT JOIN req.sequenceLanes AS lane ");
+        buf.append("   LEFT JOIN req.samples AS s1 ");
         buf.append("  WHERE reqType.isIllumina = 'Y' ");
         buf.append("    AND CASE WHEN reqCat.isClinicalResearch IS NULL THEN 'N' ELSE reqCat.isClinicalResearch end = 'N'");
         buf.append("  ORDER BY proj.idProject, req.idRequest ");
-
         results = sess.createQuery(buf.toString()).list();
 
         for (Object nextRow : results) {

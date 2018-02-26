@@ -19,21 +19,37 @@
 	</mx:HTTPService>
 	
 	<mx:HTTPService  
-		id="cacheFDTFileDownloadList" 
+		id="cacheSFTPFileDownloadList"
 		url="CacheFileDownloadList.gx"
 		destination="cacheFileDownloadList"
 		concurrency="multiple"
 		resultFormat="e4x"
 		showBusyCursor="true"
-		result="onCacheFDTFileDownloadList(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		result="onCacheSFTPFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get sftp cache file download list', event)"
 		method="POST"
 		useProxy="false">
 		<mx:request>
 			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
 		</mx:request>
 	</mx:HTTPService>
-	
+
+	<mx:HTTPService
+			id="cacheFDTFileDownloadList"
+			url="CacheFileDownloadList.gx"
+			destination="cacheFileDownloadList"
+			concurrency="multiple"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onCacheFDTFileDownloadList(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+			method="POST"
+			useProxy="false">
+		<mx:request>
+			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+		</mx:request>
+	</mx:HTTPService>
+
 	<mx:HTTPService  
 		id="makeSoftLinks" 
 		url="MakeSoftLinks.gx"
@@ -75,7 +91,19 @@
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService>
-	
+
+	<mx:HTTPService
+			id="sftpUploadStart"
+			url="SFTPUploadStart.gx"
+			concurrency="multiple"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onFdtUploadStart(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to start sftp upload', event)"
+			method="POST"
+			useProxy="false">
+	</mx:HTTPService>
+
 	<mx:HTTPService  
 		id="getFDTUploadInstructions" 
 		url="FastDataTransferUploadGetJnlpServlet.gx"
@@ -87,7 +115,19 @@
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService>
-	
+
+	<mx:HTTPService
+			id="getSFTPUploadInstructions"
+			url="SFTPUploadGetJnlpServlet.gx"
+			concurrency="multiple"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onGetFDTUploadInstructions(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+			method="POST"
+			useProxy="false">
+	</mx:HTTPService>
+
 	
 	<mx:HTTPService  
 		id="getFDTDownloadInstructions" 
@@ -100,8 +140,20 @@
 		method="GET"
 		useProxy="false">
 	</mx:HTTPService>
-	
-	
+
+	<mx:HTTPService
+			id="getSFTPDownloadInstructions"
+			url="FastDataTransferDownloadExpServlet.gx"
+			concurrency="multiple"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onGetFDTDownloadInstructions(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+			method="GET"
+			useProxy="false">
+	</mx:HTTPService>
+
+
 	<mx:Script>
 		<![CDATA[
 			import flash.display.Sprite;
@@ -383,7 +435,17 @@
 					makeSoftLinks.send();
 				}
 			}
-			
+
+			public function sftpDownload(selectedFiles:XMLList):void {
+				selectedFileList = new XMLListCollection(selectedFiles);
+
+				if (selectedFileList.length == 0) {
+					mx.controls.Alert.show("Please select the files to download using sftp.");
+				} else {
+					cacheSFTPFileDownloadList.send();
+				}
+			}
+
 
 			public function downloadFilesUsingFDT(selectedFiles:XMLList):void {
 				selectedFileList = new XMLListCollection(selectedFiles);					
@@ -400,7 +462,14 @@
 				// Now call the URL to start the FDT app using webstart
 				showFastDataTransferDownloadPage();
 			}
-			
+
+			private function onCacheSFTPFileDownloadList(event:ResultEvent):void {
+				// We have cached the selected analysis files
+				// Now call the URL to start the FDT app using webstart
+				showSFTPDownloadPage();
+			}
+
+
 			public function showFastDataTransferDownloadPage():void {
 				
 				if(showCommandLineInstructions){
@@ -425,7 +494,35 @@
 					navigateToURL(url, '_self');
 				}
 			}
-			
+
+			public function showSFTPDownloadPage():void {
+
+				if(showCommandLineInstructions){
+					var params:Object = new Object();
+					params.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+					if (parentApplication.guestEmailAddress != null) {
+						params.emailAddress = parentApplication.guestEmailAddress;
+					}
+					getSFTPDownloadInstructions.send(params);
+					showCommandLineInstructions = false;
+				} else{
+					var url:URLRequest = new URLRequest('SFTPDownloadExpServlet.gx');
+					url.contentType = "text/plain";
+					url.method = URLRequestMethod.GET;
+					var parms:URLVariables = new URLVariables();
+					if (parentApplication.guestEmailAddress != null) {
+						parms.emailAddress = parentApplication.guestEmailAddress;
+					}
+					parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
+					url.data = parms;
+
+					navigateToURL(url, '_self');
+				}
+			}
+
+			private function onGetSFTPDownloadInstructions(event:ResultEvent):void{
+				Alert.show(event.result.toString(), "SFTP Instructions");
+			}
 			private function onGetFDTDownloadInstructions(event:ResultEvent):void{
 				Alert.show(event.result.toString(), "Command Line Instructions");
 			}
@@ -561,7 +658,16 @@
 					ExperimentEditView.showExperimentUploadFDTWindow(parentApplication.theBody, request, new ExperimentEditView, this);
 				}
 			}
-			
+
+			private function showExperimentSFTPUploadWindow():void {
+				var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
+				var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
+				if (idRequest != null && idRequest != "") {
+					ExperimentEditView.showExperimentUploadSFTPWindow(parentApplication.theBody, request, new ExperimentEditView, this);
+				}
+			}
+
+
 			[Bindable(event="requestChanged")]
 			public function isClinicalResearchRequest():Boolean {
 				if (this.request != null) {
@@ -591,7 +697,12 @@
 							   click="showExperimentUploadWindow()" 
 							   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" 
 							   textAlign="left"/>
-				<mx:LinkButton label="FDT Upload files" 
+				<mx:LinkButton label="SFTP Upload files"
+							   visible="{!isClinicalResearchRequest()}"
+							   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
+							   click="showExperimentSFTPUploadWindow()"
+							   id="linkbuttonUploadSFTP" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
+				<mx:LinkButton label="FDT Upload files"
 							   visible="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
 							   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !isClinicalResearchRequest()}"
 							   click="showExperimentFDTUploadWindow()" 

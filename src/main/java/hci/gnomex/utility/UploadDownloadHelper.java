@@ -24,13 +24,13 @@ public class UploadDownloadHelper {
 
   public static void writeDownloadInfoFile(String baseDir, String emailAddress, SecurityAdvisor secAdvisor, HttpServletRequest req, String theidRequest, String theidLab, String theidAnalysis,String theTransferLogFile) throws IOException {
 
-    if (!baseDir.endsWith(Constants.FILE_SEPARATOR)) {
-      baseDir += Constants.FILE_SEPARATOR;
+    if (!baseDir.endsWith("/")) {
+      baseDir += "/";
     }
     File info = new File(baseDir + Constants.FDT_DOWNLOAD_INFO_FILE_NAME);
 //    try {
       if (!info.createNewFile()) {
-        LOG.error("Unable to create info file: fdtDownloadInfoFile.txt for FDT transfer.");
+        LOG.error("Unable to create info file: " + baseDir + Constants.FDT_DOWNLOAD_INFO_FILE_NAME +  " for FDT transfer. ");
       } else {
         FileWriter fw = new FileWriter(info);
         PrintWriter pw = new PrintWriter(fw);
@@ -40,7 +40,7 @@ public class UploadDownloadHelper {
         pw.println(theidRequest);
         pw.println(theidLab);
         pw.println(theidAnalysis);
-        pw.println(theTransferLogFile);
+        pw.println(baseDir + theTransferLogFile);
         pw.flush();
         pw.close();
       }

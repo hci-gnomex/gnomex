@@ -388,8 +388,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             rs.close();
             stmt.close();
         } catch (Exception ex) {
-            LOG.error("Error querying associate table.", ex);
-            System.out.println("Error querying associate table. " + ex);
+//            LOG.error("Error querying associate table.", ex);
+//            System.out.println("Error querying associate table. " + ex);
         }
 
         return pId;

@@ -168,6 +168,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
 
 		Request request = requestParser.getRequest();
+//		System.out.println("RequestNumber: " + request.getNumber() + " Request Id: " + request.getIdRequest());
+//		request.getNumberOfSamples();
+//		System.out.println("Number of Samples: " +request.getNumberOfSamples());
+
+//		request.getSamples();
 
 		request.setDescription(description);
 		if(requestParser.isNewRequest() && isImport &&
@@ -1005,8 +1010,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				filesToRemoveDoc = sax.build(reader);
 				filesToRemoveParser = new FileDescriptorUploadParser(filesToRemoveDoc);
 			} catch (JDOMException je) {
-				LOG.error("Cannot parse filesToRemoveXMLString", je);
 				this.addInvalidField("FilesToRemoveXMLString", "Invalid filesToRemove xml");
+				this.errorDetails = Util.GNLOG(LOG,"Cannot parse filesToRemoveXMLString", je);
 			}
 		}
 
@@ -1028,8 +1033,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			requestDoc = sax.build(reader);
 			requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse requestXMLString", je);
 			this.addInvalidField("RequestXMLString", "Invalid request xml");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse requestXMLString", je);
 		}
 
 
@@ -1052,8 +1057,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				Document assaysDoc = sax.build(reader);
 				assaysParser = new SampleAssaysParser(assaysDoc);
 			} catch (JDOMException je) {
-				LOG.error("Cannot parse assays", je);
 				this.addInvalidField("Assays", "Invalid assays xml");
+				this.errorDetails = Util.GNLOG(LOG,"Cannot parse assays", je);
 			}
 		}
 
@@ -1066,8 +1071,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				Document primersDoc = sax.build(reader);
 				primersParser = new SamplePrimersParser(primersDoc);
 			} catch (JDOMException je) {
-				LOG.error("Cannot parse primers", je);
 				this.addInvalidField("Primers", "Invalid primers xml");
+				this.errorDetails = Util.GNLOG(LOG,"Cannot parse primers", je);
 			}
 		}
 

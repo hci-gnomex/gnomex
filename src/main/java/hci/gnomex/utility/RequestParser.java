@@ -158,6 +158,7 @@ public class RequestParser implements Serializable {
   private void initializeRequest(Element n, Session sess, RequestCategory requestCategory) throws Exception {
 
     Integer idRequest = new Integer(n.getAttributeValue("idRequest"));
+    System.out.println ("[initializeRequest] idRequest: " + idRequest);
     if (idRequest.intValue() == 0) {
       request = new Request();
       request.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
