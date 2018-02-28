@@ -74,6 +74,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -179,7 +180,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				(request.getNumber().equals("")|| request.getNumber().equals("0")) ){
 			sess.save(request);
 			request.setNumber(request.getIdRequest() + "R");
-			request.setName(request.getIdRequest() + "");
+			if(requestParser.getRequestAnnotationMap().get("Person ID") != null){
+				List<String> idPropertyValuePair = requestParser.getRequestAnnotationMap().get("Person ID");
+				request.setName(idPropertyValuePair.get(1));
+			}else{
+				request.setName(request.getIdRequest() + "");
+			}
 			request.setDescription("Person " +request.getIdRequest());
 			System.out.println("The newly generated request number: " + request.getNumber() );
 			//sess.save(request);
