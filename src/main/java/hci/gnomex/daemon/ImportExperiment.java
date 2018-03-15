@@ -5,8 +5,7 @@ import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.*;
 
-import java.io.File;
-import java.io.StringReader;
+import java.io.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -59,7 +58,7 @@ public class ImportExperiment {
 
 	private TreeSet samplesAdded = new TreeSet(new SampleNumberComparator());
 	private TreeSet sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
-
+	private String outIDRequest;
 	private AppUser appuser;
 	private Lab lab;
 	private String labLastName;
@@ -92,7 +91,10 @@ public class ImportExperiment {
 				annotationFileName = args[++i];
 			} else if (args[i].equals("-isExternal")) {
 				isExternal = args[++i];
-			} else if (args[i].equals("-login")) {
+			}else if(args[i].equals("-requestIDList")){
+				this.outIDRequest = args[++i];
+			}
+			else if (args[i].equals("-login")) {
 				login = args[++i];
 			} else if (args[i].equals("-help")) {
 				printUsage();
@@ -152,7 +154,7 @@ public class ImportExperiment {
 			mapAnnotations();
 
 			// Use RequestParser to parse the XML to create a request instance
-			Integer updateIDRequest = requestToUpdate(sess,"Shadow ID");
+			Integer updateIDRequest = requestToUpdate(sess,"MRN");
 
 
 			updateMode = false; // update mode made for automation proccess, won't interfere with regular import.
@@ -189,8 +191,10 @@ public class ImportExperiment {
 			SaveRequest.saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, true);
 			System.out.println("[ImportExperiment] after SaveRequest.saveSequenceLanes()");
 
+
 			// Commit the transaction
 			sess.getTransaction().commit();
+			saveRequestID(outIDRequest,updateIDRequest);
 
 			System.out.println("[ImportExperiment] after sess.getTransaction().commit()");
 
@@ -896,6 +900,29 @@ public class ImportExperiment {
 
 		return propertyEntries;
 	}
+	private void saveRequestID(String fileName,Integer existingReqID ){
+		if(outIDRequest != null) {
+			PrintWriter pw = null;
+			try {
+
+				if (existingReqID != null) {
+					pw = new PrintWriter(new FileOutputStream(new File(fileName), true));
+					pw.write(" " + existingReqID + " ");
+				}
+				else if (request.getIdRequest() != null) {
+					pw = new PrintWriter(new FileOutputStream(new File(fileName), true));
+					pw.write(" " + request.getIdRequest() + " ");
+				}
+
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} finally {
+				pw.close();
+			}
+		}
+	}
+
 
 
 	protected void printUsage() {
@@ -906,6 +933,7 @@ public class ImportExperiment {
 		System.out.println("   -file            XML file to be imported, generated from GetRequest.gx.");
 		System.out.println("   -annotationFile  XML file to be imported, generated from GetPropertyList.gx.");
 		System.out.println("   -[isExternal     Y/N]");
+		System.out.println("   -requestIDList   The name of the output file that is appended to with request IDs delimited by spaces");
 		System.out.println("   -help - gives this message.  Note no other processing is performed if the -help switch is specified.");
 
 	}
