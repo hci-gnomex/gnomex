@@ -78,10 +78,9 @@ public class ImportExperiment {
 	private HashMap<String, Organism> organismMap = new HashMap<String, Organism>();
 	private HashMap<String, SampleType> sampleTypeMap = new HashMap<String, SampleType>();
 	private HashMap<String, GenomeBuild> genomeBuildMap = new HashMap<String, GenomeBuild>();
-
 	private HashMap<Integer, Integer> idPropertyMap = new HashMap<Integer, Integer>();
-
 	private Set<AppUser> members;
+	private boolean automatedImport;
 
 	public ImportExperiment(String[] args) {
 		for (int i = 0; i < args.length; i++) {
@@ -158,10 +157,10 @@ public class ImportExperiment {
 
 
 			updateMode = false; // update mode made for automation proccess, won't interfere with regular import.
+
+			setIsAutomatedImport(requestNode.getAttributeValue("number"));
 			//
-			if((requestNode.getAttributeValue("number").equals("0")
-					|| requestNode.getAttributeValue("number").equals(""))
-					&& updateIDRequest != null){
+			if( getAutomatedImport() && updateIDRequest != null){
 				updateMode = true;
 			}
 			RequestCategory requestCategory = requestCategoryMap.get(requestNode.getAttributeValue("codeRequestCategory"));
@@ -745,10 +744,14 @@ public class ImportExperiment {
 	}
 
 	private void saveSamples(Integer updateIDRequest) throws Exception {
+		Request r = this.requestParser.getRequest();
+
 		//getStartingNextSampleNumber();
+		Set<String> dupSamples = getDuplicateSamples();
+		System.out.println("In save Sample the Request Number: " + r.getNumber());
+		System.out.println("automated Import: " + getAutomatedImport());
 
 		if(updateMode){
-			Request r = requestParser.getRequest();
 			r.setIdRequest(updateIDRequest);
 			r.setNumber(r.getIdRequest() + "R");
 
@@ -766,7 +769,16 @@ public class ImportExperiment {
 			boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
 			hasNewSample = isNewSample || hasNewSample;
 			Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
+
+			boolean isDupSample = dupSamples.contains(sample.getName());
+			if(getAutomatedImport() && isDupSample ){
+				System.out.println("The sample name: " + sample.getName() + " is already in use by another sample");
+				System.out.println("This sample will not be saved");
+				continue;
+
+			}
 			saveSample(idSampleString, sample, sess);
+
 		}
 
 
@@ -830,6 +842,21 @@ public class ImportExperiment {
 			}
 		}
 		nextSampleNumber++;
+	}
+
+	private Set<String> getDuplicateSamples() {
+		List<String> sampleNameList = new ArrayList<String>();
+		for(Object idSample : requestParser.getSampleIds()){
+			String idSampleString = (String) idSample;
+			Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
+			sampleNameList.add(sample.getName());
+		}
+		Query query = sess.createQuery("SELECT samp.name FROM Sample samp WHERE samp.name IN (:ids) ");
+		query.setParameter("ids",sampleNameList);
+		List<String> sampleNameFromQuery = query.list();
+		Set<String> sampleNameSet = new TreeSet<String>(sampleNameFromQuery);
+		System.out.println("Look this is what the query found as a duplicates " + sampleNameFromQuery.toString() );
+		return sampleNameSet;
 	}
 
 	private void sendErrorReport(Exception e) {
@@ -922,6 +949,16 @@ public class ImportExperiment {
 			}
 		}
 	}
+	public void setIsAutomatedImport(String requestNumber) {
+		if(requestNumber.equals("0") || requestNumber.equals("")){
+			this.automatedImport = true;
+		}else{
+			this.automatedImport = false;
+		}
+	}
+	public boolean getAutomatedImport(){
+		return automatedImport;
+	}
 
 
 
@@ -937,6 +974,8 @@ public class ImportExperiment {
 		System.out.println("   -help - gives this message.  Note no other processing is performed if the -help switch is specified.");
 
 	}
+
+
 
 }
 /*class MyReturnWork implements ReturningWork<ResultSet> {
