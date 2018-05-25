@@ -89,6 +89,7 @@ private String newAnalysisGroupName;
 private String newAnalysisGroupDescription;
 private Integer newAnalysisGroupId = new Integer(-1);
 
+private boolean isLinkBySample = false;
 private boolean isBatchMode = false;
 private String organism;
 private String genomeBuild;
@@ -166,6 +167,10 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			LOG.error("Cannot parse hybsXMLString", je);
 			this.addInvalidField("hybsXMLString", "Invalid hybsXMLString");
 		}
+	}
+
+	if(request.getParameter("linkBySample") != null && request.getParameter("isBatchMode").equals("Y")){
+		isLinkBySample = true;
 	}
 
 	if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
@@ -255,11 +260,14 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 		idInstitution = Integer.parseInt(request.getParameter("idInstitution"));
 	}
 
+
 	serverName = request.getServerName();
 
 	if (request.getParameter("isBatchMode") != null && request.getParameter("isBatchMode").equals("Y")) {
 		isBatchMode = true;
 	}
+
+
 	if (isBatchMode) {
 		labName = request.getParameter("labName");
 		genomeBuild = request.getParameter("genomeBuild");
@@ -327,7 +335,7 @@ public Command execute() throws RollBackCommandException {
 				hybParser.parse(sess);
 			}
 			if (laneParser != null) {
-				laneParser.parse(sess, isBatchMode);
+				laneParser.parse(sess, isBatchMode, isLinkBySample);
 			}
 			if (sampleParser != null) {
 				sampleParser.parse(sess);
@@ -475,26 +483,7 @@ public Command execute() throws RollBackCommandException {
 				}
 			}
 			if (laneParser != null) {
-				for (Iterator i = laneParser.getIdSequenceLanes().iterator(); i.hasNext();) {
-					Integer idSequenceLane = (Integer) i.next();
-					AnalysisExperimentItem experimentItem = null;
-					// The experiment item may already exist; if so, just
-					// save it.
-					for (Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
-						AnalysisExperimentItem x = (AnalysisExperimentItem) i1.next();
-						if (x.getIdSequenceLane() != null && x.getIdSequenceLane().equals(idSequenceLane)) {
-							experimentItem = x;
-							break;
-						}
-					}
-					if (experimentItem == null) {
-						experimentItem = new AnalysisExperimentItem();
-						experimentItem.setIdAnalysis(analysis.getIdAnalysis());
-						experimentItem.setIdSequenceLane(idSequenceLane);
-						experimentItem.setIdRequest(laneParser.getIdRequest(idSequenceLane));
-					}
-					experimentItems.add(experimentItem);
-				}
+				addExperimentItem(laneParser, isLinkBySample,experimentItems,analysis);
 			}
 			if (sampleParser != null) {
 				for (Iterator<Integer> i = sampleParser.getIdSamples().iterator(); i.hasNext();) {
@@ -687,7 +676,54 @@ public Command execute() throws RollBackCommandException {
 	return this;
 }
 
-public void setVisibility(Session sess, Analysis analysis) {
+	private void addExperimentItem(AnalysisLaneParser laneParser, boolean isLinkBySample, TreeSet experimentItems, Analysis analysis) {
+		List linkerList = null;
+
+		if(isLinkBySample){
+			linkerList = laneParser.getIdSamples();
+		}else{
+			linkerList = laneParser.getIdSequenceLanes();
+		}
+
+		for (Iterator i = linkerList.iterator(); i.hasNext();) {
+			Integer id = (Integer) i.next();
+			AnalysisExperimentItem experimentItem = null;
+			// The experiment item may already exist; if so, just
+			// save it.
+			for (Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
+				AnalysisExperimentItem x = (AnalysisExperimentItem) i1.next();
+				if(isLinkBySample){
+					if (x.getIdSample() != null && x.getIdSample().equals(id)) {
+						experimentItem = x;
+						break;
+					}
+				}else{
+					if (x.getIdSequenceLane() != null && x.getIdSequenceLane().equals(id)) {
+						experimentItem = x;
+						break;
+					}
+				}
+
+			}
+			if (experimentItem == null) {
+				experimentItem = new AnalysisExperimentItem();
+				if(isLinkBySample){
+					experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+					experimentItem.setIdSample(id);
+					experimentItem.setIdRequest(laneParser.getIdRequest(id));
+				}else{
+					experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+					experimentItem.setIdSequenceLane(id);
+					experimentItem.setIdRequest(laneParser.getIdRequest(id));
+
+				}
+			}
+			experimentItems.add(experimentItem);
+		}
+
+	}
+
+	public void setVisibility(Session sess, Analysis analysis) {
 	if (visibility != null && visibility.length() > 0) {
 		analysis.setCodeVisibility(visibility);
 		analysis.setIdInstitution(idInstitution);

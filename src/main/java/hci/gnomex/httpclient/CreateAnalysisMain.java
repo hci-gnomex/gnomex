@@ -52,6 +52,7 @@ public class CreateAnalysisMain extends HttpClientBase {
   private String lanesXMLString = null;
   private String samplesXMLString = null;
   private String experimentsXMLString = null;
+  private String linkBySample = "N";
 
   /**
    * @param args
@@ -69,7 +70,9 @@ public class CreateAnalysisMain extends HttpClientBase {
         return;
       } else if (args[i].equals("-debug")) {
         debug = true;
-      }  else if (args[i].equals("-properties")) {
+      } else if (args[i].equals("-linkBySample")) {
+        linkBySample = "Y";
+      } else if (args[i].equals("-properties")) {
         propertiesFileName = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
@@ -146,7 +149,8 @@ public class CreateAnalysisMain extends HttpClientBase {
         "[-folderDescription <description of folder>]" + "\n" +
         "[-seqLane <sequence lane number example: 8432F1_1> [...]]" +
         "[-sample <sample number example: 8432X1> [...]]" +
-        "[-experiment <experiment number example: 8432R> [...]]"
+        "[-experiment <experiment number example: 8432R> [...]]" +
+        "[-linkBySample] <For those auto-imported these experiment link by sample not seq lanes>] "
         );
   }
   
@@ -166,6 +170,7 @@ public class CreateAnalysisMain extends HttpClientBase {
     parms += "&" + URLEncoder.encode("genomeBuild", "UTF-8") + "=" + URLEncoder.encode(genomeBuild, "UTF-8");
     parms += "&" + URLEncoder.encode("analysisType", "UTF-8") + "=" + URLEncoder.encode(analysisType, "UTF-8");
     parms += "&" + URLEncoder.encode("isBatchMode", "UTF-8") + "=" + URLEncoder.encode("Y", "UTF-8");
+    parms += "&" + URLEncoder.encode("linkBySample", "UTF-8") + "=" + URLEncoder.encode(linkBySample, "UTF-8");
     if (description != null) {
       parms += "&" + URLEncoder.encode("description", "UTF-8") + "=" + URLEncoder.encode(description, "UTF-8");        
     }
