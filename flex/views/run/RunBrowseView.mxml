@@ -233,10 +233,19 @@
 			
 			public function createRunFile(event:MouseEvent):void {
 				var idRun:int = (int)(runList[runGrid.selectedIndex].@idInstrumentRun);
-				
-				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
-					'?idInstrumentRun=' + idRun);
-				navigateToURL(url, '_blank');
+
+				var result96: String =  this.parentApplication.getProperty(this.parentApplication.PROPERTY_CHROMATOGRAM_RESULTS_8X12);
+
+				if (result96 != null && result96 == "Y") {
+					var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx'
+														+ '?idInstrumentRun=' + run.idRun
+														+ '&result96=' + result96);
+					navigateToURL( url, '_blank' );
+				} else {
+					var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx'
+														+ '&codeReactionType=' + reactionState);
+					navigateToURL( url, '_blank' );
+				}
 				
 				Alert.show("After the .plt file has been saved press OK. The status has been updated to running. Please refresh list.",
 					"Confirmation",
