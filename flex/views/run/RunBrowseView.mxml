@@ -238,12 +238,12 @@
 
 				if (result96 != null && result96 == "Y") {
 					var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx'
-														+ '?idInstrumentRun=' + run.idRun
+														+ '?idInstrumentRun=' + idRun
 														+ '&result96=' + result96);
 					navigateToURL( url, '_blank' );
 				} else {
 					var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx'
-														+ '&codeReactionType=' + reactionState);
+														+ '&idInstrumentRun=' + idRun);
 					navigateToURL( url, '_blank' );
 				}
 				
