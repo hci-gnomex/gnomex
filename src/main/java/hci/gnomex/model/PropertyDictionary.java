@@ -95,6 +95,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
 	public static final String DISK_USAGE_EXPERIMENT_GRACE_PERIOD_IN_MONTHS = "disk_usage_experiment_grace_period_in_months";
 	public static final String DISK_USAGE_PRICE_CATEGORY_NAME = "disk_usage_price_category_name";
 	public static final String GNOMEX_SUPPORT_EMAIL = "gnomex_support_email";
+	public static final String NOTIFY_IF_NO_EMAIL = "notify_if_no_email";
 	public static final String GUEST_DOWNLOAD_TERMS = "guest_download_terms";
 	public static final String CAN_ACCESS_BSTX = "can_access_bstx";
 	public static final String REQUEST_SUBMIT_CONFIRMATION_EMAIL = "request_submit_confirmation_email";
@@ -104,6 +105,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
 	public static final String HISEQ_RUN_TYPE_LABEL_STANDARD = "hiseq_run_type_label_standard";
 	public static final String HISEQ_RUN_TYPE_LABEL_CUSTOM = "hiseq_run_type_label_custom";
 	public static final String HISEQ_RUN_TYPE_CUSTOM_WARNING = "hiseq_run_type_custom_warning";
+	public static final String NOSEQ_RUN_TYPE_LABEL_STANDARD = "noseq_run_type_label_standard";
+	public static final String NOSEQ_RUN_TYPE_LABEL_CUSTOM = "noseq_run_type_label_custom";
+	public static final String NOSEQ_RUN_TYPE_CUSTOM_WARNING = "noseq_run_type_custom_warning";
 	public static final String ANALYSIS_ASSISTANCE_NOTE = "analysis_assistance_note";
 	public static final String CONTACT_EMAIL_MANAGE_SAMPLE_FILE_LINK = "contact_email_manage_sample_file_link";
 	public static final String CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS = "contact_email_bioinformatics_analysis_requests";
@@ -135,6 +139,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
 	public static final String NO_PUBLIC_VISIBILITY = "no_public_visibility";
 	public static final String ALLOW_CORE_GLOBAL_SUBMISSION = "allow_core_global_submission";
 	public static final String REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE = "request_complete_confirmation_email_message";
+	public static final String REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE_BMP = "request_complete_confirmation_email_message_bmp";
+	public static final String REQUEST_COMPLETE_EMAIL_BMP = "request_comlete_email_bmp";
+
 	public static final String ANNOTATION_OPTION_EQUIVALENTS = "annotation_option_equivalents";
 	public static final String ANNOTATION_OPTION_INVALID = "annotation_option_invalid";
 	public static final String EXPERIMENT_MATRIX_PROPERTIES = "experiment_matrix_properties";

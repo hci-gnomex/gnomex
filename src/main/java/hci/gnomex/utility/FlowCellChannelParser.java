@@ -135,8 +135,10 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
             wi.setCodeStepNext("HSEQASSEM");  
           } else if (codeStepNext.equals("MISEQFINFC") || codeStepNext.equals("MISEQPIPE")) {
             wi.setCodeStepNext("MISEQASSEM");
+          } else if(codeStepNext.equals("NOSEQFINFC") || codeStepNext.equals("NOSEQPIPE")) {
+            wi.setCodeStepNext("NOSEQASSEM");
           }
-          sess.save(wi);         
+            sess.save(wi);
         }
       }
 

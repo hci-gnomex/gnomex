@@ -114,6 +114,8 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
                         codeStepNext = Step.HISEQ_CLUSTER_GEN;
                       } else if (workItem.getCodeStepNext().equals(Step.MISEQ_PREP_QC)) {
                         codeStepNext = Step.MISEQ_CLUSTER_GEN;
+                      } else if (workItem.getCodeStepNext().equals(Step.NOSEQ_PREP_QC)) {
+                        codeStepNext = Step.NOSEQ_CLUSTER_GEN;
                       }
                       wi.setCodeStepNext(codeStepNext);
                       wi.setSequenceLane(lane);
@@ -205,6 +207,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
     for(Integer key : autoCompleteMap.keySet()) {
       BillingItemAutoComplete auto = autoCompleteMap.get(key);
       String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
+      System.out.println ("[SaveWorkItemSolexaPrepQC] billing_during_workflow " + prop);
       if (prop == null || !prop.equals("Y")) {
         // Billing items created at submit.  Just complete items that can be completed.
         if (!auto.getSkip()) {
@@ -223,7 +226,9 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
       } else {
         // Need to create billing items at this point.
         Set<Sample> sampleSet = samplesCompletedMap.get(auto.getRequest().getIdRequest());
+        if (sampleSet == null) System.out.println ("[SaveWorkItemSolexaPrepQC] sampleSet is NULL!!!");
         if (sampleSet != null) {
+          System.out.println ("[SaveWorkItemSolexaPrepQC] sampleSet.size(): " + sampleSet.size());
         	BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, auto.getRequest());
             SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED, billingTemplate, false, true);
         }

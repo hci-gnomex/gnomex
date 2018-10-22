@@ -107,6 +107,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
 
     if (request.getParameter("billingItemXMLString") != null && !request.getParameter("billingItemXMLString").equals("")) {
       billingItemXMLString = "<BillingItemList>" + request.getParameter("billingItemXMLString") + "</BillingItemList>";
+      System.out.println ("[SaveBillingItemList] billingItemXMLString: " + billingItemXMLString + "\n");
 
       StringReader reader = new StringReader(billingItemXMLString);
       try {

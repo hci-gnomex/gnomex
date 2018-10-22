@@ -1,7 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <%@ page language="java" import="java.util.ArrayList"%>
-<%@ page language="java" import="hci.gnomex.utility.TopicTreeLinkInfo;"%>
+<%@ page language="java" import="hci.gnomex.utility.TopicTreeLinkInfo"%>
+//<%@ page import="hci.gnomex.utility.TopicTreeLinkInfo" %>
 
 <!--  These are the session objects passed into this jsp -->
 <jsp:useBean id="topics" class="java.util.ArrayList" scope="request"/>
@@ -187,4 +188,3 @@ padding-bottom: 1em;
 </body>
 </html>
 
-	

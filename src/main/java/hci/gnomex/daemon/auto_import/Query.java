@@ -1,9 +1,6 @@
 package hci.gnomex.daemon.auto_import;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,6 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class Query {
 	
@@ -31,10 +31,7 @@ public class Query {
 		
 			readInCreds(creds);
 			initalizeConnection();
-			
-		
-		
-		
+
 		
 	}
 	
@@ -166,6 +163,49 @@ public class Query {
 		
 		return null;
 	}
+
+
+	public List getXMLFileStatus (String fileName){
+		List xmlStatusRow = new ArrayList();
+		List<List> xmlStatus = new ArrayList<List>();
+		StringBuilder strBuild = new StringBuilder();
+
+
+		String sqlStmt = "SELECT srcFileName, srcFileModDtTm, processedYN "
+				+ "FROM MolecularProfiling.dbo.XmlFileData xData " +
+				"WHERE xData.srcFileName =? "
+				+ "ORDER BY xData.srcFileName";
+
+
+		PreparedStatement prepStmt = null;
+		try {
+			prepStmt = conn.prepareStatement(sqlStmt);
+			prepStmt.setString(1, fileName);
+
+
+
+			ResultSet rs = prepStmt.executeQuery();
+
+			while(rs.next()) {
+				xmlStatusRow.add( rs.getString("srcFileName"));
+				xmlStatusRow.add(rs.getTimestamp("srcFileModDtTm"));
+				xmlStatusRow.add(rs.getString("processedYN"));
+				xmlStatus.add(xmlStatusRow);
+			}
+
+
+		}catch(SQLException e){
+			return xmlStatus;
+
+		}
+		finally {
+
+			try { prepStmt.close(); } catch (Exception e) { /* ignored */ }
+
+		}
+		return xmlStatus;
+
+	}
 	
 	
 	public boolean isExistingExperiment(String mrn) {
@@ -210,14 +250,15 @@ public class Query {
 
 
 
-	public boolean isNewAnalysis(String name, String folderName) {
+	public Integer getAnalysisID(String name, String folderName) {
 		String query = "SELECT a.idAnalysis "
 						+ " FROM Analysis a "
 						+ " JOIN AnalysisGroupItem ai ON ai.idAnalysis = a.idAnalysis "
 						+ " JOIN AnalysisGroup ag ON ag.idAnalysisGroup = ai.idAnalysisGroup"
 						+ " WHERE a.name = ? AND ag.name = ?";
 		PreparedStatement pStmnt = null;
-		boolean isNewAnalysis = true;
+		Integer analysisID = -1;
+		List<Integer> analysisDupicates = new ArrayList<Integer>();
 		
 		try {
 			pStmnt = conn.prepareStatement(query);
@@ -225,33 +266,113 @@ public class Query {
 			pStmnt.setString(2, folderName);
 			
 			ResultSet rs = pStmnt.executeQuery();
+
 			while(rs.next()) {
 				System.out.println("Analysis:  " + rs.getInt("idAnalysis") + " is already created");
-				isNewAnalysis = false;
+				analysisID = rs.getInt("idAnalysis");
+				analysisDupicates.add(analysisID);
+
 			}
-			
+			if(analysisDupicates.size() > 1){
+				String strDups = "";
+				for(Integer dup : analysisDupicates ){ // if dups never expect to be that many so string cat is fine
+					strDups += dup + ", ";
+				}
+
+
+				throw new Exception("There are duplicate analyses: " + strDups + " in Analysis Group " + folderName);
+			}
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}finally {
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+			e.getStackTrace();
+
+		}finally{
 
 			try { pStmnt.close(); } catch (Exception e) { /* ignored */ }
-			this.closeConnection();
+			//this.closeConnection();
 
 		}
-		
-		
-		return isNewAnalysis;
+
+
+		return analysisID;
 	}
 	
 	public Connection getConnection(){
 		return this.conn;
 	}
+
 	public void closeConnection(){ // call after every set of sql queries
 		if(conn != null){
 			try { conn.close(); } catch (Exception e) { /* ignored */ }
 		}
 	}
 
+	public List<String> getImportedIDReport(List<String> sampleIDList, Integer idAnalysisGroup) {
+		StringBuilder strIDList = new StringBuilder();
+		strIDList.append("(");
+		for( int i =0; i <  sampleIDList.size(); i++ ){
+			if(i < sampleIDList.size() - 1){
+				strIDList.append("\'");
+				strIDList.append(sampleIDList.get(i));
+				strIDList.append("\', ");
+			}else{
+				strIDList.append(")");
+			}
+
+		}
+
+
+		String query = "SELECT r.idRequest, a.idAnalysis, s.name, a.name FROM Sample s \n" +
+						"JOIN Request r ON s.idRequest = r.idRequest \n" +
+						"JOIN Analysis a ON a.name = r.name \n" +
+					    "JOIN AnalysisGroupItem agi ON agi.idAnalysis = a.idAnalysis AND agi.idAnalysisGroup = " + idAnalysisGroup + "\n"+
+				        "WHERE " + strIDList.toString() + "\n";
+
+
+		System.out.println("The report query: " + query);
+		List<String> importedReport = new ArrayList();
+		/*String query = "SELECT r.idRequest, a.idAnalysis, s.name, r.name " +
+				"FROM Request r " +
+				"JOIN Analysis a ON a.name = r.name " +
+				"JOIN Sample s ON s.idRequest = r.idRequest " +
+				"WHERE s.name=? ";*/
+		Statement stat = null;
+		try{
+
+				StringBuilder strBuild = new StringBuilder();
+				stat = conn.createStatement();
+				ResultSet rs = stat.executeQuery(query);
+				while(rs.next()){
+					strBuild.append(rs.getInt(1));
+					strBuild.append("\t");
+					strBuild.append(rs.getInt(2));
+					strBuild.append("\t");
+					strBuild.append(rs.getString(3));
+					strBuild.append("\t");
+					strBuild.append(rs.getString(4));
+					strBuild.append("\n");
+					importedReport.add(strBuild.toString());
+					strBuild = new StringBuilder();
+				}
+
+		}catch(SQLException e){
+			e.printStackTrace();
+		} finally {
+			if(stat != null){
+				try {stat.close();
+				}catch(SQLException e){
+					e.printStackTrace();
+					System.exit(1);
+				}
+			}
+
+		}
+
+		return importedReport;
+
+	}
 }

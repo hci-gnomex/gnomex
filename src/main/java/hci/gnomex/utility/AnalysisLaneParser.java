@@ -21,6 +21,7 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
   
   protected Document    doc;
   protected List        idSequenceLaneList = new ArrayList();
+  protected List        idSampleList = new ArrayList();
   protected HashMap     idRequestMap = new HashMap();
   
   public AnalysisLaneParser(Document doc) {
@@ -29,7 +30,7 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
   }
   
   
-  public void parse(Session sess, boolean isBatchMode) throws Exception{
+  public void parse(Session sess, boolean isBatchMode, boolean isLinkBySample) throws Exception{
     
     Element root = this.doc.getRootElement();
     
@@ -71,19 +72,34 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
     
     for(Iterator i = root.getChildren("Experiment").iterator(); i.hasNext();) {
       Element node = (Element)i.next();
-      
+
       if (isBatchMode) {
         String experimentNumber = node.getAttributeValue("number");
-        List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.id, l.id from Request r join r.sequenceLanes l where r.number = '" + experimentNumber + "'").list();
-        if (rows == null || rows.size() == 0) {
-          throw new RuntimeException("Cannot find experiment  " + experimentNumber);
+        if (!isLinkBySample){
+          List<Object[]> rows = (List<Object[]>) sess.createQuery("SELECT r.id, l.id from Request r join r.sequenceLanes l where r.number = '" + experimentNumber + "'").list();
+          if (rows == null || rows.size() == 0) {
+            throw new RuntimeException("Cannot find experiment when joining sequence lanes " + experimentNumber);
+          }
+          for (Object[] row : rows) {
+            Integer idRequest = (Integer) row[0];
+            Integer idSequenceLane = (Integer) row[1];
+            idSequenceLaneList.add(idSequenceLane);
+            idRequestMap.put(idSequenceLane, idRequest);
+          }
+        }else{
+          List<Object[]> rows = (List<Object[]>) sess.createQuery("SELECT r.id, s.id from Request r join r.samples s where r.number = '" + experimentNumber + "'").list();
+          if(rows == null || rows.size() == 0){
+            throw new RuntimeException("Cannot find experiment when joining sample " + experimentNumber);
+          }
+          for (Object[] row : rows) {
+            Integer idRequest = (Integer) row[0];
+            Integer idSample = (Integer) row[1];
+            idSampleList.add(idSample);
+            idRequestMap.put(idSample, idRequest);
+          }
+
         }
-        for (Object[] row : rows) {
-          Integer idRequest = (Integer)row[0];
-          Integer idSequenceLane = (Integer)row[1];
-          idSequenceLaneList.add(idSequenceLane);
-          idRequestMap.put(idSequenceLane, idRequest);
-        }
+
       }
     }
     
@@ -92,7 +108,9 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
       
       if (isBatchMode) {
         String sampleNumber = node.getAttributeValue("number");
-        List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.idRequest, l.idSequenceLane from Request r join r.sequenceLanes l join l.sample s where s.number = '" + sampleNumber + "'").list();
+        //List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.idRequest, l.idSequenceLane from Request r join r.sequenceLanes l join l.sample s where s.number = '" + sampleNumber + "'").list();
+        List<Object[]> rows = (List<Object[]>)sess.createQuery("SELECT r.idRequest, l.idSample from Request r join r.sequenceLanes l join l.sample s where s.number = '" + sampleNumber + "'").list();
+
         if (rows == null || rows.size() == 0) {
           throw new RuntimeException("Cannot find sample  " + sampleNumber);
         }
@@ -110,6 +128,9 @@ public class AnalysisLaneParser extends DetailObject implements Serializable {
   
   public List getIdSequenceLanes() {
     return idSequenceLaneList;
+  }
+  public List getIdSamples() {
+    return idSampleList;
   }
   
   public Integer getIdRequest(Integer idSequenceLane) {

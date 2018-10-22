@@ -49,6 +49,9 @@ VALUES ('SampleDetailsOrganism', '4', '', '<TEXTFORMAT LEADING="2"><P ALIGN="LEF
 INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly)
 VALUES ('billing_account_exp_email','N','Reminder email sent to out to labs for billing accounts to expire within the month','Y');
 
+ALTER TABLE BillingAccount_Audit
+ADD activeAccount char(1) not null default 'Y';
+
 ALTER TABLE BillingAccount
 ADD activeAccount char(1) not null default 'Y';
 
@@ -67,3 +70,8 @@ modify reagent VARCHAR(100);
 ALTER TABLE Request_Audit
 modify elutionBuffer VARCHAR(100);
 
+ALTER TABLE {TABLENAME}
+ADD {COLUMNNAME} {TYPE} {NULL|NOT NULL}
+CONSTRAINT {CONSTRAINT_NAME} DEFAULT {DEFAULT_VALUE}
+WITH VALUES
+sh

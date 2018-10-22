@@ -3,17 +3,20 @@ package hci.gnomex.controller;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import hci.gnomex.model.*;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory;
+import org.hibernate.hql.spi.QueryTranslator;
+import org.hibernate.hql.spi.QueryTranslatorFactory;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -29,6 +32,9 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PriceUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import org.apache.log4j.Logger;
+
+import static hci.gnomex.utility.HibernateUtil.getSessionFactory;
+
 public class SaveExperimentPlatform extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
@@ -73,17 +79,19 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     rcScreen = new RequestCategory();
     newCodeRequestCategory = request.getParameter("newCodeRequestCategory");
+    System.out.println ("[SEXPLAT] newCodeRequestCategory: " + newCodeRequestCategory);
     HashMap errors = this.loadDetailObject(request, rcScreen);
     this.addInvalidFields(errors);
     if (rcScreen.getCodeRequestCategory() == null || rcScreen.getCodeRequestCategory().equals("")) {
       isNewRequestCategory = true;
     }
+    System.out.println ("[SEXPLAT] isNewRequestCategory: " + isNewRequestCategory);
 
     if (request.getParameter("type") == null || request.getParameter("type").equals("")) {
       setResponsePage(this.ERROR_JSP);
       this.addInvalidField("Null Platform Type", "The Experiment Platform type cannot be null");
     }
-
+    System.out.println ("[SEXPLAT] request.getParameter(\"type\"): " + request.getParameter("type"));
     if (request.getParameter("customWarningMessage") != null && !request.getParameter("customWarningMessage").equals("")) {
       this.customWarningMessage = request.getParameter("customWarningMessage");
     }
@@ -99,10 +107,12 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (request.getParameter("requireNameDescription") != null && !request.getParameter("requireNameDescription").equals("")) {
       this.requireNameDescription = request.getParameter("requireNameDescription");
     }
-
+    System.out.println ("[SEXPLAT] requireNameDescription: " + requireNameDescription);
     if (request.getParameter("saveAndSubmit") != null && !request.getParameter("saveAndSubmit").equals("")) {
       this.saveAndSubmit = request.getParameter("saveAndSubmit");
     }
+    System.out.println ("[SEXPLAT] saveAndSubmit: " + saveAndSubmit);
+
 
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
       sampleTypesXMLString = request.getParameter("sampleTypesXMLString");
@@ -154,6 +164,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     if (request.getParameter("applicationsXMLString") != null && !request.getParameter("applicationsXMLString").equals("")) {
       applicationsXMLString = request.getParameter("applicationsXMLString");
+      String axs = applicationsXMLString;
+      if (axs.length() > 240) axs = axs.substring(0,240);
+      System.out.println ("[SEXPLAT] applicationsXMLString: " + axs);
+
       StringReader reader = new StringReader(applicationsXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -166,6 +180,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     if (request.getParameter("sequencingOptionsXMLString") != null && !request.getParameter("sequencingOptionsXMLString").equals("")) {
       sequencingOptionsXMLString = request.getParameter("sequencingOptionsXMLString");
+      System.out.println ("[SEXPLAT] sequencingOptionsXMLString: " + sequencingOptionsXMLString);
       StringReader reader = new StringReader(sequencingOptionsXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -202,6 +217,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     if (request.getParameter("requestCategoryApplicationXMLString") != null && !request.getParameter("requestCategoryApplicationXMLString").equals("")) {
       String requestCategoryApplicationXMLString = request.getParameter("requestCategoryApplicationXMLString");
+      System.out.println ("[SEXPLAT] requestCategoryApplicationXMLString: " + requestCategoryApplicationXMLString);
       StringReader reader = new StringReader(requestCategoryApplicationXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -698,6 +714,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     Map<String, Price> illuminaLibPrepPriceMap = getIlluminaLibPrepPriceMap(sess, rc);
     Integer idPriceCategoryDefault = getDefaultLibPrepPriceCategoryId(sess, rc);
+    if (idPriceCategoryDefault == null) {
+      //Should not be null. Can result in saving Price with null idPriceCategory
+      LOG.error("SaveExperimentPlatform: Unable to save price due to no default category for " + rc.getCodeRequestCategory());
+      return;
+    }
     Map<String, Price> qcLibPrepPriceMap = getQCLibPrepPriceMap(sess, rc);
     Integer idQCPriceCategoryDefault = getDefaultQCLibPrepPriceCategoryId(sess, rc);
     Map<String, Price> sequenomPriceMap = this.getSequenomPriceMap(sess, rc);
@@ -1177,13 +1198,27 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private Integer getDefaultLibPrepPriceCategoryId(Session sess, RequestCategory rc) {
     Integer id = null;
     String catName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY);
+    System.out.println ("[SAVEXPL:getDefaultLibPrepPriceCategory] catName: " + catName);
     if (catName == null) {
       id = null;
     } else {
       String queryString = "select pc " + " from PriceSheet ps " + " join ps.requestCategories rc " + " join ps.priceCategories pspc " + " join pspc.priceCategory pc " + " where ( pc.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin' " + " or      pc.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' )" + "     and rc.codeRequestCategory = :code and pc.name = :name";
+     System.out.println ("[SAVEXPL:getDefaultLibPrepPriceCategory] queryString: " + queryString);
       Query query = sess.createQuery(queryString);
       query.setParameter("name", catName);
       query.setParameter("code", rc.getCodeRequestCategory());
+
+/* leave this here as an example of how to translate HQL to SQL */
+      EntityManagerFactory entityManagerFactory = sess.getEntityManagerFactory();
+      EntityManager manager = entityManagerFactory.createEntityManager();
+      String hqlQueryString = query.getQueryString();
+      ASTQueryTranslatorFactory queryTranslatorFactory = new ASTQueryTranslatorFactory();
+      SessionImplementor hibernateSession = manager.unwrap(SessionImplementor.class);
+      QueryTranslator queryTranslator = queryTranslatorFactory.createQueryTranslator("", hqlQueryString, java.util.Collections.EMPTY_MAP, hibernateSession.getFactory(), null);
+      queryTranslator.compile(java.util.Collections.EMPTY_MAP, false);
+      String sqlQueryString = queryTranslator.getSQLString();
+      System.out.println ("[SAEXP sqlQueryString: " + sqlQueryString);
+
       try {
         PriceCategory cat = (PriceCategory) query.uniqueResult();
         if (cat != null) {
@@ -1238,11 +1273,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     Boolean newPrice = false;
     Price price = map.get(app.getCodeApplication());
     if (price == null) {
-      if (defaultCategoryId == null) {
-        // no default price category -- can't store new price.
-        LOG.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
-        return;
-      }
       price = new Price();
       newPrice = true;
     }
@@ -1286,11 +1316,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     Boolean newPrice = false;
     Price price = map.get(app.getCodeApplication());
     if (price == null) {
-      if (defaultCategoryId == null) {
-        // no default price category -- can't store new price.
-        LOG.error("SaveExperimentPlatform: Unable to store new sequenom price due to no default category for " + rc.getCodeRequestCategory());
-        return;
-      }
       price = new Price();
       newPrice = true;
     }
@@ -1347,7 +1372,32 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     Query query = sess.createQuery(queryString);
     query.setParameter("code", rc.getCodeRequestCategory());
     try {
-      PriceCategory cat = (PriceCategory) query.uniqueResult();
+
+      List l = query.list();
+      for (Iterator i = l.iterator(); i.hasNext();) {
+
+        PriceCategory pricecategory = (PriceCategory) i.next();
+        if (pricecategory != null) {
+          id = pricecategory.getIdPriceCategory();
+          System.out.println("[SAVEXP] multiple price categories found: " + id);
+        } else {
+          System.out.println("[SAVEXP] multiple price categories **pricecategory is null why???** line 1384");
+          LOG.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory());
+//          return null;
+        }
+      } // end of for
+      } catch (HibernateException e) {
+        LOG.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory(), e);
+        return null;
+      }
+
+      return id;
+    }
+
+
+/*
+
+        PriceCategory cat = (PriceCategory) query.uniqueResult();
       if (cat != null) {
         id = cat.getIdPriceCategory();
       } else {
@@ -1361,6 +1411,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     return id;
   }
+*/
+
 
   private void saveQCLibPrepPrices(Session sess, RequestCategory rc, Application app, BioanalyzerChipType chipType, Element node, Map<String, Price> map, Integer defaultCategoryId) {
     // Only save lib prep prices for qc request categories that have price sheet
@@ -1372,11 +1424,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     Boolean newPrice = false;
     Price price = map.get(app.getCodeApplication() + "&" + (chipType != null ? chipType.getCodeBioanalyzerChipType() : ""));
     if (price == null) {
-      if (defaultCategoryId == null) {
-        // no default price category -- can't store new price.
-        LOG.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
-        return;
-      }
       price = new Price();
       newPrice = true;
     }
@@ -1492,6 +1539,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     HashMap<Integer, Integer> numberSequencingCyclesAllowedMap = new HashMap<Integer, Integer>();
     Map<String, Price> illuminaSeqOptionPriceMap = getIlluminaSeqOptionPriceMap(sess, rc);
     Integer idPriceCategoryDefault = getDefaultSeqOptionPriceCategoryId(sess, rc);
+    if (idPriceCategoryDefault == null) {
+      //Should not be null. Can result in saving Price with null idPriceCategory
+      LOG.error("SaveExperimentPlatform: Unable to store price due to no default category for " + rc.getCodeRequestCategory());
+      return;
+    }
     for (Iterator i = this.sequencingOptionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
       Element node = (Element) i.next();
       NumberSequencingCyclesAllowed cyclesAllowed = null;

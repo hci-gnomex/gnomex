@@ -83,10 +83,15 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
       idRequest = new Integer(request.getParameter("idRequest"));
     }
-
+    System.out.println ("[CreateBillingItems:loadCommand] idRequest: " + idRequest);
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
-      this.requestXMLString = this.requestXMLString.replaceAll("&", "&amp;");
+      requestXMLString = requestXMLString.replaceAll("&", "&amp;");
+
+      String partofit = requestXMLString;
+      if (partofit.length() > 240) partofit = partofit.substring(0,240);
+      System.out.println ("[CreateBillingItems:loadCommand] requestXMLString: " + partofit + "\n\n");
+
       StringReader reader = new StringReader(requestXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -100,10 +105,12 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
     if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
       propertiesXML = request.getParameter("propertiesXML");
+      System.out.println ("[CreateBillingItems:loadCommand] propertiesXML: " + propertiesXML + "\n\n");
     }
 
     if (request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")) {
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
+      System.out.println ("[CreateBillingItems:loadCommand] idBillingPeriod: " + idBillingPeriod + "\n\n");
     }
 
     if (idRequest == null && requestParser == null) {
@@ -120,7 +127,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-
+System.out.println ("[CreateBillingItems] at start of execute ****");
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
@@ -148,7 +155,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         billingPeriod = dh.getBillingPeriod(idBillingPeriod);
       }
       if (billingPeriod == null) {
-        throw new RollBackCommandException("Cannot find current billing period in dictionary");
+        throw new RollBackCommandException("[CreateBillingItems] Cannot find current billing period in dictionary -- line 158");
       }
 
       // Read the experiment
@@ -169,7 +176,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
         // Only admins can create billing items for existing requests
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
-          throw new RollBackCommandException("Insufficient permission to create new billing items");
+          throw new RollBackCommandException("[CreateBillingItems] Insufficient permission to create new billing items");
         }
 
 
@@ -195,7 +202,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         Lab l = (Lab)sess.load(Lab.class, request.getIdLab());
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING) &&
             !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l) && !this.getSecAdvisor().isGroupICollaborateWith(request.getIdLab())) {
-          throw new RollBackCommandException("Insufficient permission to view estimated charges");
+          throw new RollBackCommandException("[CreateBillingItems] Insufficient permission to view estimated charges");
         }
 
         if (request.getIdRequest() == null) {
@@ -234,6 +241,8 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         // is a new request or a qc request being converted to a microarray
         // or next gen sequencing request
         x = 0;
+        System.out.println ("[CreateBillingItems] requestParser.isAmendRequest(): " + requestParser.isAmendRequest());
+
         if (!requestParser.isAmendRequest() || requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
           for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
             String idSampleString = (String)i.next();
@@ -256,6 +265,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
             samples.add(sample);
           }
         }
+        System.out.println ("[CreateBillingItems] size of samples: " + samples.size());
 
         // Parse the hybs. Plugin just need a thinly initialized Hyb for count purposes in the
         x = 0;
@@ -308,6 +318,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           SequenceLane lane = new SequenceLane();
 
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
+          System.out.println ("[CreateBillingItems] isNewLane: " + isNewLane);
 
           if (isNewLane) {
             if (lane.getIdSequenceLane() == null) {
@@ -323,9 +334,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           }
         }
+        System.out.println ("[CreateBillingItems] lanes.size(): " + lanes.size());
 
-
-      }
+      } // end of else idRequest was null
 
       Set propertyEntries = SaveRequest.saveRequestProperties( propertiesXML, sess, requestParser, false );
 
@@ -338,8 +349,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         PriceSheet ps = (PriceSheet)i.next();
         for(Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
           RequestCategory requestCategory = (RequestCategory)i1.next();
+          System.out.println ("[CreateBillingItems] requestCategory.getCodeRequestCategory(): " + requestCategory.getCodeRequestCategory() + " request.getCodeRequestCategory(): " + request.getCodeRequestCategory());
           if(requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
             priceSheet = ps;
+            System.out.println ("[CreateBillingItems] ---> found price sheet <---");
             break;
           }
 
@@ -369,7 +382,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
                 isDiscount = true;
               }
             } catch(Exception e) {
-              LOG.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
+              LOG.error("[CreateBillingItems] Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
             }
 
           }
@@ -381,7 +394,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
               discountBillingItems.addAll(billingItemsForCategory);
             } else {
               billingItems.addAll(billingItemsForCategory);
+              System.out.println ("[CreateBillingItems] billingItemsForCategory.size(): " + billingItemsForCategory.size());
             }
+          } else {
+            System.out.println ("[CreateBillingItems] *** WARNING get billing items pluging is NULL!!!!!");
           }
         }
 
@@ -484,7 +500,11 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
 
+      System.out.println ("[CreateBillingItems] we are done:  this.xmlResult: " + this.xmlResult);
+
       setResponsePage(this.SUCCESS_JSP);
+
+
 
       // We don't want to save anything;
       sess.clear();

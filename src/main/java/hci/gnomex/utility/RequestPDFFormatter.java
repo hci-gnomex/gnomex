@@ -258,7 +258,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				tables.add(PDFFormatterUtil.makeTableTitle("Samples (" + request.getSamples().size() + ")", FONT_TITLE));
 				tables.add(makeTableISCAN());
 			} 
-			else if (requestCategoryType.equals(RequestCategoryType.TYPE_HISEQ) || requestCategoryType.equals(RequestCategoryType.TYPE_MISEQ)) {
+			else if (requestCategoryType.equals(RequestCategoryType.TYPE_NOSEQ) ||requestCategoryType.equals(RequestCategoryType.TYPE_HISEQ) || requestCategoryType.equals(RequestCategoryType.TYPE_MISEQ)) {
 				tables.add(Chunk.NEWLINE);
 				tables.add(PDFFormatterUtil.makeTableTitle("Samples (" + request.getSamples().size() + ")", FONT_TITLE));
 				tables.add(makeTableIllumina());

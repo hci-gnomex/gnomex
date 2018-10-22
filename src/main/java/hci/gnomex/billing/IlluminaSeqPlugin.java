@@ -42,6 +42,7 @@ public class IlluminaSeqPlugin extends BillingPlugin {
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     
     if (lanes == null || lanes.size() == 0) {
+      System.out.println ("[IlluminaSeqPlugin] *** return NO LANES *** " + " idRequest: " + request.getIdRequest());
       return billingItems;
     }
     
@@ -109,6 +110,7 @@ public class IlluminaSeqPlugin extends BillingPlugin {
       }
       
       int qty = SequenceLane.getMultiplexLaneCount(theLanes, request.getCreateDate());
+      System.out.println ("[IlluminaSeqPlugin] qty: " + qty);
       String notes = (String)seqLaneNoteMap.get(idNumberSequencingCyclesAllowed);
       
       // Find the billing price 
@@ -120,6 +122,7 @@ public class IlluminaSeqPlugin extends BillingPlugin {
             PriceCriteria criteria = (PriceCriteria)i2.next();
             if (criteria.getFilter1().equals(idNumberSequencingCyclesAllowed)) {
               price = p;
+              System.out.println ("[IlluminaSeqPlugin] found price: " + p.getIdPrice() + " idRequest: " + request.getIdRequest());
               break;            
             }
           }
@@ -130,11 +133,17 @@ public class IlluminaSeqPlugin extends BillingPlugin {
         // Custom NumberSequencingCyclesAllowed bill for the whole cell in a single charge.
         RequestCategory category = dh.getRequestCategoryObject(request.getCodeRequestCategory());
         qty = maxLanesForSample;
+        System.out.println ("[IlluminaSeqPlugin] requestCategory, qty: " + category.toString() + " qty: " + qty + " idRequest: " + request.getIdRequest());
+
       }
       
       // Instantiate a BillingItem for the matched price
       if (price != null) {
     	  billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, sess, billingTemplate));
+      }
+      else
+      {
+        System.out.println ("[IlluminaSeqPlugin] WARNING WARNING leaving with price null NO BILLING ITEMS ADDED. " + request.getIdRequest());
       }
     }
     

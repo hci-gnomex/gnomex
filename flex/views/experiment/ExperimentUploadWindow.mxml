@@ -154,7 +154,7 @@
             this.requestNumber = request.@number;
             this.request = request;
 
-            //remove linkSamplesTab if property not enabled or if the experiment isn't hiseq or miseq
+            //remove linkSamplesTab if property not enabled or if the experiment isn't hiseq or miseq or noseq
             if (parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == null ||
                     parentApplication.getProperty(parentApplication.PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED) == 'N') {
                 theTab.removeChildAt(2);

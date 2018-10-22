@@ -103,7 +103,8 @@
 
         [Bindable]
         private var requestCategories:XML = <Categories>
-            <RequestCategory label="HiSeq, MiSeq combined" codeStepNext="ALLPREP"/>
+            <RequestCategory label="NovaSeq, HiSeq, MiSeq combined" codeStepNext="ALLPREP"/>
+			<RequestCategory label="Illumina NovaSeq" codeStepNext="NOSEQPREP"/>
             <RequestCategory label="Illumina HiSeq" codeStepNext="HSEQPREP"/>
             <RequestCategory label="Illumina MiSeq" codeStepNext="MISEQPREP"/>
         </Categories>;
@@ -111,7 +112,7 @@
         private function init():void {
             barcodes.refresh();
             getCoreAdmins.send();
-            //select the index of the category combo based off of what lib prep view we are in (hiseq or miseq)
+            //select the index of the category combo based off of what lib prep view we are in (noseq, hiseq or miseq)
             for (var i:int = 0; i < categoryCombo.dataProvider.length; i++) {
                 if (categoryCombo.dataProvider[i].@codeStepNext == parentDocument.codeStepNext) {
                     categoryCombo.selectedIndex = i;
@@ -123,8 +124,10 @@
         public function titleInit():void {
             if (codeStepNext == 'SEQPREP') {
                 titleLabel.text = 'Illumina GAIIx Library Prep';
-            } else if (codeStepNext == 'HSEQPREP') {
-                titleLabel.text = 'Illumina HiSeq Library Prep';
+            } else if (codeStepNext == 'NOSEQPREP') {
+				titleLabel.text = 'Illumina NovaSeq Library Prep';
+			} else if (codeStepNext == 'HSEQPREP') {
+				titleLabel.text = 'Illumina HiSeq Library Prep';
             } else if (codeStepNext == 'MISEQPREP') {
                 titleLabel.text = 'Illumina MiSeq Library Prep';
             }

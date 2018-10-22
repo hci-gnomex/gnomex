@@ -173,7 +173,7 @@
 								   width="25"   
 								   editable="false"                      	
 								   dataField="@isActive" 
-								   editorDataField="selected" textAlign="center"
+										   editorDataField="selected" textAlign="center"
 								   itemRenderer="{views.renderers.CheckBoxRenderer.create(state.dirty, true, null, appIsActiveEnabled)}">			 
 				</mx:DataGridColumn>
 			</mx:columns>

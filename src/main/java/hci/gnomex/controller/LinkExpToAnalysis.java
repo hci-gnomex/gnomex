@@ -87,7 +87,7 @@ public class LinkExpToAnalysis extends GNomExCommand implements Serializable {
             AnalysisExperimentItem aei = new AnalysisExperimentItem();
             aei.setIdRequest(idRequest);
             aei.setIdAnalysis(idAnalysis);
-            aei.setIdSequenceLane(s.getIdSample());
+            aei.setIdSample(s.getIdSample());     // changed from setIdSequenceLane tim 02/27/2018
             sess.save(aei);
           }
         }

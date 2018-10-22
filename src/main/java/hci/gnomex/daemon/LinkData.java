@@ -199,7 +199,7 @@ public class LinkData extends TimerTask {
 
             buf = new StringBuilder("select name from Sample where idRequest = ");
             buf.append(requestList[nxtOne] + ";");
-            System.out.println("ExperimentFile query: " + buf.toString());
+            if (debug) System.out.println("ExperimentFile query: " + buf.toString());
 
             List<String> names = new ArrayList<String>();
 
@@ -211,7 +211,7 @@ public class LinkData extends TimerTask {
             rs.close();
             stmt.close();
 
-            System.out.println("size of names: " + names.size());
+            if (debug) System.out.println("size of names: " + names.size());
 
             // now using the list of sample 'names' see if we can find any matching experiment files
             Iterator it = names.iterator();
@@ -222,8 +222,8 @@ public class LinkData extends TimerTask {
                 stmt = con.createStatement();
 
                 StringBuilder buf1 = new StringBuilder("select filename from ExperimentFile where filename like '");
-                buf1.append(dataType + "/%" + theName + "%';");
-                System.out.println("ExperimentFile query: " + buf1.toString());
+                buf1.append(dataType + "%" + theName + "%';");
+                if (debug) System.out.println("ExperimentFile query: " + buf1.toString());
 
                 List<String> pathnames = new ArrayList<String>();
 
@@ -234,13 +234,13 @@ public class LinkData extends TimerTask {
                 rs.close();
                 stmt.close();
 
-                System.out.println("size of pathnames: " + pathnames.size());
+                if (debug) System.out.println("size of pathnames: " + pathnames.size());
                 // now using the list of sample 'names' see if we can find any matching experiment files
                 Iterator itp = pathnames.iterator();
 
                 //  create the directory
                 String dirPath = startPath + requestList[nxtOne] + "R";
-                System.out.println("dirPath: " + dirPath);
+                if (debug) System.out.println("dirPath: " + dirPath);
                 File f = new File(dirPath);
                 f.mkdir();
 
@@ -261,13 +261,13 @@ public class LinkData extends TimerTask {
                     }
 
                     String middleOfPath = thePath.substring(ipos + 1, epos);
-                    System.out.println("middleOfPath: " + middleOfPath);
+                    if (debug) System.out.println("middleOfPath: " + middleOfPath);
 
                     String filename = thePath.substring(epos + 1);
-                    System.out.println("filename: " + filename);
+                    if (debug) System.out.println("filename: " + filename);
 
                     String myPath = dirPath + "/" + middleOfPath;
-                    System.out.println("myPath: " + myPath);
+                    if (debug) System.out.println("myPath: " + myPath);
 
                     f = new File(myPath);
                     f.mkdirs();
@@ -277,7 +277,7 @@ public class LinkData extends TimerTask {
                     String pathToRealData = startAvatarPath + "/" + thePath;
                     File target = new File(pathToRealData);
                     File linkName = new File(myPath);
-                    System.out.println("[LinkData] right before makeSoftLinks, target: " + pathToRealData + "\n\t\t\t\t linkName: " + linkName);
+                    if (debug) System.out.println("[LinkData] right before makeSoftLinks, target: " + pathToRealData + "\n\t\t\t\t linkName: " + linkName);
 
                     boolean ok = makeSoftLinks(target, linkName);
                     if (!ok) {

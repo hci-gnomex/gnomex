@@ -188,7 +188,10 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               sequencingPlatform = SequencingPlatform.ILLUMINA_HISEQ_2000_SEQUENCING_PLATFORM;
             } else if (codeStepNext.equals(Step.MISEQ_FINALIZE_FC)) {
               sequencingPlatform = SequencingPlatform.ILLUMINA_MISEQ_SEQUENCING_PLATFORM;
+            }  else if (codeStepNext.equals(Step.NOSEQ_FINALIZE_FC)) {
+              sequencingPlatform = SequencingPlatform.ILLUMINA_NOSEQ_SEQUENCING_PLATFORM;
             }
+
             flowCell.setCodeSequencingPlatform(sequencingPlatform);    //HISEQ      
             
             java.sql.Date flowCellDate = null;

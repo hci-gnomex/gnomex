@@ -25,7 +25,7 @@
 			}
 			
 			private function filterCores(item:Object):Boolean {
-				if (item.@hasRequestCategories == 'Y') {
+				if (item.@hasRequestCategories == 'Y'  && item.@isActive == 'Y') {
 					return true;
 				} else {
 					return false;

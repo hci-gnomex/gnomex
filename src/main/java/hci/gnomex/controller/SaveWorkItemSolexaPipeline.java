@@ -85,7 +85,8 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     if (request.getParameter("workItemXMLString") != null && !request.getParameter("workItemXMLString").equals("")) {
       workItemXMLString = "<WorkItemList>" + request.getParameter("workItemXMLString") + "</WorkItemList>";
-      
+      System.out.println ("[SaveWorkItemSolexaPipeline] workItemXMLString: " + workItemXMLString);
+
       StringReader reader = new StringReader(workItemXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -133,9 +134,6 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
 
               // Delete work item
               sess.delete(workItem);
-              
-              
-             
             }
             
             // Check to see if all of the sequence lanes for each request have been completed.
@@ -240,6 +238,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     for(Integer key : autoCompleteMap.keySet()) {
       BillingItemAutoComplete auto = autoCompleteMap.get(key);
       String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
+      System.out.println ("[SaveWorkItemSolexaPipeline] billing_during_workflow " + prop);
       if (prop == null || !prop.equals("Y")) {
         // Billing items created at submit.  Just complete items that can be completed.
          if (auto.getSkip()) {
@@ -259,9 +258,12 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
       } else {
         // Need to create billing items at this point.
         Set<SequenceLane> laneSet = sequenceLanesCompletedMap.get(auto.getRequest().getIdRequest());
+        if (laneSet == null) System.out.println ("[SaveWorkItemSolexaPipeline] laneSet is NULL!!!");
         if (laneSet != null) {
+          System.out.println ("[SaveWorkItemSolexaPipeline] laneSet.size(): " + laneSet.size());      // *******************************
         	BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, auto.getRequest());
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED, billingTemplate, false, true);
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet,
+                    null, auto.getCodeStep(), BillingStatus.COMPLETED, billingTemplate, false, true);
         }
       }
     }

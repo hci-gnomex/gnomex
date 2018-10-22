@@ -143,7 +143,8 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
                 existingChannel.getIdFlowCellChannel()).list();
             for (Iterator i1 = workItems.iterator(); i1.hasNext();) {
               WorkItem x = (WorkItem)i1.next();
-              if(x.getCodeStepNext().equals("HSEQFINFC") || x.getCodeStepNext().equals("HSEQPIPE") || x.getCodeStepNext().equals("MISEQFINFC") || x.getCodeStepNext().equals("MISEQPIPE")) {
+              if(x.getCodeStepNext().equals("HSEQFINFC") || x.getCodeStepNext().equals("HSEQPIPE") || x.getCodeStepNext().equals("MISEQFINFC") || x.getCodeStepNext().equals("MISEQPIPE")
+                      || x.getCodeStepNext().equals("NOSEQFINFC") || x.getCodeStepNext().equals("NOSEQPIPE")) {
                 for(Iterator ii = existingChannel.getSequenceLanes().iterator(); ii.hasNext();) {
                   SequenceLane sl = (SequenceLane)ii.next();
                   WorkItem wi = new WorkItem();
@@ -153,8 +154,10 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
                     wi.setCodeStepNext("HSEQASSEM");  
                   } else if (x.getCodeStepNext().equals("MISEQFINFC") || x.getCodeStepNext().equals("MISEQPIPE")) {
                     wi.setCodeStepNext("MISEQASSEM");            		  
+                  } else if (x.getCodeStepNext().equals("NOSEQFINFC") || x.getCodeStepNext().equals("NOSEQPIPE")) {
+                    wi.setCodeStepNext("NOSEQASSEM");
+                    sess.save(wi);
                   }
-                  sess.save(wi);
                 }
 
               }
@@ -314,6 +317,9 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
               sess.save(wi);
             } else if (wi.getCodeStepNext().equals("MISEQFINFC")) {
               wi.setCodeStepNext("MISEQPIPE");
+              sess.save(wi);
+            } else if (wi.getCodeStepNext().equals("NOSEQFINFC")) {
+              wi.setCodeStepNext("NOSEQPIPE");
               sess.save(wi);
             }
           }

@@ -1,5 +1,12 @@
 package hci.gnomex.daemon.auto_import;
 
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.*;
+import org.hibernate.Session;
+
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,12 +16,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +35,8 @@ public class DirectoryBuilder {
 	private static final String DNA_ALIAS="DNA";
 	private static final String RNA_ALIAS="RNA";
 	private static final String FASTQ_ALIAS="Fastq";
+	private static final Integer AVATAR_GROUP_ID = 11;
+	private static final Integer FOUNDATION_GROUP_ID = 14;
 	 
 
 	public DirectoryBuilder(String[] args) {
@@ -58,10 +62,6 @@ public class DirectoryBuilder {
 				System.exit(0);
 			}
 		}
-		System.out.println("This is the flagged file name: " +  flaggedIDFileName);
-		System.out.println("This is file name: " +  inFileName);
-		System.out.println("This is the root: " +  root);
-		System.out.println("This is the flagged file name: " +  flaggedIDFileName);
 	}
 	
 	
@@ -124,7 +124,7 @@ public class DirectoryBuilder {
 		Set<String> pathToCreate = new HashSet<String>();
 		List<String> filesWithPaths = new ArrayList<String>();
 		List<String> filteredFiles = new ArrayList<String>();
-		List<String> flaggedIDList = readFlaggedIDs();
+		List<String> flaggedIDList = readSampleIDs(flaggedIDFileName);
 		
 		
 		
@@ -177,7 +177,6 @@ public class DirectoryBuilder {
 							pathToCreate.add(this.root + strBuild.toString());
 							filesWithPaths.add(this.root + strBuild.toString() + pathChunks[pathChunks.length - 1]);
 						}else {
-							System.out.println(this.currentDownloadLocation + "Flagged/"+ pathChunks[pathChunks.length - 1] );
 							filteredFiles.add(this.currentDownloadLocation + "Flagged/"+ pathChunks[pathChunks.length - 1] );
 						}
 						
@@ -238,22 +237,17 @@ public class DirectoryBuilder {
 					strBuild.append(p);
 					filesWithPaths.add(strBuild.toString());
 					
-					System.out.println(strBuild.toString());
-					
 				}else if(pathChunks[1].equals("vcf")) {
 					strBuild.append(this.root);
 					strBuild.append("VCF/");
 					strBuild.append(p);
 					filesWithPaths.add(strBuild.toString());
-					System.out.println(strBuild.toString());
-
 				}
 				else {
 					strBuild.append(this.root);
 					strBuild.append("Reports/");
 					strBuild.append(p);
 					filesWithPaths.add(strBuild.toString());
-					System.out.println(strBuild.toString());
 
 				}
 
@@ -328,6 +322,7 @@ public class DirectoryBuilder {
 	}
 	
 	public void moveTheFiles(List<String> files) {
+		System.out.println("Preparing to move flagged files");
 		StringBuilder strBuild = new StringBuilder();
 		List<String> commands = new ArrayList<String>();
 		
@@ -339,20 +334,19 @@ public class DirectoryBuilder {
 		
 		for(String file: files) {
 			String[] pWithf = file.split("/");
-		
+
 			strBuild.append("mv -vn");
 			strBuild.append(" *");
 			strBuild.append(pWithf[pWithf.length- 1]);
 			strBuild.append(" ");
 			strBuild.append(file);
+			System.out.println(strBuild.toString());
 			commands.add(strBuild.toString());
 			strBuild = new StringBuilder();
+
+
 		}
-		
-		
-		
-		commands.add("pwd");
-		System.out.println(commands.toString());
+
 		this.executeCommands(commands);
 		
 		
@@ -406,16 +400,12 @@ public class DirectoryBuilder {
 		return tempScript;
 	}
 	
-	private  List<String> readFlaggedIDs(){
+	private  List<String> readSampleIDs(String fileName){
 		BufferedReader bf = null;
 		List<String> idList = new ArrayList<String>();
-		
-		
-	
-	
-		
+
 		try {
-			bf = new BufferedReader(new FileReader(new File(flaggedIDFileName)));
+			bf = new BufferedReader(new FileReader(new File(fileName)));
 			String line = "";
 			while((line = bf.readLine()) != null) {
 				idList.add(line);
@@ -439,13 +429,97 @@ public class DirectoryBuilder {
 		return idList;
 		
 	}
-	
-	
-	
 
 
-		
-	
-	
+	public void reportWorkSummary() {
+
+		String path = XMLParser.getPathWithoutName(this.inFileName);
+		List<String> sampleIDList = new ArrayList<String>();
+		StringBuilder strBuild = new StringBuilder();
+		String from = "erik.rasmussen@hci.utah.edu";
+		String to = "erik.rasmussen@hci.utah.edu, dalton.wilson@hci.utah.edu";
+		String subject = "Imported Patient ID Report";
+		Query q =  new Query(path+"gnomex-creds.properties");
+		List<String> reportIDList = new ArrayList<String>();
+
+
+		if(mode.equals("avatar")){
+			sampleIDList =  readSampleIDs(path +"importedSLList.out");
+			reportIDList =  q.getImportedIDReport(sampleIDList,DirectoryBuilder.AVATAR_GROUP_ID);
+
+		}else{
+			sampleIDList = readSampleIDs(path + "importedTRFList.out");
+			reportIDList =  q.getImportedIDReport(sampleIDList, DirectoryBuilder.FOUNDATION_GROUP_ID);
+		}
+
+
+		q.closeConnection();
+
+		strBuild.append("The following records have been successfully been imported into Translational GNomEx\n\n");
+		strBuild.append("Exp ID\tAnalysis ID\tSample Name\tPerson ID\n");
+		for(String id : reportIDList){
+			strBuild.append(id);
+		}
+
+
+		if(reportIDList.size() > 0 ){
+			try{
+				sendImportedIDReport(from,to,subject,strBuild.toString(),"");
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				System.exit(1);
+			}
+
+		}
+
+
+
+
+	}
+	public static void sendImportedIDReport(String from,String to, String subject,String body, String testEmail) {
+			//PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
+			//String gnomexSupportEmail = ph.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL);
+
+		try {
+			Properties mailProps = new BatchMailer("").getMailProperties();
+			System.out.println("The mailProps have been saved");
+			System.out.println(mailProps.toString());
+
+			boolean sendTestEmail = false;
+			if (testEmail != null) {
+				if (testEmail.length() > 0) {
+					sendTestEmail = true;
+				}
+			}
+
+			MailUtilHelper helper = new MailUtilHelper(
+					mailProps,
+					to,
+					null,
+					null,
+					from,
+					subject,
+					body,
+					null,
+					false,
+					sendTestEmail,
+					testEmail
+			);
+
+			MailUtil.validateAndSendEmail(helper);
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Email has been sent!");
+
+
+	}
 
 }

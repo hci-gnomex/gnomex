@@ -155,12 +155,14 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
                 wi.setIdRequest(sample.getIdRequest());
                 wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
 
-                String codeStepNext;
+                String codeStepNext = "99";
                 if(workItem.getCodeStepNext().equals(Step.SEQ_QC)) {
                   codeStepNext = Step.SEQ_PREP;
                 } else if (workItem.getCodeStepNext().equals(Step.HISEQ_QC)) {
                   codeStepNext = Step.HISEQ_PREP;
-                } else {
+                } else if (workItem.getCodeStepNext().equals(Step.NOSEQ_QC)) {
+                  codeStepNext = Step.NOSEQ_PREP;
+                } else if (workItem.getCodeStepNext().equals(Step.MISEQ_QC)) {
                   codeStepNext = Step.MISEQ_PREP;
                 }
                 wi.setCodeStepNext(codeStepNext);              

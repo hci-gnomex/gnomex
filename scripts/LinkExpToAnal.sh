@@ -20,7 +20,4 @@ CLASSPATH="$CLASSPATH:$JAR"
 done
 export CLASSPATH
 
-CLASSPATH="./gnomex.jar:$CLASSPATH"
-export CLASSPATH
-
-java -Xmx6000M hci.gnomex.daemon.LinkData $*
+java -Xmx6000M hci.gnomex.daemon.LinkExpToAnal $*

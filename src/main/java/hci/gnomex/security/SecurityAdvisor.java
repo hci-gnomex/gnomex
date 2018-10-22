@@ -2079,7 +2079,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // Can manage billing
             if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)
                     || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)
-                    || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
+                    || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)
+                    || this.filterLabSetByBillingEmail(this.getAppUser().getLabs()) != null)
+             {
                 globalPermissionMap.put(new Permission(CAN_MANAGE_BILLING), null);
             }
 
@@ -2289,6 +2291,34 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             }
             return outLabs;
         }
+    }
+
+    public Set filterLabSetByBillingEmail(Set<Lab> inLabs) {
+//        System.out.println ("[filterLabSetByBillingEmail] inLabs.size(): " + inLabs.size());
+        AppUser maybe = this.getAppUser();
+        String maybeEmail = maybe.getEmail();
+//        System.out.println ("[filterLabSetByBillingEmail] maybeEmail: " + maybeEmail);
+        if (maybeEmail == null || maybeEmail.equals("") || inLabs == null) {
+            return null;
+        }
+
+            TreeSet outLabs = new TreeSet();
+            for (Lab l : inLabs) {
+                String billingemail = l.getBillingContactEmail();
+//                System.out.println ("[filterLabSetByBillingEmail] billingemail: " + billingemail);
+                if (billingemail == null || billingemail.equals("")) {
+                    continue;
+                }
+
+//                System.out.println ("[filterLabSetByBillingEmail] maybeEmail: " + maybeEmail + " billingemail: " + billingemail);
+                if (maybeEmail.equalsIgnoreCase(billingemail)) {
+                    outLabs.add(l);
+                }
+            }
+            if (outLabs.size() == 0) {
+                return null;
+            }
+            return outLabs;
     }
 
     public Set getGroupsIAmMemberOf() {

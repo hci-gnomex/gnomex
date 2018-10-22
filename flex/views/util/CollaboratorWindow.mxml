@@ -159,7 +159,7 @@
 				
 				var params:Object = new Object();
 				params.requestXMLString = analysisOrExpObject.toXMLString();
-				params.description = GNomExStringUtil.cleanRichTextHTML(analysisOrExpObject.@description);;	
+				params.description = GNomExStringUtil.cleanRichTextHTML(analysisOrExpObject.@description);
 				
 				saveExistingRequest.send(params);	
 			}
