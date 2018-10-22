@@ -442,6 +442,11 @@
 		[Bindable]
 		public var siteLogo:String = "";
 
+
+		[Bindable]
+		public var experimentAlias:String = "Experiment";
+
+
 		[Bindable]
 		[Embed(source="assets/gnomex_logo.png")]
 		public var iconLogo:Class;
@@ -614,19 +619,27 @@
 
 
 		[Bindable]
-		[Embed(source="assets/DNA_diag_lightening.png")]
+		[Embed(source="assets/DNA_diag_miseq.png")]
 		public var iconHiSeq:Class;
 
 		[Bindable]
-		[Embed(source="assets/DNA_diag_lightening_disable.png")]
+		[Embed(source="assets/DNA_diag_miseq_disable.png")]
 		public var iconHiSeqDisabled:Class;
 
 		[Bindable]
-		[Embed(source="assets/DNA_diag_miseq.png")]
+		[Embed(source="assets/DNA_diag_lightening.png")]
+		public var iconNoSeq:Class;
+
+		[Bindable]
+		[Embed(source="assets/DNA_diag_lightening_disable.png")]
+		public var iconNoSeqDisabled:Class;
+
+		[Bindable]
+		[Embed(source="assets/DNA_diag.png")]
 		public var iconMiSeq:Class;
 
 		[Bindable]
-		[Embed(source="assets/DNA_diag_miseq_disable.png")]
+		[Embed(source="assets/DNA_diag_disable.png")]
 		public var iconMiSeqDisabled:Class;
 
 		[Bindable]
@@ -1102,6 +1115,7 @@
 		public var TYPE_MICROARRAY:String = 'MICROARRAY';
 		public var TYPE_HISEQ:String = 'HISEQ';
 		public var TYPE_MISEQ:String = 'MISEQ';
+		public var TYPE_NOSEQ:String = 'NOSEQ';
 		public var TYPE_QC:String = 'QC';
 		public var TYPE_CAP_SEQ:String = "CAPSEQ";
 		public var TYPE_FRAG_ANAL:String = "FRAGANAL";
@@ -1165,6 +1179,9 @@
 		public var PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD:String = "hiseq_run_type_label_standard";
 		public var PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM:String = "hiseq_run_type_label_custom";
 		public var PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING:String = "hiseq_run_type_custom_warning";
+		public var PROPERTY_NOSEQ_RUN_TYPE_LABEL_STANDARD:String = "noseq_run_type_label_standard";
+		public var PROPERTY_NOSEQ_RUN_TYPE_LABEL_CUSTOM:String = "noseq_run_type_label_custom";
+		public var PROPERTY_NOSEQ_RUN_TYPE_CUSTOM_WARNING:String = "noseq_run_type_custom_warning";
 		public var PROPERTY_REQUEST_BIO_ANALYSIS_NOTE:String = "request_bio_analysis_note";
 		public var PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT:String = "request_work_auth_link_text";
 		public var PROPERTY_EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED:String = "experiment_file_sample_linking_enabled";
@@ -1304,6 +1321,12 @@
 				} else {
 					welcomeSplash = "assets/gnomex_splash_logo.png";
 				}
+
+				if (getLaunchProperties.lastResult.Property.(@name == "experiment_alias").@value != "") {
+					experimentAlias = getLaunchProperties.lastResult.Property.(@name == "experiment_alias").@value;
+				} else {
+					experimentAlias = "Experiment";
+				}
 				topMenuBar.visible = true;
 				loggedInInit();
 
@@ -1411,7 +1434,7 @@
 		public function showFlowCellForNumber(flowcellNumber:String):void {
 			//navWorkflowView.
 			var codeStepNext:String = "FLOWCELL";
-			var codeSequencingPlatform:String = "HISEQ";
+			var codeSequencingPlatform:String = "NOSEQ";										// ??????? what about NOSEQ
 			navWorkflowView.codeStepNext = codeStepNext;
 			navWorkflowView.codeSequencingPlatform = codeSequencingPlatform;
 			if (theViews.selectedChild == navWorkflowView) {
@@ -2401,10 +2424,13 @@
 			if (!usesExperimentType("MISEQ")) {
 				hideMenusByContext(navMenu, "MISEQ");
 			}
+			if (!usesExperimentType("NOSEQ")) {
+				hideMenusByContext(navMenu, "NOSEQ");
+			}
 			if (!usesExperimentType("HISEQ")) {
 				hideMenusByContext(navMenu, "HISEQ");
 			}
-			if (!usesExperimentType("QC") && !usesExperimentType("MISEQ") && !usesExperimentType("HISEQ")) {
+			if (!usesExperimentType("QC") && !usesExperimentType("MISEQ") && !usesExperimentType("HISEQ") && !usesExperimentType("NOSEQ")) {
 				hideMenusByContext(navMenu, "QC");
 			}
 			if (!usesExperimentType("MICROARRAY")) {
@@ -2820,7 +2846,7 @@
 					this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) == 'Y') {
 				this.isPublicVisibility = false;
 			} else {
-				this.isFDTSupported = true;
+				this.isPublicVisibility = true;
 			}
 
 			if (this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) != null &&
@@ -3889,7 +3915,7 @@
 				theViews.selectedChild = navAnalysisView;
 			} else if (label == 'Data Tracks') {
 				theViews.selectedChild = this.navDataTrackView;
-			} else if (label == 'Experiments') {
+			} else if (label == '' + experimentAlias + 's') {
 				theViews.selectedChild = this.navExperimentView;
 			} else if (label == 'Topics') {
 				theViews.selectedChild = this.navTopicsView;
@@ -3947,7 +3973,7 @@
 				this.isInternalExperimentSubmission = true;
 				theViews.selectedChild = homeView;
 				callLater(this.homeView.submitRequest, [idCoreFacility]);
-			} else if (label == "Browse Experiments" || label == "Experiments") {
+			} else if (label == ('Browse ' + experimentAlias + 's') || label == ('' + experimentAlias + 's')) {
 				this.navExperimentView.shortcutToExperimentListTab = true;
 				theViews.selectedChild = navExperimentView;
 			} else if (label == "Analysis") {
@@ -3978,7 +4004,7 @@
 				this.homeView.showWorkAuthForm();
 			} else if (label == "New Project") {
 				var projectDetailWindow:ProjectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.theBody, ProjectDetailWindow, true));
-			projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+				projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
 				projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
 				projectDetailWindow.projectDetailView.fromWelcomeView = true;
 				PopUpManager.centerPopUp(projectDetailWindow);
@@ -4271,8 +4297,8 @@
 		
 		<menuitem label="Orders" icon="iconOrders" />
 		
-		<menuitem label="Experiments..."  icon="iconFlask" >
-			<menuitem  label="Browse Experiments"  icon="iconFlask" />
+		<menuitem label="{'' + experimentAlias + 's...'}"  icon="iconFlask" >
+			<menuitem  label="{'Browse ' + experimentAlias + 's'}"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment" />
 			<menuitem  label="Add Additional Illumina Sequencing Lanes"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
@@ -4297,6 +4323,15 @@
 			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
 			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="NOSEQ" label="noseqSeparator"/>
+			<menuitem label="Illumina NovaSeq..." icon="iconNoSeq" context="NOSEQ"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="NOSEQPREP"  />
+				<menuitem label="Lib Prep QC" icon="iconLibPrep"   codeStepNext="NOSEQPREPQC" context="NOSEQ" />
+				<menuitem label="Flow Cell Assembly" icon="iconNoSeq"  codeStepNext="NOSEQASSEM"  />
+				<menuitem label="Finalize Flow Cell" icon="iconNoSeq" codeStepNext="NOSEQFINFC" />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="NOSEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="NOSEQ" />
+			</menuitem>
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
@@ -4329,6 +4364,15 @@
 			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  context="HISEQ" />
 			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="NOSEQ" label="noseqSeparator"/>
+			<menuitem label="Illumina NovaSeq..." icon="iconNoSeq" context="NOSEQ"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="NOSEQPREP"  />
+				<menuitem label="Lib Prep QC" icon="iconLibPrep"   codeStepNext="NOSEQPREPQC" context="NOSEQ" />
+				<menuitem label="Flow Cell Assembly" icon="iconNoSeq"  codeStepNext="NOSEQASSEM"  />
+				<menuitem label="Finalize Flow Cell" icon="iconNoSeq" codeStepNext="NOSEQFINFC" />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="NOSEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="NOSEQ" />
+			</menuitem>
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
@@ -4555,6 +4599,15 @@
 			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
 			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
+			<menuitem type="separator" context="NOSEQ" label="noseqSeparator"/>
+			<menuitem label="Illumina NovaSeq..." icon="iconNoSeq" context="NOSEQ"  >
+				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="NOSEQPREP"  />
+				<menuitem label="Lib Prep QC" icon="iconLibPrep"   codeStepNext="NOSEQPREPQC" context="NOSEQ" />
+				<menuitem label="Flow Cell Assembly" icon="iconNoSeq"  codeStepNext="NOSEQASSEM"  />
+				<menuitem label="Finalize Flow Cell" icon="iconNoSeq" codeStepNext="NOSEQFINFC" />
+				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="NOSEQPIPE" />
+				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="NOSEQ" />
+			</menuitem>
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
@@ -4759,7 +4812,7 @@
 						<mx:HBox verticalAlign="bottom" height="40">
 							<mx:LinkButton label="Return to GNomEx Standard Version" click="{redirectToStandardGNomEx()}" textDecoration="underline" color="0x0000FF" />
 						</mx:HBox>
-						<mx:Spacer width="50%"/>
+						<mx:Spacer width="60%"/>
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
 							<mx:TextInput id="requestNumber"
 										  text="Lookup by #" fontStyle="italic" color="0x666666"
@@ -4776,9 +4829,14 @@
 										  text="Search"   fontStyle="italic" color="0x666666"
 										  click="{onSearchClick()}"
 										  focusOut="focusOutHandler(event)"	width="138" visible="false"  borderStyle="solid" borderColor="#1691E7" fontSize="12" borderThickness="1" backgroundColor="#EFEEED"/>
-							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/> 					
+							<mx:Button id="searchButton" height="18" click="callLater(search)"   visible="false" icon="@Embed('assets/magnifier.png')" toolTip="Search" width="30" textDecoration="underline"/>
 						</mx:HBox>
-						
+
+                        <mx:Spacer width="80%"/>
+                        <mx:HBox verticalAlign="bottom" height="40">
+                            <mx:LinkButton label="FOR RESEARCH USE ONLY" click="{takeScreenshotForReportIssue(this.theBody)}" color="0xFF0000" fontSize="16" toolTip="GNomEx re-rendered for screen resolutions below 1600x900" />
+                        </mx:HBox>
+
 						<mx:Spacer width="100%"/>
 						<mx:HBox  horizontalGap="4" paddingTop="0" verticalAlign="top">
 							<mx:LinkButton label="Report Problem"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000" toolTip="Submit feedback to GNomEx support"/>

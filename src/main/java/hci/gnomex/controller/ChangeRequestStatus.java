@@ -43,10 +43,11 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       codeRequestStatus = request.getParameter("codeRequestStatus");
     }
 
+    System.out.println ("[ChangeRequestStatus] codeRequestStatus: " + codeRequestStatus);
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
       idRequest = new Integer(request.getParameter("idRequest"));
     }
-
+    System.out.println ("[ChangeRequestStatus] idRequest: " + idRequest);
   }
 
   public Command execute() throws RollBackCommandException {
@@ -65,6 +66,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
         Request req = (Request) sess.get(Request.class, idRequest);
         String oldRequestStatus = req.getCodeRequestStatus();
+        System.out.println ("[ChangeRequestStatus] oldRequestStatus: " + oldRequestStatus);
 
         // If this request uses products, create ledger entries
         // If there is a problem, don't proceed with changing the status
@@ -73,6 +75,8 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
         if (ProductUtil.determineIfRequestUsesProducts(req)) {
           String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, req);
+          System.out.println ("[ChangeRequestStatus] statusToUseProducts: " + statusToUseProducts);
+
           if (statusToUseProducts != null && !statusToUseProducts.trim().equals("")) {
             try {
               if (ProductUtil.updateLedgerOnRequestStatusChange(sess, req, oldRequestStatus, codeRequestStatus)) {
@@ -91,6 +95,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
           // SUBMITTED
           if (oldRequestStatus != null) {
+            System.out.println ("[ChangeRequestStatus] oldRequestStatus: " + oldRequestStatus + " RequestStatus.NEW: " + RequestStatus.NEW + " codeRequestStatus: " + codeRequestStatus + " RequestStatus.SUBMITTED: " + RequestStatus.SUBMITTED);
             if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
               req.setCreateDate(new java.util.Date());
 
@@ -114,25 +119,43 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           // If this was a save before submit request and now we are submitting then create billing
           // items and send confirmation email
           // when the status changes to submitted
-          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")
+          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) &&
+                  pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")
                   && (pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW) == null ||
                   pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW).equals("N"))) {
             if (req.getBillingItemList(sess) == null || req.getBillingItemList(sess).isEmpty()) {
+              System.out.println ("[ChangeRequestStatus] NOT BILLING THRU WORKFLOW");
               // if we don't bill during workflow create all billing items including request property entry items
               createBillingItems(sess, req, false, false);
               sess.flush();
             }
-          } else if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")
+          } else if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING))
                   && (pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW) != null &&
                   pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW).equals("Y"))) {
+
+            // if we do bill during workflow then only bill for request property entry items
+            System.out.println ("[ChangeRequestStatus] *** BILLING THRU WORKFLOW ***");
+            createBillingItems(sess, req, true, false);
+          }
+
+/*
+        } else if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING))
+                &&  pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")
+                && (pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW) != null &&
+                pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW).equals("Y"))) {
+
             // if we do bill during workflow then only bill for request property entry items
             createBillingItems(sess, req, true, false);
 
-          }
+        }
+*/
+
+
 
           // COMPLETE
           // Set the complete date
           if (codeRequestStatus.equals(RequestStatus.COMPLETED)) {
+            System.out.println ("[ChangeRequestStatus] *** marking request complete ***");
             if (req.getCompletedDate() == null) {
               req.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
             }
@@ -161,6 +184,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
           // PROCCESSING
           if (codeRequestStatus.equals(RequestStatus.PROCESSING)) {
+            System.out.println ("[ChangeRequestStatus] *** marking request as processing ***");
             if (req.getProcessingDate() == null) {
               req.setProcessingDate(new java.sql.Date(System.currentTimeMillis()));
             }
@@ -190,6 +214,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
   }
 
   private void createBillingItems(Session sess, Request req, Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
+    System.out.println ("[createBillingItems (ChangeRequestStatus): requestPropertiesOnly: " + requestPropertiesOnly + " comingFromWorkflow: " + comingFromWorkflow);
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
@@ -232,6 +257,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       assays.add(idAssay.toString());
     }
 
+    System.out.println ("[ChangeRequestStatus] calling SaveRequest.createBillingItems");
     SaveRequest.createBillingItems(sess, req, null, billingPeriod, dictionaryHelper, req.getSamples(), null, null, null, sampleAssays, null, BillingStatus.PENDING, req.getPropertyEntries(), req.getBillingTemplate(sess), requestPropertiesOnly, comingFromWorkflow);
     sess.flush();
 

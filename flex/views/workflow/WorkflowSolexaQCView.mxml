@@ -81,6 +81,8 @@
 		public function initTitle():void {
 			if(codeStepNext == 'SEQQC') {
 				titleLabel.text = 'Illumina GAIIx Sample Quality';
+			} else if (codeStepNext == 'NOSEQQC') {
+				titleLabel.text = 'Illumina NovaSeq Sample Quality';
 			} else if (codeStepNext == 'HSEQQC') {
 				titleLabel.text = 'Illumina HiSeq Sample Quality';
 			} else if (codeStepNext == 'MISEQQC') {

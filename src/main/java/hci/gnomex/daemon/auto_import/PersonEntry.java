@@ -1,6 +1,8 @@
 package hci.gnomex.daemon.auto_import;
 
 public class PersonEntry {
+
+
 	private String mrn;
 	private String shadowId;
 	private String personId;
@@ -10,7 +12,9 @@ public class PersonEntry {
 	private String slNumber;
 	private String aliasType;
 	private String tissueType; // tissueType
-	
+	public final static String AVATAR = "avatar";
+	public final static String FOUNDATION = "foundation";
+	public final static String TEMPEST = "tempest";
 
 
 
@@ -115,7 +119,48 @@ public class PersonEntry {
 
 	public void setSubmittedDiagnosis(String submittedDiagnosis) {
 		this.submittedDiagnosis = submittedDiagnosis;
-	}	
+	}
+
+
+	public String setEmptyToNull(String val){
+		if(val.equals("")){
+			return "null";
+		}
+		return val;
+	}
+
+	public String toString(String personType){
+		StringBuilder strBuild = new StringBuilder();
+		//order matters
+		if(PersonEntry.AVATAR.equals(personType)){
+			strBuild.append(setEmptyToNull(this.mrn) +"\t");
+			strBuild.append(setEmptyToNull(this.personId) +"\t");
+			strBuild.append(setEmptyToNull(this.fullName) +"\t");
+			strBuild.append(setEmptyToNull(this.gender) +"\t");
+			strBuild.append(setEmptyToNull(this.ccNumber) +"\t");
+			strBuild.append(setEmptyToNull(this.shadowId) +"\t");
+			strBuild.append(setEmptyToNull(this.aliasType) +"\t");
+			strBuild.append(setEmptyToNull(this.slNumber) +"\t");
+			strBuild.append(setEmptyToNull(this.tissueType) +"\t");
+			strBuild.append(setEmptyToNull(this.sampleSubtype) +"\t");
+			strBuild.append(setEmptyToNull(this.submittedDiagnosis) +"\n");
+		}
+		else if (PersonEntry.FOUNDATION.equals(personType)){
+			strBuild.append(setEmptyToNull(this.mrn) +"\t");
+			strBuild.append(setEmptyToNull(this.personId) +"\t");
+			strBuild.append(setEmptyToNull(this.fullName) +"\t");
+			strBuild.append(setEmptyToNull(this.gender) +"\t");
+			strBuild.append(setEmptyToNull(this.shadowId) +"\t");
+			strBuild.append(setEmptyToNull(this.aliasType) +"\t");
+			strBuild.append(setEmptyToNull(this.slNumber) +"\t");
+			strBuild.append(setEmptyToNull(this.sampleSubtype) +"\t");
+			strBuild.append(setEmptyToNull(this.tissueType) +"\t");
+			strBuild.append(setEmptyToNull(this.submittedDiagnosis) +"\n");
+		}
+
+		return strBuild.toString();
+
+	}
 	
 	
 	

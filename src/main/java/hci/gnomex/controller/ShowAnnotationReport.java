@@ -26,6 +26,8 @@ import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
 import org.apache.log4j.Logger;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.SQLException;
@@ -140,6 +142,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
 
     try {
 
+//        BufferedWriter rout = new BufferedWriter( new FileWriter("/home/orionsrvs/tim.report.out"));
       Session sess = secAdvisor.getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
@@ -157,11 +160,13 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       StringBuffer queryBuf = null;
       if (target.equals(TARGET_SAMPLE)) {
         queryBuf = sampleFilter.getQuery(secAdvisor, IS_CREATE_REPORT, customColumnList);
-//        System.out.println ("[ShowAnnotationReport] queryBuf: " + queryBuf);
+//      rout.write ("[ShowAnnotationReport] TARGET_SAMPLE queryBuf: " + queryBuf + "\n");
       } else if (target.equals(TARGET_ANALYSIS)) {
         queryBuf = analysisFilter.getQuery(secAdvisor, IS_CREATE_REPORT);
+//          rout.write ("[ShowAnnotationReport] TARGET_ANALYSIS queryBuf: " + queryBuf + "\n");
       } else if (target.equals(TARGET_DATATRACK)) {
         queryBuf = dataTrackQuery.getDataTrackQuery(secAdvisor, IS_CREATE_REPORT);
+//          rout.write ("[ShowAnnotationReport] TARGET_DATATRACK queryBuf: " + queryBuf + "\n");
       } else {
         this.addInvalidField("target incorrect", "Incorrect target parameter provided");
       }
@@ -173,11 +178,13 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         // Get the annotations
         if (target.equals(TARGET_SAMPLE)) {
           queryBuf = sampleFilter.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
-//          System.out.println ("[ShowAnnotationReport] (2) queryBuf: " + queryBuf);
+//            rout.write ("[ShowAnnotationReport] (2) TARGET_SAMPLE queryBuf: " + queryBuf + "\n");
         } else if (target.equals(TARGET_ANALYSIS)) {
           queryBuf = analysisFilter.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
+//            rout.write ("[ShowAnnotationReport] (2) TARGET_ANALYSIS queryBuf: " + queryBuf + "\n");
         }  else if (target.equals(TARGET_DATATRACK)) {
           queryBuf = dataTrackQuery.getAnnotationQuery(secAdvisor, IS_CREATE_REPORT);
+//            rout.write ("[ShowAnnotationReport] (2) TARGET_DATATRACK queryBuf: " + queryBuf + "\n");
         }      
 
         hashAnnotations(sess, dh, queryBuf, target, this.propertyEntryAnnotationMap);
@@ -208,9 +215,10 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
             String sampleName = (String)row[RequestSampleFilter.COL_SAMPLE_NAME];
             String sampleDescription = (String)row[RequestSampleFilter.COL_SAMPLE_DESCRIPTION];
             Integer idOrganism = (Integer)row[RequestSampleFilter.COL_SAMPLE_ID_ORGANISM];
-
+//            rout.write ("[ShowAnnotationReport] results idRequest: " + idRequest + " requestNumber: " + requestNumber + " sampleName: " + sampleName + "\n");
             if (idsToSkip.get(idRequest) != null) {
               // Skip for BSTX Security
+ //               rout.write ("[ShowAnnotationReport] ***SKIPPING*** idRequest: " + idRequest + "\n");
               continue;
             }
 
@@ -304,6 +312,8 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         }
       }
 
+//        rout.flush();
+//        rout.close();
       if (isValid()) {
         this.setSuccessJsp(this, tray.getFormat());
       } else {
@@ -336,6 +346,7 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         LOG.error("Error", e);
       }
     }
+
 
     return this;
   }

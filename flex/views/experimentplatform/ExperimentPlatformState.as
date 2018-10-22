@@ -63,6 +63,14 @@ package views.experimentplatform {
 				return false;
 			}
 		}
+        public function get isNoSeq():Boolean {
+            if (_selectedType != null && _selectedType.@value == 'NOSEQ') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
 		public function get isMicroarray():Boolean {
 			return _selectedType != null && _selectedType.@value == 'MICROARRAY';
 		}

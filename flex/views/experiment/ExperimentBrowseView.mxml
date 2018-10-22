@@ -390,8 +390,11 @@
 				break; 
             case 'HISEQ': 
 				theIcon = parentApplication.iconHiSeq; 
-				break; 				
-			default: 
+				break;
+			case 'NOSEQ':
+				theIcon = parentApplication.iconNoSeq;
+				break;
+			default:
 				theIcon = parentApplication.iconExperiment;	
 		}
 		return theIcon;

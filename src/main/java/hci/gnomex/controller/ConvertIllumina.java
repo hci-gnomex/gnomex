@@ -75,7 +75,9 @@ public class ConvertIllumina extends GNomExCommand implements Serializable {
 			// first check the work items. If there are any past the QC or PREP phase then we can't convert
 			for (Iterator i = r.getWorkItems().iterator(); i.hasNext();) {
 				WorkItem wi = (WorkItem) i.next();
-				if (!wi.getCodeStepNext().equals(Step.HISEQ_QC) && !wi.getCodeStepNext().equals(Step.HISEQ_PREP) && !wi.getCodeStepNext().equals(Step.MISEQ_QC)
+				if (!wi.getCodeStepNext().equals(Step.NOSEQ_QC) && !wi.getCodeStepNext().equals(Step.NOSEQ_PREP) &&
+						!wi.getCodeStepNext().equals(Step.HISEQ_QC) && !wi.getCodeStepNext().equals(Step.HISEQ_PREP) &&
+						!wi.getCodeStepNext().equals(Step.MISEQ_QC)
 						&& !wi.getCodeStepNext().equals(Step.MISEQ_PREP)) {
 					this.addInvalidField("Cannot convert Experiment",
 							"This request contains work items that have passed the library prep phase.  Therefore conversion is not possible.");
@@ -91,6 +93,8 @@ public class ConvertIllumina extends GNomExCommand implements Serializable {
 					r.setCodeRequestCategory(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY);
 					originallyHISEQ = true;
 				} else if (r.getCodeRequestCategory().equals(RequestCategory.ILLUMINA_MISEQ_REQUEST_CATEGORY)) {
+					r.setCodeRequestCategory(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
+				} else if (r.getCodeRequestCategory().equals(RequestCategory.ILLUMINA_NOSEQ_REQUEST_CATEGORY)) {
 					r.setCodeRequestCategory(RequestCategory.ILLUMINA_HISEQ_REQUEST_CATEGORY);
 				}
 

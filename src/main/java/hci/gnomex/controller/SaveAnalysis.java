@@ -19,9 +19,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyOptionComparator;
 import hci.gnomex.utility.RequestParser;
 
-import java.io.File;
-import java.io.Serializable;
-import java.io.StringReader;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -89,6 +87,8 @@ private String newAnalysisGroupName;
 private String newAnalysisGroupDescription;
 private Integer newAnalysisGroupId = new Integer(-1);
 
+private boolean isLinkBySample = false;
+private String analysisIDFile;
 private boolean isBatchMode = false;
 private String organism;
 private String genomeBuild;
@@ -130,8 +130,8 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			analysisGroupsDoc = sax.build(reader);
 			analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse analysisGroupsXMLString", je);
 			this.addInvalidField("analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse analysisGroupsXMLString ", je);
 		}
 	}
 
@@ -147,8 +147,8 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 
 			analysisFileParser = new AnalysisFileParser(analysisFilesDoc, null);
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse analysisFilesXMLString", je);
 			this.addInvalidField("analysisFilesXMLString", "Invalid analysisFilesXMLString");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse analysisFilesXMLString ", je);
 		}
 	}
 
@@ -163,11 +163,21 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			hybsDoc = sax.build(reader);
 			hybParser = new AnalysisHybParser(hybsDoc);
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse hybsXMLString", je);
 			this.addInvalidField("hybsXMLString", "Invalid hybsXMLString");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse hybsXMLString ", je);
 		}
 	}
 
+	if(request.getParameter("linkBySample") != null && request.getParameter("isBatchMode").equals("Y")){
+		isLinkBySample = true;
+	}
+	if(request.getParameter("analysisIDFile") != null){
+		analysisIDFile = request.getParameter("analysisIDFile");
+	}
+
+	// Please look at this closely, if doing a batch mode createanalysis we are hiding the experiments
+	// passed with the -experiment argument in lanesXMLString
+	// WATCHOUT
 	if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
 		lanesXMLString = request.getParameter("lanesXMLString");
 	} else if (request.getParameter("experimentsXMLString") != null
@@ -183,8 +193,8 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			lanesDoc = sax.build(reader);
 			laneParser = new AnalysisLaneParser(lanesDoc);
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse lanesXMLString", je);
 			this.addInvalidField("lanesXMLString", "Invalid lanesXMLString");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse lanesXMLString ", je);
 		}
 	}
 
@@ -197,8 +207,9 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			samplesDoc = sax.build(reader);
 			sampleParser = new AnalysisSampleParser(samplesDoc);
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse samplesXMLString", je);
 			this.addInvalidField("samplesXMLString", "Invalid samplesXMLString");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse samplesXMLString ", je);
+
 		}
 	}
 
@@ -212,15 +223,16 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			collaboratorsDoc = sax.build(reader);
 			collaboratorParser = new AnalysisCollaboratorParser(collaboratorsDoc);
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse collaboratorsXMLString", je);
 			this.addInvalidField("collaboratorsXMLString", "Invalid collaboratorsXMLString");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse collaboratorsXMLString ", je);
+
 		}
 	}
 
 	if (request.getParameter("genomeBuildsXMLString") != null
 			&& !request.getParameter("genomeBuildsXMLString").equals("")) {
 		genomeBuildsXMLString = request.getParameter("genomeBuildsXMLString");
-		// System.out.println("[SaveAnalysis] genomeBuildsXMLString: " + genomeBuildsXMLString);
+		System.out.println("[SaveAnalysis] **** in SaveAnalysis **** genomeBuildsXMLString: " + genomeBuildsXMLString);
 
 		reader = new StringReader(genomeBuildsXMLString);
 		try {
@@ -228,8 +240,9 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			genomeBuildsDoc = sax.build(reader);
 			genomeBuildParser = new AnalysisGenomeBuildParser(genomeBuildsDoc);
 		} catch (JDOMException je) {
-			LOG.error("Cannot parse genomeBuildsXMLString", je);
 			this.addInvalidField("genomeBuildsXMLString", "Invalid genomeBuildsXMLString");
+			this.errorDetails = Util.GNLOG(LOG,"Cannot parse genomeBuildsXMLString ", je);
+
 		}
 	}
 
@@ -255,11 +268,14 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 		idInstitution = Integer.parseInt(request.getParameter("idInstitution"));
 	}
 
+
 	serverName = request.getServerName();
 
 	if (request.getParameter("isBatchMode") != null && request.getParameter("isBatchMode").equals("Y")) {
 		isBatchMode = true;
 	}
+
+
 	if (isBatchMode) {
 		labName = request.getParameter("labName");
 		genomeBuild = request.getParameter("genomeBuild");
@@ -327,7 +343,7 @@ public Command execute() throws RollBackCommandException {
 				hybParser.parse(sess);
 			}
 			if (laneParser != null) {
-				laneParser.parse(sess, isBatchMode);
+				laneParser.parse(sess, isBatchMode, isLinkBySample);
 			}
 			if (sampleParser != null) {
 				sampleParser.parse(sess);
@@ -475,26 +491,7 @@ public Command execute() throws RollBackCommandException {
 				}
 			}
 			if (laneParser != null) {
-				for (Iterator i = laneParser.getIdSequenceLanes().iterator(); i.hasNext();) {
-					Integer idSequenceLane = (Integer) i.next();
-					AnalysisExperimentItem experimentItem = null;
-					// The experiment item may already exist; if so, just
-					// save it.
-					for (Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
-						AnalysisExperimentItem x = (AnalysisExperimentItem) i1.next();
-						if (x.getIdSequenceLane() != null && x.getIdSequenceLane().equals(idSequenceLane)) {
-							experimentItem = x;
-							break;
-						}
-					}
-					if (experimentItem == null) {
-						experimentItem = new AnalysisExperimentItem();
-						experimentItem.setIdAnalysis(analysis.getIdAnalysis());
-						experimentItem.setIdSequenceLane(idSequenceLane);
-						experimentItem.setIdRequest(laneParser.getIdRequest(idSequenceLane));
-					}
-					experimentItems.add(experimentItem);
-				}
+				addExperimentItem(laneParser, isLinkBySample,experimentItems,analysis);
 			}
 			if (sampleParser != null) {
 				for (Iterator<Integer> i = sampleParser.getIdSamples().iterator(); i.hasNext();) {
@@ -678,6 +675,12 @@ public Command execute() throws RollBackCommandException {
 
 			setResponsePage(this.SUCCESS_JSP);
 		}
+		if(isLinkBySample){
+			System.out.print("[SaveAnalysis]: The newly save analysis id: " + analysis.getIdAnalysis());
+			saveAnalyisIDToFile(analysisIDFile,analysis);
+		}
+
+
 
 	} catch (Exception e) {
 		this.errorDetails = Util.GNLOG(LOG,"An exception has occurred in SaveAnalysis ", e);
@@ -687,7 +690,70 @@ public Command execute() throws RollBackCommandException {
 	return this;
 }
 
-public void setVisibility(Session sess, Analysis analysis) {
+	private void saveAnalyisIDToFile(String analysisIDFile, Analysis a) {
+		PrintWriter pw = null;
+		try {
+
+			pw = new PrintWriter(new FileOutputStream(new File(analysisIDFile), true));
+			pw.write( a.getIdAnalysis() + " ");
+
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			pw.close();
+		}
+
+	}
+
+	private void addExperimentItem(AnalysisLaneParser laneParser, boolean isLinkBySample, TreeSet experimentItems, Analysis analysis) {
+		List linkerList = null;
+
+		if(isLinkBySample){
+			linkerList = laneParser.getIdSamples();
+		}else{
+			linkerList = laneParser.getIdSequenceLanes();
+		}
+
+		for (Iterator i = linkerList.iterator(); i.hasNext();) {
+			Integer id = (Integer) i.next();
+			AnalysisExperimentItem experimentItem = null;
+			// The experiment item may already exist; if so, just
+			// save it.
+			for (Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
+				AnalysisExperimentItem x = (AnalysisExperimentItem) i1.next();
+				if(isLinkBySample){
+					if (x.getIdSample() != null && x.getIdSample().equals(id)) {
+						experimentItem = x;
+						break;
+					}
+				}else{
+					if (x.getIdSequenceLane() != null && x.getIdSequenceLane().equals(id)) {
+						experimentItem = x;
+						break;
+					}
+				}
+
+			}
+			if (experimentItem == null) {
+				experimentItem = new AnalysisExperimentItem();
+				if(isLinkBySample){
+					experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+					experimentItem.setIdSample(id);
+					experimentItem.setIdRequest(laneParser.getIdRequest(id));
+				}else{
+					experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+					experimentItem.setIdSequenceLane(id);
+					experimentItem.setIdRequest(laneParser.getIdRequest(id));
+
+				}
+			}
+			experimentItems.add(experimentItem);
+		}
+
+	}
+
+	public void setVisibility(Session sess, Analysis analysis) {
 	if (visibility != null && visibility.length() > 0) {
 		analysis.setCodeVisibility(visibility);
 		analysis.setIdInstitution(idInstitution);

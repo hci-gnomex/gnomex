@@ -75,7 +75,8 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
       
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
         requestCategoryParser.parse(sess);
-        
+
+//        String thexml = requestCategoryDoc.getContent();
         PriceSheet priceSheet = null;
               
         if (isNewPriceSheet) {

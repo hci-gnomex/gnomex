@@ -94,10 +94,13 @@ public class BatchDataSource extends DetailObject {
     return sess;
   }
   
-  public void close() throws Exception {
-    if (sess != null) {
-      sess.close();
-    }
+  public void close()  {
+    try {
+      if (sess != null) {
+        sess.close();
+      }
+    } catch (Exception e)
+    {}
   }
   
 

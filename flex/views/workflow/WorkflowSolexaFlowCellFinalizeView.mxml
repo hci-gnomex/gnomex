@@ -260,7 +260,13 @@
 				hboxGroupSide.visible = false;
 				hboxGroupSide.includeInLayout = false;
 				codeSequencingPlatform = 'MISEQ';
+			} else if (codeStepNext == 'NOSEQFINFC') {
+				titleLabel.text = 'Illumina NovaSeq Finalize Flow Cell';
+				hboxGroupSide.visible = false;
+				hboxGroupSide.includeInLayout = false;
+				codeSequencingPlatform = 'NOSEQ';
 			}
+
 			sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y');
 			sequenceProtocolsList.addItemAt(new XML('<Default name="Choose a protocol..." />'),0);
 			flowCellProtocol.selectedIndex = 0;

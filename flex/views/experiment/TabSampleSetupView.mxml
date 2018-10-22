@@ -1251,7 +1251,15 @@
 					parentDocument.samplesView.initializeSamplesGrid();
 				}
 			}
-			
+
+			private function onBMPPickupCheckBox():void {
+				parentDocument.request.@includeQubitConcentration = BMPPickupCheckBox.selected ? 'Y' : 'N';
+
+				if ( this.checkSampleSetupCompleteness() ) {
+					parentDocument.samplesView.initializeSamplesGrid();
+				}
+			}
+
 			private function onSampleSourceChanged():void {
 				propagateSampleSource();
 				if ( this.checkSampleSetupCompleteness() ) {
@@ -1863,7 +1871,17 @@
 					<mx:CheckBox label="Yes" id="QubitConcentrationCheckBox" change="onIncludeQubitConcentrationCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeQubitConcentration == 'Y'}"/>	
 				</mx:HBox>
 			</mx:AddChild>
+
+			<mx:AddChild relativeTo="{hbox1}" position="after">
+				<mx:HBox horizontalGap="0"  verticalAlign="middle" id="BMPMPickupBox">
+					<util:ContextHelp context1="BMPWillPickupSamples" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="BMP will pickup samples help"
+									  label="(4A) Notify BMP to pickup samples when completed?" labelPlacement="left" id="BMPPickupLabel" width="456"/>
+					<mx:CheckBox label="Yes" id="BMPPickupCheckBox" change="onBMPPickupCheckBox()" width="100%" paddingRight="9" selected="{parentDocument.isIsolationState()}"/>
+				</mx:HBox>
+			</mx:AddChild>
+
 			<mx:SetProperty target="{bisulfideConversionBox}" name="visible" value="false"/>
+
 			<mx:SetProperty target="{bisulfideConversionBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{label5}" name="width" value="455"/>
 		</mx:State>

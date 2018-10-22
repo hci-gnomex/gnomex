@@ -561,17 +561,17 @@ public class PropertyDictionaryHelper implements Serializable {
       Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility is null");
       propSiteQuery.setParameter("propName", PropertyDictionary.EXPERIMENTALIAS);
       propexperimentAlias = (PropertyDictionary) propSiteQuery.uniqueResult();
-      if (propexperimentAlias != null)
-      System.out.println ("[getExperimentAlias] " + propexperimentAlias.getPropertyValue());
-      else
-        System.out.println ("[getExperimentAlias] NO EXPERIMENT ALIAS PROVIDED");
+//      if (propexperimentAlias != null)
+//      System.out.println ("[getExperimentAlias] " + propexperimentAlias.getPropertyValue());
+//      else
+//        System.out.println ("[getExperimentAlias] NO EXPERIMENT ALIAS PROVIDED");
     }
 
       if (propexperimentAlias != null && !propexperimentAlias.getPropertyValue().equals("")) {
           experimentAlias = propexperimentAlias.getPropertyValue();
       }
 
-      System.out.println ("[getExperimentAlias] " + experimentAlias);
+//      System.out.println ("[getExperimentAlias] " + experimentAlias);
       return experimentAlias;
   }
 

@@ -82,10 +82,10 @@
 		private var requestNumbers:ArrayCollection;
 
 		[Bindable]
-		private var requestCategories:XML = <Categories><RequestCategory label="HiSeq, MiSeq combined" codeStepNext="ALLPREPQC"/><RequestCategory label="Illumina HiSeq" codeStepNext="HSEQPREPQC"/><RequestCategory label="Illumina MiSeq" codeStepNext="MISEQPREPQC"/></Categories>;
+		private var requestCategories:XML = <Categories><RequestCategory label="NovaSeq, HiSeq, MiSeq combined" codeStepNext="ALLPREPQC"/><RequestCategory label="Illumina NovaSeq" codeStepNext="NOSEQPREPQC"/><RequestCategory label="Illumina HiSeq" codeStepNext="HSEQPREPQC"/><RequestCategory label="Illumina MiSeq" codeStepNext="MISEQPREPQC"/></Categories>;
 
 		private function init():void {
-			//select the index of the category combo based off of what lib prep view we are in (hiseq or miseq)
+			//select the index of the category combo based off of what lib prep view we are in (noseq or hiseq or miseq)
 			for(var i: int = 0; i < categoryCombo.dataProvider.length; i++){
 				if(categoryCombo.dataProvider[i].@codeStepNext == parentDocument.codeStepNext){
 					categoryCombo.selectedIndex = i;
@@ -99,6 +99,8 @@
 				titleLabel.text = 'Illumina GAIIx Library Prep QC';
 			} else if (codeStepNext == 'HSEQPREPQC') {
 				titleLabel.text = 'Illumina HiSeq Library Prep QC';
+			} else if (codeStepNext == 'NOSEQPREPQC') {
+				titleLabel.text = 'Illumina NovaSeq Library Prep QC';
 			} else if (codeStepNext == 'MISEQPREPQC') {
 				titleLabel.text = 'Illumina MiSeq Library Prep QC';
 			}

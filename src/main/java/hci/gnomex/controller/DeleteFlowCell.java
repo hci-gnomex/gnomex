@@ -76,7 +76,9 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
 					wi.setSequenceLane(sl);
 					wi.setCreateDate(new Date(System.currentTimeMillis()));
 					wi.setIdCoreFacility(flowCell.getIdCoreFacility());
-					if(flowCell.getCodeSequencingPlatform().equals("HISEQ")) {
+                     if(flowCell.getCodeSequencingPlatform().equals("NOSEQ")) {
+                         wi.setCodeStepNext("NOSEQASSEM");
+                     } else if(flowCell.getCodeSequencingPlatform().equals("HISEQ")) {
 						wi.setCodeStepNext("HSEQASSEM");
 					} else if(flowCell.getCodeSequencingPlatform().equals("MISEQ")) {
 						wi.setCodeStepNext("MISEQASSEM");

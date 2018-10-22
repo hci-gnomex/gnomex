@@ -25,6 +25,13 @@ public class EmailHelper {
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
     String requestNote = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE);
+    String requestNoteBMP = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE_BMP);
+
+    if (requestNoteBMP != null && !requestNoteBMP.equals("")) {
+        requestNote = requestNoteBMP;
+    }
+
+    String bioRepEmail = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.REQUEST_COMPLETE_EMAIL_BMP);
     introNote.append("Order " + request.getNumber() + " has been completed by the " + coreFacilityName + " core.");
     if (requestNote != null) {
       introNote.append("<br>" + requestNote);
@@ -33,10 +40,16 @@ public class EmailHelper {
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, secAdvisor, appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
-        
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Order " + request.getNumber() + " completed";
     
-    String emailRecipients = request.getAppUser().getEmail();
+    String emailRecipients = null;
+    if (bioRepEmail != null && !bioRepEmail.equals("")) {
+        emailRecipients = bioRepEmail;
+    }
+    else {
+        emailRecipients = request.getAppUser().getEmail();
+    }
+
     if(!MailUtil.isValidEmail(emailRecipients)){
       throw new MessagingException("Invalid email address: " + emailRecipients);
     }

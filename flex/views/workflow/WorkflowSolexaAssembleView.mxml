@@ -107,11 +107,16 @@
 	<!--							Initialize and Refresh Functions				-->
 	<mx:Script>
 		<![CDATA[
-			
+
 			// called by NavWorkflowView/onHiSeqWorklistChange
 			public function init(maxFlowCells:int):void {
-				flowCellChannelsCount = maxFlowCells;				
-				if(codeStepNext == 'HSEQASSEM'){
+				flowCellChannelsCount = maxFlowCells;
+				if (codeStepNext == 'NOSEQASSEM') {
+					titleLabel.text = 'Illumina NovaSeq Flow Cell Assembly';
+					hboxGroupSide.visible = true;
+					hboxGroupSide.includeInLayout = true;
+					codeSequencingPlatform = "NOSEQ";
+				} else if(codeStepNext == 'HSEQASSEM'){
 					titleLabel.text = 'Illumina HiSeq Flow Cell Assembly';
 					hboxGroupSide.visible = true;
 					hboxGroupSide.includeInLayout = true;
@@ -122,20 +127,21 @@
 					hboxGroupSide.includeInLayout = false;
 					codeSequencingPlatform = "MISEQ";
 				}
+
 				if(codeStepNext != null && codeStepNext != '') {
 					refresh();
 				}
 			}
 			private function initializeSequenceProtocolsList():void {
 				sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y');
-			}			
+			}
 			private function initializeFlowCellChannelsCountList():void {
 				flowCellChannelsCountList = new XMLListCollection();
 				flowCellChannelsCountList.addItem(new XML('<FlowCellChannelCount display=""  value=""  />'));
 				for(var i:int = 1; i <= flowCellChannelsCount; i++) {
 					flowCellChannelsCountList.addItem(new XML('<FlowCellChannelCount display="' + i + '" value="' + i + '" />'));
 				}
-				
+
 			}
 			private function initializeControlChannelsArray():void {
 				for(var i:int = 0; i < flowCellChannelsCount; i++) {
@@ -144,28 +150,28 @@
 			}
 			private function initializeMasterWorkList():void {
 				var source:XMLListCollection  = new XMLListCollection(getWorkList.lastResult.Request.MultiplexLane.WorkItem.copy());
-				
+
 				// add idRequestAndMultiplexGroup for grouping in pendingSequenceLanesGrid
 				for each(var wi:XML in source) {
 					wi.@idRequestAndMultiplexGroup = wi.@idRequest + "-" + wi.@multiplexGroupNumber;
 					wi.@editable = "false";
 					wi.@isControl = "false";
-				}				
+				}
 				// add controls to masterWorkList
 				for each(var control:XML in parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.SequencingControl') ) {
 					controlsCount++;
-					control.@number = control.@display;	
+					control.@number = control.@display;
 					control.@editable = "true";
 					control.@isControl = "true";
 					source.addItem(control);
-				}				
+				}
 				masterWorkList.source = source.copy();
 
 				//channelChooserColumn.itemEditor=views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(flowCellChannelsCountList,'@display', '@value', '@flowCellChannelNumber', null, true).newInstance(), 'idRequestAndMultiplexGroup');
 			}
-			
-			
-			
+
+
+
 			private function refresh():void {
 				// reset user filters
 				this.labCombo.selectedItem = null;
@@ -174,30 +180,30 @@
 				this.lookupExperimentNumber.text = "";
 				this.sequenceProtocolFilter.selectedItem = null;
 				// reset flow cell info
-				this.flowCellBarcode.text = ""; 
-				this.flowCellRunNumber.text = ""; 
-				this.flowCellCreateDate.selectedDate = null; 
-				this.flowCellInstrument.selectedIndex = 0; 
-				this.flowCellSide.selectedValue = null; 
+				this.flowCellBarcode.text = "";
+				this.flowCellRunNumber.text = "";
+				this.flowCellCreateDate.selectedDate = null;
+				this.flowCellInstrument.selectedIndex = 0;
+				this.flowCellSide.selectedValue = null;
 				this.flowCellProtocol.selectedItem = null;
-				
+
 				initializeFlowCellChannelsCountList();
 				initializeControlChannelsArray();
 				initializeSequenceProtocolsList();
 				getWorkList.send();
 			}
 			private function onGetWorkList(event:ResultEvent):void {
-				if (event.result.name() == "WorkItemList") {					
+				if (event.result.name() == "WorkItemList") {
 					masterWorkList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
-					initializeMasterWorkList();						
+					initializeMasterWorkList();
 				} else {
 					Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
 				}
 			}
-			private function refreshWorkList():void {			
-				getWorkList.send();				
+			private function refreshWorkList():void {
+				getWorkList.send();
 			}
-			
+
 		]]>
 	</mx:Script>
 	<!--						End Initilize and Refresh Functions					-->
@@ -364,67 +370,70 @@
 </mx:Script>
 	<!--					Save Functions							-->
 <mx:Script>
-	<![CDATA[			
-		import mx.controls.List;
-			private function save():void {								
-				warningMessage = "";
-				isValid = true;
-				hasError = false;
-				if(flowCellProtocol.selectedItem == null) {
-					isValid = false;
-					warningMessage += "Please choose a sequencing protocol for the flow cell.\n\n";
-					Alert.show(warningMessage, "Warning");
-					return;
-				}
-				if (assembleFlowCellWorkList.length > 0) {
-					validateNumberOfLanes();
+	<![CDATA[
+	import mx.controls.List;
+
+	private function save():void {
+		warningMessage = "";
+		isValid = true;
+		hasError = false;
+		if (flowCellProtocol.selectedItem == null) {
+			isValid = false;
+			warningMessage += "Please choose a sequencing protocol for the flow cell.\n\n";
+			Alert.show(warningMessage, "Warning");
+			return;
+		}
+		if (assembleFlowCellWorkList.length > 0) {
+			validateNumberOfLanes();
 //					validateProtocol();
-					validateProtocolAndLanes();
-					validateIndexTags();
-					//validateSeqRunType();
-					//validateNumberSequencingCycles();
-				}
-				if (isValid && !hasError) {
-					saveWorkItems();				    
-				} else if (!hasError) {
-					promptForWarning();
-				} else {
-					Alert.show(errorMessage, "Error");
-					return;
-				}
+			validateProtocolAndLanes();
+			validateIndexTags();
+			//validateSeqRunType();
+			//validateNumberSequencingCycles();
+		}
+		if (isValid && !hasError) {
+			saveWorkItems();
+		} else if (!hasError) {
+			promptForWarning();
+		} else {
+			Alert.show(errorMessage, "Error");
+			return;
+		}
+	}
+
+	private function validateNumberOfLanes():void {
+		var tmp:ArrayCollection = new ArrayCollection();
+		for (var i:int = 1; i < flowCellChannelsCount; i++) {
+			tmp.addItem(i + "");
+		}
+		for each(var tmpx:XML in assembleFlowCellWorkList) {
+			if (tmpx.hasOwnProperty("@flowCellChannelNumber") && tmp.contains(tmpx.@flowCellChannelNumber.toString())) {
+				tmp.removeItemAt(tmp.getItemIndex(tmpx.@flowCellChannelNumber.toString()));
+				tmp.refresh();
 			}
-			private function validateNumberOfLanes():void {
-				var tmp:ArrayCollection = new ArrayCollection();
-				for(var i:int = 1; i < flowCellChannelsCount; i++) {
-					tmp.addItem(i + "");
-				}
-				for each(var tmpx:XML in assembleFlowCellWorkList) {
-					if(tmpx.hasOwnProperty("@flowCellChannelNumber") && tmp.contains(tmpx.@flowCellChannelNumber.toString())) {
-						tmp.removeItemAt(tmp.getItemIndex(tmpx.@flowCellChannelNumber.toString()));
-						tmp.refresh();
-					}
-				}
-				if (tmp.length > 0) {
-					if(flowCellChannelsCount > 1) {
-						warningMessage = "Not all " + flowCellChannelsCount + " lanes are populated.\n\n";
-					} else {
-						warningMessage = "The channel is not populated.\n\n";
-					}
-					isValid = false;
-				}					
-			}			
-			//Warn if not all channels are of the same protocol type
-			private function validateProtocol():void {
-				var firstProtocol:String = '';
-				// get the protocol of the first WorkItem in the list
-				for each(var wi:XML in assembleFlowCellWorkList) {
-					if(wi.name() == "DictionaryEntry") {
-						continue;
-					} else {
-						firstProtocol = wi.@idNumberSequencingCyclesAllowed;
-						break;
-					}
-				}
+		}
+		if (tmp.length > 0) {
+			if (flowCellChannelsCount > 1) {
+				warningMessage = "Not all " + flowCellChannelsCount + " lanes are populated.\n\n";
+			} else {
+				warningMessage = "The channel is not populated.\n\n";
+			}
+			isValid = false;
+		}
+	}
+
+	//Warn if not all channels are of the same protocol type
+	private function validateProtocol():void {
+		var firstProtocol:String = '';
+		// get the protocol of the first WorkItem in the list
+		for each(var wi:XML in assembleFlowCellWorkList) {
+			if (wi.name() == "DictionaryEntry") {
+				continue;
+			} else {
+				firstProtocol = wi.@idNumberSequencingCyclesAllowed;
+				break;
+			}
+		}
 //				for each(wi in assembleFlowCellWorkList) {
 //					if(wi.name() == "DictionaryEntry") {
 //						continue;
@@ -436,126 +445,134 @@
 //						break;
 //					}
 //				}
-			}
-			// Warn if not all lanes have same protocol as flow cell
-			private function validateProtocolAndLanes():void {
-				for each(var wi:XML in assembleFlowCellWorkList) {
-					if(wi.name() == "DictionaryEntry") {
-						continue;
-					}
-					if (wi.@idNumberSequencingCyclesAllowed == '' || wi.@idNumberSequencingCyclesAllowed == null) {
-						errorMessage = "One or more samples have no sequencing protocol.  Please correct sequence lanes before continuing.";
-						hasError = true;
-					}
-					if(wi.@idNumberSequencingCyclesAllowed != flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed) {
-						warningMessage += "One or more samples have different protocols from the flow cell.\n\n";
-						isValid = false;
-						break;
-					}
-				}
-			}
-			private function validateIndexTags():void {
-				for each(var channelNumber:XML in flowCellChannelsCountList) {
+	}
 
-					var i:String = channelNumber.@value;
-					if(!areBarcodeSequenceTagsUnique(i)) {
-						warningMessage += "Two or more samples in channel " + i + " do not differ by at least 3 base pairs.\n\n";
-						isValid = false;
-					}
-				}
+	// Warn if not all lanes have same protocol as flow cell
+	private function validateProtocolAndLanes():void {
+		for each(var wi:XML in assembleFlowCellWorkList) {
+			if (wi.name() == "DictionaryEntry") {
+				continue;
 			}
-			private function areBarcodeSequenceTagsUnique(flowCellChannelNumber:String):Boolean {
-
-				var barcodes:ArrayCollection = new ArrayCollection();
-				
-				for each(var wi:Object in assembleFlowCellWorkList) {
-					if (wi.@flowCellChannelNumber == flowCellChannelNumber) {
-						var tag:Object = wi.@barcodeSequence + wi.@barcodeSequenceB;
-						//barcodeSequenceMap[tag] = tag;
-						if(tag != null && tag != ""){
-							barcodes.addItem(tag);
-						}
-						//workItemCount++;
-					}
-				}
-				
-				for(var i:int = 0; i < barcodes.length; i++){
-					var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
-					for(var j:int = i+1; j < barcodes.length; j++){
-						var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
-						if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
-							return false;
-						}
-					}
-				}
-				
-
-			
-				return true;
+			if (wi.@idNumberSequencingCyclesAllowed == '' || wi.@idNumberSequencingCyclesAllowed == null) {
+				errorMessage = "One or more samples have no sequencing protocol.  Please correct sequence lanes before continuing.";
+				hasError = true;
 			}
-		
-			private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
-				var uniqueBaseCount:int = 0;
-				for(var i:int = 0; i < sequenceOne.length; i++){
-					if(sequenceOne[i] != sequenceTwo[i]){
-						uniqueBaseCount++;
-					}
+			if (wi.@idNumberSequencingCyclesAllowed != flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed) {
+				warningMessage += "One or more samples have different protocols from the flow cell.\n\n";
+				isValid = false;
+				break;
+			}
+		}
+	}
+
+	private function validateIndexTags():void {
+		for each(var channelNumber:XML in flowCellChannelsCountList) {
+
+			var i:String = channelNumber.@value;
+			if (!areBarcodeSequenceTagsUnique(i)) {
+				warningMessage += "Two or more samples in channel " + i + " do not differ by at least 3 base pairs.\n\n";
+				isValid = false;
+			}
+		}
+	}
+
+	private function areBarcodeSequenceTagsUnique(flowCellChannelNumber:String):Boolean {
+
+		var barcodes:ArrayCollection = new ArrayCollection();
+
+		for each(var wi:Object in assembleFlowCellWorkList) {
+			if (wi.@flowCellChannelNumber == flowCellChannelNumber) {
+				var tag:Object = wi.@barcodeSequence + wi.@barcodeSequenceB;
+				//barcodeSequenceMap[tag] = tag;
+				if (tag != null && tag != "") {
+					barcodes.addItem(tag);
 				}
-				
-				if(uniqueBaseCount >= 3){
-					return true;
-				} else{
+				//workItemCount++;
+			}
+		}
+
+		for (var i:int = 0; i < barcodes.length; i++) {
+			var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
+			for (var j:int = i + 1; j < barcodes.length; j++) {
+				var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
+				if (!atLeastThreeUnique(sequenceOne, sequenceTwo)) {
 					return false;
 				}
 			}
-			
-			private function saveWorkItems():void {
-				
-				var params:Object = new Object();
-				params.flowCellBarcode = this.flowCellBarcode.text;
-				params.flowCellDate = this.flowCellCreateDate.text
-				params.workItemXMLString = assembleFlowCellWorkList.toXMLString();
-				if(codeStepNext == 'SEQASSEM') {
-					params.codeStepNext = 'SEQPIPE';
-				} else if (codeStepNext == 'HSEQASSEM') {
-					params.codeStepNext = 'HSEQFINFC';
-				} else if (codeStepNext == 'MISEQASSEM') {
-					params.codeStepNext = 'MISEQFINFC';
-				}
-				params.runNumber = this.flowCellRunNumber.text;
-				params.idNumberSequencingCyclesAllowed = this.flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed
-				params.side = this.flowCellSide.selectedValue;
-//				params.idCoreFacility = parentDocument.getSpecifiedIdCoreFacility();
-				params.numberSequencingCyclesActual = this.flowCellProtocol.selectedItem.@numberSequencingCyclesDisplay;
-				params.idSeqRunType = this.flowCellProtocol.selectedItem.@idSeqRunType;
-				params.idInstrument = this.flowCellInstrument.selectedItem.@value;
-			
-				saveWorkItem.send(params);
-			}	
-			
-			private function promptForWarning():void {
-				if (warningMessage != "") {
-					warningMessage += "Continue saving?";
-					Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForWarning);
-				}
+		}
+
+
+		return true;
+	}
+
+	private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean {
+		var uniqueBaseCount:int = 0;
+		for (var i:int = 0; i < sequenceOne.length; i++) {
+			if (sequenceOne[i] != sequenceTwo[i]) {
+				uniqueBaseCount++;
 			}
-			private function onPromptForWarning(event:CloseEvent):void {
-				if (event.detail == Alert.YES) {
-					saveWorkItems();
-				}
+		}
+
+		if (uniqueBaseCount >= 3) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private function saveWorkItems():void {
+
+		var params:Object = new Object();
+		params.flowCellBarcode = this.flowCellBarcode.text;
+		params.flowCellDate = this.flowCellCreateDate.text
+		params.workItemXMLString = assembleFlowCellWorkList.toXMLString();
+		if (codeStepNext == 'SEQASSEM') {
+			params.codeStepNext = 'SEQPIPE';
+		} else if (codeStepNext == 'HSEQASSEM') {
+			params.codeStepNext = 'HSEQFINFC';
+		} else if (codeStepNext == 'HSEQASSEM') {
+			params.codeStepNext = 'HSEQFINFC';
+		} else if (codeStepNext == 'NOSEQASSEM') {
+			params.codeStepNext = 'NOSEQFINFC';
+		} else if (codeStepNext == 'MISEQASSEM') {
+		    params.codeStepNext = 'MISEQFINFC';
+	}
+	params.runNumber = this.flowCellRunNumber.text;
+	params.idNumberSequencingCyclesAllowed = this.flowCellProtocol.selectedItem.@idNumberSequencingCyclesAllowed
+	params.side = this.flowCellSide.selectedValue;
+	//				params.idCoreFacility = parentDocument.getSpecifiedIdCoreFacility();
+	params.numberSequencingCyclesActual = this.flowCellProtocol.selectedItem.@numberSequencingCyclesDisplay;
+	params.idSeqRunType = this.flowCellProtocol.selectedItem.@idSeqRunType;
+	params.idInstrument = this.flowCellInstrument.selectedItem.@value;
+
+	saveWorkItem.send(params);
+	}
+
+	private function promptForWarning():void {
+		if (warningMessage != "") {
+			warningMessage += "Continue saving?";
+			Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForWarning);
+		}
+	}
+
+	private function onPromptForWarning(event:CloseEvent):void {
+		if (event.detail == Alert.YES) {
+			saveWorkItems();
+		}
+	}
+
+	private function onSaveWorkItem(event:ResultEvent):void {
+		if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS") {
+			if (saveWorkItem.lastResult.hasOwnProperty("@flowCellNumber") && saveWorkItem.lastResult.@flowCellNumber != "") {
+				Alert.show("Flow Cell " + saveWorkItem.lastResult.@flowCellNumber + " has been created.");
 			}
-			private function onSaveWorkItem(event:ResultEvent):void {
-				if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
-					if (saveWorkItem.lastResult.hasOwnProperty("@flowCellNumber") && saveWorkItem.lastResult.@flowCellNumber != "") {
-						Alert.show("Flow Cell " + saveWorkItem.lastResult.@flowCellNumber + " has been created.");    			
-					}
-					refresh();
-					
-				} else {
-					Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
-				}        	
-			}
-		]]>
+			refresh();
+
+		} else {
+			Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
+		}
+	}
+	]]>
 	</mx:Script>
 	<!--								END Save Functions								-->
 	<!--								Grid Labeling Functions							-->

@@ -81,6 +81,8 @@
 				titleLabel.text = 'Illumina HiSeq Data Pipeline';
 			} else if (codeStepNext == 'MISEQPIPE') {
 				titleLabel.text = 'Illumina MiSeq Data Pipeline';
+			} else if (codeStepNext == 'NOSEQPIPE') {
+				titleLabel.text = 'Illumina NovaSeq Data Pipeline';
 			}
 			
 		}			

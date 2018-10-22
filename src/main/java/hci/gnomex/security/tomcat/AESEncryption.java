@@ -36,7 +36,7 @@ public class AESEncryption {
   
   public String decrypt(String encryptedString) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {         
     Cipher cipher = Cipher.getInstance(ALGORITHM);         
-    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);         
+    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
     byte[] original = cipher.doFinal(toByteArray(encryptedString));         
     return new String(original);     
   }       

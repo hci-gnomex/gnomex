@@ -1,5 +1,4 @@
 package hci.gnomex.daemon.auto_import;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,7 +40,7 @@ import org.jdom2.xpath.XPathFactory;
 
 
 public class XMLParser {
-	
+
 	private Map<String, TreeMap<String, List<PersonEntry>>> avEntriesMap;
 	private String fileName;
 	private String initXML;
@@ -53,16 +52,16 @@ public class XMLParser {
 	private List<String> analysisIDList;
 	private static final String FOUNDATION_FOLDER="Patients - Foundation - NO PHI";
 	private static final String AVATAR_FOLDER="Patients - Avatar - NO PHI";
-	
-	
-	
-	
-	
+
+
+
+
+
 	public XMLParser(String[] args) {
 		this.flaggedAvatarEntries = new ArrayList< List<PersonEntry>>();
 		this.avEntriesMap = new TreeMap<String, TreeMap<String, List<PersonEntry>>>();
 		this.analysisIDList =  new ArrayList<String>();
-		
+
 		for (int i = 0; i < args.length; i++) {
 			args[i] =  args[i].toLowerCase();
 
@@ -86,14 +85,11 @@ public class XMLParser {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	public void parseXML() throws Exception {
-		//Query q = new Query();
-		
-		
-		
+
 
 		Path currentRelativePath = Paths.get("");
 		String s = currentRelativePath.toAbsolutePath().toString();
@@ -103,87 +99,90 @@ public class XMLParser {
 
 		SAXBuilder saxBuilder = new SAXBuilder();
 		try {
-			
+
 			reader = new FileReader(inputFile);
 			readFile(this.fileName);
-			findFlaggedAvatarEntries();
+
+
+			findFlaggedPersonEntries();
 			Document doc = saxBuilder.build(reader);
 			Element rootElement = doc.getRootElement();
-			
-			
-			
+
+
+
 			String query = "//samples/Sample";//[@name='TRF89342']";
 			String ReqPropQuery ="//RequestProperties/PropertyEntry";
 			String personIDQuery =  "//RequestProperties/PropertyEntry[@name='Person ID']";
-			
-			
+
+
 			 for (Entry<String, TreeMap<String, List<PersonEntry>>> entry : this.avEntriesMap.entrySet())
 		        {
-				
+
 		            String key = entry.getKey();
 		            TreeMap<String, List<PersonEntry>> AvatarList = entry.getValue(); // all SL number for that patient
-		            
-		            
+
+
 
 					//String query = "//book/author";//[@name='TRF89342']";
 					List<Element> sampleList = queryXML(query,doc);
 					List<Element> rPropertiesList = queryXML(ReqPropQuery,doc);
 					List<Element> propEntry = queryXML(personIDQuery, doc);
-					
-					
+
+
 					setSamples(sampleList,AvatarList);
 					setRequestProperties(rPropertiesList,AvatarList);
 					String personID = propEntry.get(0).getAttributeValue("value");
-					
+
 					writeXML(doc);
-					
+
 					if(importMode.toLowerCase().equals("avatar")) {
 						callXMLImporter(this.AVATAR_FOLDER,personID);
 					}
 					else {
 						callXMLImporter(this.FOUNDATION_FOLDER,personID);
-					}	
-					
+					}
+
 					reader.close();
 					reader = new FileReader(new File(this.initXML));
 					doc = saxBuilder.build(reader);
-				
+
 		            //use key and value
 		        }
 			 reader.close();
 
-			
+
 
 		} catch (JDOMException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}catch(Exception e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
 
 	}
-	
-	
+
+
 	private void writeXML(Document doc) throws IOException {
 		PrintWriter writer = new PrintWriter(this.outFileName);
         XMLOutputter outputter = new XMLOutputter();
         outputter.setFormat(Format.getPrettyFormat());
         outputter.output(doc, writer);
-        outputter.output(doc, System.out);
         writer.close();
-		
-	
+
+
 	}
-	
+
 	private void setRequestProperties(List<Element> rPropertiesList, Map<String, List<PersonEntry>> rANNOTMap) {
 		String k = "";
 		// Any avatar entry will contain request/patient level annotations
 		// grabbing first key will work to get any avatarEntry of that patient
-		for (String key: rANNOTMap.keySet()) { 
-			k = key; 
+		for (String key: rANNOTMap.keySet()) {
+			k = key;
 			break;
 		}
-		
+
 		for(Element prop : rPropertiesList) {
 			if(prop.getAttributeValue("name").equals("MRN")) {
 				String mrn = rANNOTMap.get(k).get(0).getMrn();
@@ -208,7 +207,7 @@ public class XMLParser {
 				prop.getAttribute("value").setValue(pID);
 			}
 		}
-		
+
 	}
 
 	public List<Element> queryXML(String query,Document doc){
@@ -218,15 +217,15 @@ public class XMLParser {
 	}
 	public void setSamples(List<Element> sampleList, Map<String, List<PersonEntry>>sampleAnnotations) {
 		// You may have multiple  entries for one person 
-		
-		
+
+
 		int i = 0;
-		for(Entry<String, List<PersonEntry>> entry : sampleAnnotations.entrySet()){ 
+		for(Entry<String, List<PersonEntry>> entry : sampleAnnotations.entrySet()){
 			String key = entry.getKey(); // 
 			List<PersonEntry> entries = entry.getValue();
-			
+
 			Element samples = sampleList.get(0).getParentElement();
-			
+
 				if(i == 0 ) {
 					sampleList.get(i).getAttribute("ccNumber").setValue(entries.get(0).getCcNumber());
 					sampleList.get(i).getAttribute("ANNOT21").setValue(entries.get(0).getAliasType());
@@ -234,8 +233,8 @@ public class XMLParser {
 					sampleList.get(i).getAttribute("ANNOT27").setValue(entries.get(0).getSubmittedDiagnosis());
 					sampleList.get(i).getAttribute("ANNOT66").setValue(entries.get(0).getTissueType());
 					sampleList.get(i).getAttribute("ANNOT65").setValue(entries.get(0).getSampleSubtype());
-					
-					
+
+
 				}else {
 					Element newSample = sampleList.get(0).clone();
 					newSample.getAttribute("ccNumber").setValue(entries.get(0).getCcNumber());
@@ -244,63 +243,84 @@ public class XMLParser {
 					newSample.getAttribute("ANNOT27").setValue(entries.get(0).getSubmittedDiagnosis());
 					newSample.getAttribute("ANNOT66").setValue(entries.get(0).getTissueType());
 					newSample.getAttribute("ANNOT65").setValue(entries.get(0).getSampleSubtype());
-					
+
 					samples.addContent(newSample);
 				}
 
 			i++;
 		}
-		
+
 	}
-	
-public void	findFlaggedAvatarEntries() throws Exception{
+
+public void	findFlaggedPersonEntries() throws Exception{
 		List<List<String>> flaggedKeys = new ArrayList<List<String>>();
-		
+
 		for(Entry<String, TreeMap<String, List<PersonEntry>>> entry : this.avEntriesMap.entrySet()) {
 			String key = entry.getKey();
 			TreeMap<String,List<PersonEntry>> slMap = this.avEntriesMap.get(key);
 			for(Entry<String, List<PersonEntry>> e : slMap.entrySet()) {
-				List<PersonEntry> avList = e.getValue();
-				if(avList.size() > 1) {
+				List<PersonEntry> personList = e.getValue();
+				if(personList.size() > 1) {
 					flaggedKeys.add(Arrays.asList(key,e.getKey()));
-					this.flaggedAvatarEntries.add(avList);
+					this.flaggedAvatarEntries.add(personList);
 					//slMap.remove(e.getKey());
-				}else if(avList.size() == 1) {
-					if(avList.get(0).getMrn().equals("")) {
+				}else if(personList.size() == 1) {
+					if(personList.get(0).getMrn().equals("") || personList.get(0).getPersonId().equals("")) {
 						flaggedKeys.add(Arrays.asList(key,e.getKey()));
-						this.flaggedAvatarEntries.add(avList);
+						this.flaggedAvatarEntries.add(personList);
 					}
 				}
 				else { // there should always be atleast one entry in the list
 					throw new Exception("Error: at least one avatar entry should be associated with it's id number");
 				}
 			}
-			
+
 		}
-		
+
+
 		for(List<String> flag : flaggedKeys) {
 			if(flag.get(0).equals("")) {
 				this.avEntriesMap.remove("");
-			}else {
+			}else { // if you need to remove both patient id and sample id
 				TreeMap<String, List<PersonEntry>> slMap = this.avEntriesMap.get(flag.get(0));
-				List<PersonEntry> avEntriesForSL = slMap.remove(flag.get(1));
+				slMap.remove(flag.get(1));
 				if(slMap.size() == 0) {
 					this.avEntriesMap.remove(flag.get(0));
 				}
-			
-				
 			}
 		}
-		
+
 
 		String filePath = XMLParser.getPathWithoutName(this.fileName);
-		outFile(filePath +"flaggedIDs.out" , flaggedKeys );
-		
+		outFile(filePath , "flaggedIDs.out" , flaggedKeys );
+		sendFlaggedIDEmail();
+
+
 	}
-	
-	
-	
-private String cleanData(String value){
+
+	private void sendFlaggedIDEmail(){
+		StringBuilder strBuildBody = new StringBuilder();
+		String to = "erik.rasmussen@hci.utah.edu, dalton.wilson@hci.utah.edu";
+		String from = "erik.rasmussen@hci.utah.edu";
+		String subject = "Flagged Sample ID Report PHI";
+
+		strBuildBody.append("The following sample records have be flagged. They need to verified and reimported\n\n");
+		for( List<PersonEntry>sampRecord :flaggedAvatarEntries){
+			for(PersonEntry person : sampRecord){
+				strBuildBody.append(person.toString(importMode));
+			}
+		}
+
+		try {
+			DirectoryBuilder.sendImportedIDReport(from,to,subject,strBuildBody.toString(),"");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+
+	private String cleanData(String value){
 	if(value != null) {
 		String v = value.toUpperCase();
 		if(v.equals("NULL")) {
@@ -309,27 +329,27 @@ private String cleanData(String value){
 	}else {
 		return "";
 	}
-	
+
 	return value;
 }
-	
+
 public void readFile(String fileName) throws IOException{
-		
-		
+
+
 		PeekableScanner scan = null;
-	
-		
+
+
 		try {
 			//bf = new BufferedReader(new FileReader(fileName));
 			scan = new PeekableScanner(new File(fileName));
 			String line = "";
-		
+
 
 			while(scan.hasNext() ) {//(line= bf.readLine()) != null){
 				line= scan.next();
 				String[] aEntries= line.split("\t");
 				PersonEntry entry = new PersonEntry();
-				
+
 				if(importMode.equals("avatar")) { // avatar
 					entry.setMrn(cleanData(aEntries[0]));
 					entry.setPersonId(cleanData(aEntries[1]));
@@ -342,7 +362,7 @@ public void readFile(String fileName) throws IOException{
 					entry.setTissueType(cleanData(aEntries[8]));
 					entry.setSampleSubtype(cleanData(aEntries[9]));
 					entry.setSubmittedDiagnosis(cleanData(aEntries[10]));
-					
+
 				}else { // Foundation has less items per entry
 					entry.setMrn(cleanData(aEntries[0]));
 					entry.setPersonId(cleanData(aEntries[1]));
@@ -351,22 +371,21 @@ public void readFile(String fileName) throws IOException{
 					entry.setShadowId(cleanData(aEntries[4]));
 					entry.setAliasType(cleanData(aEntries[5]));
 					entry.setSlNumber(cleanData(aEntries[6]));
-					entry.setTissueType(cleanData(aEntries[7]));
-					entry.setSampleSubtype(cleanData(aEntries[8]));
+					entry.setSampleSubtype(cleanData(aEntries[7]));
+					entry.setTissueType(cleanData(aEntries[8]));
 					entry.setSubmittedDiagnosis(cleanData(aEntries[9]));
 					entry.setCcNumber("");
-					entry.setTissueType("");
-					
-					
+
+
 				}
-				
-				
-				
+
+
+
 				if(this.avEntriesMap.get(entry.getMrn()) != null) {
 					TreeMap<String,List<PersonEntry>> existingSLMap = this.avEntriesMap.get(entry.getMrn());
 					if(existingSLMap.get(entry.getSlNumber()) != null) {
 						existingSLMap.get(entry.getSlNumber()).add(entry);
-						
+
 					}else {
 						existingSLMap.put(entry.getSlNumber(), new ArrayList<PersonEntry>(Arrays.asList(entry)));
 					}
@@ -377,125 +396,112 @@ public void readFile(String fileName) throws IOException{
 					TreeMap<String,List<PersonEntry>> slMap = new TreeMap<String, List<PersonEntry>>();
 					slMap.put(entry.getSlNumber(),avEnteries);
 					this.avEntriesMap.put(entry.getMrn(), slMap);
-					
+
 				}
-				
-			
-			}	
-			
+
+
+			}
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			scan.close();
+			System.exit(1); //
 		}
 		finally {
 			scan.close();
 		}
-		
+
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	private void callXMLImporter(String folderName,String name) throws Exception {
-		
-		
+
+
 		List<String> importRequestCommands = new ArrayList<String>();
 		List<String> importAnalysisCommands = new ArrayList<String>();
-		
-		
-		List<String> cmdCommands = new ArrayList<String>();
-		
-		String path = XMLParser.getPathWithoutName(this.fileName);
-		Query q = new Query(path + "hci-creds.properties");
 
-		
-		
-		
+
+		List<String> cmdCommands = new ArrayList<String>();
+
+		String path = XMLParser.getPathWithoutName(this.fileName);
+		Query q = new Query(path + "gnomex-creds.properties");
+
+
+
+
 		importRequestCommands.add("bash " + importScript + " -login adminBatch -file " + outFileName +
 				" -annotationFile " + this.annotationFileName + " -isExternal Y"+ " -requestIDList " + path + "tempRequestList.out" );
-		
-		
-		
+
+
+
 		System.out.println(importRequestCommands.get(0));
-		
+
 		String osName = System.getProperty("os.name");
 		if(osName.equals("Windows 7")) { //osName.equals("Windows 7")
 			//executeCMDCommands(cmdCommands); 
 		}else {
 			executeCommands(importRequestCommands);
-			
-			
-			boolean newAnalysis = q.isNewAnalysis(name,folderName);
-			if(newAnalysis) {
+
+
+			Integer analysisID = q.getAnalysisID(name,folderName);
+			if(analysisID == -1) { // new Analysis
 				String experimentNumber = getCurrentRequestId(path + "tempRequestList.out") + "R";
-				importAnalysisCommands.add("bash create_analysis.sh " + "-lab Bioinformatics "+  "-name " + name +  " -organism human -genomeBuild hg19 -analysisType Alignment -isBatchMode Y " 
-						   + "-folderName " + "\""+ folderName +"\" " + "-experiment " + experimentNumber + " -server localhost -linkBySample" );
-				
+				importAnalysisCommands.add("bash httpclient_create_analysis.sh " + "-lab Bioinformatics "+  "-name " + name +  " -organism human -genomeBuild hg19 -analysisType Alignment -isBatchMode Y "
+						   + "-folderName " + "\""+ folderName +"\" " + "-experiment " + experimentNumber + " -server localhost -linkBySample -analysisIDFile " + path + "tempAnalysisList.out" );
+
 				System.out.println(importAnalysisCommands.get(0));
 				executeCommands(importAnalysisCommands);
-				
-				
-				
-				//String analysisId = q.getIdAnalysisFromPropertyEntry(name);
-				
-				///System.out.println("Here is the id For the newly created Analysis: " +  analysisId);
-				
-//				if(analysisId != null) {
-//					importAnalysisCommands.add("bash LinkExpToAnal.sh " + " -request " + requestId + " -analysis " + analysisId + " -add"  );
-//					importAnalysisCommands.remove(0);
-//					
-//					System.out.println(importAnalysisCommands.get(0));
-//					//executeCommands(importAnalysisCommands);
-//					
-//				}else {
-//					throw new Exception("There was an issue finding new analysis to link with for experiment"); 
-//				}
+
+			}else{ // existing analysis
+				saveAnalysisID(path + "tempAnalysisList.out",analysisID);
 			}
-			
-			
-			
+
+
+
 			//System.out.println(importAnalysisCommands.get(0));
-			
+
 			//executeCommands(importAnalysisCommands);
 		}
-	
-		q.closeConnection();	
-		
+
+		q.closeConnection();
+
 	}
-	
-	
+
+
 	private File createTempScript(List<String> commands) throws IOException {
 		File tempScript = File.createTempFile("script", null);
 
 		Writer streamWriter = new OutputStreamWriter(new FileOutputStream(tempScript));
 		PrintWriter printWriter = new PrintWriter(streamWriter);
-		
-		
+
+
 		for(int i =0; i < commands.size(); i++) {
 			printWriter.println(commands.get(i));
 		}
-		
+
 		printWriter.close();
 
 		return tempScript;
 	}
-	
-	
+
+
 	private void executeCommands(List<String> commands) {
 
 		File tempScript = null;
-		
+
 		try {
 			System.out.println("started executing command");
 			tempScript = createTempScript(commands);
 			ProcessBuilder pb = new ProcessBuilder("bash", tempScript.toString());
 			pb.inheritIO();
-			//pb.redirectError(new File("/home/u0566434/Scripts/SomeFile.txt"));
 			Process process;
 			process = pb.start();
 			process.waitFor();
-			
+
 			System.out.println("finished executing command");
 		}
 
@@ -515,7 +521,7 @@ public void readFile(String fileName) throws IOException{
 	private void executeCMDCommands(List<String> commands) {
 
 		File tempScript = null;
-		
+
 		try {
 			System.out.println("started executing command");
 			tempScript = createTempScript(commands);
@@ -541,15 +547,15 @@ public void readFile(String fileName) throws IOException{
 			tempScript.delete();
 		}
 	}
-	
-	
-	
-	private void outFile(String fileName,List<List<String>> flaggedIDs) {
+
+
+
+	private void outFile(String path,String fileName, List<List<String>> flaggedIDs) {
 		PrintWriter pw = null;
-		
+
 		try {
-			pw = new PrintWriter(new FileWriter(fileName));
-			
+			pw = new PrintWriter(new FileWriter(path + fileName));
+
 			for(int i = 0; i < flaggedIDs.size(); i++) {
 				List<String> slIDs = flaggedIDs.get(i);
 
@@ -560,23 +566,42 @@ public void readFile(String fileName) throws IOException{
 					pw.write(slIDs.get(1) );
 				}
 			}
-			
-			
+			pw.close();
+			// This the sl or trf list after flagged id's have been removed out
+			String name = "";
+			if(this.importMode.equals("avatar")){
+				name = "importedSLList.out";
+			}else{
+				name = "importedTRFList.out";
+			}
+			pw = new PrintWriter(new FileWriter(path + name));
+
+
+			for( String experimentID : this.avEntriesMap.keySet()){
+				Map<String, List<PersonEntry>> personInfo = this.avEntriesMap.get(experimentID);
+				for(String sampleName : personInfo.keySet()){
+					pw.write(sampleName + "\n");
+				}
+			}
+
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			pw.close();
+			System.exit(1);
 		}finally {
 			pw.close();
 		}
 	}
-	
+
 	public static String getPathWithoutName(String fullPathWithFile) {
 		String[] splitPath = fullPathWithFile.split("/");
 		String filePath = String.join("/", Arrays.copyOfRange(splitPath, 0 , splitPath.length - 1));
 		return filePath + "/";
-		
+
 	}
-	
+
 	public static String getCurrentRequestId(String fileName){
 		BufferedReader bf = null;
 		String currentId = "";
@@ -604,6 +629,25 @@ public void readFile(String fileName) throws IOException{
 		}
 		return currentId;
 	}
+
+
+	private void saveAnalysisID(String fileName,Integer existingAnalysisID ){
+
+		PrintWriter pw = null;
+		try {
+
+			pw = new PrintWriter(new FileOutputStream(new File(fileName), true));
+			pw.write(" " + existingAnalysisID + " ");
+
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			pw.close();
+		}
+
+	}
+
 		
 
 }

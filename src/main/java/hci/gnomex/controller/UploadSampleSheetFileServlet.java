@@ -98,6 +98,8 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 
 		String directoryName = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(
 				PropertyDictionary.TEMP_DIRECTORY, req.getServerName());
+
+		System.out.println ("[UploadSampleSheetFileServlet] directoryName: " + directoryName);
 		if (directoryName == null || directoryName.equals("")) {
 			res.setStatus(this.ERROR_MISSING_TEMP_DIRECTORY_PROPERTY);
 			throw new ServletException(

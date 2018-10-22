@@ -59,6 +59,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 		// Encode session id in URL so that session maintains for upload servlet when called from
 		// Flex upload component inside FireFox, Safari
 		URL += ";jsessionid=" + req.getRequestedSessionId();
+//		System.out.println ("-----> URL: " + URL + " <-----" + URL);
 
 		res.setContentType("application/xml");
 		res.getOutputStream().println("<UploadSampleSheetURL url='" + URL + "'/>");

@@ -212,6 +212,9 @@ public class GNomExFrontController extends HttpServlet {
         // see if it is valid, if so call execute
         if (commandInstance.isValid()) {
             LOG.debug("Forwarding " + commandClass + " to the request processor for execution");
+            File whereami = new File (".");
+            String pathname = whereami.getAbsolutePath();
+//            System.out.println ("the pathname: " + pathname);
 //            System.out.println ("[GNomExFrontController] --->Forwarding " + commandClass + " to the request processor for execution");
             try {
                 commandInstance.execute();

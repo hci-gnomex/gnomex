@@ -61,7 +61,8 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
     
     if (request.getParameter("workItemXMLString") != null && !request.getParameter("workItemXMLString").equals("")) {
       workItemXMLString = "<WorkItemList>" + request.getParameter("workItemXMLString") + "</WorkItemList>";
-      
+      System.out.println ("[SaveWorkItemSolexaRun workItemXMLString: " +workItemXMLString );
+
       StringReader reader = new StringReader(workItemXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -76,7 +77,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
     try {
       appURL = this.getLaunchAppURL(request);      
     } catch (Exception e) {
-      LOG.warn("Cannot get launch app URL in SaveRequest", e);
+      LOG.warn("Cannot get launch app URL in SaveWorkItemSolexaRun", e);
     }
     
     serverName = request.getServerName();
@@ -112,13 +113,15 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
               // Create work item for data pipeline
               if (channel.getLastCycleDate() != null) {
                 WorkItem wi = new WorkItem();
-                String codeStepNext;
+                String codeStepNext = "none";
                 if(workItem.getCodeStepNext().equals(Step.SEQ_RUN)) {
                   codeStepNext = Step.SEQ_DATA_PIPELINE;
                 } else if (workItem.getCodeStepNext().equals(Step.HISEQ_RUN)) {
                   codeStepNext = Step.HISEQ_DATA_PIPELINE;
-                } else {
+                } else if (workItem.getCodeStepNext().equals(Step.MISEQ_RUN)) {
                   codeStepNext = Step.MISEQ_DATA_PIPELINE;
+                } else if (workItem.getCodeStepNext().equals(Step.NOSEQ_RUN)) {
+                  codeStepNext = Step.NOSEQ_DATA_PIPELINE;
                 }
                 wi.setIdCoreFacility(workItem.getIdCoreFacility());
                 wi.setCodeStepNext(codeStepNext);                 

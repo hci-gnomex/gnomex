@@ -52,6 +52,8 @@ public class CreateAnalysisMain extends HttpClientBase {
   private String lanesXMLString = null;
   private String samplesXMLString = null;
   private String experimentsXMLString = null;
+  private String linkBySample = "N";
+  private String analysisIDFile = "";
 
   /**
    * @param args
@@ -69,7 +71,11 @@ public class CreateAnalysisMain extends HttpClientBase {
         return;
       } else if (args[i].equals("-debug")) {
         debug = true;
-      }  else if (args[i].equals("-properties")) {
+      } else if (args[i].equals("-linkBySample")) {
+        linkBySample = "Y";
+      } else if(args[i].equals("-analysisIDFile")){
+         analysisIDFile = args[++i];
+      } else if (args[i].equals("-properties")) {
         propertiesFileName = args[++i];
       } else if (args[i].equals("-server")) {
         server = args[++i];
@@ -133,21 +139,23 @@ public class CreateAnalysisMain extends HttpClientBase {
   
   protected void printUsage() {
     System.out.println("java hci/gnomex/httpclient/CreateAnalysisMain " + "\n" +
-        "[-debug] " + "\n" +
-        "-properties <propertiesFileName> " + "\n" +
-        "-server <serverName>" + "\n" +
-        "-name <analysisName>" + "\n" +
-        "-lab <lab name>" + "\n" +
-        "-folderName <name of folder>" + "\n" + 
-        "-organism <organism           example: Human,E. coli, etc.>" +  "\n" +
-        "-genomeBuild <genome build    example: hg18, hg19, TAIR8, etc.>" + "\n" +
-        "-analysisType <analysis type  example: Alignment,SNP/INDEL,ChIP-Seq analysis,etc..>" +  "\n" +
-        "[-description <analysisDescription>]" + "\n" +
-        "[-folderDescription <description of folder>]" + "\n" +
-        "[-seqLane <sequence lane number example: 8432F1_1> [...]]" +
-        "[-sample <sample number example: 8432X1> [...]]" +
-        "[-experiment <experiment number example: 8432R> [...]]"
-        );
+            "[-debug] " + "\n" +
+            "-properties <propertiesFileName> " + "\n" +
+            "-server <serverName>" + "\n" +
+            "-name <analysisName>" + "\n" +
+            "-lab <lab name>" + "\n" +
+            "-folderName <name of folder>" + "\n" +
+            "-organism <organism           example: Human,E. coli, etc.>" +  "\n" +
+            "-genomeBuild <genome build    example: hg18, hg19, TAIR8, etc.>" + "\n" +
+            "-analysisType <analysis type  example: Alignment,SNP/INDEL,ChIP-Seq analysis,etc..>" +  "\n" +
+            "[-description <analysisDescription>]" + "\n" +
+            "[-folderDescription <description of folder>]" + "\n" +
+            "[-seqLane <sequence lane number example: 8432F1_1> [...]]" +
+            "[-sample <sample number example: 8432X1> [...]]" +
+            "[-experiment <experiment number example: 8432R> [...]] +\n" +
+            "[-linkBySample] <Link to experiment link using sample not sequence lanes>] \n" +
+            "[-analysisIDFile] < Newly created Analyses ID's will be saved to this file delimited by space"
+    );
   }
   
   protected boolean checkParms() {
@@ -166,6 +174,8 @@ public class CreateAnalysisMain extends HttpClientBase {
     parms += "&" + URLEncoder.encode("genomeBuild", "UTF-8") + "=" + URLEncoder.encode(genomeBuild, "UTF-8");
     parms += "&" + URLEncoder.encode("analysisType", "UTF-8") + "=" + URLEncoder.encode(analysisType, "UTF-8");
     parms += "&" + URLEncoder.encode("isBatchMode", "UTF-8") + "=" + URLEncoder.encode("Y", "UTF-8");
+    parms += "&" + URLEncoder.encode("linkBySample", "UTF-8") + "=" + URLEncoder.encode(linkBySample, "UTF-8");
+    parms += "&" + URLEncoder.encode("analysisIDFile", "UTF-8") + "=" + URLEncoder.encode(analysisIDFile,"UTF-8");
     if (description != null) {
       parms += "&" + URLEncoder.encode("description", "UTF-8") + "=" + URLEncoder.encode(description, "UTF-8");        
     }

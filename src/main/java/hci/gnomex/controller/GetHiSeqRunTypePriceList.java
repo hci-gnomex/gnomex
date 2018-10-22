@@ -86,6 +86,7 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
+      System.out.println ("[GetHiSeqRunTypePriceList] codeRequestCategory: "  + this.codeRequestCategory + "\nxmlResult: " + this.xmlResult);
 
       setResponsePage(this.SUCCESS_JSP);
 

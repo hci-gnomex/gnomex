@@ -51,10 +51,13 @@ public class TomcatCatalinaProperties {
   
   public String decryptPassword(String encryptedPassword) throws Exception {
     String key = catalinaProperties.getProperty(GNOMEX_AES_KEY);
+//    System.out.println ("[decryptPassword] key: " + key);
     String decryptedPassword = encryptedPassword;
     if (key != null) {
       AESEncryption e = new AESEncryption(key);
       decryptedPassword = e.decrypt(encryptedPassword);
+//        System.out.println ("[decryptPassword] encryptedPassword: " + encryptedPassword + " decryptedPassword: " + decryptedPassword  );
+
     }
     return decryptedPassword;
   }
