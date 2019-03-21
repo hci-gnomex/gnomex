@@ -184,7 +184,7 @@ public class GNomExLDAPRealm extends RealmBase {
 	public void setLdap_user_attributes(String ldap_user_attributes) {
 		this.ldap_user_attributes = ldap_user_attributes;
 
-		// Populate user attributes and values into a may (key=attribute, value=attribute value)
+		// Populate user attributes and values into a map (key=attribute, value=attribute value)
 		if (ldap_user_attributes != null && ldap_user_attributes.length() > 0) {
 			String attributeTokens[] = ldap_user_attributes.split(",");
 			for (int x = 0; x < attributeTokens.length; x++) {
@@ -193,6 +193,7 @@ public class GNomExLDAPRealm extends RealmBase {
 				String value = tokens.length > 1 ? tokens[1] : null;
 				if (attribute != null && value != null) {
 					ldap_user_attribute_map.put(attribute, value);
+					System.out.print ("[GNomExLDAPRealm] attribute: " + attribute + " value: " + value);
 				} else {
 					System.out.println("Unexpected token for ldap_user_attributes: " + " attribute entry=" + attributeTokens[x] + " tokens=" + tokens);
 				}
@@ -341,7 +342,7 @@ public class GNomExLDAPRealm extends RealmBase {
 			// wrong password
 			return false;
 		} catch (Exception e) {
-			LOG.error("Error in dnomexLDAPRealm", e);
+			LOG.error("Error in gnomexLDAPRealm", e);
 			return false;
 		}
 	}

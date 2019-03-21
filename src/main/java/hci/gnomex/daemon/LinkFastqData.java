@@ -3,6 +3,7 @@ package hci.gnomex.daemon;
 // 04/19/2018	tim
 // 05/08/2018   tim     add links for xxxx.nophi.xml
 // 08/09/2018   tim     add links for xxxx.deident.xml and don't link fastq files to foundation or tempest data
+// 01/30/2019   tim     fix hardwired 2018 year
 
 
 import hci.gnomex.utility.BatchDataSource;
@@ -60,7 +61,7 @@ public class LinkFastqData extends TimerTask {
     private int nxtAnalysis = 0;
 
     private String errorMessageString = "Error in LinkFastqData";
-
+    public int currentYear= 2019;
 
     // NOTE: -analysis must be the last argument
     public LinkFastqData(String[] args) {
@@ -175,7 +176,9 @@ public class LinkFastqData extends TimerTask {
 
     private void LinkFastqData() throws Exception {
 
-        String startPath = "/Repository/AnalysisData/2018/";
+        currentYear = Calendar.getInstance().get(Calendar.YEAR);
+
+        String startPath = "/Repository/AnalysisData/" + currentYear + "/";
         String startAvatarPath = "/Repository/PersonData/2018";
         boolean assumeMYSQL = true;
 
@@ -368,7 +371,7 @@ public class LinkFastqData extends TimerTask {
         boolean assumeMYSQL = true;
         int numbad = 0;
 
-        theDirectories[0] = "/Repository/AnalysisData/2018/A" + idAnalysis;
+        theDirectories[0] = "/Repository/AnalysisData/" + currentYear + "/A" + idAnalysis;
         theDirectories[1] = theName + "_" + "Avatar";
 
         String analysisGroupName = "";
@@ -416,37 +419,6 @@ public class LinkFastqData extends TimerTask {
 //                    rs5 = stmt.executeQuery(buf3.toString());
 //                    System.out.println("[getTopDirectory] after executeQuery");
 
-/*
-                    if (!rs.next()) {
-                        rs.close();
-                        stmt.close();
-                        if (debug) System.out.println("[getTopDirectory] (1) after stmt.close");
-
-                        // if we didn't find any AnalysisFile(s) pretend we did which will cause the top most directories to be created
-                        theDirectories[0] = "/Repository/AnalysisData/2018/A" + idAnalysis;
-                        if (debug) System.out.println("[getTopDirectory] setup theDiretories[0] " + theDirectories[0]);
-
-                        // figure out what type of analysis this is
-                        String analysis_type = "Avatar";     //getAnalysisType (idAnalysis,sess);
-                        if (debug) System.out.println("[getTopDirectory] analysis_type: " + analysis_type);
-                        theDirectories[1] = theName + "_" + analysis_type;
-                        if (debug) {
-                            System.out.println("[getTopDirectory]  manually setup info!");
-                        }
-                        break;
-                    } else {
-                        while (rs.next()) {
-                            if (debug) {
-                                System.out.println("[getTopDirectory] in while rs.next");
-                            }
-                            theDirectories[0] = rs.getString(1);
-                            theDirectories[1] = rs.getString(2);
-                            System.out.println("[getTopDirectory] theDirectories[0]: " + idAnalysis + " [1]: " + theDirectories[1]);
-
-                        }
-                    }
-
-*/
                     rs5.close();
                     stmt5.close();
                     if (debug) System.out.println("[getTopDirectory] after stmt.close");

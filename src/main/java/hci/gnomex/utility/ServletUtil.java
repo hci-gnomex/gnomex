@@ -15,6 +15,7 @@ public class ServletUtil {
     public static boolean checkSecureRequest(HttpServletRequest req)
             throws ServletException, IOException {
 
+
         // restrict commands to local host if request is not secure
         if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
             if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())

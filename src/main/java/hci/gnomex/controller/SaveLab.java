@@ -249,7 +249,7 @@ public Command execute() throws RollBackCommandException {
 		}
 
 		if (isValid()) {
-			if (!this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+			if (!this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) && !this.getSecAdvisor().isGroupIManage(labScreen)) {
 				this.addInvalidField("Insufficient permissions", "Insufficient permission to save lab.");
 				setResponsePage(this.ERROR_JSP);
 			}

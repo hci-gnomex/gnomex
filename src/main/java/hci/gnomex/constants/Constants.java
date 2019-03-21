@@ -20,7 +20,7 @@ public class Constants {
   public static final String   DOWNLOAD_CHROMATOGRAM_FILE_SERVLET             = "DownloadChromatogramFileServlet.gx";
   public static final String   DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET     = "DownloadProductOrderSingleFileServlet.gx";
 
-  public static final boolean  REQUIRE_SECURE_REMOTE           = true;
+  public static final boolean  REQUIRE_SECURE_REMOTE           = false;
 
   public static final String   SQL_SERVER                                     = "SQL SERVER";
 
@@ -102,27 +102,29 @@ public class Constants {
 		// ".bam"
 		// and
 		// ".bai"
+	    ".cram.crai",
+        ".cram",".crai",
 		".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi",
 		".narrowPeak", ".broadPeak", ".gappedPeak", ".ped" };
 
-  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed",
+  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] { ".bam", ".cram",".useq", ".bb", ".bw", ".bed",
 		".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".narrowPeak", ".broadPeak", ".gappedPeak", ".ped" };
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] { ".bed", ".bgn", ".gff", ".gtf", ".psl", };
 
   /** xxx.ext for bigBed, bigWig, bam that can be accessed via http. */
-  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS                 = new String[] { ".bb", ".bw", ".bam", ".bai", ".vcf.gz", ".vcf.gz.tbi", ".useq", ".narrowPeak", ".broadPeak", ".gappedPeak"};
+  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS                 = new String[] { ".bb", ".bw", ".bam", ".bai", ".cram", ".crai",".vcf.gz", ".vcf.gz.tbi", ".useq", ".narrowPeak", ".broadPeak", ".gappedPeak"};
 
   /** xxx.ext for bigBed, bigWig, bam that can be accessed via http. */
-  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX        = new String[] { ".bb", ".bw", ".bam", ".vcf.gz", ".useq", ".narrowPeak", ".broadPeak", ".gappedPeak" };
+  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX        = new String[] { ".bb", ".bw", ".bam", ".cram",".vcf.gz", ".useq", ".narrowPeak", ".broadPeak", ".gappedPeak" };
 
-  public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS                  = new String[] { ".bb", ".bw", ".bam", ".bai", ".vcf.gz", ".vcf.gz.tbi", };
+  public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS                  = new String[] { ".bb", ".bw", ".bam", ".bai", ".cram", ".crai", ".vcf.gz", ".vcf.gz.tbi", };
 
-  public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS_NO_INDEX         = new String[] { ".bb", ".bw", ".bam", ".vcf.gz", };
+  public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS_NO_INDEX         = new String[] { ".bb", ".bw", ".bam", ".cram", ".vcf.gz", };
 
-  public static final String[] FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS             = new String[] { ".bam", ".bai", ".vcf.gz", ".vcf.gz.tbi", };
+  public static final String[] FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS             = new String[] { ".bam", ".bai", ".cram", ".crai", ".vcf.gz", ".vcf.gz.tbi", };
 
-  public static final String[] FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS_NO_INDEX    = new String[] { ".bam", ".vcf.gz", };
+  public static final String[] FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS_NO_INDEX    = new String[] { ".bam", ".cram", ".vcf.gz", };
 
   public static final String[] FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS             = new String[] { ".vcf.gz", };
 

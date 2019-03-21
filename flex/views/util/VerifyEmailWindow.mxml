@@ -55,7 +55,10 @@
 					this.closeWindow();	
 				} else if(updateAppUserEmail.lastResult.name() == "ERROR"){
 					Alert.show(updateAppUserEmail.lastResult.@message);
-				} else{
+				}  else if(updateAppUserEmail.lastResult.name() == "WARNING"){
+					Alert.show(updateAppUserEmail.lastResult.@message);
+					this.closeWindow();
+				}else{
 					Alert.show("There was an error updating your user account.  Please contact GNomEx support.");
 					this.closeWindow();
 				}

@@ -182,7 +182,7 @@ public Command execute() throws RollBackCommandException {
 
 		String[] theProbands = null;
 
-        // if action is create and there is no PEDInfoXMLString set action = create
+        // if action is setup and there is no PEDInfoXMLString set action = create
         if (action != null && action.equals("setup")) {
             if (PEDInfoXMLString == null) {
                 action = "create";
@@ -307,7 +307,7 @@ private String createPedFile(Map<Integer, String> headerMap, Map<String, String[
     }
 
     if (bamList.size() == 0) {
-        status = "Error: No .bam files found in analysis.";
+        status = "Error: No .bam or .cram files found in analysis.";
         return status;
     }
 
@@ -336,7 +336,7 @@ private String createPedFile(Map<Integer, String> headerMap, Map<String, String[
 
     // any overlap?
     if (numoverlap == 0) {
-        status = "Error: no overlapping bam and vcf files.";
+        status = "Error: no overlapping bam/cram and vcf files.";
     }
 
     return status;

@@ -135,7 +135,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 		  String afBaseFileName = fetchBaseName(af.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
 
 			  String afFileNameUpperCase = af.getFileName().toUpperCase();
-				  if (afFileNameUpperCase.endsWith(".BAM")) {
+				  if (afFileNameUpperCase.endsWith(".BAM") || afFileNameUpperCase.endsWith(".CRAM")) {
 					  // is it already a data track?
 					  if (getidDataTrack(af.getIdAnalysisFile(),sess) == -1) {
 						bamFiles.add(af);
@@ -162,7 +162,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 				  }
 	  }
 
-	  // for all the datatracks that exist, makek sure the index is associated with it
+	  // for all the datatracks that exist, make sure the index is associated with it
 	  if (dtExists.size() > 0) {
 		  checkDataTrackIndex(dtExists);
 	  }
@@ -366,12 +366,14 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			Integer idAnalysisFileOther = null;
 
 			boolean lookForBai = false;
+			boolean lookForCrai = false;
 			boolean lookForVCFTBI = false;
 
 			String baseFileName = fetchBaseName(analysisFile.getQualifiedFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
 
 			String fileName = analysisFile.getFileName().toUpperCase();
 			if (fileName.endsWith(".BAM")) lookForBai = true;
+			else if (fileName.endsWith(".CRAM")) lookForCrai = true;
 			else if (fileName.endsWith(".VCF.GZ")) lookForVCFTBI = true;
 
 			// look thru all the files in this analysis
@@ -384,6 +386,8 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 				String afFileNameUpperCase = af.getFileName().toUpperCase();
 				if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {
 					if (lookForBai && afFileNameUpperCase.endsWith(".BAI")) {
+						idAnalysisFileOther = af.getIdAnalysisFile();
+					} else if (lookForCrai && afFileNameUpperCase.endsWith(".CRAI")) {
 						idAnalysisFileOther = af.getIdAnalysisFile();
 					} else if (lookForVCFTBI && afFileNameUpperCase.endsWith(".VCF.GZ.TBI")) {
 						idAnalysisFileOther = af.getIdAnalysisFile();

@@ -1746,8 +1746,8 @@
         </mx:VBox>
 
 
-        <analysis:TabProperties id="analysisProperties" label="Annotations" editable="true" properties="{properties}"
-                                paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+        <analysis:TabProperties id="analysisProperties" label="Annotations" editable="true" properties="{properties}">
+
         </analysis:TabProperties>
 
         <mx:Canvas label="Analysis Groups" width="100%" height="100%">

@@ -76,7 +76,7 @@ public class Differ {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}catch (Exception e1) {
-			System.out.print("The one of the file name in the file list may not be in the other file list. the file lists should not differ.\n "
+			System.out.print("The file name in the file list may not be different in the other file list. the file lists should not differ.\n "
 					+ "The only exception is the checksums can differ " );
 			System.out.println(e1.getMessage());
 			System.exit(1);
@@ -146,18 +146,24 @@ public class Differ {
 
 		while((line1 = buff.readLine()) != null) { // second file 'get' remote file
 			String fileName = "";
-			String checkSum = "";
+			String remoteCheckSum = "";
 
 			if(!simpleFileType) {
 				fileAndChecksum = line1.split("  ");
-				checkSum = fileAndChecksum[0];
+				remoteCheckSum = fileAndChecksum[0];
 
 				filePath = fileAndChecksum[1].split("/");
 				fileName = filePath[filePath.length - 1];
-				
-				if(!fileMap.get(fileName).equals(checkSum)) {
-					uniqueByChecksum.add(fileName);
+
+				String localChecksum = fileMap.get(fileName);
+				if(localChecksum != null){
+					// not recording unique by name only by checksum.
+					// I don't care about extra files in remoteList if there are any
+					if(!localChecksum.equals(remoteCheckSum)) {
+						uniqueByChecksum.add(fileName);
+					}
 				}
+
 				
 				
 			}else {

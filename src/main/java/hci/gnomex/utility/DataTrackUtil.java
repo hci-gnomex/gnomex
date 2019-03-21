@@ -560,6 +560,8 @@ public class DataTrackUtil {
 				return "bigBed";
 			if (name.endsWith(".bam"))
 				return "bam";
+			if (name.endsWith(".cram"))
+				return "cram";
 			if (name.endsWith(".vcf.gz"))
 				return "vcfTabix";
 		}

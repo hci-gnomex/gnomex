@@ -9,18 +9,17 @@ public class FileMover {
 		
 		
 		//USAGE:                           inFile, root, skip?
-		String root = "";
-		String inFileName = "";
-		String currentDownloadLocation = "";
-		String flaggedIDFileName= "";
-		boolean skipFirstLine = false;
 		DirectoryBuilder db = null;
 		
 		db = new DirectoryBuilder(args);
-		
-		 // "C:\\Users\\u0566434\\Desktop\\ORIEN\\Scripts\\");
-		List<String> filesToMove = db.preparePath();
-		db.moveTheFiles(filesToMove);
+		if(db.isAccountedMode()){
+			db.makeAccountingForFiles();
+		}else {
+
+			List<String> filesToMove = db.preparePath();
+			db.moveTheFiles(filesToMove);
+			db.reportWorkSummary();
+		}
 
 	}
 

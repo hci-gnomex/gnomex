@@ -21,512 +21,519 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.collections.Sort;
-			import mx.events.ListEvent;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.ResultEvent;
-			
-			import views.renderers.CheckBoxIsSelectedChipType;
-			import views.util.OrganismAddEvent;
-			import views.util.OrganismEvent;
-			
-			private var validNumberOfSamples:Boolean = true;
-			private var validConcentration:Boolean = true;
-			
-			private var addOrganismOpen:Boolean = false;
-			
-			private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
-			public var configuredCodeRequestCategory:String = "";
-			private var configuredEditState:String = "";
-			
-			private var loadedPriceIdLab:String = "";
-			private var loadedPriceCodeRequestCategory:String = "";
-			private var selectedPriceIdLab:String = "";
-			private var selectedPriceCodeRequestCategory:String = "";
-			private var selectedQCApplication:Object = null;
-			[Bindable]
-			private var filteredChipTypeList:XMLListCollection = null;
-			private var priceMap:Dictionary = null;
-			public var application:Object = null;
-			
-			[Bindable]
-			private var sampleType:Object = null;
-			
-			private const DNA:String = 'DNA';
-			private const RNA:String = 'RNA';
-			private const BOTH:String = 'BOTH';
-			
-			private function init():void {
-				var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
-				this.application = null;
-				if(sampleTypeRadioGroup.selectedValue == null ) {
-					sampleType = null;
-					sampleTypeDNARNAHBox.styleName = 'requiredBox';
-				} 
-				this.verticalScrollPosition = 0;
-				if (parentDocument.getRequestCategory().@isIlluminaType == 'Y') {
-					initIllumina();
-				}
-				if ( qcInstructions != null ) {
-					var qcInstText:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory,parentApplication.PROPERTY_QC_INSTRUCTIONS);
-					if (qcInstText != null && qcInstText != '') {
-						qcInstructions.text = qcInstText;
-						hbox5.visible = true;
-						hbox5.includeInLayout = true;
-					} else {
-						hbox5.visible = false;
-						hbox5.includeInLayout = false;
-					}
-				}
-				
-				this.pickSequenomType();
+		import mx.collections.Sort;
+		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+
+		import views.renderers.CheckBoxIsSelectedChipType;
+		import views.util.OrganismAddEvent;
+		import views.util.OrganismEvent;
+
+		private var validNumberOfSamples:Boolean = true;
+		private var validConcentration:Boolean = true;
+
+		private var addOrganismOpen:Boolean = false;
+
+		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+		public var configuredCodeRequestCategory:String = "";
+		private var configuredEditState:String = "";
+
+		private var loadedPriceIdLab:String = "";
+		private var loadedPriceCodeRequestCategory:String = "";
+		private var selectedPriceIdLab:String = "";
+		private var selectedPriceCodeRequestCategory:String = "";
+		private var selectedQCApplication:Object = null;
+		[Bindable]
+		private var filteredChipTypeList:XMLListCollection = null;
+		private var priceMap:Dictionary = null;
+		public var application:Object = null;
+
+		[Bindable]
+		private var sampleType:Object = null;
+
+		private const DNA:String = 'DNA';
+		private const RNA:String = 'RNA';
+		private const BOTH:String = 'BOTH';
+
+		private function init():void {
+			var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
+			this.application = null;
+			if (sampleTypeRadioGroup.selectedValue == null) {
+				sampleType = null;
+				sampleTypeDNARNAHBox.styleName = 'requiredBox';
 			}
-			
-			private function initIllumina():void {
-				currencyFormatter.currencySymbol = "$";
-				currencyFormatter.precision = 2;
-				currencyFormatter.useThousandsSeparator;
-				
-				//Since old values are not cleared out when creating second experiment in same session
-				//Check to make sure that the old values are valid enough to enable the next button right away.
-				parentDocument.enableNextButtons();
+			this.verticalScrollPosition = 0;
+			if (parentDocument.getRequestCategory().@isIlluminaType == 'Y') {
+				initIllumina();
 			}
-			
-			public function initQC():void {
-				this.currentState = 'QCSetupState';
-				this.chipTypeVBox.visible = false;
-				this.chipTypeVBox.includeInLayout = false;
-				this.selectedQCApplication = null;
-				this.loadedPriceIdLab = "";
-				this.loadedPriceCodeRequestCategory = "";
-				var hideBufferStrength:String = parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH);
-				if (hideBufferStrength != null && hideBufferStrength == "Y") {
-					this.maxSampleBufferStrengthCol.visible = false;
+			if (qcInstructions != null) {
+				var qcInstText:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_QC_INSTRUCTIONS);
+				if (qcInstText != null && qcInstText != '') {
+					qcInstructions.text = qcInstText;
+					hbox5.visible = true;
+					hbox5.includeInLayout = true;
 				} else {
-					this.maxSampleBufferStrengthCol.visible = true;
+					hbox5.visible = false;
+					hbox5.includeInLayout = false;
 				}
-				var hideWellsPerChip:String = parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP);
-				if (hideWellsPerChip != null && hideWellsPerChip == "Y") {
-					this.sampleWellsPerChipCol.visible = false;
-				} else {
-					this.sampleWellsPerChipCol.visible = true;
-				}
-			}
-			
-			public function setCoreFacilityNoteVisibility(vis:Boolean):void {
-				coreNotesBox.visible = vis;
-				coreNotesBox.includeInLayout = vis;
-			}
-			
-			public function setExternalNoteVisibility():void {
-				if (!parentApplication.isInternalExperimentSubmission) {
-					if (parentDocument.request.@corePrepInstructions == null || parentDocument.request.@corePrepInstructions == "") {
-						setCoreFacilityNoteVisibility(false);
-					} else {
-						setCoreFacilityNoteVisibility(true);
-					}
-				} else {
-					if (parentDocument.isEditState()) {
-						setCoreFacilityNoteVisibility(false);
-					} else {
-						setCoreFacilityNoteVisibility(true);
-					}
-				}
-			}
-			
-			private function buildChipTypeKey(obj:Object):String {
-				var key:String = "";
-				if (obj != null) {
-					key = obj.@codeApplication.toString() + "&" + obj.@codeBioanalyzerChipType.toString();
-				}
-				return key;
-			}
-			
-			public function setPrimerDefaults():void {
-				if (parentDocument.isMitSeqState()) {
-					// Set defaults for primers				
-					var idx:int = 0;
-					for each(var primer:Object in this.primerCollection) {
-						if (primer.@display == '15819F') {
-							primer1Combo.selectedIndex = idx;
-						}
-						if (primer.@display == '16213F') {
-							primer2Combo.selectedIndex = idx;
-						}
-						if (primer.@display == '48F') {
-							primer3Combo.selectedIndex = idx;
-						}
-						if (primer.@display == 'S4') {
-							primer4Combo.selectedIndex = idx;
-						}
-						if (primer.@display == '58R') {
-							primer5Combo.selectedIndex = idx;
-						}
-						if (primer.@display == '653R') {
-							primer6Combo.selectedIndex = idx;
-						}
-						idx++;
-					} 
-				}
-			}
-			
-			public function applicationHasChipTypes():Boolean {
-				if (selectedQCApplication == null || selectedQCApplication.@hasChipTypes != 'Y') {
-					return false;
-				} else {
-					return true;
-				}
-			}
-			public function getSelectedCodeBioanalyzerChipType():String {
-				var selectedCode:String = '';
-				if (applicationHasChipTypes()) {
-					for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-						if (item.@isSelected != null && item.@isSelected == "true") {
-							selectedCode = item.@value;
-							break;
-						}
-					} 
-				}
-				return selectedCode;
 			}
 
-            private function propagateReagent():void{
-                parentDocument.request.@reagent = reagentInput.text;
-            }
+			this.pickSequenomType();
+		}
 
-            private function propagateElutionBuffer():void{
-                parentDocument.request.@elutionBuffer = elutionBufferInput.text;
-            }
+		private function initIllumina():void {
+			currencyFormatter.currencySymbol = "$";
+			currencyFormatter.precision = 2;
+			currencyFormatter.useThousandsSeparator;
 
-            private function propagateDnase():void{
-                if(this.dnaseCheckBox.selected){
-                    parentDocument.request.@usedDnase = 'Y';
-                } else{
-                    parentDocument.request.@usedDnase = 'N';
-                }
-            }
+			//Since old values are not cleared out when creating second experiment in same session
+			//Check to make sure that the old values are valid enough to enable the next button right away.
+			parentDocument.enableNextButtons();
+		}
 
-            private function propagateRnase():void{
-                if(this.rnaseCheckBox.selected){
-                    parentDocument.request.@usedRnase = 'Y';
-                } else{
-                    parentDocument.request.@usedRnase = 'N';
-                }
-            }
+		public function initQC():void {
+			this.currentState = 'QCSetupState';
+			this.chipTypeVBox.visible = false;
+			this.chipTypeVBox.includeInLayout = false;
+			this.selectedQCApplication = null;
+			this.loadedPriceIdLab = "";
+			this.loadedPriceCodeRequestCategory = "";
+			var hideBufferStrength:String = parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH);
+			if (hideBufferStrength != null && hideBufferStrength == "Y") {
+				this.maxSampleBufferStrengthCol.visible = false;
+			} else {
+				this.maxSampleBufferStrengthCol.visible = true;
+			}
+			var hideWellsPerChip:String = parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP);
+			if (hideWellsPerChip != null && hideWellsPerChip == "Y") {
+				this.sampleWellsPerChipCol.visible = false;
+			} else {
+				this.sampleWellsPerChipCol.visible = true;
+			}
+		}
 
-            private function propagateKeepSamples():void{
-                parentDocument.request.@keepSamples = retrieveSamplesRadioGroup.selectedValue;
-            }
+		public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+			coreNotesBox.visible = vis;
+			coreNotesBox.includeInLayout = vis;
+		}
 
-            public function propagateChipType():void {
-				var codeChipType:String = "";
-				if (this.applicationHasChipTypes()) {
-					codeChipType = this.getSelectedCodeBioanalyzerChipType();
-				}
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@codeBioanalyzerChipType = codeChipType;
-				}
-			}
-			private function propagateSampleSource():void {
-				for each (var sample:Object in parentDocument.samples) {
-					if (this.sampleSourceCombo.selectedItem != null && 
-						this.sampleSourceCombo.selectedItem.@idSampleSource != null && 
-						this.sampleSourceCombo.selectedItem.@idSampleSource != '') {
-						sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@idSampleSource;
-					} else {
-						sample.@idSampleSource = "";
-					}
-				}
-			}
-			private function propagateSampleType():void {
-				for each (var sample:Object in parentDocument.samples) {
-					if (this.sampleTypeRadioGroup.selectedValue != null) {
-						sample.@idSampleType = this.sampleTypeRadioGroup.selectedValue;
-					} else {
-						sample.@idSampleType = "";
-					}
-				}
-				callLater(parentDocument.samplesView.checkSamplesCompleteness);
-			}
-			private function propagateOtherSamplePrepMethod():void {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@otherSamplePrepMethod = otherSamplePrepMethod.text;
-				}
-				callLater(parentDocument.samplesView.checkSamplesCompleteness);
-				
-			}
-			public function propagateSampleOrganism():void {
-				for each (var sample:Object in parentDocument.samples) {
-					if (sampleOrganismCombo.selectedItem != null) {
-						sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
-					}
-				}
-				callLater(parentDocument.samplesView.checkSamplesCompleteness);
-			}
-			private function propagateOtherSampleOrganism():void {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@otherOrganism = otherOrganism.text;
-				}
-				callLater(parentDocument.samplesView.checkSamplesCompleteness);
-				
-			}
-			
-			public function toggleOtherChipTypeSelections(codeSelected:String):void {
-				
-				for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-					if (item.@value != codeSelected) {
-						item.@isSelected = "false";
-					}
-				}
-			}
-			
-			private function selectDefaultGenomeBuild():void {
-				if (parentDocument.isSolexaState()) {
-					this.parentDocument.bioinformaticsView.selectDefaultGenomeBuild();
-				}
-			}
-			
-			private function toggleChipTypeCheck(event:ListEvent):void {
-				if (event.columnIndex == 0) {
-					return;
-				}
-				if (bioanalyzerChipTypeGrid.selectedItem.@isSelected == "true") {
-					bioanalyzerChipTypeGrid.selectedItem.@isSelected = "false";
+		public function setExternalNoteVisibility():void {
+			if (!parentApplication.isInternalExperimentSubmission) {
+				if (parentDocument.request.@corePrepInstructions == null || parentDocument.request.@corePrepInstructions == "") {
+					setCoreFacilityNoteVisibility(false);
 				} else {
-					bioanalyzerChipTypeGrid.selectedItem.@isSelected = "true";
+					setCoreFacilityNoteVisibility(true);
 				}
-				toggleOtherChipTypeSelections(bioanalyzerChipTypeGrid.selectedItem.@value);
-				// initialize the samples grid
-				parentDocument.samplesView.initializeSamplesGrid();
-				// propagate selected chip type to samples
-				propagateChipType();
-				
-				checkRequiredChipType();
-			}
-			private function onNumberOfSamplesChanged():void {
-				if ( parentDocument.isIScanState() ) {
-					numberOfSamplesValidator.maxValue = 600;
-				} else if (parentDocument.isCapSeqState()) {
-					numberOfSamplesValidator.maxValue = 384;
-				} else {
-					// This is an arbitrary limit
-					numberOfSamplesValidator.maxValue = 9999;
-				}
-				if ( this.numberOfSamples != null && this.numberOfSamples.text != '' && 
-					parseInt(this.numberOfSamples.text) < numberOfSamplesValidator.maxValue && parseInt(this.numberOfSamples.text) > 0 ) {
-					validNumberOfSamples = true;
-				} else {
-					validNumberOfSamples = false;
-				}
-				parentDocument.samplesView.initializeSamplesGrid();			
-			}
-			
-			public function checkRequiredChipType():void {
-				// Required field
-				if (this.getSelectedCodeBioanalyzerChipType() == '') {
-					chipTypeBox.styleName = "requiredBoxThick";
-				} else {
-					chipTypeBox.styleName = "normalBoxThick";
-				}        	
-			}
-			
-			public function checkSampleSetupCompleteness():Boolean {
-				var isComplete:Boolean = false;
-				if (parentDocument == null) {
-					return isComplete;
-				}
-				
-				parentDocument.userWarningsSampleSetup = "";
+			} else {
 				if (parentDocument.isEditState()) {
-					isComplete = true;
-				} else if (parentDocument.isGenericState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					setCoreFacilityNoteVisibility(false);
+				} else {
+					setCoreFacilityNoteVisibility(true);
+				}
+			}
+		}
+
+		private function buildChipTypeKey(obj:Object):String {
+			var key:String = "";
+			if (obj != null) {
+				key = obj.@codeApplication.toString() + "&" + obj.@codeBioanalyzerChipType.toString();
+			}
+			return key;
+		}
+
+		public function setPrimerDefaults():void {
+			if (parentDocument.isMitSeqState()) {
+				// Set defaults for primers
+				var idx:int = 0;
+				for each(var primer:Object in this.primerCollection) {
+					if (primer.@display == '15819F') {
+						primer1Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '16213F') {
+						primer2Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '48F') {
+						primer3Combo.selectedIndex = idx;
+					}
+					if (primer.@display == 'S4') {
+						primer4Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '58R') {
+						primer5Combo.selectedIndex = idx;
+					}
+					if (primer.@display == '653R') {
+						primer6Combo.selectedIndex = idx;
+					}
+					idx++;
+				}
+			}
+		}
+
+		public function applicationHasChipTypes():Boolean {
+			if (selectedQCApplication == null || selectedQCApplication.@hasChipTypes != 'Y') {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		public function getSelectedCodeBioanalyzerChipType():String {
+			var selectedCode:String = '';
+			if (applicationHasChipTypes()) {
+				for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+					if (item.@isSelected != null && item.@isSelected == "true") {
+						selectedCode = item.@value;
+						break;
+					}
+				}
+			}
+			return selectedCode;
+		}
+
+		private function propagateReagent():void {
+			parentDocument.request.@reagent = reagentInput.text;
+		}
+
+		private function propagateElutionBuffer():void {
+			parentDocument.request.@elutionBuffer = elutionBufferInput.text;
+		}
+
+		private function propagateDnase():void {
+			if (this.dnaseCheckBox.selected) {
+				parentDocument.request.@usedDnase = 'Y';
+			} else {
+				parentDocument.request.@usedDnase = 'N';
+			}
+		}
+
+		private function propagateRnase():void {
+			if (this.rnaseCheckBox.selected) {
+				parentDocument.request.@usedRnase = 'Y';
+			} else {
+				parentDocument.request.@usedRnase = 'N';
+			}
+		}
+
+		private function propagateKeepSamples():void {
+			parentDocument.request.@keepSamples = retrieveSamplesRadioGroup.selectedValue;
+		}
+
+		public function propagateChipType():void {
+			var codeChipType:String = "";
+			if (this.applicationHasChipTypes()) {
+				codeChipType = this.getSelectedCodeBioanalyzerChipType();
+			}
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@codeBioanalyzerChipType = codeChipType;
+			}
+		}
+
+		private function propagateSampleSource():void {
+			for each (var sample:Object in parentDocument.samples) {
+				if (this.sampleSourceCombo.selectedItem != null &&
+						this.sampleSourceCombo.selectedItem.@idSampleSource != null &&
+						this.sampleSourceCombo.selectedItem.@idSampleSource != '') {
+					sample.@idSampleSource = this.sampleSourceCombo.selectedItem.@idSampleSource;
+				} else {
+					sample.@idSampleSource = "";
+				}
+			}
+		}
+
+		private function propagateSampleType():void {
+			for each (var sample:Object in parentDocument.samples) {
+				if (this.sampleTypeRadioGroup.selectedValue != null) {
+					sample.@idSampleType = this.sampleTypeRadioGroup.selectedValue;
+				} else {
+					sample.@idSampleType = "";
+				}
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+
+		private function propagateOtherSamplePrepMethod():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@otherSamplePrepMethod = otherSamplePrepMethod.text;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+
+		}
+
+		public function propagateSampleOrganism():void {
+			for each (var sample:Object in parentDocument.samples) {
+				if (sampleOrganismCombo.selectedItem != null) {
+					sample.@idOrganism = this.sampleOrganismCombo.selectedItem.@value;
+				}
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+
+		private function propagateOtherSampleOrganism():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@otherOrganism = otherOrganism.text;
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+
+		}
+
+		public function toggleOtherChipTypeSelections(codeSelected:String):void {
+
+			for each(var item:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+				if (item.@value != codeSelected) {
+					item.@isSelected = "false";
+				}
+			}
+		}
+
+		private function selectDefaultGenomeBuild():void {
+			if (parentDocument.isSolexaState()) {
+				this.parentDocument.bioinformaticsView.selectDefaultGenomeBuild();
+			}
+		}
+
+		private function toggleChipTypeCheck(event:ListEvent):void {
+			if (event.columnIndex == 0) {
+				return;
+			}
+			if (bioanalyzerChipTypeGrid.selectedItem.@isSelected == "true") {
+				bioanalyzerChipTypeGrid.selectedItem.@isSelected = "false";
+			} else {
+				bioanalyzerChipTypeGrid.selectedItem.@isSelected = "true";
+			}
+			toggleOtherChipTypeSelections(bioanalyzerChipTypeGrid.selectedItem.@value);
+			// initialize the samples grid
+			parentDocument.samplesView.initializeSamplesGrid();
+			// propagate selected chip type to samples
+			propagateChipType();
+
+			checkRequiredChipType();
+		}
+
+		private function onNumberOfSamplesChanged():void {
+			if (parentDocument.isIScanState()) {
+				numberOfSamplesValidator.maxValue = 600;
+			} else if (parentDocument.isCapSeqState()) {
+				numberOfSamplesValidator.maxValue = 384;
+			} else {
+				// This is an arbitrary limit
+				numberOfSamplesValidator.maxValue = 9999;
+			}
+			if (this.numberOfSamples != null && this.numberOfSamples.text != '' &&
+					parseInt(this.numberOfSamples.text) < numberOfSamplesValidator.maxValue && parseInt(this.numberOfSamples.text) > 0) {
+				validNumberOfSamples = true;
+			} else {
+				validNumberOfSamples = false;
+			}
+			parentDocument.samplesView.initializeSamplesGrid();
+		}
+
+		public function checkRequiredChipType():void {
+			// Required field
+			if (this.getSelectedCodeBioanalyzerChipType() == '') {
+				chipTypeBox.styleName = "requiredBoxThick";
+			} else {
+				chipTypeBox.styleName = "normalBoxThick";
+			}
+		}
+
+		public function checkSampleSetupCompleteness():Boolean {
+			var isComplete:Boolean = false;
+			if (parentDocument == null) {
+				return isComplete;
+			}
+
+			parentDocument.userWarningsSampleSetup = "";
+			if (parentDocument.isEditState()) {
+				isComplete = true;
+			} else if (parentDocument.isGenericState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 						this.sampleTypeRadioGroup.selectedValue &&
-						hasOrganism() ) {
-						
+						hasOrganism()) {
+
+					isComplete = true;
+				}
+				if (parentDocument.filteredAppList.length > 0) {
+					if (this.radioGroupApp.selectedValue == null) {
+						isComplete = false;
+					}
+				}
+				if (currentState == 'DigitalPCRState') {
+					isComplete = isComplete && otherSamplePrepMethod.text.length > 0;
+				}
+			} else if (currentState == 'MicroarrayAmendState') {
+				if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism() && otherSamplePrepMethod.text.length > 0) {
+					isComplete = true;
+				}
+			} else if (parentDocument.isSolexaAmendState()) {
+				if (hasOrganism() &&
+						this.sampleTypeRadioGroup.selectedValue &&
+						otherSamplePrepMethod.text.length > 0) {
+
+					isComplete = true;
+				}
+			} else if (parentDocument.isSolexaState()) {
+				if (this.currentState == 'MDMiSeqState') {
+					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+							this.sampleTypeRadioGroup.selectedValue &&
+							hasOrganism() && this.otherSamplePrepMethod.text.length > 0) {
+
+						isComplete = true;
+						parentDocument.seqLibProtocolList.refresh();
+					}
+				} else {
+					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+							this.sampleTypeRadioGroup.selectedValue &&
+							hasOrganism() && reagentInput.text != '' &&
+							elutionBufferInput.text != '' &&
+							retrieveSamplesRadioGroup.selectedValue != null) {
+
 						isComplete = true;
 					}
-					if ( parentDocument.filteredAppList.length > 0 ) {
-						if (this.radioGroupApp.selectedValue == null ){
+				}
+
+			} else if (parentDocument.isNanoStringState()) {
+				isComplete = this.sampleTypeRadioGroup.selectedValue;
+				isComplete = isComplete && (hasOrganism() && this.otherSamplePrepMethod.text.length > 0);
+				parentDocument.seqLibProtocolList.refresh();
+
+			} else if (parentDocument.isQCState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+						this.sampleTypeRadioGroup.selectedValue &&
+						this.otherSamplePrepMethod.text.length > 0) {
+
+					// Only need to check if chip type selected if this is
+					// a bioanalyzer qc request.
+					if (applicationHasChipTypes()) {
+						for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
+							if (chipType.@isSelected == "true") {
+								isComplete = true;
+								break;
+							}
+						}
+					} else {
+						isComplete = true;
+					}
+				}
+			} else if (parentDocument.isCapSeqState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+						this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
+					isComplete = true;
+					if (this.containerTypePlate.selected) {
+						if (this.capSeqNumPlatesRadioGroup.selectedValue == null) {
 							isComplete = false;
 						}
 					}
-					if ( currentState == 'DigitalPCRState' ) {
-						isComplete = isComplete && otherSamplePrepMethod.text.length > 0;
-					}
-				} else if (currentState == 'MicroarrayAmendState') {
-					if (this.sampleTypeRadioGroup.selectedValue != null && hasOrganism() && otherSamplePrepMethod.text.length > 0) {
-						isComplete = true;
-					}
-				} else if (parentDocument.isSolexaAmendState()) {
-					if (hasOrganism() && 
-						this.sampleTypeRadioGroup.selectedValue &&
-						otherSamplePrepMethod.text.length > 0) {
-						
-						isComplete = true;
-					}
-				} else if (parentDocument.isSolexaState()) {
-					if ( this.currentState == 'MDMiSeqState' ) {
-						if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-							this.sampleTypeRadioGroup.selectedValue &&
-							hasOrganism() && this.otherSamplePrepMethod.text.length > 0) {
-							
-							isComplete = true;
-							parentDocument.seqLibProtocolList.refresh();
-						}					
-					} else {
-						if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-							this.sampleTypeRadioGroup.selectedValue &&
-							hasOrganism() && reagentInput.text != '' &&
-                            elutionBufferInput.text != '' &&
-                            retrieveSamplesRadioGroup.selectedValue != null) {
-							
-							isComplete = true;
-						}
-					}
-					
-				} else if (parentDocument.isNanoStringState()) {
-						isComplete = this.sampleTypeRadioGroup.selectedValue;
-						isComplete = isComplete && (hasOrganism() && this.otherSamplePrepMethod.text.length > 0); 							
-						parentDocument.seqLibProtocolList.refresh();
-						
-				} else if (parentDocument.isQCState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-						this.sampleTypeRadioGroup.selectedValue &&
-						this.otherSamplePrepMethod.text.length > 0) {
-						
-						// Only need to check if chip type selected if this is 
-						// a bioanalyzer qc request.
-						if (applicationHasChipTypes()) {
-							for each(var chipType:Object in this.bioanalyzerChipTypeGrid.dataProvider) {
-								if (chipType.@isSelected == "true") {
-									isComplete = true;
-									break;
-								}
-							}	        	    	
-						} else {
-							isComplete = true;
-						}
-					}
-				} else if (parentDocument.isCapSeqState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-						this.sampleDropOffLocationCombo.selectedItem != null && this.sampleDropOffLocationCombo.selectedItem.@value != '') {
-						isComplete = true;
-						if (this.containerTypePlate.selected) {
-							if (this.capSeqNumPlatesRadioGroup.selectedValue == null) {
-								isComplete = false;
+				}
+			} else if (parentDocument.isFragAnalState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
+					var num:int = Number(this.numberOfSamples.text);
+					if (num > 0 && num < 97) {
+						for (var x:int = 0; x < assayCheckBox.length; x++) {
+							if (assayCheckBox[x].selected) {
+								isComplete = true;
+								break;
 							}
 						}
 					}
-				} else if (parentDocument.isFragAnalState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
-						var num:int = Number(this.numberOfSamples.text);
-						if (num > 0 && num < 97) {
-							for (var x:int = 0; x < assayCheckBox.length; x++) {
-								if (assayCheckBox[x].selected) {
-									isComplete = true;
-									break;
-								}
-							}
-						}
+				}
+			} else if (parentDocument.isMitSeqState()) {
+				this.primer1Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer2Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer3Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer4Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer5Combo.setStyle("fillColors", ["white", "white"]);
+				this.primer6Combo.setStyle("fillColors", ["white", "white"]);
+				var foundDupe:Boolean = false;
+				if (this.primer1Combo.selectedItem.@value == primer2Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer1Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer1Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer2Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer2Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer3Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer3Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer3Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer3Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer4Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer4Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer4Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.primer5Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
+					foundDupe = true;
+					this.primer5Combo.setStyle("fillColors", ["red", "white"]);
+					this.primer6Combo.setStyle("fillColors", ["red", "white"]);
+				}
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+						this.primer1Combo.selectedItem != null && this.primer1Combo.selectedItem.@value != '' &&
+						this.primer2Combo.selectedItem != null && this.primer2Combo.selectedItem.@value != '' &&
+						this.primer3Combo.selectedItem != null && this.primer3Combo.selectedItem.@value != '' &&
+						this.primer4Combo.selectedItem != null && this.primer4Combo.selectedItem.@value != '' &&
+						this.primer5Combo.selectedItem != null && this.primer5Combo.selectedItem.@value != '' &&
+						this.primer6Combo.selectedItem != null && this.primer6Combo.selectedItem.@value != '') {
+					if (!foundDupe) {
+						isComplete = true;
 					}
-				} else if (parentDocument.isMitSeqState()) {
-					this.primer1Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer2Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer3Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer4Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer5Combo.setStyle("fillColors", ["white", "white"]);
-					this.primer6Combo.setStyle("fillColors", ["white", "white"]);
-					var foundDupe:Boolean = false;
-					if (this.primer1Combo.selectedItem.@value == primer2Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer1Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer1Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer3Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer2Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer2Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer3Combo.selectedItem.@value == primer4Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer3Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer3Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer3Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer4Combo.selectedItem.@value == primer5Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer4Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer4Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.primer5Combo.selectedItem.@value == primer6Combo.selectedItem.@value) {
-						foundDupe = true;
-						this.primer5Combo.setStyle("fillColors", ["red", "white"]);
-						this.primer6Combo.setStyle("fillColors", ["red", "white"]);
-					}
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-						this.primer1Combo.selectedItem  != null && this.primer1Combo.selectedItem.@value != '' &&
-						this.primer2Combo.selectedItem  != null && this.primer2Combo.selectedItem.@value != '' &&
-						this.primer3Combo.selectedItem  != null && this.primer3Combo.selectedItem.@value != '' &&
-						this.primer4Combo.selectedItem  != null && this.primer4Combo.selectedItem.@value != '' &&
-						this.primer5Combo.selectedItem  != null && this.primer5Combo.selectedItem.@value != '' &&
-						this.primer6Combo.selectedItem  != null && this.primer6Combo.selectedItem.@value != '') {
-						if (!foundDupe) {
-							isComplete = true;
-						}
-					}
-				} else if (parentDocument.isCherryPickState()) {
-					var cherryNumPlates:int = Number(this.cherryNumSourcePlates.text);
-					if (cherryNumPlates > 0 && cherryNumPlates < 13
+				}
+			} else if (parentDocument.isCherryPickState()) {
+				var cherryNumPlates:int = Number(this.cherryNumSourcePlates.text);
+				if (cherryNumPlates > 0 && cherryNumPlates < 13
 						&& this.cherryNumDestinationWellsRadioGroup.selectedValue != null && this.cherryNumDestinationWellsRadioGroup.selectedValue != ''
 						&& (cherryNumPlates < 1 || (cherryPlate1Name.text != null && cherryPlate1Name.text != ''))
 						&& (cherryNumPlates < 2 || (cherryPlate2Name.text != null && cherryPlate2Name.text != ''))
@@ -540,922 +547,926 @@
 						&& (cherryNumPlates < 10 || (cherryPlate10Name.text != null && cherryPlate10Name.text != ''))
 						&& (cherryNumPlates < 11 || (cherryPlate11Name.text != null && cherryPlate11Name.text != ''))
 						&& (cherryNumPlates < 12 || (cherryPlate12Name.text != null && cherryPlate12Name.text != ''))) {
-						isComplete = true;	        	    	
-					}
-				}  else if (parentDocument.isIScanState()) {
-					if ( this.numberOfSamples.text != null && this.numberOfSamples.text != '' ){
-						isComplete = true;
-					}
-					
-					if ( this.iScanNumSourcePlates == null || this.iScanNumSourcePlates.text == '' 
-						|| parseInt(this.iScanNumSourcePlates.text) > 12 || parseInt(this.iScanNumSourcePlates.text) < 1 ) {
-						isComplete = false;
-					} 
-					
-				} else if (parentDocument.isSequenomState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
-						if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
-							if ( this.sequenomApplicationDesc.text != null && this.sequenomApplicationDesc.text != ''){
-								isComplete = true;
-							}
-						} else if (this.radioGroupSeqApp.selectedValue != null ){
+					isComplete = true;
+				}
+			} else if (parentDocument.isIScanState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
+					isComplete = true;
+				}
+
+				if (this.iScanNumSourcePlates == null || this.iScanNumSourcePlates.text == ''
+						|| parseInt(this.iScanNumSourcePlates.text) > 12 || parseInt(this.iScanNumSourcePlates.text) < 1) {
+					isComplete = false;
+				}
+
+			} else if (parentDocument.isSequenomState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
+					if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
+						if (this.sequenomApplicationDesc.text != null && this.sequenomApplicationDesc.text != '') {
 							isComplete = true;
 						}
-							isComplete = isComplete && this.sampleTypeRadioGroup.selectedValue;
+					} else if (this.radioGroupSeqApp.selectedValue != null) {
+						isComplete = true;
 					}
-					
-				} else if (parentDocument.isClinicalSequenomState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
-						isComplete = this.sampleTypeRadioGroup.selectedValue;
-					}
-					parentDocument.confirmView.enabled = isComplete;
-				} else if (parentDocument.isIsolationState()) {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					isComplete = isComplete && this.sampleTypeRadioGroup.selectedValue;
+				}
+
+			} else if (parentDocument.isClinicalSequenomState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '') {
+					isComplete = this.sampleTypeRadioGroup.selectedValue;
+				}
+				parentDocument.confirmView.enabled = isComplete;
+			} else if (parentDocument.isIsolationState()) {
+				if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 						this.isolationTypeRadioGroup.selectedValue && isolationTypeRadioGroup.selectedValue != null && extractionTypeRadioGroup.selectedValue != null) {
-						isComplete = true;	        	    	
-					}
-					
-				} else {
-					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
-						this.sampleTypeRadioGroup.selectedValue &&
-						hasOrganism() &&
-						this.otherSamplePrepMethod.text.length > 0) {
-						isComplete = true;	        	    	
-					}
+					isComplete = true;
+				} else if (parentDocument.isolationTypeList.length == 0) {
+					isComplete = true;
 				}
-				
-				if (!this.parentDocument.isCherryPickState() && 
-					(!this.validNumberOfSamples || !this.validConcentration)) {
-					isComplete = false;    	
-				}
-				
-				if (parentDocument.isSolexaState() || parentDocument.isNanoStringState()) {
-					parentDocument.seqSetupView.enabled = isComplete; 
-				}
-				
-				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
-					parentDocument.annotationView.enabled = isComplete;
-				}
-				
-				generateSampleSizeWarnings();
-				
-				callLater(postSampleSetupCompleteness, [isComplete]);
-				
-				return isComplete;
 			}
-			
-			private function generateSampleSizeWarnings():void {
-				sampleSizeWarning.text = "";
-				
-				// Check if product use quantity is matched with sample count
-				var batchByProductUseQuantity:Boolean = false;
-				var productUseWarning:String = "";
-				var productUseQty:Number = parentDocument.productsView.getUseQuantityOfSelectedProduct();
-				if (productUseQty > 0 && numberOfSamples.text != '' && int(numberOfSamples.text) % productUseQty != 0) {
-					productUseWarning = " The selected product has a use quantity of " + productUseQty.toString() + ". Unused product will be lost.";
-					if (parentDocument.productsView.batchSamplesByUseQuantity()) {
-						batchByProductUseQuantity = true;
-					}
-				}
-				sampleSizeWarning.text += " " + productUseWarning;
-				
-				//Check if we have a sample batch size restriction.  If so warn user.  Check on application level first and then requestCategory level
-				var sampleBatchWarning:String = "";
-				if (batchByProductUseQuantity) {
-					var warningProp:String = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_PRODUCT_SAMPLE_BATCH_WARNING);
-					if (warningProp != null) {
-						sampleBatchWarning = warningProp;
-					}
-				} else {
-					var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
-					if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
-						var appSampleSize:int = int(application.@samplesPerBatch);
-						if(numberOfSamples.text != "" && int(numberOfSamples.text) % appSampleSize != 0){
-							if(hasBatchSampleSize != ""){
-								sampleBatchWarning = hasBatchSampleSize;
-							} else{
-								sampleBatchWarning = " You have selected a panel which runs in batches of " + appSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
-							}
-						}
-					} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
-						var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
-						if(numberOfSamples.text != "" && int(numberOfSamples.text) % reqCatSampleSize != 0){
-							if(hasBatchSampleSize != ""){
-								sampleBatchWarning = hasBatchSampleSize;
-							} else{
-								sampleBatchWarning = " You have selected a request category which runs in batches of " + reqCatSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
-							}
-						}
-					}
-				}
-				sampleSizeWarning.text += " " + sampleBatchWarning;
+		else
+		{
+			if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
+					this.sampleTypeRadioGroup.selectedValue &&
+					hasOrganism() &&
+					this.otherSamplePrepMethod.text.length > 0) {
+				isComplete = true;
 			}
-			
+		}
 
-			private function hasOrganism():Boolean {
-				if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
-					return true;
-				} else if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' && this.sampleOrganismCombo.selectedItem.@display != 'Other') {
-					return true;
-				} else {
-					return false;
-				}
-			}
-			
-			private function postSampleSetupCompleteness(isComplete:Boolean):void {
-				
-				if (parentDocument == null) {
-					return;
-				}
-				if (!isComplete) {
-					parentDocument.samplesView.enabled = false;
-					if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
-						parentDocument.hybSetupView.enabled = false;
-					} 
-					
-					if (parentDocument.theTab.contains(parentDocument.hybsView)) {
-						parentDocument.hybsView.enabled = false;
-					} 
-					
-					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-						parentDocument.confirmView.enabled = false;
-					}
-				} else {
-					if (parentDocument.isSolexaState()) {
-						parentDocument.seqSetupView.checkSeqAppSetupCompleteness();				
-					} else {
-						// In edit state samples view enabling/disabling is handled elsewhere.
-						if (!parentDocument.isEditState()) {
-							parentDocument.samplesView.enabled = true;
-						}
-						if(parentDocument.samplesView.visible == true){
-							parentDocument.samplesView.checkSamplesCompleteness();
-						}
-					}
-				}
-				parentDocument.enableNextButtons();
-			}
-			
-			private function handleInvalidConcentration(eventObject:Event):void {
-				this.validConcentration = false;
-				this.checkSampleSetupCompleteness();
-			}
-			private function handleValidConcentration(eventObject:Event):void {
-				this.validConcentration = true;
-				this.checkSampleSetupCompleteness();
-			}
-			
-			private function pickQCApp(evt:Event):void {
-				this.selectedQCApplication = RadioButton(evt.currentTarget).getRepeaterItem();
-				if (applicationHasChipTypes()) {
-					this.chipTypeVBox.visible = true;
-					this.chipTypeVBox.includeInLayout = true;
-					this.parentDocument.confirmView.chipTypeConfirmColumn.visible = true;
-					filteredChipTypeList.refresh();
-				} else {
-					this.chipTypeVBox.visible = false;
-					this.chipTypeVBox.includeInLayout = false;
-					this.parentDocument.confirmView.chipTypeConfirmColumn.visible = false;
-					parentDocument.request.@codeBioanalyzerChipType = '';
-					parentDocument.samplesView.initializeSamplesGrid();
-					this.propagateChipType();
-				}
-				
-				if (this.radioGroupQCApp.selectedValue != null) {
-					this.qcAppBox.styleName = 'normalBox';
-					this.parentDocument.applicationName = selectedQCApplication.@display;
-					this.parentDocument.request.@codeApplication = selectedQCApplication.@value;
-				} else {
-					this.qcAppBox.styleName = 'requiredBox';
-					this.parentDocument.applicationName = '';
-					this.parentDocument.request.@codeApplication = '';
-				}
-				
-				this.checkSampleSetupCompleteness();
-			}
-			
-			private function pickSequenomApp():void {
-				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
-					sequenomPanelContainer.visible = true;
-					sequenomPanelContainer.includeInLayout = true;
-					sequenomApplicationDesc.styleName = 'requiredBox';
-				} else {
-					sequenomPanelContainer.visible = false;
-					sequenomPanelContainer.includeInLayout = false;
-					sequenomApplicationDesc.styleName = 'normalBox';
-					sequenomApplicationDesc.text = '';
-				}
-				if (this.radioGroupSeqApp.selectedValue != null) {
-					this.seqAppBox.styleName = 'normalBox';
-					this.application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
-					this.parentDocument.applicationName = application.@display;
-				} else {
-					this.seqAppBox.styleName = 'requiredBox';
-					this.parentDocument.applicationName = '';
-				}
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-			
-			private function pickApp():void {
-				if (this.radioGroupApp.selectedValue != null && this.radioGroupApp.selectedValue == "OTHER") {
-					panelContainer.visible = true;
-					panelContainer.includeInLayout = true;
-					applicationDesc.styleName = 'requiredBox';
-				} else {
-					panelContainer.visible = false;
-					panelContainer.includeInLayout = false;
-					applicationDesc.styleName = 'normalBox';
-					applicationDesc.text = '';
-				}
-				if (this.radioGroupApp.selectedValue != null) {
-					this.appBox.styleName = 'normalBox';
-					this.application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupApp.selectedValue);
-					this.parentDocument.applicationName = application.@display;
-				} else {
-					this.appBox.styleName = 'requiredBox';
-					this.parentDocument.applicationName = '';
-				}
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-			
-			private function pickSampleType():void {
-				if(sampleTypeRadioGroup.selectedValue != null) {
-					sampleTypeDNARNAHBox.styleName = '';
-				}
-				
-				getSampleType();
-				
-				propagateSampleType();
+		if (!this.parentDocument.isCherryPickState() &&
+				(!this.validNumberOfSamples || !this.validConcentration)) {
+			isComplete = false;
+		}
 
-                if(sampleType != null){
-                    if(sampleType.@codeNucleotideType == 'DNA'){
-                        rnaseBox.includeInLayout = true;
-                        rnaseBox.visible = true;
-                        dnaseBox.includeInLayout = false;
-                        dnaseBox.visible = false;
-                    } else if(sampleType.@codeNucleotideType == 'RNA'){
-                        dnaseBox.includeInLayout = true;
-                        dnaseBox.visible = true;
-                        rnaseBox.includeInLayout = false;
-                        rnaseBox.visible = false;
-                    } else{
-						dnaseBox.includeInLayout = false;
-						dnaseBox.visible = false;
-						rnaseBox.includeInLayout = false;
-						rnaseBox.visible = false;
-					}
-                }
+		if (parentDocument.isSolexaState() || parentDocument.isNanoStringState()) {
+			parentDocument.seqSetupView.enabled = isComplete;
+		}
 
+		if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+			parentDocument.annotationView.enabled = isComplete;
+		}
+
+		generateSampleSizeWarnings();
+
+		callLater(postSampleSetupCompleteness, [isComplete]);
+
+		return isComplete;
+		}
+
+		private function generateSampleSizeWarnings():void {
+			sampleSizeWarning.text = "";
+
+			// Check if product use quantity is matched with sample count
+			var batchByProductUseQuantity:Boolean = false;
+			var productUseWarning:String = "";
+			var productUseQty:Number = parentDocument.productsView.getUseQuantityOfSelectedProduct();
+			if (productUseQty > 0 && numberOfSamples.text != '' && int(numberOfSamples.text) % productUseQty != 0) {
+				productUseWarning = " The selected product has a use quantity of " + productUseQty.toString() + ". Unused product will be lost.";
+				if (parentDocument.productsView.batchSamplesByUseQuantity()) {
+					batchByProductUseQuantity = true;
+				}
+			}
+			sampleSizeWarning.text += " " + productUseWarning;
+
+			//Check if we have a sample batch size restriction.  If so warn user.  Check on application level first and then requestCategory level
+			var sampleBatchWarning:String = "";
+			if (batchByProductUseQuantity) {
+				var warningProp:String = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_PRODUCT_SAMPLE_BATCH_WARNING);
+				if (warningProp != null) {
+					sampleBatchWarning = warningProp;
+				}
+			} else {
+				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility, parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+				if (application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != '') {
+					var appSampleSize:int = int(application.@samplesPerBatch);
+					if (numberOfSamples.text != "" && int(numberOfSamples.text) % appSampleSize != 0) {
+						if (hasBatchSampleSize != "") {
+							sampleBatchWarning = hasBatchSampleSize;
+						} else {
+							sampleBatchWarning = " You have selected a panel which runs in batches of " + appSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+						}
+					}
+				} else if (parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != '') {
+					var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
+					if (numberOfSamples.text != "" && int(numberOfSamples.text) % reqCatSampleSize != 0) {
+						if (hasBatchSampleSize != "") {
+							sampleBatchWarning = hasBatchSampleSize;
+						} else {
+							sampleBatchWarning = " You have selected a request category which runs in batches of " + reqCatSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+						}
+					}
+				}
+			}
+			sampleSizeWarning.text += " " + sampleBatchWarning;
+		}
+
+
+		private function hasOrganism():Boolean {
+			if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
+				return true;
+			} else if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@value != '' && this.sampleOrganismCombo.selectedItem.@display != 'Other') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		private function postSampleSetupCompleteness(isComplete:Boolean):void {
+
+			if (parentDocument == null) {
+				return;
+			}
+			if (!isComplete) {
+				parentDocument.samplesView.enabled = false;
+				if (parentDocument.theTab.contains(parentDocument.hybSetupView)) {
+					parentDocument.hybSetupView.enabled = false;
+				}
+
+				if (parentDocument.theTab.contains(parentDocument.hybsView)) {
+					parentDocument.hybsView.enabled = false;
+				}
+
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.enabled = false;
+				}
+			} else {
+				if (parentDocument.isSolexaState()) {
+					parentDocument.seqSetupView.checkSeqAppSetupCompleteness();
+				} else {
+					// In edit state samples view enabling/disabling is handled elsewhere.
+					if (!parentDocument.isEditState()) {
+						parentDocument.samplesView.enabled = true;
+					}
+					if (parentDocument.samplesView.visible == true) {
+						parentDocument.samplesView.checkSamplesCompleteness();
+					}
+				}
+			}
+			parentDocument.enableNextButtons();
+		}
+
+		private function handleInvalidConcentration(eventObject:Event):void {
+			this.validConcentration = false;
+			this.checkSampleSetupCompleteness();
+		}
+
+		private function handleValidConcentration(eventObject:Event):void {
+			this.validConcentration = true;
+			this.checkSampleSetupCompleteness();
+		}
+
+		private function pickQCApp(evt:Event):void {
+			this.selectedQCApplication = RadioButton(evt.currentTarget).getRepeaterItem();
+			if (applicationHasChipTypes()) {
+				this.chipTypeVBox.visible = true;
+				this.chipTypeVBox.includeInLayout = true;
+				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = true;
+				filteredChipTypeList.refresh();
+			} else {
+				this.chipTypeVBox.visible = false;
+				this.chipTypeVBox.includeInLayout = false;
+				this.parentDocument.confirmView.chipTypeConfirmColumn.visible = false;
+				parentDocument.request.@codeBioanalyzerChipType = '';
 				parentDocument.samplesView.initializeSamplesGrid();
-				
-				if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
-					return;
-				}
-				// Select the default organism on sample setup if the request category specifies one
-				if (!parentDocument.isQCState()) {
-					if (sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@value == '') {
-						var requestCategory:Object = parentDocument.getRequestCategory();
-						if (requestCategory.@idOrganism != '') {
-							var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
-							if (organism is XMLList) {
-								this.sampleOrganismCombo.selectedItem = organism[0];
-								return;
-								
-							} else {
-								this.sampleOrganismCombo.selectedItem = organism;
-								return;
-							}
-						} 
-						
-					}
-				}
-				
+				this.propagateChipType();
 			}
-			
-			private function getSampleType():void {
-				sampleType = null;
-				if (sampleTypeRadioGroup.selectedValue != null && sampleTypeRadioGroup.selectedValue != '') {
-					sampleType = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', sampleTypeRadioGroup.selectedValue); 
-				}
-			}
-			
-			
-			private function pickOrganism():void {
-				
-				// kludge because close event is fired twice for combo box.
-				if (addOrganismOpen) {
-					return;
-				}
-				
-				if (sampleOrganismCombo.selectedItem == null && sampleOrganismCombo.text != null && sampleOrganismCombo.text.length > 0 && sampleOrganismCombo.text != sampleOrganismCombo.prompt) {
-					addOrganismOpen = true;
-					var oName:String = sampleOrganismCombo.text;
-					sampleOrganismCombo.text = '';
-					propagateOtherSampleOrganism();
-					callLater(addOrganism,[oName]);
-					return;
-				}
-				
-				// Clear other organism if non 'Other' selected
-				if (this.sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@display != 'Other') {
-					otherOrganism.text = '';
-					propagateOtherSampleOrganism();
-				}			
-				
-				if (parentDocument.annotationView != null && parentDocument.annotationView.visible) {
-					parentDocument.annotationView.onPropertyRefreshed(null);
-				}
-				
-				if (parentDocument.isMicroarrayState()) {
-					parentDocument.hybSetupView.checkForSlideProductWarning();
-				}
 
-				propagateSampleOrganism();
+			if (this.radioGroupQCApp.selectedValue != null) {
+				this.qcAppBox.styleName = 'normalBox';
+				this.parentDocument.applicationName = selectedQCApplication.@display;
+				this.parentDocument.request.@codeApplication = selectedQCApplication.@value;
+			} else {
+				this.qcAppBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+				this.parentDocument.request.@codeApplication = '';
+			}
+
+			this.checkSampleSetupCompleteness();
+		}
+
+		private function pickSequenomApp():void {
+			if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
+				sequenomPanelContainer.visible = true;
+				sequenomPanelContainer.includeInLayout = true;
+				sequenomApplicationDesc.styleName = 'requiredBox';
+			} else {
+				sequenomPanelContainer.visible = false;
+				sequenomPanelContainer.includeInLayout = false;
+				sequenomApplicationDesc.styleName = 'normalBox';
+				sequenomApplicationDesc.text = '';
+			}
+			if (this.radioGroupSeqApp.selectedValue != null) {
+				this.seqAppBox.styleName = 'normalBox';
+				this.application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+				this.parentDocument.applicationName = application.@display;
+			} else {
+				this.seqAppBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+			}
+			if (this.checkSampleSetupCompleteness()) {
 				parentDocument.samplesView.initializeSamplesGrid();
-				
-				
-				if (this.currentState == 'SolexaSetupState' ||
+			}
+		}
+
+		private function pickApp():void {
+			if (this.radioGroupApp.selectedValue != null && this.radioGroupApp.selectedValue == "OTHER") {
+				panelContainer.visible = true;
+				panelContainer.includeInLayout = true;
+				applicationDesc.styleName = 'requiredBox';
+			} else {
+				panelContainer.visible = false;
+				panelContainer.includeInLayout = false;
+				applicationDesc.styleName = 'normalBox';
+				applicationDesc.text = '';
+			}
+			if (this.radioGroupApp.selectedValue != null) {
+				this.appBox.styleName = 'normalBox';
+				this.application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupApp.selectedValue);
+				this.parentDocument.applicationName = application.@display;
+			} else {
+				this.appBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+			}
+			if (this.checkSampleSetupCompleteness()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function pickSampleType():void {
+			if (sampleTypeRadioGroup.selectedValue != null) {
+				sampleTypeDNARNAHBox.styleName = '';
+			}
+
+			getSampleType();
+
+			propagateSampleType();
+
+			if (sampleType != null) {
+				if (sampleType.@codeNucleotideType == 'DNA') {
+					rnaseBox.includeInLayout = true;
+					rnaseBox.visible = true;
+					dnaseBox.includeInLayout = false;
+					dnaseBox.visible = false;
+				} else if (sampleType.@codeNucleotideType == 'RNA') {
+					dnaseBox.includeInLayout = true;
+					dnaseBox.visible = true;
+					rnaseBox.includeInLayout = false;
+					rnaseBox.visible = false;
+				} else {
+					dnaseBox.includeInLayout = false;
+					dnaseBox.visible = false;
+					rnaseBox.includeInLayout = false;
+					rnaseBox.visible = false;
+				}
+			}
+
+			parentDocument.samplesView.initializeSamplesGrid();
+
+			if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
+				return;
+			}
+			// Select the default organism on sample setup if the request category specifies one
+			if (!parentDocument.isQCState()) {
+				if (sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@value == '') {
+					var requestCategory:Object = parentDocument.getRequestCategory();
+					if (requestCategory.@idOrganism != '') {
+						var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', requestCategory.@idOrganism);
+						if (organism is XMLList) {
+							this.sampleOrganismCombo.selectedItem = organism[0];
+							return;
+
+						} else {
+							this.sampleOrganismCombo.selectedItem = organism;
+							return;
+						}
+					}
+
+				}
+			}
+
+		}
+
+		private function getSampleType():void {
+			sampleType = null;
+			if (sampleTypeRadioGroup.selectedValue != null && sampleTypeRadioGroup.selectedValue != '') {
+				sampleType = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.SampleType', sampleTypeRadioGroup.selectedValue);
+			}
+		}
+
+
+		private function pickOrganism():void {
+
+			// kludge because close event is fired twice for combo box.
+			if (addOrganismOpen) {
+				return;
+			}
+
+			if (sampleOrganismCombo.selectedItem == null && sampleOrganismCombo.text != null && sampleOrganismCombo.text.length > 0 && sampleOrganismCombo.text != sampleOrganismCombo.prompt) {
+				addOrganismOpen = true;
+				var oName:String = sampleOrganismCombo.text;
+				sampleOrganismCombo.text = '';
+				propagateOtherSampleOrganism();
+				callLater(addOrganism, [oName]);
+				return;
+			}
+
+			// Clear other organism if non 'Other' selected
+			if (this.sampleOrganismCombo.selectedItem == null || sampleOrganismCombo.selectedItem.@display != 'Other') {
+				otherOrganism.text = '';
+				propagateOtherSampleOrganism();
+			}
+
+			if (parentDocument.annotationView != null && parentDocument.annotationView.visible) {
+				parentDocument.annotationView.onPropertyRefreshed(null);
+			}
+
+			if (parentDocument.isMicroarrayState()) {
+				parentDocument.hybSetupView.checkForSlideProductWarning();
+			}
+
+			propagateSampleOrganism();
+			parentDocument.samplesView.initializeSamplesGrid();
+
+
+			if (this.currentState == 'SolexaSetupState' ||
 					this.currentState == 'SolexaSetupPreppedState' ||
 					this.currentState == 'SolexaAmendState' ||
 					this.currentState == 'SolexaAmendPreppedState' ||
-					this.currentState == 'MDMiSeqState') { 
-					parentDocument.filteredGenomeBuildList.refresh();
-					//selectDefaultGenomeBuild();			
-				}
-				
+					this.currentState == 'MDMiSeqState') {
+				parentDocument.filteredGenomeBuildList.refresh();
+				//selectDefaultGenomeBuild();
 			}
-			
-			private function pickContainerType():void {
-				var minSamplesString:String = parentApplication.getProperty(parentApplication.PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION);
-				var minSamplesAllowedForPlate:int = 32;
-				if ( minSamplesString != null && parseInt(minSamplesString) >= 0 ) {
-					minSamplesAllowedForPlate = parseInt(minSamplesString);
-				}
-				if (this.numberOfSamples.text == '') {
+
+		}
+
+		private function pickContainerType():void {
+			var minSamplesString:String = parentApplication.getProperty(parentApplication.PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION);
+			var minSamplesAllowedForPlate:int = 32;
+			if (minSamplesString != null && parseInt(minSamplesString) >= 0) {
+				minSamplesAllowedForPlate = parseInt(minSamplesString);
+			}
+			if (this.numberOfSamples.text == '') {
+				this.containerTypeRadioGroup.selectedValue = "TUBE";
+				this.containerTypePlate.enabled = true;
+				this.containerTypeTube.enabled = true;
+			} else {
+				var sampleCount:int = parseInt(numberOfSamples.text);
+				if (sampleCount < minSamplesAllowedForPlate) {
 					this.containerTypeRadioGroup.selectedValue = "TUBE";
+					this.containerTypeTube.enabled = true;
+					this.containerTypePlate.enabled = false;
+				} else {
 					this.containerTypePlate.enabled = true;
 					this.containerTypeTube.enabled = true;
-				} else {
-					var sampleCount:int = parseInt(numberOfSamples.text);
-					if (sampleCount < minSamplesAllowedForPlate ) {
-						this.containerTypeRadioGroup.selectedValue = "TUBE";
-						this.containerTypeTube.enabled = true;
-						this.containerTypePlate.enabled = false;
-					} else {
-						this.containerTypePlate.enabled = true;
-						this.containerTypeTube.enabled = true;
-					}
-				} 
-				callLater(onContainerTypeChange);
-				
-			}
-			
-			private function onContainerTypeChange():void {
-				parentDocument.request.@containerType = this.containerTypeRadioGroup.selectedValue;
-				if (containerTypeRadioGroup.selectedValue == 'PLATE') {
-					if (this.capSeqNumPlatesRadioGroup.selectedValue == null || this.capSeqNumPlatesRadioGroup.selectedValue == '') {
-						this.capSeqNumPlatesRadioGroup.selectedValue="1";
-						this.onCapSeqNumPlatesChanged();
-					}
-				} else {
-					this.capSeqNumPlatesRadioGroup.selection = null;
-					this.capSeqNumPlatesRadioGroup.selectedValue = null;
-					showFourPlateWarning();
 				}
-				parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
+			}
+			callLater(onContainerTypeChange);
+
+		}
+
+		private function onContainerTypeChange():void {
+			parentDocument.request.@containerType = this.containerTypeRadioGroup.selectedValue;
+			if (containerTypeRadioGroup.selectedValue == 'PLATE') {
+				if (this.capSeqNumPlatesRadioGroup.selectedValue == null || this.capSeqNumPlatesRadioGroup.selectedValue == '') {
+					this.capSeqNumPlatesRadioGroup.selectedValue = "1";
+					this.onCapSeqNumPlatesChanged();
+				}
+			} else {
+				this.capSeqNumPlatesRadioGroup.selection = null;
+				this.capSeqNumPlatesRadioGroup.selectedValue = null;
+				showFourPlateWarning();
+			}
+			parentDocument.samplesView.propagateContainerType(containerTypeRadioGroup.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
+			parentDocument.samplesView.initializeSamplesGrid();
+			parentDocument.samplesView.showHideColumns();
+
+			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+				parentDocument.confirmView.showHideColumns();
+			}
+		}
+
+		private function onCapSeqNumPlatesChanged():void {
+			if (capSeqNumPlatesRadioGroup.selectedValue != null) {
+				parentDocument.numCapSeqPlates = this.capSeqNumPlatesRadioGroup.selectedValue;
+				showFourPlateWarning();
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function showFourPlateWarning():void {
+			if (this.containerTypeRadioGroup.selectedValue == 'PLATE' && parentDocument.numCapSeqPlates == 4) {
+				this.fourPlateWarningLabel.visible = true;
+				this.fourPlateWarningLabel.includeInLayout = true;
+			} else {
+				this.fourPlateWarningLabel.visible = false;
+				this.fourPlateWarningLabel.includeInLayout = false;
+			}
+		}
+
+		private function onSequenomContainerTypeChange():void {
+			parentDocument.request.@containerType = this.sequenomContainerTypeRadioGrp.selectedValue;
+			if (sequenomContainerTypeRadioGrp.selectedValue == 'PLATE') {
+				if (this.sequenomNumSourcePlates.text == null || this.sequenomNumSourcePlates.text == '') {
+					this.sequenomNumSourcePlates.text = "1";
+
+					this.onSequenomNumSourcePlatesChanged();
+				}
+			} else {
+				// SET ALL PLATE NAMES TO '' AND PROPOGATE TO THE SAMPLES
+				this.sequenomNumSourcePlates.text = '';
+			}
+			parentDocument.samplesView.propagateContainerType(sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
+			parentDocument.samplesView.initializeSamplesGrid();
+			parentDocument.samplesView.showHideColumns();
+			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+				parentDocument.confirmView.showHideColumns();
+			}
+		}
+
+		public function getSamplePrimerList():String {
+			var list:String = "";
+			list = addPrimerToList(list, this.primer1Combo);
+			list = addPrimerToList(list, this.primer2Combo);
+			list = addPrimerToList(list, this.primer3Combo);
+			list = addPrimerToList(list, this.primer4Combo);
+			list = addPrimerToList(list, this.primer5Combo);
+			list = addPrimerToList(list, this.primer6Combo);
+			return list;
+		}
+
+		private function addPrimerToList(list:String, combo:ComboBox):String {
+			if (combo.selectedItem != null && combo.selectedItem.@value != '') {
+				if (list.length > 0) {
+					list += ", ";
+				}
+				list += combo.selectedItem.@display;
+			}
+			return list;
+		}
+
+		private function getPlateName(idx:int):String {
+			if (idx == 1) return this.cherryPlate1Name.text
+			if (idx == 2) return this.cherryPlate2Name.text
+			if (idx == 3) return this.cherryPlate3Name.text
+			if (idx == 4) return this.cherryPlate4Name.text
+			if (idx == 5) return this.cherryPlate5Name.text
+			if (idx == 6) return this.cherryPlate6Name.text
+			if (idx == 7) return this.cherryPlate7Name.text
+			if (idx == 8) return this.cherryPlate8Name.text
+			if (idx == 9) return this.cherryPlate9Name.text
+			if (idx == 10) return this.cherryPlate10Name.text
+			if (idx == 11) return this.cherryPlate11Name.text
+			if (idx == 12) return this.cherryPlate12Name.text
+			return '';
+		}
+
+		public function onCherryNumSourcePlatesChanged():void {
+			var numPlates:int = Number(this.cherryNumSourcePlates.text);
+			this.cherryPlate1Box.visible = (numPlates > 0);
+			this.cherryPlate2Box.visible = (numPlates > 1);
+			this.cherryPlate3Box.visible = (numPlates > 2);
+			this.cherryPlate4Box.visible = (numPlates > 3);
+			this.cherryPlate5Box.visible = (numPlates > 4);
+			this.cherryPlate6Box.visible = (numPlates > 5);
+			this.cherryPlate7Box.visible = (numPlates > 6);
+			this.cherryPlate8Box.visible = (numPlates > 7);
+			this.cherryPlate9Box.visible = (numPlates > 8);
+			this.cherryPlate10Box.visible = (numPlates > 9);
+			this.cherryPlate11Box.visible = (numPlates > 10);
+			this.cherryPlate12Box.visible = (numPlates > 11);
+			parentDocument.samplesView.initializeSamplesGrid();
+			while (parentDocument.cherryPlateListCollection.length > numPlates) {
+				parentDocument.cherryPlateListCollection.removeItemAt(parentDocument.cherryPlateListCollection.length - 1);
+			}
+			var startIdx:int = parentDocument.cherryPlateListCollection.length;
+			for (var idx:int = startIdx; idx < numPlates + 1; idx++) {
+				var node:XML = new XML("<Plate name='" + getPlateName(idx) + "'/>");
+				parentDocument.cherryPlateListCollection.addItem(node);
+			}
+			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
+		}
+
+		private function onCherryPlateNameChanged():void {
+			var numPlates:int = Number(this.cherryNumSourcePlates.text);
+			var idx:int = 0;
+			for each (var plate:Object in parentDocument.cherryPlateListCollection) {
+				plate.@name = getPlateName(idx);
+				idx++;
+			}
+
+			parentDocument.samplesView.initializeSamplesGrid();
+			parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
+		}
+
+		public function updateIScanPlateList(plateList:XMLList):void {
+			if (plateList == null || parentDocument == null) {
+				return;
+			}
+			parentDocument.iScanPlateList = plateList;
+			parentDocument.iScanPlateListCollection.source = plateList;
+			parentDocument.numIScanPlates = plateList.length();
+			this.iScanNumSourcePlates.text = plateList.length();
+			this.updatePlateNames();
+			this.onIScanNumSourcePlatesChanged();
+		}
+
+		public function updatePlateNames():void {
+			var idx:int = 1;
+			for each (var plate:Object in parentDocument.iScanPlateListCollection) {
+				setIScanPlateName(idx, plate.@name);
+				idx++;
+			}
+		}
+
+		public function getIScanPlateName(idx:int):String {
+			if (idx == 1) return this.iScanPlate1Name.text
+			if (idx == 2) return this.iScanPlate2Name.text
+			if (idx == 3) return this.iScanPlate3Name.text
+			if (idx == 4) return this.iScanPlate4Name.text
+			if (idx == 5) return this.iScanPlate5Name.text
+			if (idx == 6) return this.iScanPlate6Name.text
+			if (idx == 7) return this.iScanPlate7Name.text
+			if (idx == 8) return this.iScanPlate8Name.text
+			if (idx == 9) return this.iScanPlate9Name.text
+			if (idx == 10) return this.iScanPlate10Name.text
+			if (idx == 11) return this.iScanPlate11Name.text
+			if (idx == 12) return this.iScanPlate12Name.text
+			return '';
+		}
+
+		public function setIScanPlateName(idx:int, name:String):void {
+			if (idx == 1) this.iScanPlate1Name.text = name;
+			if (idx == 2) this.iScanPlate2Name.text = name;
+			if (idx == 3) this.iScanPlate3Name.text = name;
+			if (idx == 4) this.iScanPlate4Name.text = name;
+			if (idx == 5) this.iScanPlate5Name.text = name;
+			if (idx == 6) this.iScanPlate6Name.text = name;
+			if (idx == 7) this.iScanPlate7Name.text = name;
+			if (idx == 8) this.iScanPlate8Name.text = name;
+			if (idx == 9) this.iScanPlate9Name.text = name;
+			if (idx == 10) this.iScanPlate10Name.text = name;
+			if (idx == 11) this.iScanPlate11Name.text = name;
+			if (idx == 12) this.iScanPlate12Name.text = name;
+		}
+
+		public function getSequenomPlateName(idx:int):String {
+			if (idx == 1) return this.sequenomPlate1Name.text
+			if (idx == 2) return this.sequenomPlate2Name.text
+			if (idx == 3) return this.sequenomPlate3Name.text
+			if (idx == 4) return this.sequenomPlate4Name.text
+			if (idx == 5) return this.sequenomPlate5Name.text
+			if (idx == 6) return this.sequenomPlate6Name.text
+			if (idx == 7) return this.sequenomPlate7Name.text
+			if (idx == 8) return this.sequenomPlate8Name.text
+			if (idx == 9) return this.sequenomPlate9Name.text
+			if (idx == 10) return this.sequenomPlate10Name.text
+			if (idx == 11) return this.sequenomPlate11Name.text
+			if (idx == 12) return this.sequenomPlate12Name.text
+			return '';
+		}
+
+		public function setSequenomPlateName(idx:int, name:String):void {
+			if (idx == 1) this.sequenomPlate1Name.text = name;
+			if (idx == 2) this.sequenomPlate2Name.text = name;
+			if (idx == 3) this.sequenomPlate3Name.text = name;
+			if (idx == 4) this.sequenomPlate4Name.text = name;
+			if (idx == 5) this.sequenomPlate5Name.text = name;
+			if (idx == 6) this.sequenomPlate6Name.text = name;
+			if (idx == 7) this.sequenomPlate7Name.text = name;
+			if (idx == 8) this.sequenomPlate8Name.text = name;
+			if (idx == 9) this.sequenomPlate9Name.text = name;
+			if (idx == 10) this.sequenomPlate10Name.text = name;
+			if (idx == 11) this.sequenomPlate11Name.text = name;
+			if (idx == 12) this.sequenomPlate12Name.text = name;
+		}
+
+		public function onIScanNumSourcePlatesChanged():void {
+			var numPlates:int = Number(this.iScanNumSourcePlates.text);
+			parentDocument.numIScanPlates = numPlates;
+			this.iScanPlate1Box.visible = (numPlates > 0);
+			this.iScanPlate2Box.visible = (numPlates > 1);
+			this.iScanPlate3Box.visible = (numPlates > 2);
+			this.iScanPlate4Box.visible = (numPlates > 3);
+			this.iScanPlate5Box.visible = (numPlates > 4);
+			this.iScanPlate6Box.visible = (numPlates > 5);
+			this.iScanPlate7Box.visible = (numPlates > 6);
+			this.iScanPlate8Box.visible = (numPlates > 7);
+			this.iScanPlate9Box.visible = (numPlates > 8);
+			this.iScanPlate10Box.visible = (numPlates > 9);
+			this.iScanPlate11Box.visible = (numPlates > 10);
+			this.iScanPlate12Box.visible = (numPlates > 11);
+
+			parentDocument.iScanPlateListCollection.removeAll();
+
+			var startIdx:int = 1;
+			for (var idx:int = startIdx; idx < numPlates + 1; idx++) {
+				var node:XML = new XML("<Plate name='" + getIScanPlateName(idx) + "'/>");
+				parentDocument.iScanPlateListCollection.addItem(node);
+			}
+			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
+		}
+
+		public function onSequenomNumSourcePlatesChanged():void {
+			var numPlates:int = Number(this.sequenomNumSourcePlates.text);
+			parentDocument.numIScanPlates = numPlates;
+			this.sequenomPlate1Box.visible = (numPlates > 0);
+			this.sequenomPlate2Box.visible = (numPlates > 1);
+			this.sequenomPlate3Box.visible = (numPlates > 2);
+			this.sequenomPlate4Box.visible = (numPlates > 3);
+			this.sequenomPlate5Box.visible = (numPlates > 4);
+			this.sequenomPlate6Box.visible = (numPlates > 5);
+			this.sequenomPlate7Box.visible = (numPlates > 6);
+			this.sequenomPlate8Box.visible = (numPlates > 7);
+			this.sequenomPlate9Box.visible = (numPlates > 8);
+			this.sequenomPlate10Box.visible = (numPlates > 9);
+			this.sequenomPlate11Box.visible = (numPlates > 10);
+			this.sequenomPlate12Box.visible = (numPlates > 11);
+
+			parentDocument.iScanPlateListCollection.removeAll();
+
+			var startIdx:int = 1;
+			for (var idx:int = startIdx; idx < numPlates + 1; idx++) {
+				var node:XML = new XML("<Plate name='" + getSequenomPlateName(idx) + "'/>");
+				parentDocument.iScanPlateListCollection.addItem(node);
+			}
+			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
+		}
+
+		public function propogatePlateNames(plateNumber:int):void {
+			if (!parentDocument.isIScanState() && !parentDocument.isSequenomState()) {
+				return;
+			}
+			if (plateNumber < 0 || plateNumber > 11) {
+				return;
+			}
+			var startInd:int = plateNumber * 96;
+			for (var psIdx:int = startInd; psIdx < startInd + 96; psIdx++) {
+				var y:int = psIdx / 96;
+				y = y + 1;
+				var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
+				plateSample.@plateName = parentDocument.isIScanState() ? getIScanPlateName(y) : getSequenomPlateName(y);
+			}
+		}
+
+		private function onIScanPlateNameChanged(plateNumber:int):void {
+			var numPlates:int = Number(this.iScanNumSourcePlates.text);
+			var idx:int = 1;
+			for each (var plate:Object in parentDocument.iScanPlateListCollection) {
+				plate.@name = getIScanPlateName(idx);
+				idx++;
+			}
+			propogatePlateNames(plateNumber);
+			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
+			parentDocument.samplesView.initializeSamplesGrid();
+
+		}
+
+		private function onSequenomPlateNameChanged(plateNumber:int):void {
+			var numPlates:int = Number(this.sequenomNumSourcePlates.text);
+			var idx:int = 1;
+			for each (var plate:Object in parentDocument.iScanPlateListCollection) {
+				plate.@name = getSequenomPlateName(idx);
+				idx++;
+			}
+			propogatePlateNames(plateNumber);
+			parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
+			parentDocument.samplesView.initializeSamplesGrid();
+		}
+
+		private function onAssayCheckBoxChanged():void {
+			parentDocument.selectedAssaysCollection.removeAll();
+			for (var x:int = 0; x < assayCheckBox.length; x++) {
+				if (assayCheckBox[x].selected) {
+					var assay:Object = parentDocument.assayCollection.getItemAt(x);
+					var assayXML:XML = new XML("<Assay name='" + assay.@display + "' id='" + assay.@value + "'/>");
+					parentDocument.selectedAssaysCollection.addItem(assayXML);
+				}
+			}
+
+			parentDocument.samplesView.initializeSamplesGrid();
+		}
+
+		private function onIncludeBisulfideConversionCheckBoxChanged():void {
+			parentDocument.request.@includeBisulfideConversion = bisulfideConversionCheckBox.selected ? 'Y' : 'N';
+
+			if (this.checkSampleSetupCompleteness()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function onIncludeQubitConcentrationCheckBoxChanged():void {
+			parentDocument.request.@includeQubitConcentration = QubitConcentrationCheckBox.selected ? 'Y' : 'N';
+
+			if (this.checkSampleSetupCompleteness()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function onBMPPickupCheckBox():void {
+			parentDocument.request.@includeQubitConcentration = BMPPickupCheckBox.selected ? 'Y' : 'N';
+
+			if (this.checkSampleSetupCompleteness()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function onSampleSourceChanged():void {
+			propagateSampleSource();
+			if (this.checkSampleSetupCompleteness()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function onAppDescChanged():void {
+			if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
+				parentDocument.request.@applicationDescription = this.sequenomApplicationDesc != null ? this.sequenomApplicationDesc.text : "";
+				if (this.sequenomApplicationDesc.text != '') {
+					this.sequenomApplicationDesc.styleName = "normalBox";
+				} else {
+					this.sequenomApplicationDesc.styleName = "requiredBox";
+				}
+			} else if (this.radioGroupSeqApp.selectedValue != null) {
+				parentDocument.request.@applicationDescription = "";
+			}
+			if (this.checkSampleSetupCompleteness()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function onGenAppDescChanged():void {
+			if (this.radioGroupApp.selectedValue != null && this.radioGroupApp.selectedValue == "OTHER") {
+				parentDocument.request.@applicationDescription = this.applicationDesc != null ? this.applicationDesc.text : "";
+				if (this.applicationDesc.text != '') {
+					this.applicationDesc.styleName = "normalBox";
+				} else {
+					this.applicationDesc.styleName = "requiredBox";
+				}
+			} else if (this.radioGroupApp.selectedValue != null) {
+				parentDocument.request.@applicationDescription = "";
+			}
+			if (this.checkSampleSetupCompleteness()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+		}
+
+		private function pickIsolationType():void {
+			if (this.extractionTypeRadioGroup.selectedValue == this.DNA) {
+				parentDocument.request.@coreToExtractDNA = 'Y';
+				parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+			} else {
+				parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+				parentDocument.request.@coreToExtractDNA = '';
+			}
+
+			if (this.checkSampleSetupCompleteness()) {
 				parentDocument.samplesView.initializeSamplesGrid();
 				parentDocument.samplesView.showHideColumns();
-				
 				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 					parentDocument.confirmView.showHideColumns();
 				}
 			}
-			
-			private function onCapSeqNumPlatesChanged():void {
-				if (capSeqNumPlatesRadioGroup.selectedValue != null) {
-					parentDocument.numCapSeqPlates = this.capSeqNumPlatesRadioGroup.selectedValue;
-					showFourPlateWarning();
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-			
-			private function showFourPlateWarning():void {
-				if (this.containerTypeRadioGroup.selectedValue == 'PLATE' && parentDocument.numCapSeqPlates == 4) {
-					this.fourPlateWarningLabel.visible = true;
-					this.fourPlateWarningLabel.includeInLayout = true;
-				} else {
-					this.fourPlateWarningLabel.visible = false;
-					this.fourPlateWarningLabel.includeInLayout = false;
-				}
-			}
-			
-			private function onSequenomContainerTypeChange():void {
-				parentDocument.request.@containerType = this.sequenomContainerTypeRadioGrp.selectedValue;
-				if (sequenomContainerTypeRadioGrp.selectedValue == 'PLATE') {
-					if (this.sequenomNumSourcePlates.text == null || this.sequenomNumSourcePlates.text == '') {
-						this.sequenomNumSourcePlates.text = "1";
-						
-						this.onSequenomNumSourcePlatesChanged();
-					} 
-				} else {
-					// SET ALL PLATE NAMES TO '' AND PROPOGATE TO THE SAMPLES
-					this.sequenomNumSourcePlates.text = '';
-				}
-				parentDocument.samplesView.propagateContainerType(sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' ? 'Plate' : 'Tube');
-				parentDocument.samplesView.initializeSamplesGrid();
-				parentDocument.samplesView.showHideColumns();
-				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-					parentDocument.confirmView.showHideColumns();
-				}
-			}
-			
-			public function getSamplePrimerList():String {
-				var list:String = "";
-				list = addPrimerToList(list, this.primer1Combo);
-				list = addPrimerToList(list, this.primer2Combo);
-				list = addPrimerToList(list, this.primer3Combo);
-				list = addPrimerToList(list, this.primer4Combo);
-				list = addPrimerToList(list, this.primer5Combo);
-				list = addPrimerToList(list, this.primer6Combo);
-				return list;
-			}
-			
-			private function addPrimerToList(list:String, combo:ComboBox):String {
-				if (combo.selectedItem != null && combo.selectedItem.@value != '') {
-					if (list.length > 0) {
-						list += ", ";
-					}
-					list += combo.selectedItem.@display;
-				}
-				return list;
-			}
-			
-			private function getPlateName(idx:int):String {
-				if (idx == 1) return this.cherryPlate1Name.text
-				if (idx == 2) return this.cherryPlate2Name.text
-				if (idx == 3) return this.cherryPlate3Name.text
-				if (idx == 4) return this.cherryPlate4Name.text
-				if (idx == 5) return this.cherryPlate5Name.text
-				if (idx == 6) return this.cherryPlate6Name.text
-				if (idx == 7) return this.cherryPlate7Name.text
-				if (idx == 8) return this.cherryPlate8Name.text
-				if (idx == 9) return this.cherryPlate9Name.text
-				if (idx == 10) return this.cherryPlate10Name.text
-				if (idx == 11) return this.cherryPlate11Name.text
-				if (idx == 12) return this.cherryPlate12Name.text
-				return '';
-			}
-			
-			public function onCherryNumSourcePlatesChanged():void {
-				var numPlates:int = Number(this.cherryNumSourcePlates.text);
-				this.cherryPlate1Box.visible = (numPlates > 0);
-				this.cherryPlate2Box.visible = (numPlates > 1);
-				this.cherryPlate3Box.visible = (numPlates > 2);
-				this.cherryPlate4Box.visible = (numPlates > 3);
-				this.cherryPlate5Box.visible = (numPlates > 4);
-				this.cherryPlate6Box.visible = (numPlates > 5);
-				this.cherryPlate7Box.visible = (numPlates > 6);
-				this.cherryPlate8Box.visible = (numPlates > 7);
-				this.cherryPlate9Box.visible = (numPlates > 8);
-				this.cherryPlate10Box.visible = (numPlates > 9);
-				this.cherryPlate11Box.visible = (numPlates > 10);
-				this.cherryPlate12Box.visible = (numPlates > 11);
-				parentDocument.samplesView.initializeSamplesGrid();
-				while (parentDocument.cherryPlateListCollection.length > numPlates) {
-					parentDocument.cherryPlateListCollection.removeItemAt(parentDocument.cherryPlateListCollection.length-1);
-				}
-				var startIdx:int = parentDocument.cherryPlateListCollection.length;
-				for(var idx:int=startIdx; idx < numPlates+1; idx++) {
-					var node:XML = new XML("<Plate name='" + getPlateName(idx) + "'/>");
-					parentDocument.cherryPlateListCollection.addItem(node);
-				}
-				parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
-			}
-			
-			private function onCherryPlateNameChanged():void {
-				var numPlates:int = Number(this.cherryNumSourcePlates.text);
-				var idx:int=0;
-				for each (var plate:Object in parentDocument.cherryPlateListCollection) {
-					plate.@name = getPlateName(idx);
-					idx++;
-				}
-				
-				parentDocument.samplesView.initializeSamplesGrid();		
-				parentDocument.cherryPlateList = parentDocument.cherryPlateListCollection.copy();
-			}
-			
-			public function updateIScanPlateList(plateList:XMLList):void {
-				if ( plateList == null || parentDocument == null ) {
-					return;
-				}
-				parentDocument.iScanPlateList = plateList;
-				parentDocument.iScanPlateListCollection.source = plateList;
-				parentDocument.numIScanPlates = plateList.length();
-				this.iScanNumSourcePlates.text = plateList.length();
-				this.updatePlateNames();
-				this.onIScanNumSourcePlatesChanged();
-			}
-			
-			public function updatePlateNames():void{
-				var idx:int=1;
-				for each (var plate:Object in parentDocument.iScanPlateListCollection) {
-					setIScanPlateName(idx, plate.@name);
-					idx++;
-				}
-			}
-			
-			public function getIScanPlateName(idx:int):String {
-				if (idx == 1) return this.iScanPlate1Name.text
-				if (idx == 2) return this.iScanPlate2Name.text
-				if (idx == 3) return this.iScanPlate3Name.text
-				if (idx == 4) return this.iScanPlate4Name.text
-				if (idx == 5) return this.iScanPlate5Name.text
-				if (idx == 6) return this.iScanPlate6Name.text
-				if (idx == 7) return this.iScanPlate7Name.text
-				if (idx == 8) return this.iScanPlate8Name.text
-				if (idx == 9) return this.iScanPlate9Name.text
-				if (idx == 10) return this.iScanPlate10Name.text
-				if (idx == 11) return this.iScanPlate11Name.text
-				if (idx == 12) return this.iScanPlate12Name.text
-				return '';
-			}
-			
-			public function setIScanPlateName(idx:int, name:String):void {
-				if (idx == 1)  this.iScanPlate1Name.text = name;
-				if (idx == 2)  this.iScanPlate2Name.text = name;
-				if (idx == 3)  this.iScanPlate3Name.text = name;
-				if (idx == 4)  this.iScanPlate4Name.text = name;
-				if (idx == 5)  this.iScanPlate5Name.text = name;
-				if (idx == 6)  this.iScanPlate6Name.text = name;
-				if (idx == 7)  this.iScanPlate7Name.text = name;
-				if (idx == 8)  this.iScanPlate8Name.text = name;
-				if (idx == 9)  this.iScanPlate9Name.text = name;
-				if (idx == 10)  this.iScanPlate10Name.text = name;
-				if (idx == 11)  this.iScanPlate11Name.text = name;
-				if (idx == 12)  this.iScanPlate12Name.text = name;
-			}
-			
-			public function getSequenomPlateName(idx:int):String {
-				if (idx == 1) return this.sequenomPlate1Name.text
-				if (idx == 2) return this.sequenomPlate2Name.text
-				if (idx == 3) return this.sequenomPlate3Name.text
-				if (idx == 4) return this.sequenomPlate4Name.text
-				if (idx == 5) return this.sequenomPlate5Name.text
-				if (idx == 6) return this.sequenomPlate6Name.text
-				if (idx == 7) return this.sequenomPlate7Name.text
-				if (idx == 8) return this.sequenomPlate8Name.text
-				if (idx == 9) return this.sequenomPlate9Name.text
-				if (idx == 10) return this.sequenomPlate10Name.text
-				if (idx == 11) return this.sequenomPlate11Name.text
-				if (idx == 12) return this.sequenomPlate12Name.text
-				return '';
-			}
-			
-			public function setSequenomPlateName(idx:int, name:String):void {
-				if (idx == 1)  this.sequenomPlate1Name.text = name;
-				if (idx == 2)  this.sequenomPlate2Name.text = name;
-				if (idx == 3)  this.sequenomPlate3Name.text = name;
-				if (idx == 4)  this.sequenomPlate4Name.text = name;
-				if (idx == 5)  this.sequenomPlate5Name.text = name;
-				if (idx == 6)  this.sequenomPlate6Name.text = name;
-				if (idx == 7)  this.sequenomPlate7Name.text = name;
-				if (idx == 8)  this.sequenomPlate8Name.text = name;
-				if (idx == 9)  this.sequenomPlate9Name.text = name;
-				if (idx == 10)  this.sequenomPlate10Name.text = name;
-				if (idx == 11)  this.sequenomPlate11Name.text = name;
-				if (idx == 12)  this.sequenomPlate12Name.text = name;
-			}
-			
-			public function onIScanNumSourcePlatesChanged():void {
-				var numPlates:int = Number(this.iScanNumSourcePlates.text);
-				parentDocument.numIScanPlates = numPlates;
-				this.iScanPlate1Box.visible = (numPlates > 0);
-				this.iScanPlate2Box.visible = (numPlates > 1);
-				this.iScanPlate3Box.visible = (numPlates > 2);
-				this.iScanPlate4Box.visible = (numPlates > 3);
-				this.iScanPlate5Box.visible = (numPlates > 4);
-				this.iScanPlate6Box.visible = (numPlates > 5);
-				this.iScanPlate7Box.visible = (numPlates > 6);
-				this.iScanPlate8Box.visible = (numPlates > 7);
-				this.iScanPlate9Box.visible = (numPlates > 8);
-				this.iScanPlate10Box.visible = (numPlates > 9);
-				this.iScanPlate11Box.visible = (numPlates > 10);
-				this.iScanPlate12Box.visible = (numPlates > 11);
-				
-				parentDocument.iScanPlateListCollection.removeAll();
-				
-				var startIdx:int = 1;
-				for(var idx:int=startIdx; idx < numPlates+1; idx++) {
-					var node:XML = new XML("<Plate name='" + getIScanPlateName(idx) + "'/>");
-					parentDocument.iScanPlateListCollection.addItem(node);
-				}
-				parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
-			}
-			
-			public function onSequenomNumSourcePlatesChanged():void {
-				var numPlates:int = Number(this.sequenomNumSourcePlates.text);
-				parentDocument.numIScanPlates = numPlates;
-				this.sequenomPlate1Box.visible = (numPlates > 0);
-				this.sequenomPlate2Box.visible = (numPlates > 1);
-				this.sequenomPlate3Box.visible = (numPlates > 2);
-				this.sequenomPlate4Box.visible = (numPlates > 3);
-				this.sequenomPlate5Box.visible = (numPlates > 4);
-				this.sequenomPlate6Box.visible = (numPlates > 5);
-				this.sequenomPlate7Box.visible = (numPlates > 6);
-				this.sequenomPlate8Box.visible = (numPlates > 7);
-				this.sequenomPlate9Box.visible = (numPlates > 8);
-				this.sequenomPlate10Box.visible = (numPlates > 9);
-				this.sequenomPlate11Box.visible = (numPlates > 10);
-				this.sequenomPlate12Box.visible = (numPlates > 11);
-				
-				parentDocument.iScanPlateListCollection.removeAll();
-				
-				var startIdx:int = 1;
-				for(var idx:int=startIdx; idx < numPlates+1; idx++) {
-					var node:XML = new XML("<Plate name='" + getSequenomPlateName(idx) + "'/>");
-					parentDocument.iScanPlateListCollection.addItem(node);
-				}
-				parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
-			}
-			
-			public function propogatePlateNames(plateNumber:int):void {
-				if ( !parentDocument.isIScanState() && !parentDocument.isSequenomState() ) {
-					return;
-				}
-				if ( plateNumber < 0 || plateNumber > 11 ) {
-					return;
-				}
-				var startInd:int = plateNumber * 96;
-				for (var psIdx:int = startInd; psIdx < startInd+96; psIdx++) {
-					var y:int = psIdx / 96;
-					y = y + 1;
-					var plateSample:Object = parentDocument.samples.getItemAt(psIdx);
-					plateSample.@plateName = parentDocument.isIScanState() ? getIScanPlateName(y) : getSequenomPlateName(y);
-				}
-			}
-			
-			private function onIScanPlateNameChanged(plateNumber:int):void {
-				var numPlates:int = Number(this.iScanNumSourcePlates.text);
-				var idx:int=1;
-				for each (var plate:Object in parentDocument.iScanPlateListCollection) {
-					plate.@name = getIScanPlateName(idx);
-					idx++;
-				}
-				propogatePlateNames(plateNumber);
-				parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
-				parentDocument.samplesView.initializeSamplesGrid();		
-				
-			}
-			
-			private function onSequenomPlateNameChanged(plateNumber:int):void {
-				var numPlates:int = Number(this.sequenomNumSourcePlates.text);
-				var idx:int=1;
-				for each (var plate:Object in parentDocument.iScanPlateListCollection) {
-					plate.@name = getSequenomPlateName(idx);
-					idx++;
-				}
-				propogatePlateNames(plateNumber);
-				parentDocument.iScanPlateList = parentDocument.iScanPlateListCollection.copy();
-				parentDocument.samplesView.initializeSamplesGrid();		
-			}
-			
-			private function onAssayCheckBoxChanged():void {
-				parentDocument.selectedAssaysCollection.removeAll();
-				for (var x:int = 0; x < assayCheckBox.length; x++) {
-					if (assayCheckBox[x].selected) {
-						var assay:Object = parentDocument.assayCollection.getItemAt(x);
-						var assayXML:XML = new XML("<Assay name='" + assay.@display + "' id='" + assay.@value + "'/>");
-						parentDocument.selectedAssaysCollection.addItem(assayXML);
-					}
-				}
-				
-				parentDocument.samplesView.initializeSamplesGrid();
-			}
-			
-			private function onIncludeBisulfideConversionCheckBoxChanged():void {
-				parentDocument.request.@includeBisulfideConversion = bisulfideConversionCheckBox.selected ? 'Y' : 'N';
-				
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-			
-			private function onIncludeQubitConcentrationCheckBoxChanged():void {
-				parentDocument.request.@includeQubitConcentration = QubitConcentrationCheckBox.selected ? 'Y' : 'N';
-				
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
+		}
 
-			private function onBMPPickupCheckBox():void {
-				parentDocument.request.@includeQubitConcentration = BMPPickupCheckBox.selected ? 'Y' : 'N';
-
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-
-			private function onSampleSourceChanged():void {
-				propagateSampleSource();
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-			
-			private function onAppDescChanged():void{
-				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
-					parentDocument.request.@applicationDescription = this.sequenomApplicationDesc != null ? this.sequenomApplicationDesc.text : "";
-					if ( this.sequenomApplicationDesc.text != '' ) {
-						this.sequenomApplicationDesc.styleName = "normalBox";
-					} else {
-						this.sequenomApplicationDesc.styleName = "requiredBox";
-					}
-				} else if (this.radioGroupSeqApp.selectedValue != null ){
-					parentDocument.request.@applicationDescription = "";
-				}
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-			
-			private function onGenAppDescChanged():void{
-				if (this.radioGroupApp.selectedValue != null && this.radioGroupApp.selectedValue == "OTHER") {
-					parentDocument.request.@applicationDescription = this.applicationDesc != null ? this.applicationDesc.text : "";
-					if ( this.applicationDesc.text != '' ) {
-						this.applicationDesc.styleName = "normalBox";
-					} else {
-						this.applicationDesc.styleName = "requiredBox";
-					}
-				} else if (this.radioGroupApp.selectedValue != null ){
-					parentDocument.request.@applicationDescription = "";
-				}
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-				}
-			}
-						
-			private function pickIsolationType():void {
-				if(this.extractionTypeRadioGroup.selectedValue == this.DNA){
-					parentDocument.request.@coreToExtractDNA = 'Y';
-					parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
-				} else{
-					parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
-					parentDocument.request.@coreToExtractDNA = '';
-				}
-				
-				if ( this.checkSampleSetupCompleteness() ) {
-					parentDocument.samplesView.initializeSamplesGrid();
-					parentDocument.samplesView.showHideColumns();
-					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-						parentDocument.confirmView.showHideColumns();
-					}
-				}
-			}
-			
-			public function pickSequenomType():void {
-				if ( this.bisulfideConversionBox != null ) {
-					if (parentDocument.getRequestCategory()!=null && parentDocument.getRequestCategory().@codeRequestCategory=='SEQEPI') {
-						this.bisulfideConversionBox.visible = true;
-						this.bisulfideConversionBox.includeInLayout = true;
-					} else {
-						this.bisulfideConversionBox.visible = false;
-						this.bisulfideConversionBox.includeInLayout = false;
-						parentDocument.request.@includeBisulfideConversion = 'N';
-					}
+		public function pickSequenomType():void {
+			if (this.bisulfideConversionBox != null) {
+				if (parentDocument.getRequestCategory() != null && parentDocument.getRequestCategory().@codeRequestCategory == 'SEQEPI') {
+					this.bisulfideConversionBox.visible = true;
+					this.bisulfideConversionBox.includeInLayout = true;
 				} else {
+					this.bisulfideConversionBox.visible = false;
+					this.bisulfideConversionBox.includeInLayout = false;
 					parentDocument.request.@includeBisulfideConversion = 'N';
 				}
+			} else {
+				parentDocument.request.@includeBisulfideConversion = 'N';
 			}
-			
-			private function addOrganism(oName:String):void {
-				var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
-				PopUpManager.centerPopUp(addOrganismWindow);
-				addOrganismWindow.oName.text = oName;
-				
-				this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);		                                  
-				this.systemManager.addEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);		
-				
-				addOrganismOpen = false;
-			}
-			
-			private function onOrganismRefreshed(event:OrganismAddEvent):void {
-				this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList;
-				this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
-				
-				for each (var o:Object in sampleOrganismCombo.dataProvider) {
-					if (o.@organism == event.nameAdded) {
-						sampleOrganismCombo.selectedItem = o;
-						break;
-					}
+		}
+
+		private function addOrganism(oName:String):void {
+			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
+			PopUpManager.centerPopUp(addOrganismWindow);
+			addOrganismWindow.oName.text = oName;
+
+			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
+			this.systemManager.addEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
+
+			addOrganismOpen = false;
+		}
+
+		private function onOrganismRefreshed(event:OrganismAddEvent):void {
+			this.sampleOrganismCombo.dataProvider = parentApplication.activeOrganismList;
+			this.systemManager.removeEventListener(OrganismAddEvent.ORGANISM_ADD_EVENT, onOrganismRefreshed);
+
+			for each (var o:Object in sampleOrganismCombo.dataProvider) {
+				if (o.@organism == event.nameAdded) {
+					sampleOrganismCombo.selectedItem = o;
+					break;
 				}
 			}
-			
-			private function filterChipTypeList(item:Object):Boolean {
-				if (selectedQCApplication == null) {
-					return false;
-				}
-				var codeApplication:String = this.selectedQCApplication.@codeApplication;
-				if (item.@value == "" || item.@price == '' || item.@isActive != 'Y' || item.@codeApplication != codeApplication) {
-					return false;
-				}
-				
-				return true;
-			}  
-			
-			public function loadPriceList(idLab:String, codeRequestCategory:String):void {
-				if (idLab != null && codeRequestCategory != null && (loadedPriceIdLab != idLab || loadedPriceCodeRequestCategory != codeRequestCategory)) {
-					priceMap = new Dictionary();
-					var parms:Object = new Object();
-					parms.idLab = idLab;
-					parms.codeRequestCategory = codeRequestCategory;
-					getQCChipTypePriceList.send(parms);
-					selectedPriceIdLab = idLab;
-					selectedPriceCodeRequestCategory = codeRequestCategory;
-				}
+		}
+
+		private function filterChipTypeList(item:Object):Boolean {
+			if (selectedQCApplication == null) {
+				return false;
 			}
-			
-			private function onGetQCChipTypePriceList(event:ResultEvent):void {
+			var codeApplication:String = this.selectedQCApplication.@codeApplication;
+			if (item.@value == "" || item.@price == '' || item.@isActive != 'Y' || item.@codeApplication != codeApplication) {
+				return false;
+			}
+
+			return true;
+		}
+
+		public function loadPriceList(idLab:String, codeRequestCategory:String):void {
+			if (idLab != null && codeRequestCategory != null && (loadedPriceIdLab != idLab || loadedPriceCodeRequestCategory != codeRequestCategory)) {
 				priceMap = new Dictionary();
-				for each (var price:Object in getQCChipTypePriceList.lastResult.Price) {
-					var key:String = buildChipTypeKey(price);
-					priceMap[key] = currencyFormatter.format(price.@price.toString());
-				}
-				
-				loadedPriceIdLab = selectedPriceIdLab;
-				loadedPriceCodeRequestCategory = selectedPriceCodeRequestCategory;
-				initChipTypeList();
+				var parms:Object = new Object();
+				parms.idLab = idLab;
+				parms.codeRequestCategory = codeRequestCategory;
+				getQCChipTypePriceList.send(parms);
+				selectedPriceIdLab = idLab;
+				selectedPriceCodeRequestCategory = codeRequestCategory;
 			}
-			
-			private function initChipTypeList():void {
-				filteredChipTypeList = new XMLListCollection();
-				for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.BioanalyzerChipType')) {
-					var item:Object = i.copy();
-					var key:String = buildChipTypeKey(item);
-					if (priceMap != null && priceMap[key] != null) {
-						item.@price = priceMap[key];
-					} else {
-						item.@price = "";
-					}
-					
-					filteredChipTypeList.addItem(item);
-				}
-				var chipSort:Sort = new Sort();
-				chipSort.compareFunction = sortChipType;
-				filteredChipTypeList.filterFunction = filterChipTypeList;
-				filteredChipTypeList.refresh();
-				filteredChipTypeList.sort = chipSort;
-				filteredChipTypeList.refresh();
+		}
+
+		private function onGetQCChipTypePriceList(event:ResultEvent):void {
+			priceMap = new Dictionary();
+			for each (var price:Object in getQCChipTypePriceList.lastResult.Price) {
+				var key:String = buildChipTypeKey(price);
+				priceMap[key] = currencyFormatter.format(price.@price.toString());
 			}
-			
-			private function sortChipType(obj1:Object, obj2:Object, fields:Array=null):int {
-				if (obj1 == null && obj2 == null) {
-					return 0;
-				} else if (obj1 == null) {
-					return 1;
-				} else if (obj2 == null) {
-					return -1;
+
+			loadedPriceIdLab = selectedPriceIdLab;
+			loadedPriceCodeRequestCategory = selectedPriceCodeRequestCategory;
+			initChipTypeList();
+		}
+
+		private function initChipTypeList():void {
+			filteredChipTypeList = new XMLListCollection();
+			for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.BioanalyzerChipType')) {
+				var item:Object = i.copy();
+				var key:String = buildChipTypeKey(item);
+				if (priceMap != null && priceMap[key] != null) {
+					item.@price = priceMap[key];
 				} else {
-					var order1:int = obj1.@sortOrder;
-					var order2:int = obj2.@sortOrder;
-					var disp1:String = obj1.@display;
-					var disp2:String = obj2.@display;
-					
-					if (obj1.@value == '') {
+					item.@price = "";
+				}
+
+				filteredChipTypeList.addItem(item);
+			}
+			var chipSort:Sort = new Sort();
+			chipSort.compareFunction = sortChipType;
+			filteredChipTypeList.filterFunction = filterChipTypeList;
+			filteredChipTypeList.refresh();
+			filteredChipTypeList.sort = chipSort;
+			filteredChipTypeList.refresh();
+		}
+
+		private function sortChipType(obj1:Object, obj2:Object, fields:Array = null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var order1:int = obj1.@sortOrder;
+				var order2:int = obj2.@sortOrder;
+				var disp1:String = obj1.@display;
+				var disp2:String = obj2.@display;
+
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					if (order1 < order2) {
 						return -1;
-					} else if (obj2.@value == '') {
+					} else if (order1 > order2) {
 						return 1;
 					} else {
-						if (order1 < order2) {
+						if (disp1 < disp2) {
 							return -1;
-						} else if (order1 > order2) {
+						} else if (disp1 > disp2) {
 							return 1;
 						} else {
-							if (disp1 < disp2) {
-								return -1;
-							} else if (disp1 > disp2) {
-								return 1;
-							} else {
-								return 0;
-							}
+							return 0;
 						}
 					}
-				}			
+				}
 			}
+		}
 
-			private function setReagentBoxStyle(styleName:String):void {
-				this.reagentBox.styleName = styleName;
-				this.reagentInput.styleName = styleName;
-			}
+		private function setReagentBoxStyle(styleName:String):void {
+			this.reagentBox.styleName = styleName;
+			this.reagentInput.styleName = styleName;
+		}
 
-			private function setBufferBoxStyle(styleName:String):void {
-				this.elutionBox.styleName = styleName;
-				this.elutionBufferInput.styleName = styleName;
-			}
+		private function setBufferBoxStyle(styleName:String):void {
+			this.elutionBox.styleName = styleName;
+			this.elutionBufferInput.styleName = styleName;
+		}
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>

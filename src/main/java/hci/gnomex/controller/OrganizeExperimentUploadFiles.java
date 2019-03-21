@@ -194,6 +194,13 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                             }
 
                         }
+
+                        // tim 01/28/2019 added
+                        this.xmlResult = "<SUCCESS/>";
+                        System.out.println ("[OEULF] (1) this.xmlResult: " + this.xmlResult);
+                        setResponsePage(this.SUCCESS_JSP);
+                        return this;                  // you can only have one...
+
                     }
 
                     // Rename files
@@ -221,6 +228,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                             String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", Constants.FILE_SEPARATOR);
                             String newExpFileName = newFileName.substring(newFileName.indexOf(baseRequestNumber)).replace(
                                     "\\", Constants.FILE_SEPARATOR);
+
+
                             String queryBuf = "Select exp from ExperimentFile exp where fileName = :oldExpFileName";
                             Query query = sess.createQuery(queryBuf);
                             query.setParameter("oldExpFileName", oldExpFileName);
@@ -229,7 +238,9 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                                 ExperimentFile ef = (ExperimentFile) expFiles.get(0);
                                 ef.setFileName(newExpFileName);
                                 sess.save(ef);
+
                             }
+
                         } else {
                             throw new Exception("Unable to rename file.  Invalid file name");
                         }
@@ -321,6 +332,9 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                                 // If we have renamed a file that is registered in the database
                                 // under the ExperimentFile table, then update the ExperimentFile name
                                 // so that we don't do an unnecessary delete in the register files servlet
+
+                                // 12/14/2018 tim  we don't care about db consistency here, let register files clean it up
+/*
                                 String currentExpFileName = fileName.substring(fileName.indexOf(baseRequestNumber))
                                         .replace("\\", Constants.FILE_SEPARATOR); // REMOVE
                                 // REPLACE
@@ -342,7 +356,9 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                                     ef.setFileName(newExpFileName);
                                     ef.setFileSize(BigDecimal.valueOf(destFile.length()));
                                     sess.save(ef);
+
                                 }
+*/
                             } else {
                                 problemFiles.add(fileName);
                             }
@@ -357,22 +373,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                             String fileName = (String) i.next();
                             File f = new File(fileName);
 
-                            // Remove references of file in TransferLog
-                            String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = :idRequest AND tl.fileName like :fileName";
-                            Query query = sess.createQuery(queryBuf);
-                            query.setParameter("idRequest", idRequest);
-                            query.setParameter("fileName", "%" + new File(fileName).getName());
-                            List transferLogs = query.list();
-
-                            // Go ahead and delete the transfer log if there is just one row.
-                            // If there are multiple transfer log rows for this filename, just
-                            // bypass deleting the transfer log since it is not possible
-                            // to tell which entry should be deleted.
-                            if (transferLogs.size() == 1) {
-                                TransferLog transferLog = (TransferLog) transferLogs.get(0);
-                                sess.delete(transferLog);
-                            }
-
                             // The "file" might be a directory so we have to delete all of the
                             // files underneath it first
                             if (f.isDirectory()) {
@@ -384,8 +384,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                                 if (!success) {
                                     // File was not successfully deleted
                                     throw new Exception("Unable to delete file " + fileName);
-                                } else {
+                                }
+                                else {
                                     // Delete ExperimentFile if one is registered in the db and
+
+
                                     // unlink sample file if need be
                                     String queryString = "Select exp from ExperimentFile exp where fileName = :fileName";
                                     Query query2 = sess.createQuery(queryString);
@@ -426,11 +429,12 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                                         sess.flush();
                                     }
                                 }
-                            }
 
-                        }
+                            } // if f.exists
+
+                        }  // end of for
                         sess.flush();
-                    }
+                    } // end of if filestoremove
 
                     sess.flush();
 
@@ -521,7 +525,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                         }
                         sess.flush();
                     }
-
+//////////////////////////
                     // Map existing experiment files to file names that are coming in so
                     // we don't create duplicate experiment files
                     HashMap expFileDictionary = new HashMap();

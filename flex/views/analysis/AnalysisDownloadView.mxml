@@ -259,12 +259,12 @@
 					estimatedDownloadSize = 0;
 					for each (var item:Object in selectedFileList) {
 						var size:Number = FileUtil.getEstimatedCompressedSize(item);
-						if (size > parentApplication.MAX_DOWNLOAD_SIZE) {
-							if (filesExceedingMaxMessage.length > 0) {
-								filesExceedingMaxMessage += ", ";
-							}
-							filesExceedingMaxMessage += item.@displayName;
-						}
+//						if (size > parentApplication.MAX_DOWNLOAD_SIZE) {
+//							if (filesExceedingMaxMessage.length > 0) {
+//								filesExceedingMaxMessage += ", ";
+//							}
+//							filesExceedingMaxMessage += item.@displayName;
+//						}
 						estimatedDownloadSize += size;
 					}
 					
@@ -369,6 +369,7 @@
 				var message:String = "";
 				var title:String = "";
 				var estimatedSize:Number = call.marker;
+/*
 				if (filesExceedingMaxMessage != "") {
 					message = "The following files exceed the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum:\n" + this.filesExceedingMaxMessage + ".\n\n";
 					if (parentApplication.isFDTSupported) {
@@ -394,7 +395,9 @@
 					title = "Total download size exceeds maximum size"; 
 					Alert.show( message, title);
 					
-				} else {
+				} else
+				*/
+				{
 					message = "Ready to download approximately " + FileUtil.getFileSizeText(call.marker) + " of data.  Proceed?";
 					Alert.show( message,
 						title,

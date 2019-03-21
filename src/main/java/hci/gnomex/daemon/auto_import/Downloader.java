@@ -10,11 +10,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.sql.Timestamp;
 
 
@@ -35,6 +31,32 @@ public class Downloader {
 		this.flaggedFileList = new ArrayList<String>();
 		
 	}
+
+
+	private boolean hasSubProccessErrors(File errorFile) {
+		Scanner scan = null;
+		boolean hasError = false;
+		try{
+			scan = new Scanner(errorFile);
+			System.out.println("************************************************************");
+			System.out.println("Errors will appear below if found, in this file, " + errorFile.getName());
+			while(scan.hasNext()){
+				String line = scan.nextLine();
+				if(line.matches(".*Error.*|.*error.*")){
+					hasError = true;
+					System.out.println(line);
+				}
+
+			}
+			System.out.println("************************************************************");
+		}catch(FileNotFoundException e){
+			if(scan != null){ scan.close(); }
+			hasError = false;
+		}finally {
+			scan.close();
+		}
+		return hasError;
+	}
 	
 	private void executeCommands(List<String> commands) {
 
@@ -46,8 +68,17 @@ public class Downloader {
 			ProcessBuilder pb = new ProcessBuilder("bash", tempScript.toString());
 			pb.inheritIO();
 			Process process;
+            File errorFile = new File( dependentDataPath +"download-error.log");
+            pb.redirectError(errorFile);
+
 			process = pb.start();
 			process.waitFor();
+			if(hasSubProccessErrors(errorFile)){
+				System.out.println("Error detected exiting script");
+				System.exit(1);
+			}
+
+
 			System.out.println("finished executing command");
 		}
 
@@ -90,7 +121,7 @@ public class Downloader {
 		
 		String parsedDownloadList = prepDownloadString(this.rootAvatar);
 		
-		if(parsedDownloadList.equals("")) { // downloading is in progress, no need to continue
+		if(parsedDownloadList.equals("unsafe")) { // downloading is in progress, no need to continue
 			System.out.println("The process has been aborted because files are already downloading" );
 			System.exit(3);
 		}
@@ -101,8 +132,8 @@ public class Downloader {
 		
 		List<String> status = Arrays.asList("Downloading in progress...");
 		writeToFile(this.dependentDataPath + "download.log",status); // /home/u0566434/parser_data/download.log
-		
-		
+
+
 		// Execute download actually
 		String downloadCommand = "dx download " + parsedDownloadList;
 		//dx download "project-xxxx:/my_folder/example.bam"
@@ -110,8 +141,13 @@ public class Downloader {
 		
 		commands.add("#!/bin/bash");
 		commands.add("cd " + this.downloadPath);
-		commands.add("mv -vn -t ./ " + this.downloadPath+ "/Flagged/*" );
-		commands.add(downloadCommand);
+		commands.add("mv -t ./ " + this.downloadPath+ "/Flagged/*" );
+		if(!parsedDownloadList.equals("")){
+			commands.add(downloadCommand);
+		}else{
+			System.out.println("No files will be downloaded because there are only flagged files at this time ");
+		}
+
 
 		//commands.add("sleep 40s");
 		//commands.add("wget /dev/null http://speedtest.dal01.softlayer.com/downloads/test100.zip");
@@ -242,7 +278,7 @@ public class Downloader {
 	
 	
 	public String prepDownloadString(String root) {
-		String strPaths = "";
+		String strPaths = "unsafe";
 		boolean hasNewLines = false;
 		boolean safe = downloadSafe();
 		
@@ -298,7 +334,7 @@ public class Downloader {
 	public String createFormattedPath(String root, boolean hasNewLine, boolean afterDownload) {
 		StringBuilder strBuild = new StringBuilder();
 		int count = 0;
-		
+
 		for (Map.Entry<String, String> entry : fileNameList.entrySet()) {
 			String pathWithFileName = entry.getValue();
 			strBuild.append("\"");

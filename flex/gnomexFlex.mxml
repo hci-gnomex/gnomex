@@ -1148,6 +1148,7 @@
 		public var PROPERTY_EXPERIMENT_SUBMISSION_DEFAULT_MODE:String = "experiment_submission_default_mode";
 		public var PROPERTY_BST_LINKAGE_SUPPORTED:String = "bst_linkage_supported";
 		public var PROPERTY_FDT_SUPPORTED:String = "fdt_supported";
+		public var PROPERTY_MAX_DOWNLOAD_SIZE:String = "max_download_size";
 		public var PROPERTY_ALLOW_PASTE:String = "allow_paste";
 		public var PROPERTY_BULLETIN:String = "bulletin";
 		public var PROPERTY_USAGE_USER_VISIBILITY:String = "usage_user_visibility";
@@ -2822,6 +2823,10 @@
 			} else {
 				this.isBSTLinkageSupported = false;
 			}
+
+//			if (this.getProperty(this.PROPERTY_MAX_DOWNLOAD_SIZE) != null) {
+//				this.MAX_DOWNLOAD_SIZE = Number(this.getProperty(this.PROPERTY_MAX_DOWNLOAD_SIZE));
+//			}
 
 			if (this.getProperty(this.PROPERTY_FDT_SUPPORTED) != null &&
 					this.getProperty(this.PROPERTY_FDT_SUPPORTED) == 'Y') {

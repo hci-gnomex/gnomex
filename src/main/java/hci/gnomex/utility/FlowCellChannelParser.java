@@ -47,30 +47,31 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
       Element node = (Element) i.next();
 
       String idFlowCellChannelString = node.getAttributeValue("idFlowCellChannel");
-      // Is this HISEQ or MISEQ?
-      String codeStepNext = "";
-      // What is the core?
-      Integer idCoreFacility = -1;
-      List workItems = sess.createQuery("SELECT wi from WorkItem wi where idFlowCellChannel = " + idFlowCellChannelString).list();
-      for (Iterator i1 = workItems.iterator(); i1.hasNext();) {
-        WorkItem wi = (WorkItem)i1.next();
-        codeStepNext = wi.getCodeStepNext();
-        idCoreFacility = wi.getIdCoreFacility();
-        break;
-      }
 
       if (idFlowCellChannelString.startsWith("FlowCellChannel")
-          || idFlowCellChannelString.equals("")) {
+              || idFlowCellChannelString.equals("")) {
 
         isNewChannel = true;
         channel = new FlowCellChannel();
         channel.setSequenceLanes(new TreeSet(new LaneComparator()));
-
+        idFlowCellChannelString = channel.getIdFlowCellChannel().toString();
+        System.out.println ("[FlowCellChannelParser] idFlowCellChannelString: " + idFlowCellChannelString);
       } else {
         isNewChannel = false;
-        channel = (FlowCellChannel) sess.get(FlowCellChannel.class,
-            Integer.parseInt(idFlowCellChannelString));
+        channel = (FlowCellChannel) sess.get(FlowCellChannel.class, Integer.parseInt(idFlowCellChannelString));
       }
+
+        // Is this HISEQ or MISEQ?
+        String codeStepNext = "";
+        // What is the core?
+        Integer idCoreFacility = -1;
+        List workItems = sess.createQuery("SELECT wi from WorkItem wi where idFlowCellChannel = " + idFlowCellChannelString).list();
+        for (Iterator i1 = workItems.iterator(); i1.hasNext(); ) {
+          WorkItem wi = (WorkItem) i1.next();
+          codeStepNext = wi.getCodeStepNext();
+          idCoreFacility = wi.getIdCoreFacility();
+          break;
+        }
 
       this.initializeFlowCellChannel(sess, node, channel);
 

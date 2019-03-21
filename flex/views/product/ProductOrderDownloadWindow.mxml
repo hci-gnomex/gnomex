@@ -401,13 +401,15 @@
 				for each (var item:Object in filesToDownload) {
 					estimatedDownloadSize += FileUtil.getEstimatedCompressedSize(item);
 				}
-				
+/*
 				if(estimatedDownloadSize >= parentApplication.MAX_DOWNLOAD_SIZE && parentApplication.isFDTSupported == true){
 					downloadExpandedFilesButton.visible = false;
 					downloadExpandedFilesButton.includeInLayout = false;
 					fdtDownload.label = "Download";
 				}
-				else{
+				else
+*/
+				{
 					downloadExpandedFilesButton.visible = true;
 					downloadExpandedFilesButton.includeInLayout = true;
 					fdtDownload.label = "FDT Download";

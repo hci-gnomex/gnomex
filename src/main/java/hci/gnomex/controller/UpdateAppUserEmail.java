@@ -63,7 +63,7 @@ public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
           this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
         } else if (dupEmail) {
           outMsg = "The email address " + email + " is already in use.";
-          this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
+          this.xmlResult = "<WARNING message=\"" + outMsg + "\"/>";
         }
 
         setResponsePage(this.SUCCESS_JSP);

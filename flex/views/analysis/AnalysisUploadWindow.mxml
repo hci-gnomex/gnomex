@@ -269,6 +269,8 @@
         private function save():void {
             var params:Object = new Object();
             params.idAnalysis = idAnalysis.toString();
+
+
             //*****(10/17/2012)getDirtyAnalysisFiles needs to be debugged. It doesn't properly get dirty analysis file.
             //Workaround for now since release is imminent is to just send the entire download list to the server.*****
             //params.filesXMLString = getDirtyAnalysisFiles().toXMLString();

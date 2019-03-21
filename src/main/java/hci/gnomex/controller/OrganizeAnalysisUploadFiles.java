@@ -51,13 +51,20 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
         if (request.getParameter("idAnalysis") != null && !request.getParameter("idAnalysis").equals("")) {
             idAnalysis = new Integer(request.getParameter("idAnalysis"));
+            System.out.println ("[OAUF] idAnalysis: " + idAnalysis);
         } else {
             this.addInvalidField("idAnalysis", "idAnalysis is required");
+            System.out.println ("[OAUF] ERROR --> NO IDANALYSIS <--");
         }
 
         if (request.getParameter("filesXMLString") != null && !request.getParameter("filesXMLString").equals("")) {
             filesXMLString = "<Files>" + request.getParameter("filesXMLString") + "</Files>";
-//            System.out.println ("[OAUF] filesXMLString: " + filesXMLString);
+            String filesXMLString1 = filesXMLString;
+            if (filesXMLString.length() > 10000)
+            {
+                filesXMLString1 = filesXMLString1.substring(0,10000) + "\n";
+            }
+//            System.out.println ("[OAUF] filesXMLString: \n" + filesXMLString1 + "\n");
 
             StringReader reader = new StringReader(filesXMLString);
             try {
@@ -74,7 +81,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                 && !request.getParameter("filesToRemoveXMLString").equals("")) {
             filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString")
                     + "</FilesToRemove>";
-//            System.out.println ("[OAUF] filesXMLString: " + filesXMLString);
+//            System.out.println ("[OAUF] filesXMLString: \n" + filesXMLString + "\n");
 
             StringReader reader = new StringReader(filesToRemoveXMLString);
 
@@ -121,13 +128,19 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         String directoryName = (String) i.next();
                         File dir = new File(baseDir + "/" + directoryName);
                         if (!dir.exists()) {
-//                            System.out.println("[OAUF] creating new directory: " + baseDir + "/" + directoryName);
+                            System.out.println("[OAUF] creating new directory: " + baseDir + "/" + directoryName);
                             boolean success = dir.mkdirs();
                             if (!success) {
                                 // Directory not successfully created
                                 throw new Exception("Unable to create directory " + directoryName);
                             }
                         }
+
+                        // tim 01/28/2019 added
+                        this.xmlResult = "<SUCCESS/>";
+                        System.out.println ("[OAULF] (1) this.xmlResult: " + this.xmlResult);
+                        setResponsePage(this.SUCCESS_JSP);
+                        return this;                  // you can only have one...
                     }
 
                     // Rename files for(Iterator i = parser.getFilesToRenameMap().keySet().iterator(); i.hasNext();)
@@ -145,19 +158,19 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
 
                         if (!FileUtil.renameTo(f1,f2)) {
-//                        System.out.println("[OAUF] renaming files f1: " + f1.getPath() + " f2: " + f2.getPath());
+                        System.out.println("[OAUF] renaming files f1: " + f1.getPath() + " f2: " + f2.getPath());
                             throw new Exception("Error Renaming File");
                         } else {
                             // Rename the files in the DB
                             if (idFileString != null) {
                                 AnalysisFile af;
                                 if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
-//                                    System.out.println("[OAUF] loading AnalysisFile idFileString: " + idFileString);
+ //                                   System.out.println("[OAUF] loading AnalysisFile idFileString: " + idFileString);
                                     af = (AnalysisFile) sess.load(AnalysisFile.class, new Integer(idFileString));
                                     af.setFileName(displayName);
                                     af.setBaseFilePath(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                                     af.setQualifiedFilePath(qualifiedFilePath);
-//                                    System.out.println("[OAUF] l 154");
+ //                                   System.out.println("[OAUF] l 162");
                                     sess.save(af);
                                     sess.flush();
                                 } else if (idFileString.startsWith("AnalysisFile") && !f2.exists()) {
@@ -165,7 +178,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                     af.setFileName(displayName);
                                     af.setBaseFilePath(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                                     af.setQualifiedFilePath(qualifiedFilePath);
-//                                    System.out.println("[OAUF] l 162");
+ //                                   System.out.println("[OAUF] l 170");
                                     sess.save(af);
                                     sess.flush();
                                 } else {
@@ -181,8 +194,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
                                         String[] filePath = afParts[0].replace("\\", Constants.FILE_SEPARATOR).split(Constants.FILE_SEPARATOR);
                                         af.setQualifiedFilePath(filePath[filePath.length - 2]);
-//                                        System.out.println("[OAUF] set qualfilepath: " + filePath[filePath.length - 2]);
-//                                        System.out.println("[OAUF] l 178");
+   //                                     System.out.println("[OAUF] set qualfilepath: " + filePath[filePath.length - 2]);
+   //                                     System.out.println("[OAUF] l 178");
                                         sess.save(af);
                                         sess.flush();
 
@@ -237,10 +250,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
                             // Change qualifiedFilePath if the file is registered in the db
                             // There is NO reason to do this if we haven't moved or renamed the file!!!!
+/*
                             if (parser.getFileIdMap().containsKey(fileName)) {
 
                                 String idFileString = (String) parser.getFileIdMap().get(fileName);
-//                                System.out.println("[OAUF] idFileString: " + idFileString + " fileName: " + fileName);
+                                System.out.println("[OAUF] idFileString: " + idFileString + " fileName: " + fileName);
 
                                 if (idFileString != null) {
                                     AnalysisFile af = new AnalysisFile();
@@ -256,7 +270,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                     }
 
                                     if (duplicateUpload) {
-//                                        System.out.println("[OAUF] duplicateUpload idFileString: " + idFileString + " fileName: " + fileName);
+                                        System.out.println("[OAUF] duplicateUpload idFileString: " + idFileString + " fileName: " + fileName);
                                         af.setFileSize(new BigDecimal(new File(mostRecentFile).length()));
                                         Boolean firstUpload = true;
                                         while (i1.hasNext()) {
@@ -281,11 +295,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                         }
                                     }
                                     af.setQualifiedFilePath(qualifiedFilePath);
-//                                    System.out.println("[OAUF] l 280 idFileString: " + idFileString + " fileName: " + fileName);
+                                    System.out.println("[OAUF] l 286 idFileString: " + idFileString + " fileName: " + fileName);
                                     sess.save(af);
                                 }
                             }
-
+*/
                             sourceFile = sourceFile.getAbsoluteFile();
                             String targetDirName = baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + qualifiedFilePath;
                             File targetDir = new File(targetDirName);
@@ -314,7 +328,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             // tell the user we have a problem
                             if (destFile.exists() && !destFile.isDirectory()) {
                                 problemFiles.add(fileName);
-//                                System.out.println("[OAUF] renameTo sourceFile **FAILED** file exists: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
+                                System.out.println("[OAUF] renameTo sourceFile **FAILED** file exists: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
                                 continue;
                             }
 
@@ -329,10 +343,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                 continue;
                             }
 
-//                            System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
+                            // NOTE NOTE this code will never by executed!
+                            System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath());
                             if (sourceFile.isDirectory() && destFile.exists() && destFile.isDirectory()) {
                                 // nothing to do, the directory already exists
-//                                System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath() + " directory already exists");
+                                System.out.println("[OAUF] renameTo sourceFile: " + sourceFile.getPath() + " targetFile: " + destFile.getPath() + " directory already exists");
                                 continue;
                             }
 
@@ -347,7 +362,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         filesToRemoveParser.parseFilesToRemove();
 
                         if (filesToRemoveParser.getFilesToDeleteMap() != null) {
-//                            System.out.println("[OAUF] l 333");
+                            System.out.println("[OAUF] l 352");
                             SaveAnalysis.removeDataTrackFiles(sess, this.getSecAdvisor(), analysis,
                                     filesToRemoveParser.getFilesToDeleteMap());
                         }
@@ -361,7 +376,10 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             for (Iterator i1 = fileNames.iterator(); i1.hasNext(); ) {
                                 String fileName = (String) i1.next();
 
-//                                System.out.println("[OAUF] delete file: " + fileName);
+                                System.out.println("[OAUF] delete file: " + fileName);
+/*
+                                // why??? the file was transfered.  Just because it's deleted now that doesn't mean we should
+                                // remove the information the TransferLog  11/29/2018 tim
 
                                 // Remove references of file in TransferLog
                                 String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = :idAnalysis AND tl.fileName like :fileName";
@@ -376,28 +394,28 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                 // to tell which entry should be deleted.
                                 if (transferLogs.size() == 1) {
                                     TransferLog transferLog = (TransferLog) transferLogs.get(0);
-//                                    System.out.println("[OAUF] l 360");
+                                    System.out.println("[OAUF] l 381");
                                     sess.delete(transferLog);
                                 }
-
+*/
                                 // Delete the file from the DB
                                 if (idFileString != null) {
                                     AnalysisFile af;
                                     if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                                         af = (AnalysisFile) sess.load(AnalysisFile.class, new Integer(idFileString));
-//                                        System.out.println("[OAUF] trying to remove: " + af.getFileName());
+                                        System.out.println("[OAUF] trying to remove: " + af.getFileName());
                                         Set aFiles = analysis.getFiles();
-//                                        System.out.println("[OAUF] removing analysisfile: " + fileName);
+                                        System.out.println("[OAUF] removing analysisfile: " + fileName);
                                         analysis.getFiles().remove(af);
                                     }
                                 }
-//                                System.out.println("[OAUF] right before the flush");
+                                System.out.println("[OAUF] right before the flush");
                                 sess.flush();
 
                                 // Delete the file from the file system
                                 File deleteFile = new File(fileName);
                                 if (deleteFile.exists()) {
-//                                    System.out.println("[OAUF] actual filesystem delete " + fileName);
+                                    System.out.println("[OAUF] actual filesystem delete " + fileName);
 
                                     if (deleteFile.isDirectory()) {
                                         if (!deleteDir(deleteFile)) {
@@ -412,8 +430,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                     }
                                 }
 
-//                                System.out.println("[OAUF] l 394");
+                                System.out.println("[OAUF] l 417");
                                 sess.flush();
+                                System.out.println("[OAUF] after sess.flush l 423");
                             }
                         }
                     }
@@ -431,7 +450,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         }
                     }
 
-                    // clean up ghost files
+/*
+                    // clean up ghost files         < --- I don't think we should do this!   11/29/2018 tim --- >
                     String queryBuf = "SELECT af from AnalysisFile af where af.idAnalysis = :idAnalysis";
                     Query query = sess.createQuery(queryBuf);
                     query.setParameter("idAnalysis", idAnalysis);
@@ -446,11 +466,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         if (checkit.exists()) {
                             continue;
                         }
-//                        System.out.println("[OAUF] remove ghost file: " + filePath);
+                        System.out.println("[OAUF] remove ghost file: L451: " + filePath);
                         analysis.getFiles().remove(af);
                     }
-
-//                    System.out.println("[OAUF] l 430 *** at the end ***");
+*/
+                    System.out.println("[OAUF] l 455 *** at the end ***");
                     sess.flush();
 
                     String stagingDirectory = baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
@@ -462,7 +482,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         this.xmlResult += " warning=" + '"' + problemFileWarning + '"';
                     }
                         this.xmlResult += "/>";
-//                    System.out.println ("[OAULF] this.xmlResult: " + this.xmlResult);
+                    System.out.println ("[OAULF] this.xmlResult: " + this.xmlResult);
                     setResponsePage(this.SUCCESS_JSP);
 
                 } else {

@@ -153,7 +153,7 @@ public class ImportExperiment {
 			mapAnnotations();
 
 			// Use RequestParser to parse the XML to create a request instance
-			Integer updateIDRequest = requestToUpdate(sess,"MRN");
+			Integer updateIDRequest = requestToUpdate(sess,"Person ID");
 
 
 			updateMode = false; // update mode made for automation proccess, won't interfere with regular import.
@@ -233,7 +233,7 @@ public class ImportExperiment {
 		if(reqANNOTNode != null){
 			System.out.println("Found the correct annotation!!!!!!!!!!!!!!!! ");
 			String reqANNOTValue = reqANNOTNode.getAttributeValue("value");
-			System.out.println(reqANNOTValue);
+			System.out.println("Property " + queryWithPropEntry + ": "+ reqANNOTValue);
 			if(reqANNOTValue != null){ //:daysInFuture
 				String queryStr = "SELECT req.idRequest, req.number" +
 						"  FROM Request req" +
@@ -241,6 +241,8 @@ public class ImportExperiment {
 						"  WHERE pe.value = :reqANNOTValue )";
 				Query q = sess.createQuery(queryStr).setParameter("reqANNOTValue", reqANNOTValue);
 				List reqSampleTable = q.list();
+				System.out.println("Here is the requests found by person id: "+ reqANNOTValue);
+				System.out.println(reqSampleTable.toString());
 				if(reqSampleTable.size()  == 1 ){
 					Object[] row = (Object[]) reqSampleTable.get(0);
 					updateReqId = (Integer)row[0];

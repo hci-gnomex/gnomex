@@ -506,7 +506,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
         }
 
         if (bamList.size() == 0) {
-            status = "Error: No .bam files found in analysis.";
+            status = "Error: No .bam or .cram files found in analysis.";
             return status;
         }
 
@@ -553,7 +553,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
                 + " numboth: " + numboth);
 
         if (numboth == 0) {
-            status = "Error: no overlapping bam and vcf files.";
+            status = "Error: no overlapping bam/cram and vcf files.";
         }
 
         return status;
@@ -587,7 +587,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
         int BAM = mapColumn("bam", headerMap);
         int VCF = mapColumn("vcf", headerMap);
 
-        String url = geneiobioviewerURL + "/?rel0=proband";
+        String url = geneiobioviewerURL + "&rel0=proband";
 
         dir = setupDirectories();
 
@@ -857,7 +857,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
                 continue;
             }
 
-            // must have a bam file
+            // must have a bam or cram  file
             if (value.length < BAM+1 || value[BAM] == null || value[BAM].equals("")) {
                 continue;
             }
@@ -867,12 +867,12 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
                 continue;
             }
 
-            // father must have a bam and vcf file
+            // father must have a bam or cram  and vcf file
             if (!hasBAMVCF(BAM, VCF, value[FATHER], peopleMap)) {
                 continue;
             }
 
-            // mother must have a bam and vcf file
+            // mother must have a bam or cram and vcf file
             if (!hasBAMVCF(BAM, VCF, value[MOTHER], peopleMap)) {
                 continue;
             }
@@ -1264,7 +1264,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 
         return affected;
     }
-
+/*
     private ArrayList<String> processTrioFile(String pedpath) {
 
         ArrayList<String> theURL = new ArrayList<String>();
@@ -1365,9 +1365,9 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
         return theURL;
 
     }
-
+*/
     private String buildURL(String genename, HashMap<String, String[]> samples) {
-        String url = geneiobioviewerURL + "/?rel0=proband";
+        String url = geneiobioviewerURL + "&rel0=proband";
 
         dir = setupDirectories();
 
@@ -1520,7 +1520,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
         // add the correct index file
         if (pathName.endsWith(".vcf.gz")) {
             filesToLink[1] = new File(pathName + ".tbi");
-        } else {
+        } else if (pathName.endsWith(".bam")) {
             // figure out whether the .bam.bai or the .bai file exists
             File bambai = new File(pathName + ".bai");
             if (bambai.exists()) {
@@ -1530,7 +1530,18 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
                 // we don't check or complain if it doesn't because the user can't do anything anyway
                 filesToLink[1] = new File(pathName.substring(0, pathName.length() - 4) + ".bai");
             }
-        }
+
+        } else if (pathName.endsWith(".cram")) {
+           // figure out whether the .cram.crai or the .crai file exists
+           File cramcrai = new File(pathName + ".crai");
+           if (cramcrai.exists()) {
+               filesToLink[1] = new File(pathName + ".crai");
+           } else {
+               // we will assume the index file ends in .bai (without the .bam)
+               // we don't check or complain if it doesn't because the user can't do anything anyway
+               filesToLink[1] = new File(pathName.substring(0, pathName.length() - 5) + ".crai");
+           }
+       }
 
         // System.out.println ("[MakeURLLink] dir.getName(): " + dir.getName());
         for (File f : filesToLink) {
@@ -1544,13 +1555,28 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
             DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
 
             // is it a bam index xxx.bai? If so then skip after making soft link.
-            if (dataTrackString.endsWith(".bam.bai") || dataTrackString.endsWith(".vcf.gz.tbi"))
+            if (dataTrackString.endsWith(".bam.bai") || dataTrackString.endsWith(".cram.crai") ||dataTrackString.endsWith(".vcf.gz.tbi"))
                 continue;
 
             // if it's just a .bai, make a .bam.bai link so IOBIO will work
             if (!dataTrackString.endsWith(".bam.bai") && dataTrackString.endsWith(".bai")) {
                 // fix the name
                 dataTrackString = dataTrackString.substring(0, dataTrackString.length() - 4) + ".bam.bai";
+
+                // make the soft link
+                // System.out.println ("[makeURLLink] index f.getName(): " + f.getName());
+                // System.out.println ("[makeURLLink] index dataTrackString: " + dataTrackString);
+
+                DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, dataTrackString);
+
+                continue;
+            }
+
+
+            // if it's just a .crai, make a .cram.crai link so IOBIO will work
+            if (!dataTrackString.endsWith(".cram.crai") && dataTrackString.endsWith(".crai")) {
+                // fix the name
+                dataTrackString = dataTrackString.substring(0, dataTrackString.length() - 5) + ".cram.crai";
 
                 // make the soft link
                 // System.out.println ("[makeURLLink] index f.getName(): " + f.getName());

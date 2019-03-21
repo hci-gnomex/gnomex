@@ -40,9 +40,9 @@ public class FoundationContainer {
 	public void addSmallFile(String smallFile){
 		this.smallFilesList.add(smallFile);
 	}
-	public void addLargeFile(String key, String value) {	
-			largeFilesMap.put(key, value);
-			
+	public void addLargeFile(String key, String value) {
+		largeFilesMap.put(key, value);
+
 	}
 
 
@@ -61,8 +61,8 @@ public class FoundationContainer {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			
-		} 
+
+		}
 		finally{
 			reader.close();
 		}
@@ -76,7 +76,7 @@ public class FoundationContainer {
 			pw = new PrintWriter(new FileOutputStream(new File(fileName), true));
 			pw.println(fileContent);
 			pw.close();
-		
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,48 +85,48 @@ public class FoundationContainer {
 		}
 
 	}
-	
+
 	public void  writeSmallFilesList(String fileName, List<String> fileContent) {
 		PrintWriter pw = null;
-		
-			try {
-				pw = new PrintWriter(fileName);
-				for(String content : fileContent) {
-					pw.println(content);
-				}
-				
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}finally {
-				pw.close();
+
+		try {
+			pw = new PrintWriter(fileName);
+			for(String content : fileContent) {
+				pw.println(content);
 			}
 
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			pw.close();
+		}
+
 	}
-	
-	
+
+
 	private File createTempScript(List<String> commands) throws IOException {
 		File tempScript = File.createTempFile("script", null);
 
 		Writer streamWriter = new OutputStreamWriter(new FileOutputStream(tempScript));
 		PrintWriter printWriter = new PrintWriter(streamWriter);
-		
-		
+
+
 		for(int i =0; i < commands.size(); i++) {
 			printWriter.println(commands.get(i));
 		}
-		
+
 		printWriter.close();
 
 		return tempScript;
 	}
-	
-	
-	
+
+
+
 	private void executeCommands(List<String> commands) {
 
 		File tempScript = null;
-		
+
 		try {
 			System.out.println("started executing command");
 			tempScript = createTempScript(commands);
@@ -149,38 +149,43 @@ public class FoundationContainer {
 			tempScript.delete();
 		}
 	}
-	
-	public void makeLocalCheckSums(String localChecksum,String localPath) {
+
+	public void makeLocalCheckSums(String localChecksum, List<String> filterOutList) {
 		List<String>  commands = new ArrayList<String>();
 		StringBuilder strBuild = new StringBuilder();
 		int count = 0;
-		
-		
+		System.out.println("Building local checksum files list");
+
+
 		for (Map.Entry<String, String> entry : largeFilesMap.entrySet()) {
-		    String file = entry.getKey();
-		    String fileChecksum = entry.getValue();
-		    if(file != null && fileChecksum != null && !fileChecksum.equals("")) {
-		    	System.out.println(file);
-		    	strBuild.append("md5sum ");
-		    	strBuild.append(localPath);
-		    	strBuild.append(file);
-		    	strBuild.append(" >> ");
-		    	strBuild.append(localChecksum);
-		    	strBuild.append(";");
-		    	//strBuild.append(" rm ");
-		    	//strBuild.append(fileChecksum);
-		    	//strBuild.append(";");
-		    	commands.add(strBuild.toString());
-		    	strBuild = new StringBuilder();
-		    	
-		    }
-		   
+			String file = entry.getKey();
+			String fileChecksum = entry.getValue();
+			if(file != null && fileChecksum != null && !fileChecksum.equals("")) {
+				strBuild.append("md5sum ");
+				strBuild.append(file);
+				strBuild.append(" >> ");
+				strBuild.append(localChecksum);
+				strBuild.append(";");
+				System.out.println(strBuild.toString());
+
+				commands.add(strBuild.toString());
+				strBuild = new StringBuilder();
+
+			}else if( fileChecksum == null || fileChecksum.equals("")){
+				if(file != null){// missing .md5 file indirectly will filtering out bam or bam.bia file
+					filterOutList.add(file);
+				}else{
+					System.out.println(" A bam or bam.bia file name is null, input file for FilterFile.java might be corrupt");
+				}
+
+			}
+
 		}
 		this.executeCommands(commands);
-		
+
 	}
-	
-	
+
+
 
 }
 

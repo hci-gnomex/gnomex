@@ -20,13 +20,13 @@ public class PathMaker {
 		String inFile = "";
 		String fileName = "";
 		int offset = 3;
-		
-	
+
+
 
 		if (args.length == 2) {
 			inFile = args[0];
 			fileName = args[1];
-			
+
 		} else {
 			System.out.println("Please provide the input file name and where you want save output file(s)");
 			System.exit(1);
@@ -39,8 +39,8 @@ public class PathMaker {
 
 			List filePaths = pathBuilder(inFile);
 			PrintWriter writer = null;
-			
-			
+
+
 			writer = new PrintWriter(fileName);
 			for (int i = 0; i < filePaths.size(); i++) {
 
@@ -54,17 +54,17 @@ public class PathMaker {
 				}
 			}
 			writer.close();
-			
-			
+
+
 
 			/*for (int i = 0; i < filePaths.size(); i++) {
-				
+
 				List<String> p = (List<String>) filePaths.get(i);
-				
+
 				String dirName = p.get(0).split("/")[0];
 				String properDirName = dirName.replace(" ", "_");
 				writer =  new PrintWriter(outPath + properDirName + "_Paths.out");
-				
+
 				for (int j = 0; j < p.size(); j++) {
 					if (p.size() - 1 == j) {
 						writer.print(p.get(j));
@@ -74,7 +74,7 @@ public class PathMaker {
 				}
 				writer.close();
 			}*/
-			
+
 
 		} catch (IOException e) {
 			System.out.println(e.getStackTrace());
@@ -89,86 +89,86 @@ public class PathMaker {
 		PeekableScanner scan = new PeekableScanner(new File(fileName));
 		List<String> paths = new ArrayList<String>();
 		List multiPathsOFFiles = null;
-		
+
 		Stack<DirectoryNode> pBuilder = new Stack<DirectoryNode>();
 		int rootCount = 0;
 		//String line = bf.readLine();
-		scan.next();
-		multiPathsOFFiles= pathBuilder(scan, paths, pBuilder, rootCount);
+		String rootPath = scan.next();
+		multiPathsOFFiles= pathBuilder(scan, paths, pBuilder, rootCount, rootPath);
 		scan.close();
 		return multiPathsOFFiles;
 	}
 
 	private static List pathBuilder(PeekableScanner scan,
-			List<String> paths, Stack<DirectoryNode> builder, int parentCount)
-					throws IOException {
+									List<String> paths, Stack<DirectoryNode> builder, int parentCount,String rootPath)
+			throws IOException {
 		int offset = 3; // first node is 3 chars offset back to 0;
-		List<ArrayList<String>> pathsOfFiles = new ArrayList<ArrayList<String>>(); 
-		
+		List<ArrayList<String>> pathsOfFiles = new ArrayList<ArrayList<String>>();
+
 
 		if(!hasLeaf(formatFileName(scan.peek(),offset))) {
 			String firstLine = scan.next();
 			pushNode(firstLine, builder,offset);
 		}
-		
+
 		while(scan.hasNext()) {
 			while (scan.hasNext()) {
 				String currentLine = scan.next();
-			
+
 				char[] currentFileName = currentLine.toCharArray();
 				List lineInfo = consumeLine(currentFileName);
 				String dirName = (String) lineInfo.get(0);
 				int count = ((int) lineInfo.get(1)) - offset;
-				
+
 				int nextCount = getNextCount(scan) - offset;
-				
+
 				//System.out.println(currentLine + " " + count);
-				
+
 				if(count == 0 && ! hasLeaf(dirName)) {
 					builder.clear();
 					pushNode(currentLine,builder,offset);
 					continue;
 					//break;
 				}
-				
-				
-				
+
+
+
 				if(hasLeaf(dirName)){
-					paths.add(makePath(builder,dirName));
-					
+					paths.add(rootPath + makePath(builder,dirName));
+
 				}
 				else if(builder.peek().getDepth() < count ){
 					builder.push(new DirectoryNode(count,dirName));
 				}
-				
-				
+
+
 				if(count >= nextCount ){
 
 					if(nextCount <= 0) {
 						break;
 					}
-					
-					
+
+
 					//int numToPop = (count - nextCount) / 4;
-								
+
 					DirectoryNode n = builder.peek();
-				
+
 					while(n.getDepth() >= nextCount) {
-						  builder.pop();
-						  n = builder.peek();
+						builder.pop();
+						n = builder.peek();
 					}
-					
-					
-				}		
-				
-				
+
+
+				}
+
+
 			}
 			//System.out.println("End of While Loop");
 			pathsOfFiles.add(new ArrayList<String>(paths));
 			paths.clear();
-			
+
 		}
-		
+
 
 		return pathsOfFiles;
 
@@ -182,7 +182,7 @@ public class PathMaker {
 		}
 		strBuild.append(file);
 		return strBuild.toString();
-		
+
 	}
 
 	private static List consumeLine(char[] lineCharArray) {
@@ -190,12 +190,12 @@ public class PathMaker {
 		StringBuilder strBuild = new StringBuilder();
 		int spaceCount = 0;
 		boolean countSpaces = true;
-		
+
 
 		for (int j = 0; j < lineCharArray.length; j++) {
 			int asciiChar = (int) lineCharArray[j];
 			char cd = (char) asciiChar;
-			
+
 			if ((asciiChar > 126 || asciiChar == 32) && countSpaces) {
 				spaceCount++;
 				continue;
@@ -219,10 +219,10 @@ public class PathMaker {
 		}else{
 			return false;
 		}
-		
-		
+
+
 	}
-	
+
 	private static int getNextCount(PeekableScanner scan) {
 		String nextLine = scan.peek();
 		if(nextLine == null) {
@@ -237,11 +237,11 @@ public class PathMaker {
 	private static String formatFileName(String currentLine, int offset){
 		char[] currentFileName = currentLine.toCharArray();
 		List lineInfo = consumeLine(currentFileName);
-		
+
 		String dirName = (String) lineInfo.get(0);
 		return dirName;
 	}
-	
+
 	public static void pushNode(String currentLine,Stack<DirectoryNode> builder,int offset){
 		char[] currentFileName = currentLine.toCharArray();
 		List lineInfo = consumeLine(currentFileName);
@@ -249,7 +249,7 @@ public class PathMaker {
 		int count = (int) lineInfo.get(1);
 		builder.push(new DirectoryNode(count - offset ,dirName));
 	}
-	
-	
+
+
 
 }

@@ -1,6 +1,7 @@
 package hci.gnomex.daemon;
 
 // 02/07/2018	tim
+// 01/30/2019   tim     fix hardwired 2018 year
 
 
 import hci.gnomex.utility.BatchDataSource;
@@ -179,7 +180,8 @@ public class LinkData extends TimerTask {
 
     private void linkData() throws Exception {
 
-        String startPath = "/Repository/PersonData/2018/";
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        String startPath = "/Repository/PersonData/" + currentYear + "/";
         String startAvatarPath = "/Repository/PersonData/2017";
 
         StringBuilder buf = new StringBuilder();

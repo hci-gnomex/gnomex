@@ -658,7 +658,7 @@ private void registerAnalysisFiles() throws Exception {
 		} // end of compare in db
 
 
-		// Now add AnalysisFiles to the db for any files on the file system not found in the db.
+		// Now add AnalysisFiles to the db for any files on the file system not found in the db
 		for (Iterator i3 = fileMap.keySet().iterator(); i3.hasNext();) {
 			String fileName = (String) i3.next();
 			FileDescriptor fd = (FileDescriptor) fileMap.get(fileName);
@@ -666,7 +666,12 @@ private void registerAnalysisFiles() throws Exception {
 				AnalysisFile af = new AnalysisFile();
 				af.setIdAnalysis(analysis.getIdAnalysis());
 				af.setFileName(fd.getDisplayName());
-				af.setQualifiedFilePath(fd.getQualifiedFilePath());
+				String qfpath = fd.getQualifiedFilePath();
+				if (qfpath.length() >= 2000)
+				{
+					System.out.println ("ERROR:  analysis file qualified exceeds 2000 characters: " + qfpath);
+				}
+				af.setQualifiedFilePath(qfpath);
 				af.setBaseFilePath(fd.getBaseFilePath());
 				af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
 				af.setBaseFilePath(baseAnalysisDir + analysis.getCreateYear() + File.separatorChar

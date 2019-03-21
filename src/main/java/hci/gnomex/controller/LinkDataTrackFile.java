@@ -193,12 +193,13 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         addInvalidField("readp", "Insufficient permission to read analysis.");
       }
 
-      // Validate the the bam file
-      if (analysisFile.getFileName().endsWith(".bam") || analysisFile.getFileName().endsWith(".BAM")) {
+      // Validate the the bam or cram file
+      if (analysisFile.getFileName().endsWith(".bam") || analysisFile.getFileName().endsWith(".BAM")  ||
+              (analysisFile.getFileName().endsWith(".bam") || analysisFile.getFileName().endsWith(".BAM")) ) {
         File file = analysisFile.getFile(baseDirAnalysis);
         String error = DataTrackUtil.checkBamFile(file);
         if (error != null) {
-          addInvalidField("bamv", "Invalid BAM file: " + error + ". Please correct errors before distributing the data track");
+          addInvalidField("bamv", "Invalid BAM or CRAM file: " + error + ". Please correct errors before distributing the data track");
         }
       }
 
@@ -210,6 +211,9 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 
         boolean lookForBam = false;
         boolean lookForBai = false;
+        boolean lookForCram = false;
+        boolean lookForCrai = false;
+
         boolean lookForBigWig = false;
         boolean lookForUSeq = false;
         boolean lookForVCF = false;
@@ -228,6 +232,8 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         String fileName = analysisFile.getFileName().toUpperCase();
         if (fileName.endsWith(".BAI")) lookForBam = true;
         else if (fileName.endsWith(".BAM")) lookForBai = true;
+        else if (fileName.endsWith(".CRAI")) lookForCram = true;
+        else if (fileName.endsWith(".CRAM")) lookForCrai = true;
         else if (fileName.endsWith(".USEQ")) lookForBigWig = true;
         else if (fileName.endsWith(".BW") || fileName.endsWith(".BB")  ) { lookForUSeq = true; lookForBigWigOrphan = true; }
         else if (fileName.endsWith(".VCF.GZ")) lookForVCFTBI = true;
@@ -255,6 +261,10 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
               idAnalysisFileOther = af.getIdAnalysisFile();
             } else if (lookForBam && afFileNameUpperCase.endsWith(".BAM")) {
               idAnalysisFileOther = af.getIdAnalysisFile();
+            }  else if (lookForCrai && afFileNameUpperCase.endsWith(".CRAI")) {
+                idAnalysisFileOther = af.getIdAnalysisFile();
+            } else if (lookForCram && afFileNameUpperCase.endsWith(".CRAM")) {
+                idAnalysisFileOther = af.getIdAnalysisFile();
             } else if ((lookForBigWig || lookForBigWigOrphan) && (afFileNameUpperCase.endsWith(".BW") || afFileNameUpperCase.endsWith(".BB")) && !af.getIdAnalysisFile().equals(idAnalysisFile)) {
               idAnalysisFileOther = af.getIdAnalysisFile();
             } else if (lookForUSeq && (afFileNameUpperCase.endsWith(".USEQ") || afFileNameUpperCase.endsWith(".USEQ"))) {
@@ -276,10 +286,11 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       //is it a paired file set? then must have other
       String afFileNameUpper = analysisFile.getFileName().toUpperCase();
       boolean saveDataTrack = true;
-      if (afFileNameUpper.endsWith(".BAM") || afFileNameUpper.endsWith(".BAI") || afFileNameUpper.endsWith(".VCF.GZ") || afFileNameUpper.endsWith(".VCF.GZ.TBI")){
+      if (afFileNameUpper.endsWith(".BAM") || afFileNameUpper.endsWith(".BAI") || afFileNameUpper.endsWith(".CRAM") || afFileNameUpper.endsWith(".CRAI") ||
+              afFileNameUpper.endsWith(".VCF.GZ") || afFileNameUpper.endsWith(".VCF.GZ.TBI")){
         if (pairedFileNames.size() == 0){
           //not sure if this makes this invalid so using boolean
-          addInvalidField("bamv", "Missing indexed file or file index?!  Please add either a matching xxx.bam or xxx.bai; or add a xxx.vcf.gz or xxx.vcf.gz.tbi.");
+          addInvalidField("bamv", "Missing indexed file or file index?!  Please add either a matching xxx.bam or xxx.bai; or add a xxx.cram or xxx.crai; or add a xxx.vcf.gz or xxx.vcf.gz.tbi.");
           saveDataTrack = false;
         }
       }

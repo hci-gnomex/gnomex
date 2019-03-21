@@ -174,9 +174,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
                     if (theURL.toLowerCase().contains(".vcf.gz")) {
                         theURL = vcfiobioviewerURL + URLEncoder.encode(theURL, "UTF-8") + "&build=" + gBN;
                     } else {
-                        theURL = bamiobioviewerURL + URLEncoder.encode(theURL, "UTF-8") + "&build=" + gBN;
+                        theURL = bamiobioviewerURL + URLEncoder.encode(theURL, "UTF-8") + "&build=" + gBN;          // may also be .cram
                     }
-
                 }
 
                 System.out.println("\n[MakeDataTrackLinks] requestType: " + requestType + " urlsToLink: " + theURL + "\n");
@@ -225,6 +224,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
             // add the correct index file
             if (pathName.endsWith(".vcf.gz")) {
                 filesToLink[1] = new File(pathName + ".tbi");
+            } else if (pathName.endsWith(".cram")) {
+                filesToLink[1] = new File(pathName + ".crai");
             } else {
                 // figure out whether the .bam.bai or the .bai file exists
                 File bambai = new File(pathName + ".bai");
@@ -252,7 +253,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
         if (!dir.exists())
             dir.mkdir();
 
-        //for each file, there might be two for xxx.bam and xxx.bai files, two for vcf, possibly two for converted useq files, plus/minus strands.
+        //for each file, there might be two for xxx.bam and xxx.bai files, two for xxx.cram and xxx.crai files, two for vcf, possibly two for converted useq files, plus/minus strands.
 
         for (File f : filesToLink) {
             File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
@@ -262,7 +263,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
             //make soft link
                 DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
             //is it a bam index xxx.bai? If so then skip after making soft link.
-            if (dataTrackString.endsWith(".bam.bai") || dataTrackString.endsWith(".vcf.gz.tbi")) continue;
+            if (dataTrackString.endsWith(".bam.bai") || dataTrackString.endsWith(".vcf.gz.tbi") || dataTrackString.endsWith(".cram.crai")) continue;
 
             // if it's just a .bai, make a .bam.bai link so IOBIO will work
             if (!dataTrackString.endsWith(".bam.bai") && dataTrackString.endsWith(".bai")) {

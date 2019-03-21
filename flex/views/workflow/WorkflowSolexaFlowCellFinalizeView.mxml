@@ -262,8 +262,8 @@
 				codeSequencingPlatform = 'MISEQ';
 			} else if (codeStepNext == 'NOSEQFINFC') {
 				titleLabel.text = 'Illumina NovaSeq Finalize Flow Cell';
-				hboxGroupSide.visible = false;
-				hboxGroupSide.includeInLayout = false;
+				hboxGroupSide.visible = true;
+				hboxGroupSide.includeInLayout = true;
 				codeSequencingPlatform = 'NOSEQ';
 			}
 
@@ -273,7 +273,9 @@
 		}
 		private function createFlowCellFileName():void {
 			var runFolder:String = '';
-			if(this.flowCellBarcode.text.length > 0 && this.flowCellRunNumber.text.length > 0 && this.flowCellDate.selectedDate != null && this.flowCellSide.selectedValue != null && this.flowCellInstrument.selectedIndex != 0 && this.flowCellProtocol.selectedIndex != 0 && this.codeSequencingPlatform == 'HISEQ') 
+			if(this.flowCellBarcode.text.length > 0 && this.flowCellRunNumber.text.length > 0 && this.flowCellDate.selectedDate != null &&
+                    this.flowCellSide.selectedValue != null && this.flowCellInstrument.selectedIndex != 0 && this.flowCellProtocol.selectedIndex != 0 &&
+                    (this.codeSequencingPlatform == 'HISEQ' || this.codeSequencingPlatform == 'NOSEQ'))
 			{				 
 				var year:String = (flowCellDate.selectedDate.fullYear.toString()).substr(2,3);
 				var month:String = (flowCellDate.selectedDate.month + 1).toString();

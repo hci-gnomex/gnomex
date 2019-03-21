@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PropertyList>
+<Property idAppUser="" idCoreFacility="1" display="Age / Developmental Stage" forDataTrack="N" idProperty="1" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="age" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Age / Developmental Stage" value="1" canWrite="N" datakey="1">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Alteration Count" forDataTrack="N" idProperty="35" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Alteration Count" value="35" canWrite="N" datakey="35">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="AlterationCount" forDataTrack="N" idProperty="41" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="AlterationCount" value="41" canWrite="N" datakey="41">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Block Id" forDataTrack="N" idProperty="42" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Block Id" value="42" canWrite="N" datakey="42">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="BlockId" forDataTrack="N" idProperty="20" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="BlockId" value="20" canWrite="N" datakey="20">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Cell Line / Strain" forDataTrack="N" idProperty="2" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="cell_line" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Cell Line / Strain" value="2" canWrite="N" datakey="2">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Cell Type" forDataTrack="N" idProperty="3" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="cell_type" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Cell Type" value="3" canWrite="N" datakey="3">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="ClincalTrial Count" forDataTrack="N" idProperty="43" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="ClincalTrial Count" value="43" canWrite="N" datakey="43">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Clinical Id" forDataTrack="N" idProperty="44" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Clinical Id" value="44" canWrite="N" datakey="44">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Clinical Information" forDataTrack="N" idProperty="4" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="clinical_information" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Clinical Information" value="4" canWrite="N" datakey="4">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Clinical Trial Count" forDataTrack="N" idProperty="36" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Clinical Trial Count" value="36" canWrite="N" datakey="36">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="clinincalId" forDataTrack="N" idProperty="18" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="clinincalId" value="18" canWrite="N" datakey="18">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="CollDate" forDataTrack="N" idProperty="33" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="CollDate" value="33" canWrite="N" datakey="33">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Collection Date" forDataTrack="N" idProperty="45" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Collection Date" value="45" canWrite="N" datakey="45">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Compound" forDataTrack="N" idProperty="5" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Compound" value="5" canWrite="N" datakey="5">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="D O B" forDataTrack="N" idProperty="46" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="D O B" value="46" canWrite="N" datakey="46">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Date Received" forDataTrack="N" idProperty="53" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Date Received" value="53" canWrite="N" datakey="53">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Diagnosis" forDataTrack="N" idProperty="60" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Diagnosis" value="60" canWrite="N" datakey="60">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Disease State / Stage / Tumor Grade" forDataTrack="N" idProperty="6" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="distease_state" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Disease State / Stage / Tumor Grade" value="6" canWrite="N" datakey="6">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="DOB" forDataTrack="N" idProperty="28" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="DOB" value="28" canWrite="N" datakey="28">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Dose" forDataTrack="N" idProperty="7" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="dose" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Dose" value="7" canWrite="N" datakey="7">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Full Name" forDataTrack="N" idProperty="47" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="Y" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="Illumina HiSeq 2000 Sequencing" appliesToRequestCategory="Illumina HiSeq 2000 Sequencing" appliesToAppUser="" description="" name="Full Name" value="47" canWrite="N" datakey="47">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications>
+<PropertyPlatformApplication codeRequestCategory="HISEQ" display="Illumina HiSeq 2000 Sequencing" codeApplication="" idProperty="47" application="" applicationDisplay="" idPlatformApplication="4" value="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ">
+<requestCategory>
+<RequestCategory idCoreFacility="1" codeRequestCategory="HISEQ" icon="assets/DNA_diag_lightening.png" idOrganism="" display="Illumina HiSeq 2000 Sequencing" idProductType="" isActive="Y" requestCategory="Illumina HiSeq 2000 Sequencing" isClinicalResearch="" notes="Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)" isExternal="Y" idVendor="7" numberOfChannels="8" isInternal="Y" refrainFromAutoDelete="Y" isOwnerOnly="" isIlluminaType="Y" sampleBatchSize="" associatedWithAnalysis="" sortOrder="" value="HISEQ" type="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ">
+<categoryType>
+<RequestCategoryType display="Illumina Sequencing" isIllumina="Y" codeRequestCategoryType="HISEQ" defaultIcon="assets/DNA_diag.png" hasChannels="Y" description="Illumina Sequencing" value="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ"/>
+</categoryType>
+</RequestCategory>
+</requestCategory>
+</PropertyPlatformApplication>
+</platformApplications>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="FullName" forDataTrack="N" idProperty="26" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="FullName" value="26" canWrite="N" datakey="26">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Gender" forDataTrack="N" idProperty="56" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="Y" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="Illumina HiSeq 2000 Sequencing" appliesToRequestCategory="Illumina HiSeq 2000 Sequencing" appliesToAppUser="" description="" name="Gender" value="56" canWrite="N" datakey="56">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications>
+<PropertyPlatformApplication codeRequestCategory="HISEQ" display="Illumina HiSeq 2000 Sequencing" codeApplication="" idProperty="56" application="" applicationDisplay="" idPlatformApplication="5" value="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ">
+<requestCategory>
+<RequestCategory idCoreFacility="1" codeRequestCategory="HISEQ" icon="assets/DNA_diag_lightening.png" idOrganism="" display="Illumina HiSeq 2000 Sequencing" idProductType="" isActive="Y" requestCategory="Illumina HiSeq 2000 Sequencing" isClinicalResearch="" notes="Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)" isExternal="Y" idVendor="7" numberOfChannels="8" isInternal="Y" refrainFromAutoDelete="Y" isOwnerOnly="" isIlluminaType="Y" sampleBatchSize="" associatedWithAnalysis="" sortOrder="" value="HISEQ" type="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ">
+<categoryType>
+<RequestCategoryType display="Illumina Sequencing" isIllumina="Y" codeRequestCategoryType="HISEQ" defaultIcon="assets/DNA_diag.png" hasChannels="Y" description="Illumina Sequencing" value="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ"/>
+</categoryType>
+</RequestCategory>
+</requestCategory>
+</PropertyPlatformApplication>
+</platformApplications>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Genetic Modification" forDataTrack="N" idProperty="8" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Genetic Modification" value="8" canWrite="N" datakey="8">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Genotype" forDataTrack="N" idProperty="9" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="genotype" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Genotype" value="9" canWrite="N" datakey="9">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Growth Conditions" forDataTrack="N" idProperty="10" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Growth Conditions" value="10" canWrite="N" datakey="10">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="HA RNA Seq ID" forDataTrack="N" idProperty="68" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="RNA Sequencing ID given by Hudson Alpha" name="HA RNA Seq ID" value="68" canWrite="N" datakey="68">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="HA WES ID" forDataTrack="N" idProperty="67" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="Sequencing ID given by Hudson Alpha for Whole Exome Sequencing" name="HA WES ID" value="67" canWrite="N" datakey="67">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Individual" forDataTrack="N" idProperty="11" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="individual" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Individual" value="11" canWrite="N" datakey="11">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="M R N" forDataTrack="N" idProperty="49" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="M R N" value="49" canWrite="N" datakey="49">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="MedFacilName" forDataTrack="N" idProperty="31" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="MedFacilName" value="31" canWrite="N" datakey="31">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Medical Facility" forDataTrack="N" idProperty="48" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Medical Facility" value="48" canWrite="N" datakey="48">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="MRN" forDataTrack="N" idProperty="25" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="Y" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="Illumina HiSeq 2000 Sequencing" appliesToRequestCategory="Illumina HiSeq 2000 Sequencing" appliesToAppUser="" description="" name="MRN" value="25" canWrite="N" datakey="25">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications>
+<PropertyPlatformApplication codeRequestCategory="HISEQ" display="Illumina HiSeq 2000 Sequencing" codeApplication="" idProperty="25" application="" applicationDisplay="" idPlatformApplication="2" value="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ">
+<requestCategory>
+<RequestCategory idCoreFacility="1" codeRequestCategory="HISEQ" icon="assets/DNA_diag_lightening.png" idOrganism="" display="Illumina HiSeq 2000 Sequencing" idProductType="" isActive="Y" requestCategory="Illumina HiSeq 2000 Sequencing" isClinicalResearch="" notes="Genomic seq, mRNA seq, directional mRNAseq, ChIP-seq, small RNA seq, targeted genomic seq (capture/release)" isExternal="Y" idVendor="7" numberOfChannels="8" isInternal="Y" refrainFromAutoDelete="Y" isOwnerOnly="" isIlluminaType="Y" sampleBatchSize="" associatedWithAnalysis="" sortOrder="" value="HISEQ" type="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ">
+<categoryType>
+<RequestCategoryType display="Illumina Sequencing" isIllumina="Y" codeRequestCategoryType="HISEQ" defaultIcon="assets/DNA_diag.png" hasChannels="Y" description="Illumina Sequencing" value="HISEQ" canRead="Y" canUpdate="Y" canDelete="Y" canWrite="N" datakey="HISEQ"/>
+</categoryType>
+</RequestCategory>
+</requestCategory>
+</PropertyPlatformApplication>
+</platformApplications>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Ordering M D" forDataTrack="N" idProperty="50" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Ordering M D" value="50" canWrite="N" datakey="50">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Ordering MD" forDataTrack="N" idProperty="29" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Ordering MD" value="29" canWrite="N" datakey="29">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Organ / Tissue" forDataTrack="N" idProperty="12" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="organism_part" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Organ / Tissue" value="12" canWrite="N" datakey="12">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Other" forDataTrack="N" idProperty="13" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Other" value="13" canWrite="N" datakey="13">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Pathologist" forDataTrack="N" idProperty="30" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Pathologist" value="30" canWrite="N" datakey="30">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Pathologist 1" forDataTrack="N" idProperty="51" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Pathologist 1" value="51" canWrite="N" datakey="51">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Pertinent Negatives" forDataTrack="N" idProperty="34" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Pertinent Negatives" value="34" canWrite="N" datakey="34">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="PertinentNegatives" forDataTrack="N" idProperty="52" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="PertinentNegatives" value="52" canWrite="N" datakey="52">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Recieived Date" forDataTrack="N" idProperty="23" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Recieived Date" value="23" canWrite="N" datakey="23">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Report Id" forDataTrack="N" idProperty="54" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Report Id" value="54" canWrite="N" datakey="54">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="ReportId" forDataTrack="N" idProperty="24" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="1" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="ReportId" value="24" canWrite="N" datakey="24">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Resistive Count" forDataTrack="N" idProperty="37" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Resistive Count" value="37" canWrite="N" datakey="37">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="ResistiveCount" forDataTrack="N" idProperty="55" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="ResistiveCount" value="55" canWrite="N" datakey="55">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Sample Id" forDataTrack="N" idProperty="40" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Sample Id" value="40" canWrite="N" datakey="40">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Sample Sub Type" forDataTrack="N" idProperty="65" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="Type of sample" name="Sample Sub Type" value="65" canWrite="N" datakey="65">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="SampleType" forDataTrack="N" idProperty="63" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="SampleType" value="63" canWrite="N" datakey="63">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Sensitizing Count" forDataTrack="N" idProperty="38" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Sensitizing Count" value="38" canWrite="N" datakey="38">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Sex" forDataTrack="N" idProperty="14" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="sex" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Sex" value="14" canWrite="N" datakey="14">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Spec Format" forDataTrack="N" idProperty="57" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Spec Format" value="57" canWrite="N" datakey="57">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Spec Site" forDataTrack="N" idProperty="58" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Spec Site" value="58" canWrite="N" datakey="58">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="SpecFormat" forDataTrack="N" idProperty="22" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="SpecFormat" value="22" canWrite="N" datakey="22">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="SpecSite" forDataTrack="N" idProperty="32" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="SpecSite" value="32" canWrite="N" datakey="32">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Staging Id" forDataTrack="N" idProperty="59" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Staging Id" value="59" canWrite="N" datakey="59">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="StagingId" forDataTrack="N" idProperty="17" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="StagingId" value="17" canWrite="N" datakey="17">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Submitted Diagnosis" forDataTrack="N" idProperty="27" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Submitted Diagnosis" value="27" canWrite="N" datakey="27">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="submittedDiagnosis" forDataTrack="N" idProperty="69" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="submittedDiagnosis" value="69" canWrite="N" datakey="69">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Temperature" forDataTrack="N" idProperty="15" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Temperature" value="15" canWrite="N" datakey="15">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="TestType" forDataTrack="N" idProperty="21" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="TestType" value="21" canWrite="N" datakey="21">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Time Course" forDataTrack="N" idProperty="16" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="sampling_time_point" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Time Course" value="16" canWrite="N" datakey="16">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Tissue Type" forDataTrack="N" idProperty="66" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="Type of tissue" name="Tissue Type" value="66" canWrite="N" datakey="66">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Variant Gene" forDataTrack="N" idProperty="39" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Variant Gene" value="39" canWrite="N" datakey="39">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="VariantGene" forDataTrack="N" idProperty="61" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="VariantGene" value="61" canWrite="N" datakey="61">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="version" forDataTrack="N" idProperty="19" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="Y" forAnalysis="N" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="version" value="19" canWrite="N" datakey="19">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+<Property idAppUser="" idCoreFacility="1" display="Version No." forDataTrack="N" idProperty="62" isActive="Y" codePropertyType="TEXT" isRequired="N" canRead="Y" canUpdate="Y" canDelete="Y" sortOrder="" idPriceCategory="" mageOntologyCode="" mageOntologyDefinition="" forSample="N" forAnalysis="Y" forRequest="N" appliesToOrganism="" appliesToAnalysisType="" appliesToPlatform="" appliesToRequestCategory="" appliesToAppUser="" description="" name="Version No." value="62" canWrite="N" datakey="62">
+<options/>
+<appUsers/>
+<organisms/>
+<analysisTypes/>
+<platformApplications/>
+</Property>
+</PropertyList>

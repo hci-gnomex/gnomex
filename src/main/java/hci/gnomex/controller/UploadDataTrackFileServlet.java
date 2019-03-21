@@ -260,7 +260,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 										+ " lines). Convert to xxx.useq (see http://useq.sourceforge.net/useqArchiveFormat.html) or other binary form (xxx.bar).");
 					}
 					// bam file? check if it is sorted and can be read
-					if (fileName.toUpperCase().endsWith(".BAM")) {
+					if (fileName.toUpperCase().endsWith(".BAM") || fileName.toUpperCase().endsWith(".CRAM")) {
 						try {
 							String error = DataTrackUtil.checkBamFile(file);
 							if (error != null) {
@@ -272,7 +272,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 							}
 						} catch (Exception e) {
 							LOG.error("Error in UploadDataTrackFileServlet", e);
-							throw new Exception("Bypassing upload of BAM file " + file.getName()
+							throw new Exception("Bypassing upload of BAM or CRAM file " + file.getName()
 									+ ". Unexpected error encountered " + e.toString());
 						}
 					}
@@ -441,7 +441,7 @@ private void uploadBulkDataTracks(Session sess, File spreadSheet, DataTrack sour
 				ag = defaultDataTrackFolder;
 			}
 
-			// does the dataTrack currently exist? if so then add files to it, needed for bar and bam files
+			// does the dataTrack currently exist? if so then add files to it, needed for bar and bam and cram files
 			File dir = fetchDataTrackDirectory(ag, dataTrackName, baseDir);
 			if (dir != null) {
 				File moved = new File(dir, dataFile.getName());
@@ -524,19 +524,19 @@ private String validateBulkUploadFile(File spreadSheet) {
 						errors.append("Too many lines in file ->  " + line
 								+ " . Convert to xxx.useq (see http://useq.sourceforge.net/useqArchiveFormat.html).\n");
 					// bam or bai?
-					if (fileName.endsWith(".bam") || fileName.endsWith(".bai"))
+					if (fileName.endsWith(".bam") || fileName.endsWith(".bai") || fileName.endsWith(".cram") || fileName.endsWith(".crai"))
 						bamBaiFiles.add(name + "__" + fileName);
 					// check bam file
-					if (fileName.endsWith(".bam")) {
+					if (fileName.endsWith(".bam") || fileName.endsWith(".cram")) {
 						String log = DataTrackUtil.checkBamFile(dataFile);
 						if (log != null)
-							errors.append("Problems were found with this bam file ->  " + line + " . " + log);
+							errors.append("Problems were found with this bam or cram file ->  " + line + " . " + log);
 					}
 				}
 			}
 		}
 
-		// check bam and bai files, must be paired
+		// check bam and bai files or cram and crai files, must be paired
 		for (String f : bamBaiFiles) {
 			if (f.endsWith(".bam")) {
 				String bai1 = f.substring(0, f.length() - 4) + ".bai";
@@ -550,6 +550,20 @@ private String validateBulkUploadFile(File spreadSheet) {
 					bam += ".bam";
 				if (bamBaiFiles.contains(bam) == false)
 					errors.append("Missing xxx.bam alignment file for ->  " + f + " . \n");
+			}
+
+			if (f.endsWith(".cram")) {
+				String bai1 = f.substring(0, f.length() - 5) + ".crai";
+				String bai2 = f + ".crai";
+				if (bamBaiFiles.contains(bai1) == false && bamBaiFiles.contains(bai2) == false)
+					errors.append("Missing xxx.crai index file for ->  " + f + " . \n");
+			} else {
+				// else bai, might be .cram.crai
+				String cram = f.substring(0, f.length() - 5);
+				if (cram.endsWith(".cram") == false)
+					cram += ".cram";
+				if (bamBaiFiles.contains(cram) == false)
+					errors.append("Missing xxx.cram alignment file for ->  " + f + " . \n");
 			}
 		}
 		if (errors.length() != 0) {
@@ -747,7 +761,7 @@ private void addNewClonedDataTrack(Session sess, DataTrack sourceDataTrack, Stri
 
 /**
  * Looks for an DataTrack in the provided DataTrackGrouping with the given name. Returns null if not found or its directory. Used for adding multiple files to
- * the same DataTrack to suport bar and bam file formats.
+ * the same DataTrack to suport bar and bam and cram file formats.
  * 
  * @author davidnix
  */

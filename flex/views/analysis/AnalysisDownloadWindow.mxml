@@ -399,13 +399,16 @@
 				for each (var item:Object in filesToDownload) {
 					estimatedDownloadSize += FileUtil.getEstimatedCompressedSize(item);
 				}
-				
+/*
 				if(estimatedDownloadSize >= parentApplication.MAX_DOWNLOAD_SIZE && parentApplication.isFDTSupported == true){
 					downloadExpandedFilesButton.visible = false;
 					downloadExpandedFilesButton.includeInLayout = false;
 					fdtDownload.label = "Download";
 				}
-				else{
+				else
+
+*/
+				{
 					downloadExpandedFilesButton.visible = true;
 					downloadExpandedFilesButton.includeInLayout = true;
 					fdtDownload.label = "FDT Download";
@@ -529,14 +532,6 @@
 					   click="downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   label="FDT Download"  
 					   toolTip="Download large files using FDT"
-					   disabledIcon="@Embed('../../assets/download_disable.png')"
-					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="sftpDownload"
-					   includeInLayout="{true}"
-					   enabled="{filesToDownload.length>0}"
-					   click="downloadView.downloadFilesUsingsFTP(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
-					   label="sFTP Download"
-					   toolTip="Download files using sFTP"
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   icon="@Embed(source='../../assets/download_large.png')"/>
 			<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 

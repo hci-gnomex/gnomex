@@ -722,7 +722,7 @@ private static Element[] getVcfBamPedInfo(Map fileMap) {
 			Element viPath = new Element("VCFPath");
 			viPath.setAttribute("path", (String) key);
 			vcfInfo.addContent(viPath);
-		} else if (lkey.endsWith(".bam")) {
+		} else if (lkey.endsWith(".bam") || (lkey.endsWith(".cram") )) {
 			Element biPath = new Element("BAMPath");
 			biPath.setAttribute("path", (String) key);
 			bamInfo.addContent(biPath);
