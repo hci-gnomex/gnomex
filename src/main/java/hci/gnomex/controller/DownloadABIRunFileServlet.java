@@ -41,6 +41,7 @@ public void init() {
 protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 	InstrumentRun ir = null;
 	Integer idInstrumentRun = null;
+	String result96 = null;
 	String codeReactionType = ReactionType.SEQUENCING_REACTION_TYPE;
 	// Restrict commands to local host if request is not secure
 	if (!ServletUtil.checkSecureRequest(req, LOG)) {
@@ -52,6 +53,10 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 	// Get the idInstrumentRun
 	if (req.getParameter("idInstrumentRun") != null && !req.getParameter("idInstrumentRun").equals("")) {
 		idInstrumentRun = Integer.valueOf(req.getParameter("idInstrumentRun"));
+	}
+
+	if (req.getParameter("result96") != null && !req.getParameter("result96").equals("")) {
+		result96 = req.getParameter("result96");
 	}
 
 	if (idInstrumentRun == null) {
@@ -180,13 +185,16 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 								+ "\tInstrument Protocol 5\tAnalysis Protocol 5\t\r\n");
 			}
 
-			Element runNode = getRunWells(sess, ir);
+			Element runNode = getRunWells(sess, ir, result96);
 
 			if (runNode != null) {
 				Iterator i = runNode.getChildren("PlateWell").iterator();
 
-				for (char row = 'A'; row <= 'P'; row++) {
-					for (int col = 1; col <= 24; col++) {
+				char lastLetter = result96 != null && result96.equals("Y") ? 'H' : 'P';
+				int  lastNumber = result96 != null && result96.equals("Y") ? 12  : 24;
+
+				for (char row = 'A'; row <= lastLetter; row++) {
+					for (int col = 1;  col <= lastNumber; col++) {
 
 						if (i.hasNext()) {
 							Element well = (Element) i.next();
@@ -296,6 +304,30 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 
 	}
 
+}
+
+private Element getRunWells(Session sess, InstrumentRun ir, String result96) {
+	if (result96 != null && result96.toUpperCase().equals("Y")) {
+		try {
+			Element irNode = ir.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+			for (char row = 'A'; row <= 'H'; row++) {
+				for (int col = 1; col <= 12; col++) {
+					Element wellNode = getWellNode(sess, row, col, 0, ir);
+					irNode.addContent(wellNode);
+				}
+			}
+
+			return irNode;
+
+		} catch (Exception e) {
+			LOG.error("An exception has occurred in CreateRunFile ", e);
+
+			return null;
+		}
+	} else {
+		return getRunWells(sess, ir);
+	}
 }
 
 private Element getRunWells(Session sess, InstrumentRun ir) {
