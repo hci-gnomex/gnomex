@@ -371,7 +371,9 @@ public class LinkFastqData extends TimerTask {
         boolean assumeMYSQL = true;
         int numbad = 0;
 
-        theDirectories[0] = "/Repository/AnalysisData/" + currentYear + "/A" + idAnalysis;
+        int theYear = getCreatedYear (idAnalysis,sess);
+
+        theDirectories[0] = "/Repository/AnalysisData/" + theYear + "/A" + idAnalysis;
         theDirectories[1] = theName + "_" + "Avatar";
 
         String analysisGroupName = "";
@@ -563,6 +565,38 @@ public class LinkFastqData extends TimerTask {
 
         return idRequests;
     }
+
+
+    public int getCreatedYear(String idAnalysis, Session sess) {
+
+        int theYear = 0;
+
+        try {
+            SessionImpl sessionImpl = (SessionImpl) sess;
+
+            ResultSet rs = null;
+            Connection con = sessionImpl.connection();
+            Statement stmt = con.createStatement();
+
+            StringBuilder buf = new StringBuilder ("select YEAR(createdate) from Analysis where idAnalysis = " + idAnalysis);
+            if (debug) System.out.println("Analysis get year created query: " + buf.toString());
+            rs = stmt.executeQuery(buf.toString());
+            while (rs.next()) {
+                theYear = rs.getInt(1);
+            }
+            rs.close();
+            stmt.close();
+
+        } catch (Exception ee) {
+            System.out.println("ERROR: in getIdRequest: " + ee);
+            // we lose
+            return -1;
+        }
+
+
+        return theYear;
+    }
+
 
     public List<String> getExperimentFilename(String idRequest, Session sess, int mode) {
         List<String> fileNames = new ArrayList<String>();

@@ -198,13 +198,25 @@ public class LinkData extends TimerTask {
             Connection con = sessionImpl.connection();
 
             stmt = con.createStatement();
+            buf = new StringBuilder ("select YEAR(createdate) from Request where idRequest = ");
+            buf.append(requestList[nxtOne] + ";");
+            if (debug) System.out.println("Request get year created query: " + buf.toString());
+            rs = stmt.executeQuery(buf.toString());
+            while (rs.next()) {
+                currentYear = rs.getInt(1);
+            }
+            rs.close();
+            stmt.close();
 
+            startPath = "/Repository/PersonData/" + currentYear + "/";
+            if (debug) System.out.println ("Date adjusted start path: " + startPath);
+
+            stmt = con.createStatement();
             buf = new StringBuilder("select name from Sample where idRequest = ");
             buf.append(requestList[nxtOne] + ";");
             if (debug) System.out.println("ExperimentFile query: " + buf.toString());
 
             List<String> names = new ArrayList<String>();
-
 
             rs = stmt.executeQuery(buf.toString());
             while (rs.next()) {
