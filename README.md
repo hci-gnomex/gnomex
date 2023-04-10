@@ -1,7 +1,5 @@
 # GNomEx
 
-Project website:  <http://hci-bio-demo.hci.utah.edu/gnomexDocumentation/wordpress/>
-
 ## Description
 
 GNomEx is genomic LIMS and data repository. It holds annotated experiments and downstream analysis and serves data tracks to popular genome browsers such as IGB, IGV, and UCSC genome browser. The LIMS handles all aspects of the experiment from order through results delivery including billing for services/consumables. Experiment platforms supported include Illumina HiSeq, MiSeq, iScan, ABI Sanger sequencing, Affy and Agilent Microarrays, Sequenom MassArray and Bioanalyzer.
